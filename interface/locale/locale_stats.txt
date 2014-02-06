@@ -1,0 +1,10 @@
+zh_CN|79|
+zh_ZH|79|
+fr_FR|64|French <fr@li.org>
+it_IT|66|Italian <it@li.org>
+fr_CA|50|French (Canada) <fr_CA@li.org>
+da_DK|69|Danish <da@li.org>
+en_US|83|LANGUAGE <LL@li.org>
+de_DE|62|German <de@li.org>
+pt_PT|58|Portuguese <pt@li.org>
+es_ES|79|Spanish <es@li.org>

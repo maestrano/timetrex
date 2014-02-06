@@ -1,0 +1,214 @@
+TimeTrex Message Internationalization(i18n) README
+
+by Open Source Consulting, S.A.
+
+
+= OVERVIEW =
+
+TimeTrex contains english strings embedded throughout the PHP code and
+smarty templates.  The GNU Gettext suite of tools has been chosen to aid 
+with the tasks of:
+
+ - marking and extracting english strings from the source files
+ - translating english strings into other languages
+ - displaying the foreign language translations of the strings
+ - merging in new english strings from the source files
+ - merging in new translations from the translators
+ 
+
+It is a very good idea for anyone working in this area to read up more 
+about gettext here:
+
+http://www.gnu.org/software/gettext/
+
+Below, we will explain more about how gettext is integrated with TimeTrex, 
+how to properly code strings for translation, and how the translation 
+maintenance tools work.
+ 
+
+= TTi18n Class =
+
+TimeTrex now includes a class for handling all i18n related matters.
+Methods related to message translation include:
+
+  - chooseBestLocale()  -- determines which locale to use for messages.
+  
+  - gettext() -- returns a translated version of given input string.
+  
+
+This class works basically like the standard setlocale(), 
+bindtextdomain(), gettext() combination but it allows us to abstract the 
+implementation a bit.  For example, we may use PEAR's Translation2 class 
+to parse the gettext files, instead of using PHP's native gettext() 
+function.
+
+For this reason, it is important that all translation calls in the system 
+go through TTi18n::gettext() instead of calling gettext() directly.
+  
+
+= Smarty Template Files =
+
+We are using a slightly modified version of the gettext plugin for smarty.  
+This plugin allows us to mark strings for translation with the following 
+syntax:
+
+ {t}Here is some text that needs to be translated.{/t}
+ 
+The only modification to this plugin is that we call TTi18n::gettext() 
+(when defined) instead of gettext().
+
+
+= PHP Source Code Files =
+
+Any strings within the source code that...
+  
+  a) contain words and 
+  b) are intended for an end-user to see 
+  
+  ...must be embedded within a call to TTi18n::gettext( "my string" ).
+
+
+There are two reasons for this:
+
+  1) gettext() must be called in order to perform the translation at 
+     runtime.  This should be obvious.
+     
+  2) The string extractor looks for "gettext( ... )" to know which strings 
+     to extract.  Therefore, the following code is to be avoided:
+     
+        $myvar = 'Please enter a value below';
+        $myvar = TTi18n::gettext( $myvar );
+        
+     While the above would do the right thing at runtime, the extractor 
+     would not know that this string represents english, so the above 
+     string would probably never get translated. Instead, this should be 
+     coded as:
+     
+        $myvar = TTi18n::gettext('Please enter a value below');
+        
+Be careful to ensure that gettext() is only called once on a given string.
+Calling multiple times will probably not cause display problems, but each 
+call adds some performance overhead.
+
+
+= The locale directories and messages.po files =
+
+The locale directory exists at
+
+ timetrex/interface/locale
+ 
+This directory contains:
+ - the messages.pot master string dictionary with all english strings.
+ - a sub-directory for each locale, eg es_ES for spanish/Spain.
+ - the locale_stats.txt file which contains statistics about translations. 
+
+Each locale sub-directory contains another sub-directory LC_MESSAGES which 
+in turn contains messages.po and (possibly) messages.mo.  messages.po will 
+contain the translations for that particular locale.  messages.mo is a 
+compiled form of the .po file that is necessary for GNU gettext to 
+function -- however, it is not always required when using the Translation2 
+library.
+
+*** IMPORTANT ***
+
+In the interest of avoiding possible encoding headaches, we are 
+standardizing on the use UTF-8 encoded messages.po files.  That is, all 
+messages.po should be saved as UTF-8 before they are placed/updated into 
+the tree.
+
+Why? It has been observed that the Translation2 library does not properly 
+convert encodings. While it may be possible to work around this, UTF-8 makes 
+things simple all around.
+
+
+= The Translation helper tools =
+
+These files live in tools/i18n.  ( Though they could be anywhere. )
+
+Each of these should be run from the directory in which it is saved.
+
+mklocales.php
+ This script creates and initializes the locale directories beneath the 
+ interface/locale directory.  Edit the script and re-run to add a new 
+ locale directory and associated messages.po file.
+
+gen_master_pot.sh
+ This file generates a master messages.pot file in the interface/locale 
+ directory.  This file is then used as the source when merging to 
+ individual locales.
+ 
+mergelocale.sh
+ This script merges new strings from messages.pot master file into a 
+ messages.po file for a single locale.  It also generates the binary
+ messages.mo file. Typically, this script is only called by mergelocales.sh
+ 
+mergelocales.php
+ This script merges new strings from message.pot master file into the 
+ messages.po files for all existings locale directories, creates the 
+ binary messages.mo files, and updates the translation stats.
+
+calc_l10n_stats.php 
+ This script calculates the percentage of the application that has been 
+ translated for each available locale.  It writes out a csv file that can
+ be read by a PHP script to display the stats on a web page.
+
+notify_translator.php
+ This file notifies the translator by e-mail when new source 
+ strings are available for TimeTrex.  Be careful not to run this by 
+ accident, as you may end up spamming people unnecessarily.
+
+tsmarty2c.php
+ This script is part of the smarty gettext plugin, and is used to extract 
+ the strings that can be translated from the smarty templates.  This 
+ script is called by the gen_master_pot.sh script.
+
+updatetranslation.sh
+ This script is used to merge a single messages.po file 
+ provided by a translator with the corresponding messages.po files within 
+ TimeTrex.
+
+
+= Using the translation helper tools on a daily basis =
+
+These are the typical events that happen during application development:
+
+  1) New strings get added into the PHP source or smarty templates.
+  
+  2) A translator sent in new translations.
+  
+  3) We need to add a new locale (language) for translation.
+  
+
+Let's look at them individually:
+
+1) New strings get added into the PHP source or smarty templates.
+
+In this case, we need to a) update the master .pot file, b) merge 
+those changes into the indvidual messages.po files, c) generate the binary 
+messages.mo files and d) update the locale stats. It is as simple as:
+
+   $ ./gen_master_pot.sh
+   $ ./mergelocales.php
+
+   
+2) A translator sent in new translations.
+
+Here, we just need to merge the translator's changes into a single 
+messages.po file for a single locale.  Then we want to update the binary 
+message.mo file and the locale stats.  Let's suppose we have just received 
+spanish translations ( es_ES ) and have saved them in /tmp/messages.po.
+
+   $ ./update_translation.sh es_ES /tmp/messages.po
+   $ ./calc_l10n_stats.php
+
+
+3) We need to add a new locale (language) for translation.
+
+Let's suppose we have found an Italian translator, and now we want to add 
+an it_IT locale.  All we do is:
+
+   $ vi mklocales.php           # Now uncomment the line with // 'it_IT'.
+   $ ./mklocales.php
+   
+We could also make all the known locales by uncommenting all the locale 
+lines in this script, and then re-running it.

@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:complexType name="RoeType">
+		<xs:sequence>
+			<xs:element name="B2" type="SerialNumberType" minOccurs="0"/>
+			<xs:element name="B3" type="PayrollRefType" minOccurs="0"/>
+			<xs:element name="B5" type="BusinessNumberType"/>
+			<xs:element name="B6" type="PayPeriodCodeType"/>
+			<xs:element name="B8" type="SinType"/>
+			<xs:element name="B9" type="EmployeeInfoType"/>
+			<xs:element name="B10" type="BulkRoeDateType"/>
+			<xs:element name="B11" type="BulkRoeDateType"/>
+			<xs:element name="B12" type="BulkRoeDateType"/>
+			<xs:element name="B13" type="OccupationType" minOccurs="0"/>
+			<xs:element name="B14" type="ExpectedRecallInfoType" minOccurs="0"/>
+			<xs:element name="B15A" type="TotalInsurableHoursType"/>
+			<xs:element name="B15B" type="BulkRoeAmountType"/>
+			<xs:element name="B15C" type="PayPeriodDetailsType"/>
+			<xs:element name="B16" type="ContactAndReasonForIssuingCodeType"/>
+			<xs:element name="B17A" type="BulkRoeAmountType" minOccurs="0"/>
+			<xs:element name="B17B" type="StatutoryHolidayListType" minOccurs="0"/>
+			<xs:element name="B17C" type="OtherMoniesListType" minOccurs="0"/>
+			<xs:element name="B18" type="CommentsType" minOccurs="0"/>
+			<xs:element name="B19" type="SpecialPaymentListType" minOccurs="0"/>
+			<xs:element name="B20" type="LanguageType" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attribute name="PrintingLanguage" type="LanguageType"/>
+		<xs:attribute name="Issue" type="IssueCodeType"/>
+	</xs:complexType>
+	<xs:simpleType name="SerialNumberType">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="9"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="PayrollRefType">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="15"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="BusinessNumberType">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="15"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="PayPeriodCodeType">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="1"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="EmployerPostalCodeType">
+		<xs:restriction base="xs:string"/>
+	</xs:simpleType>
+	<xs:simpleType name="SinType">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="9"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="EmployeeInfoType">
+		<xs:sequence>
+			<xs:element name="FN" type="FirstNameType"/>
+			<xs:element name="MN" type="MiddleNameType" minOccurs="0"/>
+			<xs:element name="LN" type="LastNameType"/>
+			<xs:element name="A1" type="EmployeeAddressLineType"/>
+			<xs:element name="A2" type="EmployeeAddressLineType" minOccurs="0"/>
+			<xs:element name="A3" type="EmployeeAddressLineType" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:simpleType name="FirstNameType">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="20"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="MiddleNameType">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="4"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="LastNameType">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="28"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="EmployeeAddressLineType">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="35"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="OccupationType">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="40"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="ExpectedRecallInfoType">
+		<xs:sequence>
+			<xs:element name="CD" type="RecallCodeType"/>
+			<xs:element name="DT" type="BulkRoeDateType" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:simpleType name="RecallCodeType">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="1"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="TotalInsurableHoursType">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="4"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="PayPeriodDetailsType">
+		<xs:sequence>
+			<xs:element name="PP" type="PayPeriodType" maxOccurs="53"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PayPeriodType">
+		<xs:sequence>
+			<xs:element name="AMT" type="BulkRoeAmountType"/>
+		</xs:sequence>
+		<xs:attribute name="nbr" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:integer"/>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:simpleType name="PayPeriodHoursType">
+		<xs:restriction base="xs:integer"/>
+	</xs:simpleType>
+	<xs:complexType name="ContactAndReasonForIssuingCodeType">
+		<xs:sequence>
+			<xs:element name="CD" type="ReasonForIssuingCodeType"/>
+			<xs:element name="FN" type="FirstNameType"/>
+			<xs:element name="LN" type="LastNameType"/>
+			<xs:element name="AC" type="PhoneAreaCodeType"/>
+			<xs:element name="TEL" type="PhoneNumberType"/>
+			<xs:element name="EXT" type="PhoneExtensionType" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:simpleType name="PhoneAreaCodeType">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="3"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="PhoneNumberType">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="7"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="PhoneExtensionType">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="5"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="ReasonForIssuingCodeType">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="1"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="StatutoryHolidayListType">
+		<xs:sequence>
+			<xs:element name="SH" type="StatutoryHolidayType" minOccurs="0" maxOccurs="3"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="StatutoryHolidayType">
+		<xs:sequence>
+			<xs:element name="DT" type="BulkRoeDateType"/>
+			<xs:element name="AMT" type="BulkRoeAmountType"/>
+		</xs:sequence>
+		<xs:attribute name="nbr" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:integer"/>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="OtherMoniesListType">
+		<xs:sequence>
+			<xs:element name="OM" type="OtherMoneyType" minOccurs="0" maxOccurs="3"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="OtherMoneyType">
+		<xs:sequence>
+			<xs:element name="CD" type="OtherMoneyCodeType"/>
+			<xs:element name="AMT" type="BulkRoeAmountType"/>
+		</xs:sequence>
+		<xs:attribute name="nbr" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:integer"/>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:simpleType name="OtherMoneyCodeType">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="1"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="CommentsType">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="160"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="LanguageType">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="1"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="SpecialPaymentListType">
+		<xs:sequence>
+			<xs:element name="SP" type="SpecialPaymentType" minOccurs="0"/>
+			<!-- MM 20050629 V6.0 Change to maxOccurs=1 since we only support one special payment -->
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="SpecialPaymentType">
+		<xs:sequence>
+			<xs:element name="DT" type="BulkRoeDateType"/>
+			<xs:element name="AMT" type="BulkRoeAmountType"/>
+			<xs:element name="Period" type="SpecialPaymentPeriodType"/>
+		</xs:sequence>
+		<xs:attribute name="cd" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:string"/>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:simpleType name="SpecialPaymentPeriodType">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="1"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="IssueCodeType">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="1"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="BulkRoeDateType">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="8"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="BulkRoeAmountType">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="9"/>
+		</xs:restriction>
+	</xs:simpleType>
+</xs:schema>

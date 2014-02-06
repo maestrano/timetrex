@@ -1,0 +1,2 @@
+Please see "Upgrade Instruction" section in README.txt
+

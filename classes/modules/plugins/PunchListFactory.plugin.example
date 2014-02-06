@@ -1,0 +1,23 @@
+<?php
+/*$License$*/
+/*
+ * $Revision: 4034 $
+ * $Id: PunchListFactory.plugin.php 4034 2010-12-15 00:02:50Z ipso $
+ * $Date: 2010-12-14 16:02:50 -0800 (Tue, 14 Dec 2010) $
+ */
+
+/*
+ * Example plugin.
+ */
+class PunchListFactoryPlugin extends PunchListFactory {
+    function postSave() {
+        parent::postSave(); //Make sure you always call the parents function to maintain proper code operation.
+
+        //Punch record was saved. We can do all sorts of things here like trigger real-time data exporting.
+		Debug::Arr( $this->getObjectAsArray(), 'Plugin postSave(): Punch Data: ', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Arr( $this->getPunchControlObject()->getObjectAsArray(), 'Plugin postSave(): Punch Control Data: ', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Arr( $this->getPunchControlObject()->getUserDateObject()->getUserObject()->getObjectAsArray(), 'Plugin postSave(): User Data: ', __FILE__, __LINE__, __METHOD__,10);
+
+        return TRUE;
+    }
+}

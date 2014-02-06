@@ -1,0 +1,57 @@
+<?php
+/*$License$*/
+/*
+ * $Revision: 4034 $
+ * $Id: UserFactory.plugin.php 4034 2010-12-15 00:02:50Z ipso $
+ * $Date: 2010-12-14 16:02:50 -0800 (Tue, 14 Dec 2010) $
+ */
+
+
+//Extend the "ListFactory" if you want your plugin to affect it AND the base Factory class.
+//Extend just the "Factory" if you just want it to affect just it, and not account for objects read/modified through iterators.
+class TimesheetDetailReportPlugin extends TimesheetDetailReport {
+
+	function timesheetSignature( $user_data ) {
+		//Custom signature lines for specific companies based on the "id" column from the company table.
+		if ( $this->getUserObject()->getCompany() == 1001 ) {
+		 $border = 0;
+
+		 $this->pdf->SetFont($this->config['other']['default_font'], '', $this->_pdf_fontSize(10) );
+		 $this->pdf->setFillColor(255,255,255);
+		 $this->pdf->Ln(1);
+
+		 $margins = $this->pdf->getMargins();
+		 $total_width = $this->pdf->getPageWidth()-$margins['left']-$margins['right'];
+
+		 $buffer = ($total_width-200)/4;
+
+		 $line_h = $this->_pdf_scaleSize(6);
+
+		 //Signature lines
+		 $this->pdf->MultiCell($total_width,5, TTi18n::gettext('CUSTOM SIGNATURE LINE - By signing this timesheet I hereby certify that the above time accurately and fully reflects the time that').' '. $user_data['first_name'] .' '. $user_data['last_name'] .' '.TTi18n::gettext('worked during the designated period.'), $border, 'L');
+		 $this->pdf->Ln( $line_h );
+
+		 $this->pdf->Cell(40+$buffer, $line_h, TTi18n::gettext('Employee Signature').':', $border, 0, 'L');
+		 $this->pdf->Cell(60+$buffer, $line_h, '_____________________________' , $border, 0, 'C');
+		 $this->pdf->Cell(40+$buffer, $line_h, TTi18n::gettext('Supervisor Signature').':', $border, 0, 'R');
+		 $this->pdf->Cell(60+$buffer, $line_h, '_____________________________' , $border, 0, 'C');
+
+		 $this->pdf->Ln(  $line_h );
+		 $this->pdf->Cell(40+$buffer, $line_h, '', $border, 0, 'R');
+		 $this->pdf->Cell(60+$buffer, $line_h, $user_data['first_name'] .' '. $user_data['last_name'] , $border, 0, 'C');
+
+		 $this->pdf->Ln(  $line_h );
+		 $this->pdf->Cell(140+($buffer*3), $line_h, '', $border, 0, 'R');
+		 $this->pdf->Cell(60+$buffer, $line_h, '_____________________________' , $border, 0, 'C');
+
+		 $this->pdf->Ln(  $line_h );
+		 $this->pdf->Cell(140+($buffer*3), $line_h, '', $border, 0, 'R');
+		 $this->pdf->Cell(60+$buffer, $line_h, TTi18n::gettext('(print name)'), $border, 0, 'C');
+
+		 return TRUE;
+		} else {
+		 //Fall back to default signature line.
+		 return parent::timesheetSignature( $user_data );
+		}
+	}
+}

@@ -1,0 +1,32 @@
+<?php
+/*$License$*/
+/*
+ * $Revision: 4034 $
+ * $Id: UserFactory.plugin.php 4034 2010-12-15 00:02:50Z ipso $
+ * $Date: 2010-12-14 16:02:50 -0800 (Tue, 14 Dec 2010) $
+ */
+
+/*
+ * Example plugin.
+ */
+
+
+//Extend the "ListFactory" if you want your plugin to affect it AND the base Factory class.
+//Extend just the "Factory" if you just want it to affect just it, and not account for objects read/modified through iterators.
+class UserFactoryPlugin extends UserListFactory {
+    function setLastName( $value ) {
+        //Modify last name, so it always has "-Smith" on the end.
+        $value .= '-Smith';
+
+        return parent::setLastName( $value );
+    }
+
+    function postSave() {
+        parent::postSave(); //Make sure you always call the parents function to maintain proper code operation.
+
+        //User record was saved. We can do all sorts of things here like trigger real-time data exporting.
+		Debug::Arr( $this->getObjectAsArray(), 'Plugin postSave(): ', __FILE__, __LINE__, __METHOD__,10);
+
+        return TRUE;
+    }
+}

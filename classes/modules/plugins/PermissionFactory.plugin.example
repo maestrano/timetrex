@@ -1,0 +1,83 @@
+<?php
+/*$License$*/
+/*
+ * $Revision: 4034 $
+ * $Id: UserFactory.plugin.php 4034 2010-12-15 00:02:50Z ipso $
+ * $Date: 2010-12-14 16:02:50 -0800 (Tue, 14 Dec 2010) $
+ */
+
+//
+// Example plugin to modify available permissions
+//
+class PermissionFactoryPlugin extends PermissionListFactoryPlugin {
+	private $exclude_section_group = array( 'payroll' ); //Disable entire payroll section group
+	private $exclude_section = array( 'request' ); //Disable entire request section
+	private $exclude_name = array(
+								'absence' => array('view', 'edit'), //Disable specific permissions in absence section
+								'user' => array('edit_own_bank', 'edit_child_bank'), //Disable specific permission in user section
+								);
+
+	function _getFactoryOptions( $name ) {
+		$retarr = parent::_getFactoryOptions( $name );
+
+		switch( $name ) {
+			case 'section_group':
+			case 'section_group_map':
+				if ( is_array( $this->exclude_section_group) ) {
+					foreach( $this->exclude_section_group as $exclude_section_group ) {
+						unset($retarr[$exclude_section_group]);
+					}
+				}
+				break;
+			case 'section':
+				//Exclude entire groups first.
+				$section_group_map = parent::_getFactoryOptions( 'section_group_map' );
+				if ( is_array( $this->exclude_section_group) ) {
+					foreach( $this->exclude_section_group as $exclude_section_group ) {
+						foreach( $section_group_map[$exclude_section_group] as $exclude_section_from_group ) {
+							$this->exclude_section[] = $exclude_section_from_group;
+						}
+
+					}
+				}
+
+				//Exclude individual sections next.
+				if ( is_array($this->exclude_section) ) {
+					foreach( $this->exclude_section as $exclude_section ) {
+						unset($retarr[$exclude_section]);
+					}
+				}
+				break;
+			case 'name':
+				//Exclude entire groups first.
+				$section_group_map = parent::_getFactoryOptions( 'section_group_map' );
+				if ( is_array( $this->exclude_section_group) ) {
+					foreach( $this->exclude_section_group as $exclude_section_group ) {
+						foreach( $section_group_map[$exclude_section_group] as $exclude_section_from_group ) {
+							$this->exclude_section[] = $exclude_section_from_group;
+						}
+
+					}
+				}
+
+				//Exclude individual sections next.
+				if ( is_array($this->exclude_section) ) {
+					foreach( $this->exclude_section as $exclude_section ) {
+						unset($retarr[$exclude_section]); //Remove all sections in the payroll group.
+					}
+				}
+
+				//Exclude individual permissions last.
+				if ( is_array($this->exclude_name) ) {
+					foreach( $this->exclude_name as $exclude_section => $exclude_name_arr ) {
+						foreach( $exclude_name_arr as $exclude_name ) {
+							unset($retarr[$exclude_section][$exclude_name]);
+						}
+					}
+				}
+				break;
+		}
+
+		return $retarr;
+	}
+}

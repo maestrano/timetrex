@@ -1,0 +1,1 @@
+alter table premium_policy add column include_partial_punch boolean DEFAULT false NOT NULL;
