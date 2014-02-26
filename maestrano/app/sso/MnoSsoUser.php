@@ -37,29 +37,19 @@ class MnoSsoUser extends MnoSsoBaseUser
    *
    * @return boolean whether the user was successfully set in session or not
    */
-  // protected function setInSession()
-  // {
-  //   // First set $conn variable (need global variable?)
-  //   $conn = $this->connection;
-  //   
-  //   $sel1 = $conn->query("SELECT ID,name,lastlogin FROM user WHERE ID = $this->local_id");
-  //   $chk = $sel1->fetch();
-  //   if ($chk["ID"] != "") {
-  //       $now = time();
-  //       
-  //       // Set session
-  //       $this->session['userid'] = $chk['ID'];
-  //       $this->session['username'] = stripslashes($chk['name']);
-  //       $this->session['lastlogin'] = $now;
-  //       
-  //       // Update last login timestamp
-  //       $upd1 = $conn->query("UPDATE user SET lastlogin = '$now' WHERE ID = $this->local_id");
-  //       
-  //       return true;
-  //   } else {
-  //       return false;
-  //   }
-  // }
+  protected function setInSession()
+  {
+    
+    if ($this->local_id) {
+        $authentication = new Authentication();
+        $authentication->setObject( $this->local_id );
+        $authentication->Login($this->uid, '', 'USER_NAME', true);
+        
+        return true;
+    } else {
+        return false;
+    }
+  }
   
   
   /**
@@ -69,52 +59,158 @@ class MnoSsoUser extends MnoSsoBaseUser
    *
    * @return the ID of the user created, null otherwise
    */
-  // protected function createLocalUser()
-  // {
-  //   $lid = null;
-  //   
-  //   if ($this->accessScope() == 'private') {
-  //     // First set $conn variable (need global variable?)
-  //     $conn = $this->connection;
-  //     
-  //     // Create user
-  //     $lid = $this->connection->query("CREATE BLA.....");
-  //   }
-  //   
-  //   return $lid;
-  // }
+  protected function createLocalUser()
+  {
+    $lid = null;
+    
+    if ($this->accessScope() == 'private') {
+      // First build the user
+      $user = $this->buildLocalUser();
+      
+      // Then save the user and retrieve the local id
+      $lid = $user->Save();
+    }
+    
+    return $lid;
+  }
+  
+  /**
+   * Build a local user for creation
+   *
+   * @return a timetrex user
+   */
+  protected function buildLocalUser()
+  {
+    $user = TTnew( 'UserFactory' );
+    
+		$user->setCompany($this->getCompanyToAssign());
+		$user->setStatus(10); //Active
+		$user->setUserName($this->uid);
+    $user->setPassword($this->generatePassword());
+
+		$user->setEmployeeNumber($this->getEmployeeNumberToAssign());
+		$user->setFirstName($this->name);
+		$user->setLastName($this->surname);
+		$user->setWorkEmail($this->email);
+
+		if ( is_object( $user->getCompanyObject() ) ) {
+			$user->setCountry( $user->getCompanyObject()->getCountry() );
+			$user->setProvince( $user->getCompanyObject()->getProvince() );
+			$user->setAddress1( $user->getCompanyObject()->getAddress1() );
+			$user->setAddress2( $user->getCompanyObject()->getAddress2() );
+			$user->setCity( $user->getCompanyObject()->getCity() );
+			$user->setPostalCode( $user->getCompanyObject()->getPostalCode() );
+			$user->setWorkPhone( $user->getCompanyObject()->getWorkPhone() );
+			$user->setHomePhone( $user->getCompanyObject()->getWorkPhone() );
+
+			if ( is_object( $user->getCompanyObject()->getUserDefaultObject() ) ) {
+				$user->setCurrency( $user->getCompanyObject()->getUserDefaultObject()->getCurrency() );
+			}
+		}
+    
+    $user->setPermissionControl( $this->getRoleIdToAssign() );
+    
+    return $user;
+  }
+  
+  /**
+   * Return the ID of the default company to assign to the
+   * user
+   *
+   * @return integer the ID of the company to assign
+   */
+  protected function getCompanyToAssign() {
+    
+    $result = $this->connection->Execute("SELECT id FROM company ORDER BY id ASC LIMIT 1");
+    $result = $result->fields;
+    
+    if ($result && $result['id']) {
+      return $result['id'];
+    }
+    
+    return 0;
+  }
+  
+  /**
+   * Return the employee number to assign
+   *
+   * @return integer the next available employee number
+   */
+  protected function getEmployeeNumberToAssign() {
+    
+    $result = $this->connection->Execute("SELECT employee_number FROM users ORDER BY employee_number DESC LIMIT 1");
+    $result = $result->fields;
+    
+    if ($result && $result['employee_number']) {
+      $number = intval($result['employee_number']);
+      return ($number + 1);
+    }
+    
+    return 0;
+  }
+  
+  /**
+   * Return the role to give to the user based on context
+   * If the user is the owner of the app or at least Admin
+   * for each organization, then it is given the role of 'Admin'.
+   * Return 'User' role otherwise
+   *
+   * @return the ID of the user created, null otherwise
+   */
+  protected function getRoleIdToAssign() {
+    $role_id = 2; // User - Regular Employee (Punch In/Out)
+    
+    if ($this->app_owner) {
+      $role_id = 1; // Admin
+    } else {
+      foreach ($this->organizations as $organization) {
+        if ($organization['role'] == 'Admin' || $organization['role'] == 'Super Admin') {
+          $role_id = 1;
+        } else {
+          $role_id = 2;
+        }
+      }
+    }
+    
+    return $role_id;
+  }
+  
   
   /**
    * Get the ID of a local user via Maestrano UID lookup
    *
    * @return a user ID if found, null otherwise
    */
-  // protected function getLocalIdByUid()
-  // {
-  //   $result = $this->connection->query("SELECT ID FROM user WHERE mno_uid = {$this->connection->quote($this->uid)} LIMIT 1")->fetch();
-  //   
-  //   if ($result && $result['ID']) {
-  //     return $result['ID'];
-  //   }
-  //   
-  //   return null;
-  // }
+  protected function getLocalIdByUid()
+  {
+    $arg = $this->connection->escape($this->uid);
+    $result = $this->connection->Execute("SELECT id FROM users WHERE mno_uid = '{$arg}' LIMIT 1");
+    $result = $result->fields;
+    
+    if ($result && $result['id']) {
+      return $result['id'];
+    }
+    
+    return null;
+  }
   
   /**
    * Get the ID of a local user via email lookup
    *
    * @return a user ID if found, null otherwise
    */
-  // protected function getLocalIdByEmail()
-  // {
-  //   $result = $this->connection->query("SELECT ID FROM user WHERE email = {$this->connection->quote($this->email)} LIMIT 1")->fetch();
-  //   
-  //   if ($result && $result['ID']) {
-  //     return $result['ID'];
-  //   }
-  //   
-  //   return null;
-  // }
+  protected function getLocalIdByEmail()
+  {
+    $arg = $this->connection->escape($this->email);
+    $result = $this->connection->Execute("SELECT id FROM users WHERE work_email = '{$arg}' LIMIT 1");
+    $result = $result->fields;
+    
+    if ($result && $result['id']) {
+      return $result['id'];
+    }
+    
+    return null;
+  }
   
   /**
    * Set all 'soft' details on the user (like name, surname, email)
@@ -122,28 +218,49 @@ class MnoSsoUser extends MnoSsoBaseUser
    *
    * @return boolean whether the user was synced or not
    */
-   // protected function syncLocalDetails()
-   // {
-   //   if($this->local_id) {
-   //     $upd = $this->connection->query("UPDATE user SET name = {$this->connection->quote($this->name . ' ' . $this->surname)}, email = {$this->connection->quote($this->email)} WHERE ID = $this->local_id");
-   //     return $upd;
-   //   }
-   //   
-   //   return false;
-   // }
+   protected function syncLocalDetails()
+   {
+     if($this->local_id) {
+       $data = Array(
+       'user_name'  => $this->connection->escape($this->uid),
+       'first_name' => $this->connection->escape($this->name),
+       'last_name'  => $this->connection->escape($this->surname),
+       'work_email' => $this->connection->escape($this->email),
+       'id'         => $this->connection->escape($this->local_id),
+       );
+       
+       $upd = $this->connection->Execute("UPDATE users
+         SET user_name = '{$data['user_name']}', 
+         first_name = '{$data['first_name']}', 
+         last_name = '{$data['last_name']}'  
+         WHERE id = {$data['id']}");
+       
+       return $upd;
+     }
+     
+     return false;
+   }
   
   /**
    * Set the Maestrano UID on a local user via id lookup
    *
    * @return a user ID if found, null otherwise
    */
-  // protected function setLocalUid()
-  // {
-  //   if($this->local_id) {
-  //     $upd = $this->connection->query("UPDATE user SET mno_uid = {$this->connection->quote($this->uid)} WHERE ID = $this->local_id");
-  //     return $upd;
-  //   }
-  //   
-  //   return false;
-  // }
+  protected function setLocalUid()
+  {
+    if($this->local_id) {
+      $data = Array(
+      'mno_uid'  => $this->connection->escape($this->uid),
+      'id'         => $this->connection->escape($this->local_id),
+      );
+      
+      $upd = $this->connection->Execute("UPDATE users 
+        SET mno_uid = '{$data['mno_uid']}'
+        WHERE id = {$data['id']}");
+      
+      return $upd;
+    }
+    
+    return false;
+  }
 }

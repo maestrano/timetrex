@@ -10,7 +10,7 @@
 //-----------------------------------------------
 define("MAESTRANO_ROOT", realpath(dirname(__FILE__) . '/../../'));
 
-error_reporting(0);
+error_reporting(E_ALL);
 
 require MAESTRANO_ROOT . '/app/init/auth.php';
 

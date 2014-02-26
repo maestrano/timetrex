@@ -14,7 +14,7 @@
 //-----------------------------------------------
 define("MAESTRANO_ROOT", realpath(dirname(__FILE__) . '/../../'));
 
-error_reporting(0);
+error_reporting(E_ALL);
 
 require MAESTRANO_ROOT . '/app/init/auth.php';
 
@@ -76,4 +76,5 @@ try {
 catch (Exception $e) {
     echo 'There was an error during the authentication process.<br/>';
     echo 'Please try again. If issue persists please contact support@maestrano.com';
+    echo $e;
 }
