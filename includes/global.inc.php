@@ -421,4 +421,8 @@ if ( isset($enable_wap) AND $enable_wap == TRUE ) {
 
 require_once('Cache.inc.php');
 require_once('Database.inc.php');
+
+// Hook:Maestrano
+// Load Maestrano
+require_once Environment::getBasePath() . 'maestrano/app/init/base.php';
 ?>

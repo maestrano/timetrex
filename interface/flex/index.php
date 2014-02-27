@@ -40,6 +40,37 @@
  */
 require_once('../../includes/global.inc.php'); //Mainly to force redirect to SSL URL if required...
 
+// Hook:Maestrano
+// Load Maestrano
+$authentication = new Authentication();
+$maestrano = MaestranoService::getInstance();
+// Require authentication straight away if intranet
+// mode enabled
+if ($maestrano->isSsoIntranetEnabled()) {
+  if (!isset($_SESSION)) session_start();
+  if (!$maestrano->getSsoSession()->isValid()) {
+    header("Location: " . $maestrano->getSsoInitUrl());
+    exit;
+  }
+}
+
+// Hook:Maestrano
+
+if ($maestrano->isSsoEnabled()) {
+  if (!isset($_SESSION)) session_start();
+  if ($authentication->Check()) {
+    // Check Maestrano session is still valid
+    if (!$maestrano->getSsoSession()->isValid()) {
+      header("Location: " . $maestrano->getSsoInitUrl());
+      exit;
+    }
+  } else {
+    // Redirect to login
+    header("Location: " . $maestrano->getSsoInitUrl());
+    exit;
+  }
+}
+
 Misc::redirectMobileBrowser(); //Redirect mobile browsers automatically.
 
 ?>
@@ -49,8 +80,23 @@ Misc::redirectMobileBrowser(); //Redirect mobile browsers automatically.
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
 <title>TimeTrex - Secure Login</title>
+<?php if ($maestrano->isSsoEnabled()) { ?>
+<script>
+var logoutRedirect = "<?php echo $maestrano->getSsoLogoutUrl();?>";
+var ssoLoginRedirect = "<?php echo $maestrano->getSsoInitUrl();?>";
+setInterval(function(){
+  if (document.cookie.indexOf('timetrex_logout=1') != -1) {
+    document.cookie = 'timetrex_logout=; expires=Thu, 01-Jan-70 00:00:01 GMT; path=/';
+    window.location.replace(logoutRedirect);
+  }
+  if (document.cookie.indexOf('timetrex_relogin=1') != -1) {
+    document.cookie = 'timetrex_relogin=; expires=Thu, 01-Jan-70 00:00:01 GMT; path=/';
+    window.location.replace(ssoLoginRedirect);
+  }
+},1000);
+</script>
+<?php } ?>
 <script src="AC_OETags.js" language="javascript"></script>
-
 <style>
 body { margin: 0px; overflow:hidden }
 </style>
