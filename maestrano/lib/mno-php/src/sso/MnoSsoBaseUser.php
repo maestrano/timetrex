@@ -107,7 +107,7 @@ class MnoSsoBaseUser
       $this->name = $assert_attrs['name'][0];
       $this->surname = $assert_attrs['surname'][0];
       $this->email = $assert_attrs['email'][0];
-      $this->app_owner = $assert_attrs['app_owner'][0];
+      $this->app_owner = ($assert_attrs['app_owner'][0] == 'true');
       $this->organizations = json_decode($assert_attrs['organizations'][0],true);
   }
   

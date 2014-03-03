@@ -9,7 +9,7 @@ class MaestranoService
 {
   protected static $_settings;
   protected static $_instance;
-  protected static $_default_after_sso_sign_in_path = '/';
+  public static $_after_sso_sign_in_path = '/';
   
   /**
    * constructor
@@ -132,12 +132,9 @@ class MaestranoService
      *
      * @return string url
      */
-    public function setAfterSsoSignInPath($path)
+    public static function setAfterSsoSignInPath($path)
     {
-      if ($this->getPhpSession()) {
-				$session = & $this->getPhpSession();
-        $session['mno_previous_url'] = $path;
-      }
+      self::$_after_sso_sign_in_path = $path;
     }
     
     /**
@@ -154,7 +151,7 @@ class MaestranoService
 				}
         
 			}
-			return self::$_default_after_sso_sign_in_path;
+			return self::$_after_sso_sign_in_path;
     }
   
 }
