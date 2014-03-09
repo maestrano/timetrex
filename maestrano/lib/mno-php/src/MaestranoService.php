@@ -124,7 +124,7 @@ class MaestranoService
      */
     public function getSsoUnauthorizedUrl()
     {
-      return self::$_settings->sso_access_logout_url;
+      return self::$_settings->sso_access_unauthorized_url;
     }
     
     /**
