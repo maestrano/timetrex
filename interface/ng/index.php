@@ -70,10 +70,10 @@ if ($maestrano->isSsoEnabled()) {
   }
 }
 
-Misc::redirectMobileBrowser(); //Redirect mobile browsers automatically.
+//Misc::redirectMobileBrowser(); //Redirect mobile browsers automatically.
 
 ?>
-<html lang="en">
+<html lang="en" id="ng-app" ng-app="timetrex">
 
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -95,8 +95,17 @@ setInterval(function(){
 },1000);
 </script>
 <?php } ?>
+
 <script src="/interface/js/angular/angular.min.js" language="javascript"></script>
+<script src="/interface/ng/app.js" language="javascript"></script>
+<script src="/interface/ng/controllers/main_ctrl.js" language="javascript"></script>
+<script src="/interface/ng/directives/tx-timesheet.js" language="javascript"></script>
+
 </head>
-<body>
+<body ng-controller="MainCtrl">
+  <p>Hello {{ 1+3 }}</p>
+  <p>{{message}}</p>
+  
+  <div tx-timesheet></div>
 </body>
 </html>
