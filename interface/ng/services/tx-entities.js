@@ -4,8 +4,8 @@ var module = angular.module('tx.entities',[]);
 
 // User entity
 module.factory('UserEntity', [
-'$http', '$cookies',
-function($http, $cookies) {
+'$http', '$cookies', '$q',
+function($http, $cookies, $q) {
   var service = {};
   service.data = {};
   
@@ -13,7 +13,9 @@ function($http, $cookies) {
   // UserEntity.user
   // Return a promise
   service.load = function() {
-    var q = $http.get("/api/json/api.php",
+    var qLoad = $q.defer();
+    
+    $http.get("/api/json/api.php",
     { 
       params: {
         Class: "APIAuthentication",
@@ -21,13 +23,12 @@ function($http, $cookies) {
         SessionID: $cookies.SessionID
       }
     }
-    );
-    
-    q.then(function(response){
+    ).then(function(response){
       _.extend(service.data,response.data);
+      qLoad.resolve(service.data);
     });
     
-    return q;
+    return qLoad.promise;
   };
   
   return service;
@@ -35,8 +36,8 @@ function($http, $cookies) {
 
 // Timesheet entity
 module.factory('TimesheetEntity', [
-'$http', '$cookies',
-function($http, $cookies) {
+'$http', '$cookies', '$q',
+function($http, $cookies, $q) {
   var service = {};
   service.data = {};
   
@@ -44,7 +45,9 @@ function($http, $cookies) {
   // UserEntity.user
   // Return a promise
   service.load = function(userId,baseDate) {
-    var q = $http.get("/api/json/api.php",
+    var qLoad = $q.defer();
+    
+    $http.get("/api/json/api.php",
     {
       params: {
         Class: "APITimeSheet",
@@ -53,15 +56,14 @@ function($http, $cookies) {
         json: {0: userId, 1: baseDate }
       }
     }
-    );
-    
-    q.then(function(response){
-      _.extend(service.data,response.data[0]);
+    ).then(function(response){
+      _.extend(service.data,response.data);
+      qLoad.resolve(service.data);
     });
     
     
     
-    return q;
+    return qLoad.promise;
   };
   
   // Aggregate all punches by branch, department and day
@@ -104,11 +106,43 @@ function($http, $cookies) {
 
 // Timesheet entity
 module.factory('PunchEntity', [
-'$http', '$cookies',
-function($http, $cookies) {
+'$http', '$cookies', '$q'
+function($http, $cookies, $q) {
   var service = {};
-  service.defaultPunch = {};
+  service.defaultPunch = undefined;
   
+  
+  service.create = function(data) {
+    // First get the default punch or load it
+    var qDefaultPunch;
+    if service.defaultPunch == undefined {
+      qDefaultPunch = service.loadDefaultPunch();
+    } else {
+      var deferred = $q.defer();
+      qDefaultPunch = deferred.promise;
+      deferred.resolve(service.data);
+    };
+    
+    // Perform the creation request
+    var qCreation = $q.defer()
+    qDefaultPunch.then(function(defaultPunch) {
+      punch = _.clone(defaultPunch);
+      _.extend(punch,data);
+      $http.get("/api/json/api.php",
+      {
+        params: {
+          Class: "APIPunch",
+          Method: "setPunch",
+          SessionID: $cookies.SessionID,
+          json: {0: punch }
+        }
+      }).then(function(data){
+        qCreation.resolve(data);
+      });
+    });
+    
+    return qCreation.promise;
+  }
   
   service.delete = function(punchId) {
     var q = $http.get("/api/json/api.php",
@@ -119,9 +153,26 @@ function($http, $cookies) {
         SessionID: $cookies.SessionID,
         json: {0: {0: punchId} }
       }
-    }
-    );
+    });
     
     return q;
+  }
+  
+  service.loadDefaultPunch = function() {
+    var qLoad = $q.defer();
+    
+    $http.get("/api/json/api.php",
+    {
+      params: {
+        Class: "APIPunch",
+        Method: "getPunchDefaultData",
+        SessionID: $cookies.SessionID,
+      }
+    }).then(function(response){
+      _.extend(service.defaultPunch,response.data);
+      qLoad.resolve(service.defaultPunch);
+    });
+    
+    return qLoad.promise;
   }
 }
