@@ -58,6 +58,7 @@ function($http, $cookies, $q) {
     }
     ).then(function(response){
       _.extend(service.data,response.data);
+      service.buildSimpleTimesheet();
       qLoad.resolve(service.data);
     });
     
@@ -89,6 +90,9 @@ function($http, $cookies, $q) {
       
       // Add punch hour if "Out" and substract it if "In"
       dayObj.hours += punchDate.getHours() * (punch.status == "In" ? -1 : 1)
+      
+      // Save the original number of hours
+      dayObj.$origHours = dayObj.hours;
       
       // Add the punch to the list
       dayObj.punches = [];
