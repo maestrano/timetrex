@@ -96,10 +96,8 @@ setInterval(function(){
 </script>
 <?php } ?>
 
-<script src="/interface/js/angular/angular.min.js" language="javascript"></script>
-<script src="/interface/ng/app.js" language="javascript"></script>
-<script src="/interface/ng/controllers/main_ctrl.js" language="javascript"></script>
-<script src="/interface/ng/directives/tx-timesheet.js" language="javascript"></script>
+<link href="/interface/ng/libs/css/bootstrap/bootstrap-theme.min.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/interface/ng/libs/css/bootstrap/bootstrap.min.css" media="screen" rel="stylesheet" type="text/css">
 
 </head>
 <body ng-controller="MainCtrl">
@@ -107,5 +105,13 @@ setInterval(function(){
   <p>{{message}}</p>
   
   <div tx-timesheet></div>
+  
+  
+  
+  
+  <script src="/interface/ng/libs/js/angular/angular.min.js" language="javascript"></script>
+  <script src="/interface/ng/app.js" language="javascript"></script>
+  <script src="/interface/ng/controllers/main_ctrl.js" language="javascript"></script>
+  <script src="/interface/ng/directives/tx-timesheet.js" language="javascript"></script>
 </body>
 </html>
