@@ -1,7 +1,11 @@
 // Angular app declaration
 
 // Declare module
-this.timetrexApp = angular.module('timetrex',['ngCookies','tx.timesheet']);
+this.timetrexApp = angular.module('timetrex',[
+  'ngCookies',
+  'tx.timesheet',
+  'tx.entities'
+]);
 
 // Configure the http headers for AJAX requests
 // Define content type and set csrf token

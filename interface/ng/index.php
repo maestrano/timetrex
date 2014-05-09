@@ -114,5 +114,6 @@ setInterval(function(){
   <script src="/interface/ng/app.js" language="javascript"></script>
   <script src="/interface/ng/controllers/main_ctrl.js" language="javascript"></script>
   <script src="/interface/ng/directives/tx-timesheet.js" language="javascript"></script>
+  <script src="/interface/ng/services/tx-entities.js" language="javascript"></script>
 </body>
 </html>
