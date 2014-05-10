@@ -4,7 +4,19 @@
 <div ng-show="!isLoading">
   <div class="panel panel-primary">
     <!-- Panel heading -->
-    <div class="panel-heading">Timesheet for bla</div>
+    <div class="panel-heading">
+      <button class="btn btn-primary btn-circle" style="margin-right:15px;">
+        <span class="glyphicon glyphicon-chevron-left"></span>
+      </button>
+      
+      <span><b>{{timesheetStartDate | date:'EEEE, MMMM dd'}}</b></span>
+      <span>to</span>
+      <span><b>{{timesheetEndDate | date:'EEEE, MMMM dd'}}</b></span>
+      
+      <button class="btn btn-primary btn-circle" style="margin-left:15px;">
+        <span class="glyphicon glyphicon-chevron-right"></span>
+      </button>
+    </div>
 
     <!-- Table -->
     <table class="table table-striped">

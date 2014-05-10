@@ -102,8 +102,9 @@ setInterval(function(){
 
 </head>
 <body ng-controller="MainCtrl">
-  <div tx-timesheet></div>
-  
+  <div class="container">
+    <div tx-timesheet></div>
+  </div>
   
   <!-- Javascript -->
   <script src="/interface/ng/libs/js/angular/underscore.min.js" language="javascript"></script>

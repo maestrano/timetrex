@@ -25,6 +25,7 @@ function($scope,$q,UserEntity,TimesheetEntity){
         $scope.timesheetHeader.push(new Date(dateIterator));
         dateIterator.setDate(dateIterator.getDate() + 1);
       }
+      dateIterator.setDate(dateIterator.getDate() - 1);
       $scope.timesheetEndDate = new Date(dateIterator);
       
       qDataLoading.resolve(value);
