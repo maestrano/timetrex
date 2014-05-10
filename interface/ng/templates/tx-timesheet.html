@@ -4,4 +4,16 @@
 </div>
 <div ng-show="!isLoading">
   <span>Timesheet has been loaded</span>
+  <table class="table table-striped">
+    <thead>
+    <tr>
+      <th>Branch</th>
+      <th>Department</th>
+      <th ng-repeat="headerDate in timesheetHeader">{{headerDate | date:'EEE, MMM dd'}}</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr ng-repeat="branch in timesheet"><td>bla</td></tr>
+  </tbody>
+  </table>
 </div>

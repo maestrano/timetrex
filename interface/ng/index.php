@@ -98,6 +98,7 @@ setInterval(function(){
 
 <link href="/interface/ng/libs/css/bootstrap/bootstrap-theme.min.css" media="screen" rel="stylesheet" type="text/css">
 <link href="/interface/ng/libs/css/bootstrap/bootstrap.min.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/interface/ng/libs/css/custom.css" media="screen" rel="stylesheet" type="text/css">
 
 </head>
 <body ng-controller="MainCtrl">

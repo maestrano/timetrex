@@ -17,9 +17,11 @@ function($scope,$q,UserEntity,TimesheetEntity){
   UserEntity.load().then(function(value){
     TimesheetEntity.load(UserEntity.data.id,currentDate).then(function(value){
       $scope.timesheetHeader = []
-      var startDate = new Date(timesheet_dates.start_display_date)
+      console.log(TimesheetEntity);
+      var dateIterator = new Date(TimesheetEntity.data.timesheet_dates.start_display_date);
       for (var i = 0; i < 7; i++) {
-        text += "The number is " + i + "<br>";
+        $scope.timesheetHeader.push(new Date(dateIterator));
+        dateIterator.setDate(dateIterator.getDate() + 1);
       }
       qDataLoading.resolve(value);
     });
