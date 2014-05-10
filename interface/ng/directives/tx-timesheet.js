@@ -90,6 +90,12 @@ function($scope,$q,UserEntity,TimesheetEntity){
     TimesheetEntity.quickAddRowToTimesheet();
   };
   
+  helper.dayCellStyle = function(hours) {
+    if (hours < 0) return {color: 'red'};
+    if (hours == 0) return {color:'#bbbbbb'};
+    return {};
+  }
+  
   //----------------------------------
   // Display view once data is loaded
   //----------------------------------

@@ -269,6 +269,12 @@ function($http, $cookies, $q, PunchEntity) {
   service.isTimesheetValid = function() {
     var isValid = true;
     
+    _.each(service.simpleTimesheet, function(branchDept,rowKey){
+      _.each(branchDept.days, function(dayObj,dayKey){
+        isValid = (isValid && dayObj.hours >= 0);
+      });
+    });
+    
     _.each(service.timesheetTotals(), function(dayTotal,dayDateKey) {
       isValid = (isValid && dayTotal <= 24);
     });

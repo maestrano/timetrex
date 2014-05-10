@@ -36,7 +36,7 @@
           <select ng-model="rowObj.departmentId" ng-options="deptId as deptName for (deptId,deptName) in departmentDropdown(rowObj.branchId,rowObj.departmentId)"></select>
         </td>
         <td class="cell-day" ng-repeat="dayObj in rowObj.days">
-          <input class="form-control" type="number" ng-model="dayObj.hours" ng-style="dayObj.hours == 0 && {color:'#bbbbbb'}" />
+          <input class="form-control" type="number" ng-model="dayObj.hours" ng-style="helper.dayCellStyle(dayObj.hours)"/>
         </td>
       </tr>
       <tr class="add-row" ng-show="helper.isAddRowBtnShown()">
