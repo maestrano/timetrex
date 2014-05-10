@@ -55,8 +55,13 @@ function($http, $cookies, $q, PunchEntity) {
       userId = service.currentDetails.userId
     };
     
+    var timesheetHardReset = false;
     if (baseDate != undefined) {
-      service.currentDetails.baseDate = baseDate
+      if(service.currentDetails.baseDate != baseDate) {
+        service.currentDetails.baseDate = baseDate;
+        timesheetHardReset = true;
+      }
+      
     } else {
       baseDate = service.currentDetails.baseDate
     };
@@ -79,7 +84,7 @@ function($http, $cookies, $q, PunchEntity) {
     }
     ).then(function(response){
       _.extend(service.data,response.data);
-      service.buildSimpleTimesheet();
+      service.buildSimpleTimesheet(timesheetHardReset);
       
     });
     
@@ -178,16 +183,32 @@ function($http, $cookies, $q, PunchEntity) {
   }
   
   // Aggregate all punches by branch, department and day
-  service.buildSimpleTimesheet = function() {
+  service.buildSimpleTimesheet = function(timesheetHardReset) {
     service.simpleTimesheet = (service.simpleTimesheet || {});
     var simpleTimesheet = service.simpleTimesheet;
     
     // Reset Timesheet
-    for (key in simpleTimesheet) {
-      if (simpleTimesheet.hasOwnProperty(key)) {
-        delete simpleTimesheet[key];
+    if (timesheetHardReset) {
+      for (key in simpleTimesheet) {
+        if (simpleTimesheet.hasOwnProperty(key)) {
+          delete simpleTimesheet[key];
+        };
       };
-    };
+    } else {
+      for (rowKey in simpleTimesheet) {
+        if (simpleTimesheet.hasOwnProperty(rowKey)) {
+          for (dayKey in simpleTimesheet[rowKey].days) {
+            if (simpleTimesheet[rowKey].days.hasOwnProperty(dayKey)) {
+              simpleTimesheet[rowKey].days[dayKey].hours = 0;
+              simpleTimesheet[rowKey].days[dayKey].$origHours = 0;
+              if (simpleTimesheet[rowKey].days[dayKey].punches){
+                simpleTimesheet[rowKey].days[dayKey].punches.length = 0;
+              };
+            };
+          };
+        };
+      };
+    }
     
     // Initialize the default department
     service.initSimpleTimesheetRow(0,0);
