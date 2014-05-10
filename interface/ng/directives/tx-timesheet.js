@@ -94,6 +94,11 @@ function($scope,$q,UserEntity,TimesheetEntity){
     if (hours < 0) return {color: 'red'};
     if (hours == 0) return {color:'#bbbbbb'};
     return {};
+  };
+  
+  helper.performLogout = function() {
+    console.log("logout");
+    UserEntity.logout();
   }
   
   //----------------------------------
@@ -101,6 +106,8 @@ function($scope,$q,UserEntity,TimesheetEntity){
   //----------------------------------
   qDataLoading.promise.then(function(value){
     $scope.currentDate = currentDate;
+    $scope.user = UserEntity.data;
+    console.log($scope.user);
     $scope.timesheet = TimesheetEntity.simpleTimesheet;
     $scope.timesheetTotals = TimesheetEntity.timesheetTotals //function
     $scope.branchDropdown = TimesheetEntity.branchDropDownList //function

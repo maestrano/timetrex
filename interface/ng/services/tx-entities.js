@@ -4,10 +4,11 @@ var module = angular.module('tx.entities',[]);
 
 // User entity
 module.factory('UserEntity', [
-'$http', '$cookies', '$q',
-function($http, $cookies, $q) {
+'$http', '$cookies', '$q', '$window',
+function($http, $cookies, $q, $window) {
   var service = {};
   service.data = {};
+  $.cookie.defaults.path = '/';
   
   // Load a user which is then accessible via
   // UserEntity.user
@@ -20,7 +21,7 @@ function($http, $cookies, $q) {
       params: {
         Class: "APIAuthentication",
         Method: "getCurrentUser",
-        SessionID: $cookies.SessionID
+        SessionID: $.cookie('SessionID')
       }
     }
     ).then(function(response){
@@ -29,6 +30,16 @@ function($http, $cookies, $q) {
     });
     
     return qLoad.promise;
+  };
+  
+  // Log the user out
+  service.logout = function() {
+    $.removeCookie('PHPSESSID');
+    $.removeCookie('SessionID');
+    $.removeCookie('StationID');
+    $.cookie('timetrex_logout',1);
+    
+    $window.location.href = "/interface/flex";
   };
   
   return service;

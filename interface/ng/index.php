@@ -107,6 +107,9 @@ setInterval(function(){
   </div>
   
   <!-- Javascript -->
+  <script src="/interface/ng/libs/js/jquery/jquery-1.11.1.min.js" language="javascript"></script>
+  <script src="/interface/ng/libs/js/jquery/jquery.cookie.js" language="javascript"></script>
+  <script src="/interface/ng/libs/js/bootstrap/bootstrap.min.js" language="javascript"></script>
   <script src="/interface/ng/libs/js/angular/underscore.min.js" language="javascript"></script>
   <script src="/interface/ng/libs/js/angular/angular.min.js" language="javascript"></script>
   <script src="/interface/ng/libs/js/angular/angular-cookies.min.js" language="javascript"></script>
