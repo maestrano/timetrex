@@ -42,5 +42,12 @@
       </tr>
     </tbody>
     </table>
+    
+    <!-- Panel Footer -->
+    <div class="panel-footer">
+      <button class="btn btn-danger" ng-show="helper.isCancelBtnShown()" ng-click="helper.performCancel()">Cancel</button>
+      <button class="btn btn-success" ng-disabled="!helper.isSuccessBtnEnabled()" ng-click="helper.performSave()" ng-show="helper.isSuccessBtnShown()">Save</button>
+      <img src="./libs/images/saving-loader.gif" alt="saving" ng-show="helper.isSaveLoaderShown()"/>
+    </div>
   </div>
 </div>

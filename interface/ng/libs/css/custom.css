@@ -1,3 +1,25 @@
+/* 
+---------------------- 
+  General
+---------------------- 
+*/
+/* Remove increment buttons on number input */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.btn.btn-circle {
+  border-radius: 20px;
+}
+
+
+/* 
+---------------------- 
+  Table Configuration
+---------------------- 
+*/
 .table > thead > tr > th {
   font-size: 12px;
 }
@@ -14,6 +36,11 @@
   margin: auto;
 }
 
+/* 
+---------------------- 
+  Panel Configuration
+---------------------- 
+*/
 .panel .panel-heading {
   text-align: center;
 }
@@ -27,12 +54,13 @@
   border-top: solid 1px #428bca;
 }
 
-input[type=number]::-webkit-inner-spin-button,
-input[type=number]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
+.panel .panel-footer {
+  text-align: center;
 }
 
-.btn.btn-circle {
-  border-radius: 20px;
+.panel .panel-footer .btn {
+  min-width: 150px;
 }
+
+
+

@@ -117,6 +117,11 @@ function($http, $cookies, $q, PunchEntity) {
     service.simpleTimesheet = (service.simpleTimesheet || {});
     var simpleTimesheet = service.simpleTimesheet;
     
+    // Reset Timesheet
+    _.each(simpleTimesheet,function(value,key){
+      delete simpleTimesheet[key];
+    });
+    
     // Initialize the default department
     service.initSimpleTimesheetRow(0,0);
     
@@ -183,13 +188,25 @@ function($http, $cookies, $q, PunchEntity) {
     return isChanged;
   }
   
+  service.resetSimpleTimesheet = function() {
+    if (service.simpleTimesheet != undefined) {
+      _.each(service.simpleTimesheet, function(branchDeptObj,branchDeptKey) {
+        _.each(branchDeptObj.days, function(dayObject,dayDateKey) {
+          dayObject.hours = dayObject.$origHours;
+        });
+      });
+    }
+    
+    return true;
+  }
+  
   // Save the timesheet by going through the SimpleTimesheet
   // and deleting/creating punches when hours have changed
-  service.save = function() {
+  service.saveSimpleTimesheet = function() {
     var actionPromises = [];
     
     _.each(service.simpleTimesheet, function(branchDeptObj,branchDeptKey) {
-      _.each(branchDeptObj.days, function(dayObject,dayDateKey) {
+      _.each(branchDeptObj.days, function(dayObj,dayDateKey) {
         console.log(dayObj);
         // Action is undertaken only if the number of
         // hours worked were changed for a given branch>department>day
@@ -213,11 +230,11 @@ function($http, $cookies, $q, PunchEntity) {
           // qLocalAction promise
           $q.all(deletePromises).then(function(values){
             console.log(values);
-            
+            console.log(dayObj.date);
             var punchInData = {
               department_id: branchDeptObj.departmentId,
               branch_id: branchDeptObj.branchId,
-              time_stamp: dayObj.date,
+              time_stamp: dayObj.date.toLocaleString(),
               punch_time: "12:00 AM",
               status_id: 10,
               status: "In"
@@ -228,7 +245,7 @@ function($http, $cookies, $q, PunchEntity) {
             var punchOutData = {
               department_id: branchDeptObj.departmentId,
               branch_id: branchDeptObj.branchId,
-              time_stamp: punchOutDate,
+              time_stamp: punchOutDate.toLocaleString(),
               punch_time: service.formatDateToTxTime(punchOutDate),
               status_id: 20,
               status: "Out"

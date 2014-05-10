@@ -33,6 +33,40 @@ function($scope,$q,UserEntity,TimesheetEntity){
   });
   
   //----------------------------------
+  // Helpers
+  //----------------------------------
+  $scope.helper = helper = {};
+  helper.statuses = {};
+  helper.statuses.isSaving = false;
+  
+  helper.isSuccessBtnEnabled = function(){
+    return TimesheetEntity.isTimesheetChanged();
+  };
+  
+  helper.isSuccessBtnShown = function(){
+    return !helper.statuses.isSaving;
+  };
+  
+  helper.isCancelBtnShown = function(){
+    return (!helper.statuses.isSaving && TimesheetEntity.isTimesheetChanged());
+  };
+  
+  helper.isSaveLoaderShown = function(){
+    return helper.statuses.isSaving;
+  };
+  
+  helper.performSave = function() {
+    helper.statuses.isSaving = true;
+    TimesheetEntity.saveSimpleTimesheet().then(function(value){
+      helper.statuses.isSaving = false;
+    });
+  }
+  
+  helper.performCancel = function() {
+    TimesheetEntity.resetSimpleTimesheet();
+  }
+  
+  //----------------------------------
   // Display view once data is loaded
   //----------------------------------
   qDataLoading.promise.then(function(value){
