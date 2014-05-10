@@ -19,10 +19,14 @@ function($scope,$q,UserEntity,TimesheetEntity){
       $scope.timesheetHeader = []
       console.log(TimesheetEntity);
       var dateIterator = new Date(TimesheetEntity.data.timesheet_dates.start_display_date);
+      
+      $scope.timesheetStartDate = new Date(dateIterator);
       for (var i = 0; i < 7; i++) {
         $scope.timesheetHeader.push(new Date(dateIterator));
         dateIterator.setDate(dateIterator.getDate() + 1);
       }
+      $scope.timesheetEndDate = new Date(dateIterator);
+      
       qDataLoading.resolve(value);
     });
   });
@@ -31,9 +35,11 @@ function($scope,$q,UserEntity,TimesheetEntity){
   // Display view once data is loaded
   //----------------------------------
   qDataLoading.promise.then(function(value){
-    $scope.isLoading = false;
+    $scope.currentDate = currentDate;
     $scope.timesheet = TimesheetEntity.simpleTimesheet;
+    $scope.timesheetTotals = TimesheetEntity.timesheetTotals //function
     
+    $scope.isLoading = false;
   });
   
   

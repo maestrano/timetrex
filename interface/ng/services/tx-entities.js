@@ -88,16 +88,19 @@ function($http, $cookies, $q, PunchEntity) {
     var st = service.simpleTimesheet;
     
     // Initialize branch>department
-    st[branchId] = (st[branchId] || {});
-    st[branchId][departmentId] = (st[branchId][departmentId] || {});
+    var branchDeptKey = branchId + '--' + departmentId;
+    st[branchDeptKey] = (st[branchDeptKey] || {});
+    st[branchDeptKey].branchId = branchId;
+    st[branchDeptKey].departmentId = departmentId;
+    st[branchDeptKey].days = (st[branchDeptKey].days || {});
     
     // Initialize dates
     var dateIterator = new Date(service.data.timesheet_dates.start_display_date);
     for (var i = 0; i < 7; i++) {
       var dateKey = service.formatDateToKey(dateIterator);
-      st[branchId][departmentId][dateKey] = (st[branchId][departmentId][dateKey] || {});
+      st[branchDeptKey].days[dateKey] = (st[branchDeptKey].days[dateKey] || {});
       
-      var branchDeptDay = st[branchId][departmentId][dateKey];
+      var branchDeptDay = st[branchDeptKey].days[dateKey];
       branchDeptDay.hours = (branchDeptDay.hours == undefined ? 0 : branchDeptDay.hours);
       branchDeptDay.$origHours = (branchDeptDay.$origHours == undefined ? 0 : branchDeptDay.$origHours);
       branchDeptDay.date = (new Date(dateIterator.toDateString()));
@@ -106,7 +109,7 @@ function($http, $cookies, $q, PunchEntity) {
       dateIterator.setDate(dateIterator.getDate() + 1);
     }
     
-    return st[branchId][departmentId];
+    return st[branchDeptKey];
   }
   
   // Aggregate all punches by branch, department and day
@@ -123,12 +126,12 @@ function($http, $cookies, $q, PunchEntity) {
     // of punches related to it as well as the number of hours worked
     _.each(service.data.punch_data, function(punch) {
       // Initialize each day for this branch>department
-      service.initSimpleTimesheetRow(punch.branch_id,punch.department_id);
+      var branchDeptObj = service.initSimpleTimesheetRow(punch.branch_id,punch.department_id);
       
       // Add punch to the right day and count hours
       var punchDate = new Date(punch.actual_time_stamp);
       var punchDateKey = service.formatDateToKey(punchDate);
-      var dayObj = simpleTimesheet[punch.branch_id][punch.department_id][punchDateKey];
+      var dayObj = branchDeptObj.days[punchDateKey];
       
       // Add punch hour if "Out" and substract it if "In"
       dayObj.hours += punchDate.getHours() * (punch.status == "In" ? -1 : 1)
@@ -144,77 +147,111 @@ function($http, $cookies, $q, PunchEntity) {
     return simpleTimesheet;
   };
   
+  // Return the total hours for the timesheet
+  service.timesheetTotals = function() {
+    var totals = {};
+    // Initialize dates
+    var dateIterator = new Date(service.data.timesheet_dates.start_display_date);
+    for (var i = 0; i < 7; i++) {
+      var dateKey = service.formatDateToKey(dateIterator);
+      totals[dateKey] = 0;
+      
+      // Move forward
+      dateIterator.setDate(dateIterator.getDate() + 1);
+    }
+    
+    _.each(service.simpleTimesheet, function(branchDeptObj,branchDeptKey) {
+      _.each(branchDeptObj.days, function(dayObject,dayDateKey) {
+        totals[dayDateKey] += dayObject.hours;
+      });
+    });
+    
+    return totals;
+  }
+  
+  service.isTimesheetChanged = function() {
+    var isChanged = false;
+    
+    if (service.simpleTimesheet != undefined) {
+      _.each(service.simpleTimesheet, function(branchDeptObj,branchDeptKey) {
+        _.each(branchDeptObj.days, function(dayObject,dayDateKey) {
+          isChanged = (isChanged || dayObject.hours != dayObject.$origHours);
+        });
+      });
+    }
+    
+    return isChanged;
+  }
+  
   // Save the timesheet by going through the SimpleTimesheet
   // and deleting/creating punches when hours have changed
   service.save = function() {
     var actionPromises = [];
     
-    _.each(service.simpleTimesheet, function(departments,branchId) {
-      _.each(departments, function(dayObjects,departmentId) {
-        _.each(dayObjects, function(dayObj,dayDateString) {
-          console.log(dayObj);
-          // Action is undertaken only if the number of
-          // hours worked were changed for a given branch>department>day
-          if (dayObj.hours != dayObj.$origHours) {
-            // First create a promise for the local action
-            // and add it to the array of promises
-            var qLocalAction = $q.defer();
-            actionPromises.push(qLocalAction.promise);
+    _.each(service.simpleTimesheet, function(branchDeptObj,branchDeptKey) {
+      _.each(branchDeptObj.days, function(dayObject,dayDateKey) {
+        console.log(dayObj);
+        // Action is undertaken only if the number of
+        // hours worked were changed for a given branch>department>day
+        if (dayObj.hours != dayObj.$origHours) {
+          // First create a promise for the local action
+          // and add it to the array of promises
+          var qLocalAction = $q.defer();
+          actionPromises.push(qLocalAction.promise);
+          
+          // Then delete all punches for that branch>department>day
+          var deletePromises = []
+          _.each(dayObj.punches, function(punch){
+            console.log("Deleting punch id: " + punch.id);
+            deletePromises.push(PunchEntity.delete(punch.id));
+          });
+          
+          // Once deleted create one PunchIn and one PunchOut
+          // for that branch>department>day to reflect the 
+          // number of hours worked
+          // After creation of both punches we resolve the
+          // qLocalAction promise
+          $q.all(deletePromises).then(function(values){
+            console.log(values);
             
-            // Then delete all punches for that branch>department>day
-            var deletePromises = []
-            _.each(dayObj.punches, function(punch){
-              console.log("Deleting punch id: " + punch.id);
-              deletePromises.push(PunchEntity.delete(punch.id));
-            });
+            var punchInData = {
+              department_id: branchDeptObj.departmentId,
+              branch_id: branchDeptObj.branchId,
+              time_stamp: dayObj.date,
+              punch_time: "12:00 AM",
+              status_id: 10,
+              status: "In"
+            };
             
-            // Once deleted create one PunchIn and one PunchOut
-            // for that branch>department>day to reflect the 
-            // number of hours worked
-            // After creation of both punches we resolve the
-            // qLocalAction promise
-            $q.all(deletePromises).then(function(values){
-              console.log(values);
-              
-              var punchInData = {
-                department_id: departmentId,
-                branch_id: branchId,
-                time_stamp: dayObj.date,
-                punch_time: "12:00 AM",
-                status_id: 10,
-                status: "In"
-              };
-              
-              var punchOutDate = new Date(dayObj.date);
-              punchOutDate.setHours(punchOutDate.getHours()+dayObj.hours);
-              var punchOutData = {
-                department_id: departmentId,
-                branch_id: branchId,
-                time_stamp: punchOutDate,
-                punch_time: service.formatDateToTxTime(punchOutDate),
-                status_id: 20,
-                status: "Out"
-              };
-              
-              console.log("Before create");
-              console.log([punchInData,punchOutData])
-              
-              // Create punches then resolve locaAction promise
-              PunchEntity.create(punchInData).then(function(value1){
-                PunchEntity.create(punchOutData).then(function(value2){
-                  console.log("After create");
-                  console.log([value1,value2]);
-                  qLocalAction.resolve([value1,value2]);
-                });
+            var punchOutDate = new Date(dayObj.date);
+            punchOutDate.setHours(punchOutDate.getHours()+dayObj.hours);
+            var punchOutData = {
+              department_id: branchDeptObj.departmentId,
+              branch_id: branchDeptObj.branchId,
+              time_stamp: punchOutDate,
+              punch_time: service.formatDateToTxTime(punchOutDate),
+              status_id: 20,
+              status: "Out"
+            };
+            
+            console.log("Before create");
+            console.log([punchInData,punchOutData])
+            
+            // Create punches then resolve locaAction promise
+            PunchEntity.create(punchInData).then(function(value1){
+              PunchEntity.create(punchOutData).then(function(value2){
+                console.log("After create");
+                console.log([value1,value2]);
+                qLocalAction.resolve([value1,value2]);
               });
-              // $q.all([PunchEntity.create(punchInData), PunchEntity.create(punchOutData)]).then(function(values){
-              //   console.log("After create");
-              //   console.log(values);
-              //   qLocalAction.resolve(values);
-              // });
             });
-          };
-        });
+            // $q.all([PunchEntity.create(punchInData), PunchEntity.create(punchOutData)]).then(function(values){
+            //   console.log("After create");
+            //   console.log(values);
+            //   qLocalAction.resolve(values);
+            // });
+          });
+        };
       });
     });
     

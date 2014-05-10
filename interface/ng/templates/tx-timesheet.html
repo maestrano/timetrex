@@ -1,19 +1,34 @@
-<p>Timesheet directive</p>
 <div ng-show="isLoading">
   <span>Loading</span>
 </div>
 <div ng-show="!isLoading">
-  <span>Timesheet has been loaded</span>
-  <table class="table table-striped">
-    <thead>
-    <tr>
-      <th>Branch</th>
-      <th>Department</th>
-      <th ng-repeat="headerDate in timesheetHeader">{{headerDate | date:'EEE, MMM dd'}}</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr ng-repeat="branch in timesheet"><td>bla</td></tr>
-  </tbody>
-  </table>
+  <div class="panel panel-primary">
+    <!-- Panel heading -->
+    <div class="panel-heading">Timesheet for bla</div>
+
+    <!-- Table -->
+    <table class="table table-striped">
+      <thead>
+      <tr>
+        <th>Branch</th>
+        <th>Department</th>
+        <th ng-repeat="headerDate in timesheetHeader">{{headerDate | date:'EEE, MMM dd'}}</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="(branchDeptKey, branchDeptObj) in timesheet">
+        <td>{{branchDeptObj.branchId}}</td>
+        <td>{{branchDeptObj.departmentId}}</td>
+        <td ng-repeat="dayObj in branchDeptObj.days">
+          <input class="form-control" type="number" ng-model="dayObj.hours" />
+        </td>
+      </tr>
+      <tr class="table-footer">
+        <td></td>
+        <td>Totals</td>
+        <td ng-repeat="dayTotal in timesheetTotals()">{{dayTotal}}</td>
+      </tr>
+    </tbody>
+    </table>
+  </div>
 </div>
