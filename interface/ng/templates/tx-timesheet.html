@@ -24,16 +24,35 @@
       <tr>
         <th>Branch</th>
         <th>Department</th>
-        <th ng-repeat="headerDate in timesheetHeader">{{headerDate | date:'EEE, MMM dd'}}</th>
+        <th class="cell-day" ng-repeat="headerDate in timesheetHeader">{{headerDate | date:'EEE, MMM dd'}}</th>
       </tr>
     </thead>
     <tbody>
-      <tr ng-repeat="(branchDeptKey, branchDeptObj) in timesheet">
-        <td>{{branchDeptObj.branchId}}</td>
-        <td>{{branchDeptObj.departmentId}}</td>
-        <td ng-repeat="dayObj in branchDeptObj.days">
+      <tr class="animate-repeat" ng-repeat="rowObj in timesheet | orderObjectBy:'displayOrder'">
+        <td>
+          <select ng-model="rowObj.branchId" ng-options="branchId as branchName for (branchId,branchName) in branchDropdown(rowObj.branchId, rowObj.departmentId)"></select>
+        </td>
+        <td>
+          <select ng-model="rowObj.departmentId" ng-options="deptId as deptName for (deptId,deptName) in departmentDropdown(rowObj.branchId,rowObj.departmentId)"></select>
+        </td>
+        <td class="cell-day" ng-repeat="dayObj in rowObj.days">
           <input class="form-control" type="number" ng-model="dayObj.hours" ng-style="dayObj.hours == 0 && {color:'#bbbbbb'}" />
         </td>
+      </tr>
+      <tr class="add-row" ng-show="helper.isAddRowBtnShown()">
+        <td></td>
+        <td>
+          <button class="btn btn-primary btn-circle" ng-click="helper.performAddRow()">
+            <span class="glyphicon glyphicon-plus"></span>
+          </button>
+        </td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
       </tr>
       <tr class="table-footer">
         <td></td>

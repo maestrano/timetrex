@@ -3,6 +3,7 @@
 // Declare module
 this.timetrexApp = angular.module('timetrex',[
   'ngCookies',
+  'ngAnimate',
   'tx.timesheet',
   'tx.entities'
 ]);

@@ -110,6 +110,7 @@ setInterval(function(){
   <script src="/interface/ng/libs/js/angular/underscore.min.js" language="javascript"></script>
   <script src="/interface/ng/libs/js/angular/angular.min.js" language="javascript"></script>
   <script src="/interface/ng/libs/js/angular/angular-cookies.min.js" language="javascript"></script>
+  <script src="/interface/ng/libs/js/angular/angular-animate.min.js" language="javascript"></script>
   <script src="/interface/ng/app.js" language="javascript"></script>
   <script src="/interface/ng/controllers/main_ctrl.js" language="javascript"></script>
   <script src="/interface/ng/directives/tx-timesheet.js" language="javascript"></script>

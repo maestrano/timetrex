@@ -11,7 +11,10 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 .btn.btn-circle {
-  border-radius: 20px;
+  border-radius: 30px;
+  height: 40px;
+  width: 40px;
+  padding-top: 4px;
 }
 
 
@@ -26,8 +29,12 @@ input[type=number]::-webkit-outer-spin-button {
 
 .table > thead > tr > th,
 .table > tbody > tr > td {
-  max-width: 60px;
   text-align: center;
+}
+
+.table > thead > tr > th.cell-day,
+.table > tbody > tr > td.cell-day {
+  max-width: 60px;
 }
 
 .table > tbody > tr > td input {
@@ -60,6 +67,38 @@ input[type=number]::-webkit-outer-spin-button {
 
 .panel .panel-footer .btn {
   min-width: 150px;
+}
+
+/*
+---------------------- 
+  Animations
+---------------------- 
+*/
+.animate-repeat {
+  line-height:40px;
+  list-style:none;
+  box-sizing:border-box;
+}
+
+.animate-repeat.ng-move,
+.animate-repeat.ng-enter,
+.animate-repeat.ng-leave {
+  -webkit-transition:all linear 0.5s;
+  transition:all linear 0.5s;
+}
+
+.animate-repeat.ng-leave.ng-leave-active,
+.animate-repeat.ng-move,
+.animate-repeat.ng-enter {
+  opacity:0;
+  max-height:0;
+}
+
+.animate-repeat.ng-leave,
+.animate-repeat.ng-move.ng-move-active,
+.animate-repeat.ng-enter.ng-enter-active {
+  opacity:1;
+  max-height:40px;
 }
 
 

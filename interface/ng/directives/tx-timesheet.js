@@ -1,5 +1,20 @@
 var module = angular.module('tx.timesheet',[]);
 
+// Custom filter to sort objects in ng-repeat
+module.filter('orderObjectBy', function() {
+  return function(items, field, reverse) {
+    var filtered = [];
+    angular.forEach(items, function(item) {
+      filtered.push(item);
+    });
+    filtered.sort(function (a, b) {
+      return (a[field] > b[field] ? 1 : -1);
+    });
+    if(reverse) filtered.reverse();
+    return filtered;
+  };
+});
+
 // Timesheet directive controller
 module.controller('TimesheetCtrl',[
 '$scope', '$q', 'UserEntity', 'TimesheetEntity',
@@ -8,6 +23,7 @@ function($scope,$q,UserEntity,TimesheetEntity){
   // Initialize values
   //----------------------------------
   var currentDate = new Date();
+  currentDate.setDate(currentDate.getDate() - 1);
   var qDataLoading = $q.defer();
   $scope.isLoading = true;
   
@@ -40,7 +56,7 @@ function($scope,$q,UserEntity,TimesheetEntity){
   helper.statuses.isSaving = false;
   
   helper.isSuccessBtnEnabled = function(){
-    return TimesheetEntity.isTimesheetChanged() && TimesheetEntity.isTimesheetValid();
+    return TimesheetEntity.isTimesheetChangedForSavePurpose() && TimesheetEntity.isTimesheetValid();
   };
   
   helper.isSuccessBtnShown = function(){
@@ -60,11 +76,19 @@ function($scope,$q,UserEntity,TimesheetEntity){
     TimesheetEntity.saveSimpleTimesheet().then(function(value){
       helper.statuses.isSaving = false;
     });
-  }
+  };
   
   helper.performCancel = function() {
     TimesheetEntity.resetSimpleTimesheet();
-  }
+  };
+  
+  helper.isAddRowBtnShown = function() {
+    return TimesheetEntity.isBranchDeptPairAvailable();
+  };
+  
+  helper.performAddRow = function() {
+    TimesheetEntity.quickAddRowToTimesheet();
+  };
   
   //----------------------------------
   // Display view once data is loaded
@@ -73,6 +97,8 @@ function($scope,$q,UserEntity,TimesheetEntity){
     $scope.currentDate = currentDate;
     $scope.timesheet = TimesheetEntity.simpleTimesheet;
     $scope.timesheetTotals = TimesheetEntity.timesheetTotals //function
+    $scope.branchDropdown = TimesheetEntity.branchDropDownList //function
+    $scope.departmentDropdown = TimesheetEntity.departmentDropDownList //function
     
     $scope.isLoading = false;
   });
