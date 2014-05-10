@@ -40,6 +40,8 @@ module.factory('TimesheetEntity', [
 function($http, $cookies, $q, PunchEntity) {
   var service = {};
   service.data = {};
+  service.branches = {};
+  service.departments = {};
   service.currentDetails = {};
   
   // Load a user which is then accessible via
@@ -58,9 +60,11 @@ function($http, $cookies, $q, PunchEntity) {
       baseDate = service.currentDetails.baseDate
     };
     
+    // Declare loading promise
     var qLoad = $q.defer();
     
-    $http.get("/api/json/api.php",
+    // Load timesheet data
+    var q1 = $http.get("/api/json/api.php",
     {
       params: {
         Class: "APITimeSheet",
@@ -72,10 +76,40 @@ function($http, $cookies, $q, PunchEntity) {
     ).then(function(response){
       _.extend(service.data,response.data);
       service.buildSimpleTimesheet();
-      qLoad.resolve(service.data);
+      
     });
     
+    // Load departments
+    var q2 = $http.get("/api/json/api.php",
+    {
+      params: {
+        Class: "APIDepartment",
+        Method: "getDepartment",
+        SessionID: $cookies.SessionID,
+      }
+    }
+    ).then(function(response){
+      _.extend(service.departments,response.data);
+    });
     
+    // Load branches
+    var q3 = $http.get("/api/json/api.php",
+    {
+      params: {
+        Class: "APIBranch",
+        Method: "getBranch",
+        SessionID: $cookies.SessionID,
+      }
+    }
+    ).then(function(response){
+      _.extend(service.departments,response.data);
+    });
+    
+    // Resolve loading promise once all data
+    // are loaded
+    $q.all([q1,q2,q3]).then(function(values){
+      qLoad.resolve(service.data);
+    });
     
     return qLoad.promise;
   };
@@ -88,19 +122,19 @@ function($http, $cookies, $q, PunchEntity) {
     var st = service.simpleTimesheet;
     
     // Initialize branch>department
-    var branchDeptKey = branchId + '--' + departmentId;
-    st[branchDeptKey] = (st[branchDeptKey] || {});
-    st[branchDeptKey].branchId = branchId;
-    st[branchDeptKey].departmentId = departmentId;
-    st[branchDeptKey].days = (st[branchDeptKey].days || {});
+    var rowKey = branchId + '--' + departmentId;
+    st[rowKey] = (st[rowKey] || {});
+    st[rowKey].branchId = branchId;
+    st[rowKey].departmentId = departmentId;
+    st[rowKey].days = (st[rowKey].days || {});
     
     // Initialize dates
     var dateIterator = new Date(service.data.timesheet_dates.start_display_date);
     for (var i = 0; i < 7; i++) {
       var dateKey = service.formatDateToKey(dateIterator);
-      st[branchDeptKey].days[dateKey] = (st[branchDeptKey].days[dateKey] || {});
+      st[rowKey].days[dateKey] = (st[rowKey].days[dateKey] || {});
       
-      var branchDeptDay = st[branchDeptKey].days[dateKey];
+      var branchDeptDay = st[rowKey].days[dateKey];
       branchDeptDay.hours = (branchDeptDay.hours == undefined ? 0 : branchDeptDay.hours);
       branchDeptDay.$origHours = (branchDeptDay.$origHours == undefined ? 0 : branchDeptDay.$origHours);
       branchDeptDay.date = (new Date(dateIterator.toDateString()));
@@ -109,7 +143,7 @@ function($http, $cookies, $q, PunchEntity) {
       dateIterator.setDate(dateIterator.getDate() + 1);
     }
     
-    return st[branchDeptKey];
+    return st[rowKey];
   }
   
   // Aggregate all punches by branch, department and day
@@ -131,12 +165,12 @@ function($http, $cookies, $q, PunchEntity) {
     // of punches related to it as well as the number of hours worked
     _.each(service.data.punch_data, function(punch) {
       // Initialize each day for this branch>department
-      var branchDeptObj = service.initSimpleTimesheetRow(punch.branch_id,punch.department_id);
+      var rowObj = service.initSimpleTimesheetRow(punch.branch_id,punch.department_id);
       
       // Add punch to the right day and count hours
       var punchDate = new Date(punch.actual_time_stamp);
       var punchDateKey = service.formatDateToKey(punchDate);
-      var dayObj = branchDeptObj.days[punchDateKey];
+      var dayObj = rowObj.days[punchDateKey];
       
       // Add punch hour if "Out" and substract it if "In"
       dayObj.hours += punchDate.getHours() * (punch.status == "In" ? -1 : 1)
@@ -165,8 +199,8 @@ function($http, $cookies, $q, PunchEntity) {
       dateIterator.setDate(dateIterator.getDate() + 1);
     }
     
-    _.each(service.simpleTimesheet, function(branchDeptObj,branchDeptKey) {
-      _.each(branchDeptObj.days, function(dayObject,dayDateKey) {
+    _.each(service.simpleTimesheet, function(rowObj,rowKey) {
+      _.each(rowObj.days, function(dayObject,dayDateKey) {
         totals[dayDateKey] += dayObject.hours;
       });
     });
@@ -174,24 +208,38 @@ function($http, $cookies, $q, PunchEntity) {
     return totals;
   }
   
+  // Check wether the timesheet is valid or not
+  // Validation checks that a given day does not have
+  // more than 24h work registered
+  service.isTimesheetValid = function() {
+    var isValid = true;
+    
+    _.each(service.timesheetTotals(), function(dayTotal,dayDateKey) {
+      isValid = (isValid && dayTotal <= 24);
+    });
+    
+    return isValid;
+  }
+  
+  // Check wether the timesheet was changed or not
   service.isTimesheetChanged = function() {
     var isChanged = false;
     
     if (service.simpleTimesheet != undefined) {
-      _.each(service.simpleTimesheet, function(branchDeptObj,branchDeptKey) {
-        _.each(branchDeptObj.days, function(dayObject,dayDateKey) {
+      _.each(service.simpleTimesheet, function(rowObj,rowKey) {
+        _.each(rowObj.days, function(dayObject,dayDateKey) {
           isChanged = (isChanged || dayObject.hours != dayObject.$origHours);
         });
       });
-    }
+    };
     
     return isChanged;
   }
   
   service.resetSimpleTimesheet = function() {
     if (service.simpleTimesheet != undefined) {
-      _.each(service.simpleTimesheet, function(branchDeptObj,branchDeptKey) {
-        _.each(branchDeptObj.days, function(dayObject,dayDateKey) {
+      _.each(service.simpleTimesheet, function(rowObj,rowKey) {
+        _.each(rowObj.days, function(dayObject,dayDateKey) {
           dayObject.hours = dayObject.$origHours;
         });
       });
@@ -205,8 +253,8 @@ function($http, $cookies, $q, PunchEntity) {
   service.saveSimpleTimesheet = function() {
     var actionPromises = [];
     
-    _.each(service.simpleTimesheet, function(branchDeptObj,branchDeptKey) {
-      _.each(branchDeptObj.days, function(dayObj,dayDateKey) {
+    _.each(service.simpleTimesheet, function(rowObj,rowKey) {
+      _.each(rowObj.days, function(dayObj,dayDateKey) {
         console.log(dayObj);
         // Action is undertaken only if the number of
         // hours worked were changed for a given branch>department>day
@@ -232,8 +280,8 @@ function($http, $cookies, $q, PunchEntity) {
             console.log(values);
             console.log(dayObj.date);
             var punchInData = {
-              department_id: branchDeptObj.departmentId,
-              branch_id: branchDeptObj.branchId,
+              department_id: rowObj.departmentId,
+              branch_id: rowObj.branchId,
               time_stamp: dayObj.date.toLocaleString(),
               punch_time: "12:00 AM",
               status_id: 10,
@@ -243,8 +291,8 @@ function($http, $cookies, $q, PunchEntity) {
             var punchOutDate = new Date(dayObj.date);
             punchOutDate.setHours(punchOutDate.getHours()+dayObj.hours);
             var punchOutData = {
-              department_id: branchDeptObj.departmentId,
-              branch_id: branchDeptObj.branchId,
+              department_id: rowObj.departmentId,
+              branch_id: rowObj.branchId,
               time_stamp: punchOutDate.toLocaleString(),
               punch_time: service.formatDateToTxTime(punchOutDate),
               status_id: 20,

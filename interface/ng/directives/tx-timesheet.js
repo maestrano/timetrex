@@ -40,7 +40,7 @@ function($scope,$q,UserEntity,TimesheetEntity){
   helper.statuses.isSaving = false;
   
   helper.isSuccessBtnEnabled = function(){
-    return TimesheetEntity.isTimesheetChanged();
+    return TimesheetEntity.isTimesheetChanged() && TimesheetEntity.isTimesheetValid();
   };
   
   helper.isSuccessBtnShown = function(){

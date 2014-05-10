@@ -32,13 +32,15 @@
         <td>{{branchDeptObj.branchId}}</td>
         <td>{{branchDeptObj.departmentId}}</td>
         <td ng-repeat="dayObj in branchDeptObj.days">
-          <input class="form-control" type="number" ng-model="dayObj.hours" />
+          <input class="form-control" type="number" ng-model="dayObj.hours" ng-style="dayObj.hours == 0 && {color:'#bbbbbb'}" />
         </td>
       </tr>
       <tr class="table-footer">
         <td></td>
         <td>Totals</td>
-        <td ng-repeat="dayTotal in timesheetTotals()">{{dayTotal}}</td>
+        <td ng-repeat="dayTotal in timesheetTotals()">
+          <span ng-style="dayTotal > 24 && {color:'red'}">{{dayTotal}}</span>
+        </td>
       </tr>
     </tbody>
     </table>
