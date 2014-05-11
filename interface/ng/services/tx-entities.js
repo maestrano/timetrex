@@ -176,8 +176,10 @@ function($http, $cookies, $q, PunchEntity) {
     var rowKey = branchId + '--' + departmentId;
     st[rowKey] = (st[rowKey] || {});
     st[rowKey].branchId = branchId;
+    st[rowKey].$origBranchId = branchId;
     st[rowKey].departmentId = departmentId;
-    st[rowKey].displayOrder = (st[rowKey].displayOrder || service.rowCount())
+    st[rowKey].$origDepartmentId = departmentId;
+    st[rowKey].displayOrder = (st[rowKey].displayOrder || service.rowCount());
     st[rowKey].days = (st[rowKey].days || {});
     
     // Initialize dates
@@ -206,24 +208,11 @@ function($http, $cookies, $q, PunchEntity) {
     // Reset Timesheet
     if (timesheetHardReset) {
       console.log("Performing hard reset");
+      simpleTimesheet = service.simpleTimesheet = {};
+    } else {
       for (key in service.simpleTimesheet) {
         if (service.simpleTimesheet.hasOwnProperty(key)) {
           delete service.simpleTimesheet[key];
-        };
-      };
-      simpleTimesheet = service.simpleTimesheet = {};
-    } else {
-      for (rowKey in simpleTimesheet) {
-        if (simpleTimesheet.hasOwnProperty(rowKey)) {
-          for (dayKey in simpleTimesheet[rowKey].days) {
-            if (simpleTimesheet[rowKey].days.hasOwnProperty(dayKey)) {
-              simpleTimesheet[rowKey].days[dayKey].hours = 0;
-              simpleTimesheet[rowKey].days[dayKey].$origHours = 0;
-              if (simpleTimesheet[rowKey].days[dayKey].punches){
-                simpleTimesheet[rowKey].days[dayKey].punches.length = 0;
-              };
-            };
-          };
         };
       };
     }
@@ -304,8 +293,6 @@ function($http, $cookies, $q, PunchEntity) {
   service.isTimesheetChanged = function() {
     var isChanged = false;
     
-    
-    
     if (service.simpleTimesheet != undefined) {
       if (service.temporaryAddedRows.length > 0){
         isChanged = true;
@@ -323,6 +310,9 @@ function($http, $cookies, $q, PunchEntity) {
     
     if (service.simpleTimesheet != undefined) {
       _.each(service.simpleTimesheet, function(rowObj,rowKey) {
+        isChanged = (isChanged || rowObj.branchId != rowObj.$origBranchId);
+        isChanged = (isChanged || rowObj.departmentId != rowObj.$origDepartmentId);
+        
         _.each(rowObj.days, function(dayObject,dayDateKey) {
           isChanged = (isChanged || dayObject.hours != dayObject.$origHours);
         });
@@ -358,7 +348,9 @@ function($http, $cookies, $q, PunchEntity) {
         console.log(dayObj);
         // Action is undertaken only if the number of
         // hours worked were changed for a given branch>department>day
-        if (dayObj.hours != dayObj.$origHours) {
+        if (dayObj.hours != dayObj.$origHours 
+          || rowObj.branchId != rowObj.$origBranchId
+          || rowObj.departmentId != rowObj.$origDepartmentId) {
           // First create a promise for the local action
           // and add it to the array of promises
           var qLocalAction = $q.defer();
@@ -408,12 +400,10 @@ function($http, $cookies, $q, PunchEntity) {
               console.log([punchInData,punchOutData])
             
               // Create punches then resolve locaAction promise
-              PunchEntity.create(punchInData).then(function(value1){
-                PunchEntity.create(punchOutData).then(function(value2){
-                  console.log("After create");
-                  console.log([value1,value2]);
-                  qLocalAction.resolve([value1,value2]);
-                });
+              $q.all([PunchEntity.create(punchInData),PunchEntity.create(punchOutData)]).then(function(values){
+                console.log("After create");
+                console.log(values);
+                qLocalAction.resolve(values);
               });
             });
           };
