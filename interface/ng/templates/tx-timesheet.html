@@ -86,11 +86,10 @@
             <span ng-style="dayTotal > 24 && {color:'red'}">{{dayTotal}}</span>
           </td>
         </tr>
-        <tr ng-repeat="zoneObj in simpleZonesheet">
-          <td></td>
-          <td>{{zoneObj.name}}</td>
+        <tr ng-repeat="zoneObj in simpleZonesheet" class="zone-row">
+          <td colspan="2">{{zoneObj.name}} ({{zoneObj.desc}})</td>
           <td ng-repeat="zoneDayObj in zoneObj.days">
-            <input class="form-control" type="number" ng-model="zoneDayObj.units" ng-style="helper.inputCellStyle(zoneDayObj.units)" ng-disabled="!helper.inputCellEnabled()"/>
+            <input class="form-control input-sm" type="number" ng-model="zoneDayObj.units" ng-style="helper.inputCellStyle(zoneDayObj.units)" ng-disabled="!helper.inputCellEnabled()"/>
           </td>
         </tr>
       </tbody>

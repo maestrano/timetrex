@@ -35,6 +35,7 @@ input[type=number]::-webkit-outer-spin-button {
 .table > thead > tr > th,
 .table > tbody > tr > td {
   text-align: center;
+  vertical-align: middle;
 }
 
 .table > thead > tr > th.cell-day,
@@ -68,7 +69,11 @@ input[type=number]::-webkit-outer-spin-button {
 
 .panel.panel-primary table tr.table-footer td {
   border-top: solid 1px #428bca;
-  border-bottom: solid 1px #428bca;
+  border-bottom: solid 2px #428bca;
+}
+
+.panel.panel-primary table tr.zone-row {
+  font-size: 12px;
 }
 
 .panel .panel-footer {

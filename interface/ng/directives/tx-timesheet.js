@@ -79,7 +79,7 @@ function($scope,$q,UserEntity,TimesheetEntity){
   
   helper.performSave = function() {
     helper.statuses.isSaving = true;
-    TimesheetEntity.saveSimpleTimesheet().then(function(value){
+    TimesheetEntity.saveGlobalTimesheet().then(function(value){
       helper.statuses.isSaving = false;
     });
   };

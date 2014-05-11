@@ -47,8 +47,8 @@ function($http, $cookies, $q, $window) {
 
 // Timesheet entity
 module.factory('TimesheetEntity', [
-'$http', '$cookies', '$q', 'PunchEntity',
-function($http, $cookies, $q, PunchEntity) {
+'$http', '$cookies', '$q', 'PunchEntity', 'PaystubEntity',
+function($http, $cookies, $q, PunchEntity, PaystubEntity) {
   var service = {};
   service.data = {};
   service.payStubsdata = {};
@@ -56,13 +56,14 @@ function($http, $cookies, $q, PunchEntity) {
   service.departments = {};
   service.currentDetails = {};
   service.temporaryAddedRows = [];
+  service.travelPayStubAccountId = 31; // Travel Expenses
   service.zoneConfig = [
-    {name: 'zone1', rate: 15.0000},
-    {name: 'zone2', rate: 20.0000},
-    {name: 'zone3', rate: 25.0000},
-    {name: 'zone4', rate: 30.0000},
-    {name: 'zone5', rate: 40.0000},
-    {name: 'zone6', rate: 45.0000},
+    {name: 'Zone 1', rate: 15.0000, desc: '1-8kms'},
+    {name: 'Zone 2', rate: 20.0000, desc: '9-14kms'},
+    {name: 'Zone 3', rate: 25.0000, desc: '15-19kms'},
+    {name: 'Zone 4', rate: 30.0000, desc: '20-24kms'},
+    {name: 'Zone 5', rate: 40.0000, desc: '25-30kms'},
+    {name: 'Zone 6', rate: 45.0000, desc: '31-36kms'},
   ];
   
   // Load a user which is then accessible via
@@ -105,7 +106,7 @@ function($http, $cookies, $q, PunchEntity) {
     }
     ).then(function(response){
       // Reset and populate the timesheet
-      for (key in service.data) {
+      for (var key in service.data) {
         if (service.data.hasOwnProperty(key)) {
           delete service.data[key];
         };
@@ -127,7 +128,7 @@ function($http, $cookies, $q, PunchEntity) {
       }).then(function(response){
         console.log("Paystub data");
         console.log(response);
-        for (key in service.payStubsdata) {
+        for (var key in service.payStubsdata) {
           if (service.payStubsdata.hasOwnProperty(key)) {
             delete service.payStubsdata[key];
           };
@@ -197,7 +198,7 @@ function($http, $cookies, $q, PunchEntity) {
   service.rowCount = function(){
     var size = 0;
     if (service.simpleTimesheet){
-      for (key in service.simpleTimesheet) {
+      for (var key in service.simpleTimesheet) {
         if (service.simpleTimesheet.hasOwnProperty(key)) size++;
       };
     };
@@ -256,7 +257,7 @@ function($http, $cookies, $q, PunchEntity) {
       console.log("Performing hard reset");
       simpleTimesheet = service.simpleTimesheet = {};
     } else {
-      for (key in service.simpleTimesheet) {
+      for (var key in service.simpleTimesheet) {
         if (service.simpleTimesheet.hasOwnProperty(key)) {
           delete service.simpleTimesheet[key];
         };
@@ -303,7 +304,7 @@ function($http, $cookies, $q, PunchEntity) {
       console.log("Performing hard reset");
       simpleZonesheet = service.simpleZonesheet = {};
     } else {
-      for (key in service.simpleZonesheet) {
+      for (var key in service.simpleZonesheet) {
         if (service.simpleZonesheet.hasOwnProperty(key)) {
           delete service.simpleZonesheet[key];
         };
@@ -319,6 +320,7 @@ function($http, $cookies, $q, PunchEntity) {
         simpleZonesheet[zoneObj.name] = (simpleZonesheet[zoneObj.name] || {})
         simpleZonesheet[zoneObj.name].name = zoneObj.name;
         simpleZonesheet[zoneObj.name].rate = zoneObj.rate;
+        simpleZonesheet[zoneObj.name].desc = zoneObj.desc;
         simpleZonesheet[zoneObj.name].days = (simpleZonesheet[zoneObj.name].days || {});
         simpleZonesheet[zoneObj.name].days[dateKey] = {};
         simpleZonesheet[zoneObj.name].days[dateKey].units = 0;
@@ -334,12 +336,13 @@ function($http, $cookies, $q, PunchEntity) {
     // Populate units
     _.each(service.payStubsdata, function(payStub){
       var zoneObj = _.findWhere(service.zoneConfig, {rate: parseFloat(payStub.rate)});
-      if (zoneObj != undefined) {
+      if (zoneObj != undefined && parseInt(payStub.pay_stub_entry_name_id) == service.travelPayStubAccountId) {
         var intUnits = Math.ceil(parseFloat(payStub.units));
         var zoneName = zoneObj.name;
         var dateKey = service.formatDateToKey(new Date(payStub.effective_date));
         
         simpleZonesheet[zoneName].days[dateKey].units += intUnits;
+        simpleZonesheet[zoneObj.name].days[dateKey].$origUnits = simpleZonesheet[zoneName].days[dateKey].units;
         simpleZonesheet[zoneName].days[dateKey].paystubs.push(payStub);
       };
     });
@@ -404,18 +407,20 @@ function($http, $cookies, $q, PunchEntity) {
         isValid = (isValid && dayObj.units >= 0);
       });
     });
+    
+    return isValid;
   };
   
   // Check that one SimpleTimesheet or SimpleZonesheet
   // is changed
   service.isGlobalTimesheetChanged = function() {
-    return (service.isSimpleTimesheetChanged() || service.isSimpleZonesheetChanged()) 
+    return (service.isSimpleTimesheetChanged() || service.isSimpleZonesheetChanged());
   };
   
   // Check that one SimpleTimesheet or SimpleZonesheet
   // is changed
   service.isGlobalTimesheetChangedForSavePurpose = function() {
-    return (service.isSimpleTimesheetChangedForSavePurpose() || service.isSimpleZonesheetChanged()) 
+    return (service.isSimpleTimesheetChangedForSavePurpose() || service.isSimpleZonesheetChanged()); 
   };
   
   // Check wether the timesheet was changed or not
@@ -431,7 +436,7 @@ function($http, $cookies, $q, PunchEntity) {
     };
     
     return isChanged;
-  }
+  };
   
   // Check wether the timesheet was changed or not
   service.isSimpleTimesheetChangedForSavePurpose = function() {
@@ -449,7 +454,7 @@ function($http, $cookies, $q, PunchEntity) {
     };
     
     return isChanged;
-  }
+  };
   
   service.isSimpleZonesheetChanged = function() {
     var isChanged = false;
@@ -463,7 +468,7 @@ function($http, $cookies, $q, PunchEntity) {
     };
     
     return isChanged;
-  }
+  };
   
   service.resetGlobalTimesheet = function() {
     service.resetSimpleTimesheet();
@@ -483,10 +488,10 @@ function($http, $cookies, $q, PunchEntity) {
           dayObject.hours = dayObject.$origHours;
         });
       });
-    }
+    };
     
     return true;
-  }
+  };
   
   service.resetSimpleZonesheet = function() {
     _.each(service.simpleZonesheet, function(zoneObj,zoneName) {
@@ -497,7 +502,16 @@ function($http, $cookies, $q, PunchEntity) {
   };
   
   service.saveGlobalTimesheet = function(){
-    return $q.all([service.saveSimpleTimesheet,service.saveSimpleZonesheet]);
+    // Wait for the global combined promise to finish
+    // then reload the timesheet
+    var qFinal = $q.defer();
+    $q.all([service.saveSimpleTimesheet(),service.saveSimpleZonesheet()]).then(function(values){
+      service.load(service.currentDetails.userId,service.currentDetails.baseDate).then(function(value){
+        qFinal.resolve(values);
+      });
+    });
+    
+    return qFinal.promise;
   };
   
   service.saveSimpleZonesheet = function(){
@@ -533,8 +547,10 @@ function($http, $cookies, $q, PunchEntity) {
               
               var newPaystubData = {
                 effective_date: dayObj.date.toLocaleString(),
-                units: 20,
-                rate: zoneObj.rate
+                units: dayObj.units,
+                rate: zoneObj.rate,
+                user_id: service.currentDetails.userId,
+                pay_stub_entry_name_id: 31
               };
             
               console.log("Before paystub create");
@@ -543,8 +559,8 @@ function($http, $cookies, $q, PunchEntity) {
               // Create paystub then resolve locaAction promise
               PaystubEntity.create(newPaystubData).then(function(value){
                 console.log("After create");
-                console.log(values);
-                qLocalAction.resolve(values);
+                console.log(value);
+                qLocalAction.resolve(value);
               });
             });
           };
@@ -552,18 +568,9 @@ function($http, $cookies, $q, PunchEntity) {
       });
     });
     
-    // Wait for the global combined promise to finish
-    // then reload the timesheet
-    var qFinal = $q.defer();
-    $q.all(actionPromises).then(function(creationValues){
-      service.load(service.currentDetails.userId,service.currentDetails.baseDate).then(function(value){
-        qFinal.resolve(creationValues);
-      });
-    });
-    
     // Return a global combined promise for all
     // actions
-    return qFinal.promise;
+    return $q.all(actionPromises);
     
   };
   
@@ -640,18 +647,9 @@ function($http, $cookies, $q, PunchEntity) {
       });
     });
     
-    // Wait for the global combined promise to finish
-    // then reload the timesheet
-    var qFinal = $q.defer();
-    $q.all(actionPromises).then(function(creationValues){
-      service.load(service.currentDetails.userId,service.currentDetails.baseDate).then(function(value){
-        qFinal.resolve(creationValues);
-      });
-    });
-    
     // Return a global combined promise for all
     // actions
-    return qFinal.promise;
+    return $q.all(actionPromises);
   };
   
   
@@ -675,7 +673,7 @@ function($http, $cookies, $q, PunchEntity) {
         delete remainingCombinations[rowObj.branchId][rowObj.departmentId];
         
         var size = 0;
-        for (key in remainingCombinations[rowObj.branchId]) {
+        for (var key in remainingCombinations[rowObj.branchId]) {
           if (remainingCombinations[rowObj.branchId].hasOwnProperty(key)) size++;
         };
         if (size == 0){
@@ -738,7 +736,7 @@ function($http, $cookies, $q, PunchEntity) {
   service.isBranchDeptPairAvailable = function() {
     var combinations = service.remainingBranchDeptCombinations();
     var size = 0;
-    for (key in combinations) {
+    for (var key in combinations) {
       if (combinations.hasOwnProperty(key)) size++;
     };
     
