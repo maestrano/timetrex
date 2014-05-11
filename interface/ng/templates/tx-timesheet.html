@@ -1,7 +1,7 @@
-<div ng-show="isUserLoading" class="wrapper-loader">
+<div ng-show="helper.isUserLoading" class="wrapper-loader">
   <img src="./libs/images/saving-loader.gif" alt="saving" />
 </div>
-<div ng-show="!isUserLoading">
+<div ng-show="!helper.isUserLoading">
   <nav class="navbar navbar-default" role="navigation">
     <div class="container-fluid">
       <!-- Brand and toggle get grouped for better mobile display -->
@@ -28,10 +28,10 @@
       </div>
     </div>
   </nav>
-  <div ng-show="isTimesheetLoading" class="wrapper-loader">
+  <div ng-show="!helper.isUserLoading && helper.isTimesheetLoading" class="wrapper-loader">
     <img src="./libs/images/saving-loader.gif" alt="saving" />
   </div>
-  <div ng-show="!isTimesheetLoading">
+  <div ng-show="!helper.isUserLoading && !helper.isTimesheetLoading">
     <div class="panel panel-primary">
       <!-- Panel heading -->
       <div class="panel-heading">

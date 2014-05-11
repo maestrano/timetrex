@@ -24,19 +24,21 @@ function($scope,$q,UserEntity,TimesheetEntity){
   //----------------------------------
   var currentDate = new Date();
   currentDate.setDate(currentDate.getDate() - 1);
-  var qUserLoading = $q.defer();
-  $scope.isUserLoading = true;
-  $scope.isTimesheetLoading = false;
   
   //----------------------------------
   // Helpers
   //----------------------------------
   $scope.helper = helper = {};
+  helper.currentDate = new Date();
+  helper.currentDate.setDate(helper.currentDate.getDate() - 1); 
+  
   helper.statuses = {};
+  helper.isUserLoading = true;
+  helper.isTimesheetLoading = true;
   helper.statuses.isSaving = false;
   
   helper.reloadTimesheet = function(){
-    $scope.isTimesheetLoading = true;
+    helper.isTimesheetLoading = true;
     
     TimesheetEntity.load(UserEntity.data.id,currentDate).then(function(value){
       // Build table structure
@@ -53,7 +55,6 @@ function($scope,$q,UserEntity,TimesheetEntity){
       $scope.timesheetEndDate = new Date(dateIterator);
       
       // Load scope
-      $scope.currentDate = currentDate;
       $scope.user = UserEntity.data;
       console.log($scope.user);
       $scope.timesheet = TimesheetEntity.simpleTimesheet;
@@ -61,7 +62,7 @@ function($scope,$q,UserEntity,TimesheetEntity){
       $scope.branchDropdown = TimesheetEntity.branchDropDownList //function
       $scope.departmentDropdown = TimesheetEntity.departmentDropDownList //function
       
-      $scope.isTimesheetLoading = false;
+      helper.isTimesheetLoading = false;
     });
   };
   
@@ -109,13 +110,17 @@ function($scope,$q,UserEntity,TimesheetEntity){
   helper.performLogout = function() {
     console.log("logout");
     UserEntity.logout();
-  }
+  };
+  
+  helper.performPreviousPeriod = function(){
+    
+  };
   
   //----------------------------------
   // Display view once data is loaded
   //----------------------------------
   UserEntity.load().then(function(value){
-    $scope.isUserLoading = false;
+    helper.isUserLoading = false;
     helper.reloadTimesheet();
   });
   
