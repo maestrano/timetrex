@@ -35,6 +35,10 @@ function($scope,$q,UserEntity,TimesheetEntity){
   helper.reloadTimesheet = function(){
     helper.isTimesheetLoading = true;
     
+    // Need to disable this method temporarily to avoid
+    // digest loop
+    $scope.timesheetTotals = function(){ return false; };
+    
     TimesheetEntity.load(UserEntity.data.id,helper.currentDate).then(function(value){
       // Build table structure
       $scope.timesheetHeader.length = 0;

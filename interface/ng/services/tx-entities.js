@@ -245,6 +245,8 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
   service.buildGlobalTimesheet = function(timesheetHardReset) {
     service.buildSimpleTimesheet(timesheetHardReset);
     service.buildSimpleZonesheet(timesheetHardReset);
+    
+    return true;
   }
   
   // Aggregate all punches by branch, department and day
@@ -263,9 +265,6 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
         };
       };
     }
-    
-    // Initialize the default department
-    //service.initSimpleTimesheetRow(0,0);
     
     // We iterate through all punches and aggregate them in
     // branch > department > day
@@ -297,7 +296,8 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
   
   // Build the zonesheet
   service.buildSimpleZonesheet = function(timesheetHardReset) {
-    simpleZonesheet = service.simpleZonesheet = (service.simpleZonesheet || {});
+    service.simpleZonesheet = (service.simpleZonesheet || {});
+    var simpleZonesheet = service.simpleZonesheet;
     
     // Reset zonesheet
     if (timesheetHardReset) {
@@ -342,7 +342,7 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
         var dateKey = service.formatDateToKey(new Date(payStub.effective_date));
         
         simpleZonesheet[zoneName].days[dateKey].units += intUnits;
-        simpleZonesheet[zoneObj.name].days[dateKey].$origUnits = simpleZonesheet[zoneName].days[dateKey].units;
+        simpleZonesheet[zoneName].days[dateKey].$origUnits = simpleZonesheet[zoneName].days[dateKey].units;
         simpleZonesheet[zoneName].days[dateKey].paystubs.push(payStub);
       };
     });
@@ -352,7 +352,16 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
   
   // Return the total hours for the timesheet
   service.timesheetTotals = function() {
-    var totals = {};
+    service.timesheetTotalList = (service.timesheetTotalList || {});
+    var totals = service.timesheetTotalList;
+    
+    // Reset totals
+    for (var key in totals) {
+      if (totals.hasOwnProperty(key)) {
+        delete totals[key];
+      };
+    };
+    
     // Initialize dates
     var dateIterator = new Date(service.data.timesheet_dates.start_display_date);
     for (var i = 0; i < 7; i++) {
@@ -370,14 +379,14 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
     });
     
     return totals;
-  }
+  };
   
   
   // Check that both SimpleTimesheet and SimpleZonesheet
   // are valid
   service.isGlobalTimesheetValid = function() {
     return (service.isSimpleTimesheetValid() && service.isSimpleZonesheetValid());
-  }
+  };
   
   // Check wether the timesheet is valid or not
   // Validation checks that a given day does not have
@@ -898,17 +907,17 @@ function($http, $cookies, $q) {
     // Perform the creation request
     var qCreation = $q.defer();
     qDefaultPaystub.then(function(defaultPaystub) {
-      punch = _.clone(defaultPaystub);
-      _.extend(punch,data);
-      console.log("Inside create - Punch to send");
-      console.log(punch);
+      paystub = _.clone(defaultPaystub);
+      _.extend(paystub,data);
+      console.log("Inside create - Paystub to send");
+      console.log(paystub);
       $http.get("/api/json/api.php",
       {
         params: {
           Class: "APIPayStubAmendment",
           Method: "setPayStubAmendment",
           SessionID: $cookies.SessionID,
-          json: {0: punch }
+          json: {0: paystub }
         }
       }).then(function(data){
         qCreation.resolve(data);
