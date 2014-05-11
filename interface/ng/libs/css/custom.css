@@ -48,6 +48,10 @@ input[type=number]::-webkit-outer-spin-button {
   margin: auto;
 }
 
+.table > tbody > tr > td select {
+  width: 100%;
+}
+
 /* 
 ---------------------- 
   Panel Configuration

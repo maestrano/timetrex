@@ -69,23 +69,15 @@
             <select ng-model="rowObj.departmentId" ng-options="deptId as deptName for (deptId,deptName) in departmentDropdown(rowObj.branchId,rowObj.departmentId)"></select>
           </td>
           <td class="cell-day" ng-repeat="dayObj in rowObj.days">
-            <input class="form-control" type="number" ng-model="dayObj.hours" ng-style="helper.dayCellStyle(dayObj.hours)"/>
+            <input class="form-control" type="number" ng-model="dayObj.hours" ng-style="helper.dayCellStyle(dayObj.hours)" ng-disabled="!helper.isDayCellEnabled()"/>
           </td>
         </tr>
         <tr class="add-row" ng-show="helper.isAddRowBtnShown()">
-          <!-- <td ></td> -->
           <td colspan="9">
             <button class="btn btn-primary btn-circle" ng-click="helper.performAddRow()">
               <span class="glyphicon glyphicon-plus"></span>
             </button>
           </td>
-          <!-- <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td> -->
         </tr>
         <tr class="table-footer">
           <td></td>

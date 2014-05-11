@@ -372,7 +372,9 @@ function($http, $cookies, $q, PunchEntity) {
           });
           
           if (dayObj.hours <= 0){
-            qLocalAction.resolve([{},{}]);
+            $q.all(deletePromises).then(function(values){
+              qLocalAction.resolve([{},{}]);
+            });
           } else {
             // Once deleted create one PunchIn and one PunchOut
             // for that branch>department>day to reflect the 

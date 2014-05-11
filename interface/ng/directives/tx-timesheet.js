@@ -102,6 +102,10 @@ function($scope,$q,UserEntity,TimesheetEntity){
     return {};
   };
   
+  helper.isDayCellEnabled = function() {
+    return !helper.statuses.isSaving;
+  };
+  
   helper.performLogout = function() {
     console.log("logout");
     UserEntity.logout();
