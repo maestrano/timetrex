@@ -1,7 +1,7 @@
-<div ng-show="isLoading">
-  <span>Loading</span>
+<div ng-show="isUserLoading" class="wrapper-loader">
+  <img src="./libs/images/saving-loader.gif" alt="saving" />
 </div>
-<div ng-show="!isLoading">
+<div ng-show="!isUserLoading">
   <nav class="navbar navbar-default" role="navigation">
     <div class="container-fluid">
       <!-- Brand and toggle get grouped for better mobile display -->
@@ -28,74 +28,78 @@
       </div>
     </div>
   </nav>
+  <div ng-show="isTimesheetLoading" class="wrapper-loader">
+    <img src="./libs/images/saving-loader.gif" alt="saving" />
+  </div>
+  <div ng-show="!isTimesheetLoading">
+    <div class="panel panel-primary">
+      <!-- Panel heading -->
+      <div class="panel-heading">
+        <button class="btn btn-primary btn-circle" style="margin-right:15px;">
+          <span class="glyphicon glyphicon-chevron-left"></span>
+        </button>
       
-  <div class="panel panel-primary">
-    <!-- Panel heading -->
-    <div class="panel-heading">
-      <button class="btn btn-primary btn-circle" style="margin-right:15px;">
-        <span class="glyphicon glyphicon-chevron-left"></span>
-      </button>
+        <span><b>{{timesheetStartDate | date:'EEEE, MMMM dd'}}</b></span>
+        <span>to</span>
+        <span><b>{{timesheetEndDate | date:'EEEE, MMMM dd'}}</b></span>
       
-      <span><b>{{timesheetStartDate | date:'EEEE, MMMM dd'}}</b></span>
-      <span>to</span>
-      <span><b>{{timesheetEndDate | date:'EEEE, MMMM dd'}}</b></span>
-      
-      <button class="btn btn-primary btn-circle" style="margin-left:15px;">
-        <span class="glyphicon glyphicon-chevron-right"></span>
-      </button>
-    </div>
+        <button class="btn btn-primary btn-circle" style="margin-left:15px;">
+          <span class="glyphicon glyphicon-chevron-right"></span>
+        </button>
+      </div>
 
-    <!-- Table -->
-    <table class="table table-striped">
-      <thead>
-      <tr>
-        <th>Branch</th>
-        <th>Department</th>
-        <th class="cell-day" ng-repeat="headerDate in timesheetHeader">{{headerDate | date:'EEE, MMM dd'}}</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr class="animate-repeat" ng-repeat="rowObj in timesheet | orderObjectBy:'displayOrder'">
-        <td>
-          <select ng-model="rowObj.branchId" ng-options="branchId as branchName for (branchId,branchName) in branchDropdown(rowObj.branchId, rowObj.departmentId)"></select>
-        </td>
-        <td>
-          <select ng-model="rowObj.departmentId" ng-options="deptId as deptName for (deptId,deptName) in departmentDropdown(rowObj.branchId,rowObj.departmentId)"></select>
-        </td>
-        <td class="cell-day" ng-repeat="dayObj in rowObj.days">
-          <input class="form-control" type="number" ng-model="dayObj.hours" ng-style="helper.dayCellStyle(dayObj.hours)"/>
-        </td>
-      </tr>
-      <tr class="add-row" ng-show="helper.isAddRowBtnShown()">
-        <td></td>
-        <td>
-          <button class="btn btn-primary btn-circle" ng-click="helper.performAddRow()">
-            <span class="glyphicon glyphicon-plus"></span>
-          </button>
-        </td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-      </tr>
-      <tr class="table-footer">
-        <td></td>
-        <td>Totals</td>
-        <td ng-repeat="dayTotal in timesheetTotals()">
-          <span ng-style="dayTotal > 24 && {color:'red'}">{{dayTotal}}</span>
-        </td>
-      </tr>
-    </tbody>
-    </table>
+      <!-- Table -->
+      <table class="table table-striped">
+        <thead>
+        <tr>
+          <th>Branch</th>
+          <th>Department</th>
+          <th class="cell-day" ng-repeat="headerDate in timesheetHeader">{{headerDate | date:'EEE, MMM dd'}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="animate-repeat" ng-repeat="rowObj in timesheet | orderObjectBy:'displayOrder'">
+          <td>
+            <select ng-model="rowObj.branchId" ng-options="branchId as branchName for (branchId,branchName) in branchDropdown(rowObj.branchId, rowObj.departmentId)"></select>
+          </td>
+          <td>
+            <select ng-model="rowObj.departmentId" ng-options="deptId as deptName for (deptId,deptName) in departmentDropdown(rowObj.branchId,rowObj.departmentId)"></select>
+          </td>
+          <td class="cell-day" ng-repeat="dayObj in rowObj.days">
+            <input class="form-control" type="number" ng-model="dayObj.hours" ng-style="helper.dayCellStyle(dayObj.hours)"/>
+          </td>
+        </tr>
+        <tr class="add-row" ng-show="helper.isAddRowBtnShown()">
+          <td></td>
+          <td>
+            <button class="btn btn-primary btn-circle" ng-click="helper.performAddRow()">
+              <span class="glyphicon glyphicon-plus"></span>
+            </button>
+          </td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr class="table-footer">
+          <td></td>
+          <td>Totals</td>
+          <td ng-repeat="dayTotal in timesheetTotals()">
+            <span ng-style="dayTotal > 24 && {color:'red'}">{{dayTotal}}</span>
+          </td>
+        </tr>
+      </tbody>
+      </table>
     
-    <!-- Panel Footer -->
-    <div class="panel-footer">
-      <button class="btn btn-danger" ng-show="helper.isCancelBtnShown()" ng-click="helper.performCancel()">Cancel</button>
-      <button class="btn btn-success" ng-disabled="!helper.isSuccessBtnEnabled()" ng-click="helper.performSave()" ng-show="helper.isSuccessBtnShown()">Save</button>
-      <img src="./libs/images/saving-loader.gif" alt="saving" ng-show="helper.isSaveLoaderShown()"/>
+      <!-- Panel Footer -->
+      <div class="panel-footer">
+        <button class="btn btn-danger" ng-show="helper.isCancelBtnShown()" ng-click="helper.performCancel()">Cancel</button>
+        <button class="btn btn-success" ng-disabled="!helper.isSuccessBtnEnabled()" ng-click="helper.performSave()" ng-show="helper.isSuccessBtnShown()">Save</button>
+        <img src="./libs/images/saving-loader.gif" alt="saving" ng-show="helper.isSaveLoaderShown()"/>
+      </div>
     </div>
   </div>
 </div>

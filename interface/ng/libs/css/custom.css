@@ -17,6 +17,11 @@ input[type=number]::-webkit-outer-spin-button {
   padding-top: 4px;
 }
 
+.wrapper-loader {
+  padding-top: 30px;
+  padding-bottom: 30px;
+  text-align: center;
+}
 
 /* 
 ---------------------- 

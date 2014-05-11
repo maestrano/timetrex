@@ -24,14 +24,22 @@ function($scope,$q,UserEntity,TimesheetEntity){
   //----------------------------------
   var currentDate = new Date();
   currentDate.setDate(currentDate.getDate() - 1);
-  var qDataLoading = $q.defer();
-  $scope.isLoading = true;
+  var qUserLoading = $q.defer();
+  $scope.isUserLoading = true;
+  $scope.isTimesheetLoading = false;
   
   //----------------------------------
-  // Load data
+  // Helpers
   //----------------------------------
-  UserEntity.load().then(function(value){
+  $scope.helper = helper = {};
+  helper.statuses = {};
+  helper.statuses.isSaving = false;
+  
+  helper.reloadTimesheet = function(){
+    $scope.isTimesheetLoading = true;
+    
     TimesheetEntity.load(UserEntity.data.id,currentDate).then(function(value){
+      // Build table structure
       $scope.timesheetHeader = []
       console.log(TimesheetEntity);
       var dateIterator = new Date(TimesheetEntity.data.timesheet_dates.start_display_date);
@@ -44,16 +52,18 @@ function($scope,$q,UserEntity,TimesheetEntity){
       dateIterator.setDate(dateIterator.getDate() - 1);
       $scope.timesheetEndDate = new Date(dateIterator);
       
-      qDataLoading.resolve(value);
+      // Load scope
+      $scope.currentDate = currentDate;
+      $scope.user = UserEntity.data;
+      console.log($scope.user);
+      $scope.timesheet = TimesheetEntity.simpleTimesheet;
+      $scope.timesheetTotals = TimesheetEntity.timesheetTotals //function
+      $scope.branchDropdown = TimesheetEntity.branchDropDownList //function
+      $scope.departmentDropdown = TimesheetEntity.departmentDropDownList //function
+      
+      $scope.isTimesheetLoading = false;
     });
-  });
-  
-  //----------------------------------
-  // Helpers
-  //----------------------------------
-  $scope.helper = helper = {};
-  helper.statuses = {};
-  helper.statuses.isSaving = false;
+  };
   
   helper.isSuccessBtnEnabled = function(){
     return TimesheetEntity.isTimesheetChangedForSavePurpose() && TimesheetEntity.isTimesheetValid();
@@ -104,20 +114,10 @@ function($scope,$q,UserEntity,TimesheetEntity){
   //----------------------------------
   // Display view once data is loaded
   //----------------------------------
-  qDataLoading.promise.then(function(value){
-    $scope.currentDate = currentDate;
-    $scope.user = UserEntity.data;
-    console.log($scope.user);
-    $scope.timesheet = TimesheetEntity.simpleTimesheet;
-    $scope.timesheetTotals = TimesheetEntity.timesheetTotals //function
-    $scope.branchDropdown = TimesheetEntity.branchDropDownList //function
-    $scope.departmentDropdown = TimesheetEntity.departmentDropDownList //function
-    
-    $scope.isLoading = false;
+  UserEntity.load().then(function(value){
+    $scope.isUserLoading = false;
+    helper.reloadTimesheet();
   });
-  
-  
-  //$scope.timesheetMessage = "Hello from scope";
   
 }]);
 
