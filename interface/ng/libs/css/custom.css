@@ -68,6 +68,7 @@ input[type=number]::-webkit-outer-spin-button {
 
 .panel.panel-primary table tr.table-footer td {
   border-top: solid 1px #428bca;
+  border-bottom: solid 1px #428bca;
 }
 
 .panel .panel-footer {

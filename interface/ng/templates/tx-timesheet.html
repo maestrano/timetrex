@@ -69,7 +69,7 @@
             <select ng-model="rowObj.departmentId" ng-options="deptId as deptName for (deptId,deptName) in departmentDropdown(rowObj.branchId,rowObj.departmentId)"></select>
           </td>
           <td class="cell-day" ng-repeat="dayObj in rowObj.days">
-            <input class="form-control" type="number" ng-model="dayObj.hours" ng-style="helper.dayCellStyle(dayObj.hours)" ng-disabled="!helper.isDayCellEnabled()"/>
+            <input class="form-control" type="number" ng-model="dayObj.hours" ng-style="helper.inputCellStyle(dayObj.hours)" ng-disabled="!helper.inputCellEnabled()"/>
           </td>
         </tr>
         <tr class="add-row" ng-show="helper.isAddRowBtnShown()">
@@ -84,6 +84,13 @@
           <td>Totals</td>
           <td ng-repeat="dayTotal in timesheetTotals()">
             <span ng-style="dayTotal > 24 && {color:'red'}">{{dayTotal}}</span>
+          </td>
+        </tr>
+        <tr ng-repeat="zoneObj in simpleZonesheet">
+          <td></td>
+          <td>{{zoneObj.name}}</td>
+          <td ng-repeat="zoneDayObj in zoneObj.days">
+            <input class="form-control" type="number" ng-model="zoneDayObj.units" ng-style="helper.inputCellStyle(zoneDayObj.units)" ng-disabled="!helper.inputCellEnabled()"/>
           </td>
         </tr>
       </tbody>

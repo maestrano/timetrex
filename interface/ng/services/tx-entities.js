@@ -51,10 +51,19 @@ module.factory('TimesheetEntity', [
 function($http, $cookies, $q, PunchEntity) {
   var service = {};
   service.data = {};
+  service.payStubsdata = {};
   service.branches = {};
   service.departments = {};
   service.currentDetails = {};
   service.temporaryAddedRows = [];
+  service.zoneConfig = [
+    {name: 'zone1', rate: 15.0000},
+    {name: 'zone2', rate: 20.0000},
+    {name: 'zone3', rate: 25.0000},
+    {name: 'zone4', rate: 30.0000},
+    {name: 'zone5', rate: 40.0000},
+    {name: 'zone6', rate: 45.0000},
+  ];
   
   // Load a user which is then accessible via
   // UserEntity.user
@@ -81,9 +90,11 @@ function($http, $cookies, $q, PunchEntity) {
     
     // Declare loading promise
     var qLoad = $q.defer();
+    var qTimesheetDataLoad = $q.defer();
     
     // Load timesheet data
-    var q1 = $http.get("/api/json/api.php",
+    var q1 = qTimesheetDataLoad.promise;
+    $http.get("/api/json/api.php",
     {
       params: {
         Class: "APITimeSheet",
@@ -93,14 +104,43 @@ function($http, $cookies, $q, PunchEntity) {
       }
     }
     ).then(function(response){
-      // Reset the timesheet
+      // Reset and populate the timesheet
       for (key in service.data) {
         if (service.data.hasOwnProperty(key)) {
           delete service.data[key];
         };
       };
       _.extend(service.data,response.data);
-      service.buildSimpleTimesheet(timesheetHardReset);
+      
+      $http.get("/api/json/api.php",
+      {
+        params: {
+          Class: "APIPayStubAmendment",
+          Method: "getPayStubAmendment",
+          SessionID: $cookies.SessionID,
+          json: {0: {filter_data:{
+              start_date: service.data.timesheet_dates.start_date,
+              end_date: service.data.timesheet_dates.end_date,
+            }}
+          }
+        }
+      }).then(function(response){
+        console.log("Paystub data");
+        console.log(response);
+        for (key in service.payStubsdata) {
+          if (service.payStubsdata.hasOwnProperty(key)) {
+            delete service.payStubsdata[key];
+          };
+        };
+        
+        _.extend(service.payStubsdata,response.data);
+        
+        
+        // Build the simpleTimesheet and resolve the promise
+        service.buildGlobalTimesheet(timesheetHardReset);
+        qTimesheetDataLoad.resolve(service.data);
+      }); 
+      
       
     });
     
@@ -200,6 +240,12 @@ function($http, $cookies, $q, PunchEntity) {
     return rowKey;
   }
   
+  // Build SimpleTimesheet and SimpleZonesheet
+  service.buildGlobalTimesheet = function(timesheetHardReset) {
+    service.buildSimpleTimesheet(timesheetHardReset);
+    service.buildSimpleZonesheet(timesheetHardReset);
+  }
+  
   // Aggregate all punches by branch, department and day
   service.buildSimpleTimesheet = function(timesheetHardReset) {
     service.simpleTimesheet = (service.simpleTimesheet || {});
@@ -248,6 +294,59 @@ function($http, $cookies, $q, PunchEntity) {
     return simpleTimesheet;
   };
   
+  // Build the zonesheet
+  service.buildSimpleZonesheet = function(timesheetHardReset) {
+    simpleZonesheet = service.simpleZonesheet = (service.simpleZonesheet || {});
+    
+    // Reset zonesheet
+    if (timesheetHardReset) {
+      console.log("Performing hard reset");
+      simpleZonesheet = service.simpleZonesheet = {};
+    } else {
+      for (key in service.simpleZonesheet) {
+        if (service.simpleZonesheet.hasOwnProperty(key)) {
+          delete service.simpleZonesheet[key];
+        };
+      };
+    }
+    
+    // Initialize zonesheet
+    var dateIterator = new Date(service.data.timesheet_dates.start_display_date);
+    for (var i = 0; i < 7; i++) {
+      var dateKey = service.formatDateToKey(dateIterator);
+      
+      _.each(service.zoneConfig, function(zoneObj){
+        simpleZonesheet[zoneObj.name] = (simpleZonesheet[zoneObj.name] || {})
+        simpleZonesheet[zoneObj.name].name = zoneObj.name;
+        simpleZonesheet[zoneObj.name].rate = zoneObj.rate;
+        simpleZonesheet[zoneObj.name].days = (simpleZonesheet[zoneObj.name].days || {});
+        simpleZonesheet[zoneObj.name].days[dateKey] = {};
+        simpleZonesheet[zoneObj.name].days[dateKey].units = 0;
+        simpleZonesheet[zoneObj.name].days[dateKey].$origUnits = 0;
+        simpleZonesheet[zoneObj.name].days[dateKey].paystubs = [];
+        simpleZonesheet[zoneObj.name].days[dateKey].date = new Date(dateIterator);
+      })
+      
+      // Move forward
+      dateIterator.setDate(dateIterator.getDate() + 1);
+    }
+    
+    // Populate units
+    _.each(service.payStubsdata, function(payStub){
+      var zoneObj = _.findWhere(service.zoneConfig, {rate: parseFloat(payStub.rate)});
+      if (zoneObj != undefined) {
+        var intUnits = Math.ceil(parseFloat(payStub.units));
+        var zoneName = zoneObj.name;
+        var dateKey = service.formatDateToKey(new Date(payStub.effective_date));
+        
+        simpleZonesheet[zoneName].days[dateKey].units += intUnits;
+        simpleZonesheet[zoneName].days[dateKey].paystubs.push(payStub);
+      };
+    });
+    
+    return simpleZonesheet;
+  };
+  
   // Return the total hours for the timesheet
   service.timesheetTotals = function() {
     var totals = {};
@@ -270,10 +369,17 @@ function($http, $cookies, $q, PunchEntity) {
     return totals;
   }
   
+  
+  // Check that both SimpleTimesheet and SimpleZonesheet
+  // are valid
+  service.isGlobalTimesheetValid = function() {
+    return (service.isSimpleTimesheetValid() && service.isSimpleZonesheetValid());
+  }
+  
   // Check wether the timesheet is valid or not
   // Validation checks that a given day does not have
   // more than 24h work registered
-  service.isTimesheetValid = function() {
+  service.isSimpleTimesheetValid = function() {
     var isValid = true;
     
     _.each(service.simpleTimesheet, function(branchDept,rowKey){
@@ -287,10 +393,33 @@ function($http, $cookies, $q, PunchEntity) {
     });
     
     return isValid;
-  }
+  };
+  
+  // Check that all units are greater than zero
+  service.isSimpleZonesheetValid = function() {
+    var isValid = true;
+    
+    _.each(service.simpleZonesheet, function(zoneObj,zoneName){
+      _.each(zoneObj.days, function(dayObj,dayKey){
+        isValid = (isValid && dayObj.units >= 0);
+      });
+    });
+  };
+  
+  // Check that one SimpleTimesheet or SimpleZonesheet
+  // is changed
+  service.isGlobalTimesheetChanged = function() {
+    return (service.isSimpleTimesheetChanged() || service.isSimpleZonesheetChanged()) 
+  };
+  
+  // Check that one SimpleTimesheet or SimpleZonesheet
+  // is changed
+  service.isGlobalTimesheetChangedForSavePurpose = function() {
+    return (service.isSimpleTimesheetChangedForSavePurpose() || service.isSimpleZonesheetChanged()) 
+  };
   
   // Check wether the timesheet was changed or not
-  service.isTimesheetChanged = function() {
+  service.isSimpleTimesheetChanged = function() {
     var isChanged = false;
     
     if (service.simpleTimesheet != undefined) {
@@ -298,14 +427,14 @@ function($http, $cookies, $q, PunchEntity) {
         isChanged = true;
       };
       
-      isChanged = isChanged || service.isTimesheetChangedForSavePurpose();
+      isChanged = isChanged || service.isSimpleTimesheetChangedForSavePurpose();
     };
     
     return isChanged;
   }
   
   // Check wether the timesheet was changed or not
-  service.isTimesheetChangedForSavePurpose = function() {
+  service.isSimpleTimesheetChangedForSavePurpose = function() {
     var isChanged = false;
     
     if (service.simpleTimesheet != undefined) {
@@ -321,6 +450,25 @@ function($http, $cookies, $q, PunchEntity) {
     
     return isChanged;
   }
+  
+  service.isSimpleZonesheetChanged = function() {
+    var isChanged = false;
+    
+    if (service.simpleZonesheet != undefined) {
+      _.each(service.simpleZonesheet, function(zoneObj,zoneName) {
+        _.each(zoneObj.days, function(dayObject,dayDateKey) {
+          isChanged = (isChanged || dayObject.units != dayObject.$origUnits);
+        });
+      });
+    };
+    
+    return isChanged;
+  }
+  
+  service.resetGlobalTimesheet = function() {
+    service.resetSimpleTimesheet();
+    service.resetSimpleZonesheet();
+  };
   
   service.resetSimpleTimesheet = function() {
     if (service.simpleTimesheet != undefined) {
@@ -339,6 +487,85 @@ function($http, $cookies, $q, PunchEntity) {
     
     return true;
   }
+  
+  service.resetSimpleZonesheet = function() {
+    _.each(service.simpleZonesheet, function(zoneObj,zoneName) {
+      _.each(zoneObj.days, function(dayObject,dayDateKey) {
+        dayObject.units = dayObject.$origUnits;
+      });
+    });
+  };
+  
+  service.saveGlobalTimesheet = function(){
+    return $q.all([service.saveSimpleTimesheet,service.saveSimpleZonesheet]);
+  };
+  
+  service.saveSimpleZonesheet = function(){
+    var actionPromises = [];
+    
+    _.each(service.simpleZonesheet, function(zoneObj,rowKey) {
+      _.each(zoneObj.days, function(dayObj,dayDateKey) {
+        console.log(dayObj);
+        // Action is undertaken only if the number of
+        // hours worked were changed for a given branch>department>day
+        if (dayObj.units != dayObj.$origUnits) {
+          // First create a promise for the local action
+          // and add it to the array of promises
+          var qLocalAction = $q.defer();
+          actionPromises.push(qLocalAction.promise);
+          
+          // Then delete all punches for that branch>department>day
+          var deletePromises = []
+          _.each(dayObj.paystubs, function(paystub){
+            console.log("Deleting paystub id: " + paystub.id);
+            deletePromises.push(PaystubEntity.delete(paystub.id));
+          });
+          
+          if (dayObj.units <= 0){
+            $q.all(deletePromises).then(function(values){
+              qLocalAction.resolve([{},{}]);
+            });
+          } else {
+            // Once deleted create the new paystub
+            $q.all(deletePromises).then(function(values){
+              console.log(values);
+              console.log(dayObj.date);
+              
+              var newPaystubData = {
+                effective_date: dayObj.date.toLocaleString(),
+                units: 20,
+                rate: zoneObj.rate
+              };
+            
+              console.log("Before paystub create");
+              console.log(newPaystubData)
+            
+              // Create paystub then resolve locaAction promise
+              PaystubEntity.create(newPaystubData).then(function(value){
+                console.log("After create");
+                console.log(values);
+                qLocalAction.resolve(values);
+              });
+            });
+          };
+        };
+      });
+    });
+    
+    // Wait for the global combined promise to finish
+    // then reload the timesheet
+    var qFinal = $q.defer();
+    $q.all(actionPromises).then(function(creationValues){
+      service.load(service.currentDetails.userId,service.currentDetails.baseDate).then(function(value){
+        qFinal.resolve(creationValues);
+      });
+    });
+    
+    // Return a global combined promise for all
+    // actions
+    return qFinal.promise;
+    
+  };
   
   // Save the timesheet by going through the SimpleTimesheet
   // and deleting/creating punches when hours have changed
@@ -643,6 +870,85 @@ function($http, $cookies, $q) {
       service.defaultPunch = {};
       _.extend(service.defaultPunch,response.data);
       qLoad.resolve(service.defaultPunch);
+    });
+    
+    return qLoad.promise;
+  }
+  
+  return service;
+}]);
+
+// Timesheet entity
+module.factory('PaystubEntity', [
+'$http', '$cookies', '$q',
+function($http, $cookies, $q) {
+  var service = {};
+  service.defaultPaystub = undefined;
+  
+  
+  service.create = function(data) {
+    // First get the default punch or load it
+    var qDefaultPaystub;
+    if (service.defaultPaystub == undefined) {
+      qDefaultPaystub = service.loadDefaultPaystub();
+    } else {
+      var deferred = $q.defer();
+      qDefaultPaystub = deferred.promise;
+      deferred.resolve(service.defaultPaystub);
+    };
+    
+    // Perform the creation request
+    var qCreation = $q.defer();
+    qDefaultPaystub.then(function(defaultPaystub) {
+      punch = _.clone(defaultPaystub);
+      _.extend(punch,data);
+      console.log("Inside create - Punch to send");
+      console.log(punch);
+      $http.get("/api/json/api.php",
+      {
+        params: {
+          Class: "APIPayStubAmendment",
+          Method: "setPayStubAmendment",
+          SessionID: $cookies.SessionID,
+          json: {0: punch }
+        }
+      }).then(function(data){
+        qCreation.resolve(data);
+      });
+    });
+    
+    return qCreation.promise;
+  }
+  
+  service.delete = function(punchId) {
+    var q = $http.get("/api/json/api.php",
+    {
+      params: {
+        Class: "APIPayStubAmendment",
+        Method: "deletePayStubAmendment",
+        SessionID: $cookies.SessionID,
+        json: {0: {0: punchId} }
+      }
+    });
+    
+    return q;
+  }
+  
+  service.loadDefaultPaystub = function() {
+    var qLoad = $q.defer();
+    
+    $http.get("/api/json/api.php",
+    {
+      params: {
+        Class: "APIPayStubAmendment",
+        Method: "getPayStubAmendmentDefaultData",
+        SessionID: $cookies.SessionID,
+      }
+    }).then(function(response){
+      console.log(response);
+      service.defaultPaystub = {};
+      _.extend(service.defaultPaystub,response.data);
+      qLoad.resolve(service.defaultPaystub);
     });
     
     return qLoad.promise;

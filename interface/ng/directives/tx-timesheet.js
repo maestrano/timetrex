@@ -25,7 +25,7 @@ function($scope,$q,UserEntity,TimesheetEntity){
   $scope.timesheetHeader = [];
   $scope.helper = helper = {};
   helper.currentDate = new Date();
-  helper.currentDate.setDate(helper.currentDate.getDate() - 1); 
+  //helper.currentDate.setDate(helper.currentDate.getDate() - 1); 
   
   helper.statuses = {};
   helper.isUserLoading = true;
@@ -52,17 +52,17 @@ function($scope,$q,UserEntity,TimesheetEntity){
       
       // Load scope
       $scope.timesheet = TimesheetEntity.simpleTimesheet;
+      $scope.simpleZonesheet = TimesheetEntity.simpleZonesheet;
       $scope.timesheetTotals = TimesheetEntity.timesheetTotals //function
       $scope.branchDropdown = TimesheetEntity.branchDropDownList //function
       $scope.departmentDropdown = TimesheetEntity.departmentDropDownList //function
-       
       console.log($scope.timesheetHeader);
       helper.isTimesheetLoading = false;
     });
   };
   
   helper.isSuccessBtnEnabled = function(){
-    return TimesheetEntity.isTimesheetChangedForSavePurpose() && TimesheetEntity.isTimesheetValid();
+    return TimesheetEntity.isGlobalTimesheetChangedForSavePurpose() && TimesheetEntity.isGlobalTimesheetValid();
   };
   
   helper.isSuccessBtnShown = function(){
@@ -70,7 +70,7 @@ function($scope,$q,UserEntity,TimesheetEntity){
   };
   
   helper.isCancelBtnShown = function(){
-    return (!helper.statuses.isSaving && TimesheetEntity.isTimesheetChanged());
+    return (!helper.statuses.isSaving && TimesheetEntity.isGlobalTimesheetChanged());
   };
   
   helper.isSaveLoaderShown = function(){
@@ -85,7 +85,7 @@ function($scope,$q,UserEntity,TimesheetEntity){
   };
   
   helper.performCancel = function() {
-    TimesheetEntity.resetSimpleTimesheet();
+    TimesheetEntity.resetGlobalTimesheet();
   };
   
   helper.isAddRowBtnShown = function() {
@@ -96,13 +96,13 @@ function($scope,$q,UserEntity,TimesheetEntity){
     TimesheetEntity.quickAddRowToTimesheet();
   };
   
-  helper.dayCellStyle = function(hours) {
-    if (hours < 0) return {color: 'red'};
-    if (hours == 0) return {color:'#bbbbbb'};
+  helper.inputCellStyle = function(number) {
+    if (number < 0) return {color: 'red'};
+    if (number == 0) return {color:'#bbbbbb'};
     return {};
   };
   
-  helper.isDayCellEnabled = function() {
+  helper.inputCellEnabled = function() {
     return !helper.statuses.isSaving;
   };
   
