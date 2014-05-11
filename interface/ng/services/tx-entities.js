@@ -68,13 +68,12 @@ function($http, $cookies, $q, PunchEntity) {
     
     var timesheetHardReset = false;
     if (baseDate != undefined) {
-      if(service.currentDetails.baseDate != baseDate) {
-        service.currentDetails.baseDate = baseDate;
+      if(service.currentDetails.baseDate == undefined || service.currentDetails.baseDate.getTime() != baseDate.getTime()) {
+        service.currentDetails.baseDate = new Date(baseDate);
         timesheetHardReset = true;
-      }
-      
+      };
     } else {
-      baseDate = service.currentDetails.baseDate
+      baseDate = new Date(service.currentDetails.baseDate);
     };
     
     // Reset the temporary values
@@ -94,6 +93,12 @@ function($http, $cookies, $q, PunchEntity) {
       }
     }
     ).then(function(response){
+      // Reset the timesheet
+      for (key in service.data) {
+        if (service.data.hasOwnProperty(key)) {
+          delete service.data[key];
+        };
+      };
       _.extend(service.data,response.data);
       service.buildSimpleTimesheet(timesheetHardReset);
       
@@ -200,11 +205,13 @@ function($http, $cookies, $q, PunchEntity) {
     
     // Reset Timesheet
     if (timesheetHardReset) {
-      for (key in simpleTimesheet) {
-        if (simpleTimesheet.hasOwnProperty(key)) {
-          delete simpleTimesheet[key];
+      console.log("Performing hard reset");
+      for (key in service.simpleTimesheet) {
+        if (service.simpleTimesheet.hasOwnProperty(key)) {
+          delete service.simpleTimesheet[key];
         };
       };
+      simpleTimesheet = service.simpleTimesheet = {};
     } else {
       for (rowKey in simpleTimesheet) {
         if (simpleTimesheet.hasOwnProperty(rowKey)) {
@@ -222,7 +229,7 @@ function($http, $cookies, $q, PunchEntity) {
     }
     
     // Initialize the default department
-    service.initSimpleTimesheetRow(0,0);
+    //service.initSimpleTimesheetRow(0,0);
     
     // We iterate through all punches and aggregate them in
     // branch > department > day

@@ -35,7 +35,7 @@
     <div class="panel panel-primary">
       <!-- Panel heading -->
       <div class="panel-heading">
-        <button class="btn btn-primary btn-circle" style="margin-right:15px;">
+        <button class="btn btn-primary btn-circle" style="margin-right:15px;" ng-click="helper.performPreviousPeriod()">
           <span class="glyphicon glyphicon-chevron-left"></span>
         </button>
       
@@ -43,7 +43,7 @@
         <span>to</span>
         <span><b>{{timesheetEndDate | date:'EEEE, MMMM dd'}}</b></span>
       
-        <button class="btn btn-primary btn-circle" style="margin-left:15px;">
+        <button class="btn btn-primary btn-circle" style="margin-left:15px;" ng-click="helper.performNextPeriod()">
           <span class="glyphicon glyphicon-chevron-right"></span>
         </button>
       </div>
@@ -58,7 +58,10 @@
         </tr>
       </thead>
       <tbody>
-        <tr class="animate-repeat" ng-repeat="rowObj in timesheet | orderObjectBy:'displayOrder'">
+        <tr ng-show="helper.isTimesheetEmpty()">
+          <td colspan="9"><em>This timesheet is empty. Click the + button below to start adding hours</em></td>
+        </tr>
+        <tr ng-repeat="rowObj in timesheet | orderObjectBy:'displayOrder'">
           <td>
             <select ng-model="rowObj.branchId" ng-options="branchId as branchName for (branchId,branchName) in branchDropdown(rowObj.branchId, rowObj.departmentId)"></select>
           </td>
@@ -70,19 +73,19 @@
           </td>
         </tr>
         <tr class="add-row" ng-show="helper.isAddRowBtnShown()">
-          <td></td>
-          <td>
+          <!-- <td ></td> -->
+          <td colspan="9">
             <button class="btn btn-primary btn-circle" ng-click="helper.performAddRow()">
               <span class="glyphicon glyphicon-plus"></span>
             </button>
           </td>
+          <!-- <td></td>
           <td></td>
           <td></td>
           <td></td>
           <td></td>
           <td></td>
-          <td></td>
-          <td></td>
+          <td></td> -->
         </tr>
         <tr class="table-footer">
           <td></td>

@@ -18,16 +18,11 @@ module.filter('orderObjectBy', function() {
 // Timesheet directive controller
 module.controller('TimesheetCtrl',[
 '$scope', '$q', 'UserEntity', 'TimesheetEntity',
-function($scope,$q,UserEntity,TimesheetEntity){
-  //----------------------------------
-  // Initialize values
-  //----------------------------------
-  var currentDate = new Date();
-  currentDate.setDate(currentDate.getDate() - 1);
-  
+function($scope,$q,UserEntity,TimesheetEntity){  
   //----------------------------------
   // Helpers
   //----------------------------------
+  $scope.timesheetHeader = [];
   $scope.helper = helper = {};
   helper.currentDate = new Date();
   helper.currentDate.setDate(helper.currentDate.getDate() - 1); 
@@ -40,9 +35,9 @@ function($scope,$q,UserEntity,TimesheetEntity){
   helper.reloadTimesheet = function(){
     helper.isTimesheetLoading = true;
     
-    TimesheetEntity.load(UserEntity.data.id,currentDate).then(function(value){
+    TimesheetEntity.load(UserEntity.data.id,helper.currentDate).then(function(value){
       // Build table structure
-      $scope.timesheetHeader = []
+      $scope.timesheetHeader.length = 0;
       console.log(TimesheetEntity);
       var dateIterator = new Date(TimesheetEntity.data.timesheet_dates.start_display_date);
       
@@ -50,18 +45,18 @@ function($scope,$q,UserEntity,TimesheetEntity){
       for (var i = 0; i < 7; i++) {
         $scope.timesheetHeader.push(new Date(dateIterator));
         dateIterator.setDate(dateIterator.getDate() + 1);
-      }
+      };
       dateIterator.setDate(dateIterator.getDate() - 1);
       $scope.timesheetEndDate = new Date(dateIterator);
       
+      
       // Load scope
-      $scope.user = UserEntity.data;
-      console.log($scope.user);
       $scope.timesheet = TimesheetEntity.simpleTimesheet;
       $scope.timesheetTotals = TimesheetEntity.timesheetTotals //function
       $scope.branchDropdown = TimesheetEntity.branchDropDownList //function
       $scope.departmentDropdown = TimesheetEntity.departmentDropDownList //function
-      
+       
+      console.log($scope.timesheetHeader);
       helper.isTimesheetLoading = false;
     });
   };
@@ -113,13 +108,25 @@ function($scope,$q,UserEntity,TimesheetEntity){
   };
   
   helper.performPreviousPeriod = function(){
-    
+    helper.currentDate.setDate(helper.currentDate.getDate() - 7);
+    helper.reloadTimesheet();
   };
+  
+  helper.performNextPeriod = function(){
+    helper.currentDate.setDate(helper.currentDate.getDate() + 7);
+    helper.reloadTimesheet();
+  };
+  
+  helper.isTimesheetEmpty = function(){
+    return (TimesheetEntity.rowCount() == 0);
+  }
   
   //----------------------------------
   // Display view once data is loaded
   //----------------------------------
   UserEntity.load().then(function(value){
+    $scope.user = UserEntity.data;
+    console.log($scope.user);
     helper.isUserLoading = false;
     helper.reloadTimesheet();
   });
