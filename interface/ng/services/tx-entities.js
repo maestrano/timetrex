@@ -329,6 +329,8 @@ function($http, $cookies, $q, PunchEntity) {
       });
       
       _.each(service.simpleTimesheet, function(rowObj,rowKey) {
+        rowObj.branchId = rowObj.$origBranchId;
+        rowObj.departmentId = rowObj.$origDepartmentId;
         _.each(rowObj.days, function(dayObject,dayDateKey) {
           dayObject.hours = dayObject.$origHours;
         });
