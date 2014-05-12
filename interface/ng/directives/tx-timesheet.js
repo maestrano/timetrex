@@ -58,6 +58,7 @@ function($scope,$q,UserEntity,TimesheetEntity){
       
       
       // Load scope
+      $scope.timesheetMeta = TimesheetEntity.meta;
       $scope.timesheet = TimesheetEntity.simpleTimesheet;
       $scope.simpleZonesheet = TimesheetEntity.simpleZonesheet;
       $scope.timesheetTotals = TimesheetEntity.timesheetTotals; //function
@@ -130,6 +131,15 @@ function($scope,$q,UserEntity,TimesheetEntity){
   
   helper.isTimesheetEmpty = function(){
     return (TimesheetEntity.rowCount() == 0);
+  };
+  
+  helper.isErrorBoxShown = function(){
+    return $scope.timesheetMeta && $scope.timesheetMeta.errorMsg != undefined && $scope.timesheetMeta.errorMsg != '';
+  };
+  
+  helper.dismissErrorBox = function(){
+    $scope.timesheetMeta.errorMsg = '';
+    return true;
   }
   
   //----------------------------------

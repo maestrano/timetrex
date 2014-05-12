@@ -32,6 +32,12 @@
     <img src="./libs/images/saving-loader.gif" alt="saving" />
   </div>
   <div ng-show="!helper.isUserLoading && !helper.isTimesheetLoading">
+    <div class="center-block" style="max-width:600px;" ng-show="helper.isErrorBoxShown()">
+      <div class="alert alert-danger">
+        <button type="button" class="close" ng-click="helper.dismissErrorBox()" aria-hidden="true">&times;</button>
+        {{timesheetMeta.errorMsg}}
+      </div>
+    </div>
     <div class="panel panel-primary">
       <!-- Panel heading -->
       <div class="panel-heading">
