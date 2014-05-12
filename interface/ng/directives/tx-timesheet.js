@@ -44,11 +44,12 @@ function($scope,$q,UserEntity,TimesheetEntity){
     TimesheetEntity.load(UserEntity.data.id,helper.currentDate).then(function(value){
       // Build table structure
       $scope.timesheetHeader.length = 0;
-      //console.log(TimesheetEntity);
-      var dateIterator = new Date(TimesheetEntity.data.timesheet_dates.start_display_date);
+      console.log(TimesheetEntity.data.timesheet_dates);
+      var dateIterator = moment(TimesheetEntity.data.timesheet_dates.start_date,"X").toDate();
       
       $scope.timesheetStartDate = new Date(dateIterator);
       for (var i = 0; i < 7; i++) {
+        console.log(dateIterator.getFullYear());
         $scope.timesheetHeader.push(new Date(dateIterator));
         dateIterator.setDate(dateIterator.getDate() + 1);
       };

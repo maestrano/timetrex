@@ -95,7 +95,9 @@ setInterval(function(){
 },1000);
 </script>
 <?php } ?>
-
+<!--[if lt IE 9]>
+<script src='//html5shiv.googlecode.com/svn/trunk/html5.js'></script>
+<![endif]-->
 <link href="/interface/ng/libs/css/bootstrap/bootstrap-theme.min.css" media="screen" rel="stylesheet" type="text/css">
 <link href="/interface/ng/libs/css/bootstrap/bootstrap.min.css" media="screen" rel="stylesheet" type="text/css">
 <link href="/interface/ng/libs/css/custom.css" media="screen" rel="stylesheet" type="text/css">
@@ -110,6 +112,7 @@ setInterval(function(){
   <script src="/interface/ng/libs/js/jquery/jquery-1.11.1.min.js" language="javascript"></script>
   <script src="/interface/ng/libs/js/jquery/jquery.cookie.js" language="javascript"></script>
   <script src="/interface/ng/libs/js/bootstrap/bootstrap.min.js" language="javascript"></script>
+  <script src="/interface/ng/libs/js/angular/moment.min.js" language="javascript"></script>
   <script src="/interface/ng/libs/js/angular/underscore.min.js" language="javascript"></script>
   <script src="/interface/ng/libs/js/angular/angular.min.js" language="javascript"></script>
   <script src="/interface/ng/libs/js/angular/angular-cookies.min.js" language="javascript"></script>

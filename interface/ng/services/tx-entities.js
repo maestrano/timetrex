@@ -232,7 +232,7 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
     st[rowKey].days = (st[rowKey].days || {});
     
     // Initialize dates
-    var dateIterator = new Date(service.data.timesheet_dates.start_display_date);
+    var dateIterator = moment(service.data.timesheet_dates.start_date,"X").toDate();
     for (var i = 0; i < 7; i++) {
       var dateKey = service.formatDateToKey(dateIterator);
       st[rowKey].days[dateKey] = (st[rowKey].days[dateKey] || {});
@@ -284,12 +284,13 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
       var rowObj = service.simpleTimesheet[rowKey];
       
       // Add punch to the right day and count hours
-      var punchDate = new Date(punch.actual_time_stamp);
+      console.log(punch);
+      var punchDate = moment(punch.actual_time_stamp,"DD-MMM-YY hh:mm a",'en').toDate();
       var punchDateKey = service.formatDateToKey(punchDate);
       var dayObj = rowObj.days[punchDateKey];
-      
+      console.log(punchDateKey);
       // Add punch hour if "Out" and substract it if "In"
-      dayObj.hours += punchDate.getHours() * (punch.status == "In" ? -1 : 1)
+      dayObj.hours += punchDate.getHours() * (punch.status == "In" ? -1 : 1);
       
       // Save the original number of hours
       dayObj.$origHours = dayObj.hours;
@@ -320,7 +321,7 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
     }
     
     // Initialize zonesheet
-    var dateIterator = new Date(service.data.timesheet_dates.start_display_date);
+    var dateIterator = moment(service.data.timesheet_dates.start_date,"X").toDate();
     for (var i = 0; i < 7; i++) {
       var dateKey = service.formatDateToKey(dateIterator);
       
@@ -347,7 +348,7 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
       if (zoneObj != undefined && parseInt(payStub.pay_stub_entry_name_id) == service.travelPayStubAccountId) {
         var intUnits = Math.ceil(parseFloat(payStub.units));
         var zoneName = zoneObj.name;
-        var dateKey = service.formatDateToKey(new Date(payStub.effective_date));
+        var dateKey = service.formatDateToKey(moment(payStub.effective_date,"DD-MMM-YY hh:mm a",'en').toDate());
         
         simpleZonesheet[zoneName].days[dateKey].units += intUnits;
         simpleZonesheet[zoneName].days[dateKey].$origUnits = simpleZonesheet[zoneName].days[dateKey].units;
@@ -371,7 +372,7 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
     };
     
     // Initialize dates
-    var dateIterator = new Date(service.data.timesheet_dates.start_display_date);
+    var dateIterator = moment(service.data.timesheet_dates.start_date,"X").toDate();
     for (var i = 0; i < 7; i++) {
       var dateKey = service.formatDateToKey(dateIterator);
       totals[dateKey] = 0;
