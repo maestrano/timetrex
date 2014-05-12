@@ -656,6 +656,14 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
                 PunchEntity.create(punchOutData).then(function(valuePunchOut){
                   console.log("After create");
                   console.log([valuePunchIn,valuePunchOut]);
+                  
+                  if(valuePunchIn.data && valuePunchIn.data.api_details && valuePunchIn.data.api_details.description == "INVALID DATA") {
+                    service.errorMsg = "It looks like something wrong happened while saving your timesheet.";
+                    service.errorMsg += "Maybe your administrator did not give you the right permissions."
+                    service.errorMsg += "<br/>Please contact your application administrator."
+                    service.errorMsg += "If the problem persists please contact support@maestrano.com"
+                  };
+                  
                   qLocalAction.resolve([valuePunchIn,valuePunchOut]);
                 });
               });
