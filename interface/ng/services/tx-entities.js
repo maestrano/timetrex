@@ -284,11 +284,11 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
       var rowObj = service.simpleTimesheet[rowKey];
       
       // Add punch to the right day and count hours
-      console.log(punch);
+      //console.log(punch);
       var punchDate = moment(punch.actual_time_stamp,"DD-MMM-YY hh:mm a",'en').toDate();
       var punchDateKey = service.formatDateToKey(punchDate);
       var dayObj = rowObj.days[punchDateKey];
-      console.log(punchDateKey);
+      //console.log(punchDateKey);
       // Add punch hour if "Out" and substract it if "In"
       dayObj.hours += punchDate.getHours() * (punch.status == "In" ? -1 : 1);
       
