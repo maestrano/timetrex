@@ -14,8 +14,8 @@ this.timetrexApp = angular.module('timetrex',[
 this.timetrexApp.config(['$httpProvider', function($httpProvider) {
   $httpProvider.defaults.headers.post['Content-Type'] = 'application/json';
   $httpProvider.defaults.headers.put['Content-Type'] = 'application/json';
-  $httpProvider.defaults.headers.delete = {};
-  $httpProvider.defaults.headers.delete['Content-Type'] = 'application/json';
+  $httpProvider.defaults.headers['delete'] = {};
+  $httpProvider.defaults.headers['delete']['Content-Type'] = 'application/json';
   
   return $httpProvider;
 }]);

@@ -72,7 +72,7 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
     {name: 'Zone 3', rate: 25.0000, desc: '15-19kms'},
     {name: 'Zone 4', rate: 30.0000, desc: '20-24kms'},
     {name: 'Zone 5', rate: 40.0000, desc: '25-30kms'},
-    {name: 'Zone 6', rate: 45.0000, desc: '31-36kms'},
+    {name: 'Zone 6', rate: 45.0000, desc: '31-36kms'}
   ];
   
   // Load a user which is then accessible via
@@ -130,7 +130,7 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
           SessionID: $cookies.SessionID,
           json: {0: {filter_data:{
               start_date: service.data.timesheet_dates.start_date,
-              end_date: service.data.timesheet_dates.end_date,
+              end_date: service.data.timesheet_dates.end_date
             }}
           }
         }
@@ -160,7 +160,7 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
       params: {
         Class: "APIDepartment",
         Method: "getDepartment",
-        SessionID: $cookies.SessionID,
+        SessionID: $cookies.SessionID
       }
     }
     ).then(function(response){
@@ -180,7 +180,7 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
       params: {
         Class: "APIBranch",
         Method: "getBranch",
-        SessionID: $cookies.SessionID,
+        SessionID: $cookies.SessionID
       }
     }
     ).then(function(response){
@@ -551,7 +551,7 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
           var deletePromises = []
           _.each(dayObj.paystubs, function(paystub){
             //console.log("Deleting paystub id: " + paystub.id);
-            deletePromises.push(PaystubEntity.delete(paystub.id));
+            deletePromises.push(PaystubEntity.destroy(paystub.id));
           });
           
           if (dayObj.units <= 0){
@@ -621,7 +621,7 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
           var deletePromises = []
           _.each(dayObj.punches, function(punch){
             //console.log("Deleting punch id: " + punch.id);
-            deletePromises.push(PunchEntity.delete(punch.id));
+            deletePromises.push(PunchEntity.destroy(punch.id));
           });
           
           if (dayObj.hours <= 0){
@@ -875,7 +875,7 @@ function($http, $cookies, $q) {
     return qCreation.promise;
   }
   
-  service.delete = function(punchId) {
+  service.destroy = function(punchId) {
     var q = $http.get("/api/json/api.php",
     {
       params: {
@@ -897,7 +897,7 @@ function($http, $cookies, $q) {
       params: {
         Class: "APIPunch",
         Method: "getPunchDefaultData",
-        SessionID: $cookies.SessionID,
+        SessionID: $cookies.SessionID
       }
     }).then(function(response){
       //console.log(response);
@@ -954,7 +954,7 @@ function($http, $cookies, $q) {
     return qCreation.promise;
   }
   
-  service.delete = function(punchId) {
+  service.destroy = function(punchId) {
     var q = $http.get("/api/json/api.php",
     {
       params: {
@@ -976,7 +976,7 @@ function($http, $cookies, $q) {
       params: {
         Class: "APIPayStubAmendment",
         Method: "getPayStubAmendmentDefaultData",
-        SessionID: $cookies.SessionID,
+        SessionID: $cookies.SessionID
       }
     }).then(function(response){
       //console.log(response);

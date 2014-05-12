@@ -73,6 +73,7 @@ if ($maestrano->isSsoEnabled()) {
 //Misc::redirectMobileBrowser(); //Redirect mobile browsers automatically.
 
 ?>
+<!doctype html>
 <html lang="en" id="ng-app" ng-app="timetrex">
 
 <head>
@@ -103,7 +104,7 @@ setInterval(function(){
 <link href="/interface/ng/libs/css/custom.css" media="screen" rel="stylesheet" type="text/css">
 
 </head>
-<body ng-controller="MainCtrl">
+<body>
   <div class="container">
     <div tx-timesheet></div>
   </div>
