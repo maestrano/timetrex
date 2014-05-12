@@ -37,9 +37,15 @@ function($http, $cookies, $q, $window) {
     $.removeCookie('PHPSESSID');
     $.removeCookie('SessionID');
     $.removeCookie('StationID');
-    $.cookie('timetrex_logout',1);
     
-    $window.location.href = "/interface/flex";
+    // The logoutRedirect variable is set on the index
+    // page
+    if ($window.logoutRedirect != undefined){
+      $window.location.href = $window.logoutRedirect;
+    } else {
+      $window.location.href = "/";
+    };
+    
   };
   
   return service;
