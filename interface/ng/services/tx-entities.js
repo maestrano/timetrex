@@ -286,7 +286,7 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
       
       // Add punch to the right day and count hours
       //console.log(punch);
-      var punchDate = moment(punch.actual_time_stamp,"DD-MMM-YY hh:mm a",'en').toDate();
+      var punchDate = moment(punch.actual_time_stamp,["DD-MMM-YY hh:mm a","DD-MMM-YYYY hh:mm a"],'en').toDate();
       var punchDateKey = service.formatDateToKey(punchDate);
       var dayObj = rowObj.days[punchDateKey];
       //console.log(punchDateKey);
@@ -349,7 +349,7 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
       if (zoneObj != undefined && parseInt(payStub.pay_stub_entry_name_id) == service.travelPayStubAccountId) {
         var intUnits = Math.ceil(parseFloat(payStub.units));
         var zoneName = zoneObj.name;
-        var dateKey = service.formatDateToKey(moment(payStub.effective_date,"DD-MMM-YY hh:mm a",'en').toDate());
+        var dateKey = service.formatDateToKey(moment(payStub.effective_date,["DD-MMM-YY","DD-MMM-YYYY"],'en').toDate());
         
         simpleZonesheet[zoneName].days[dateKey].units += intUnits;
         simpleZonesheet[zoneName].days[dateKey].$origUnits = simpleZonesheet[zoneName].days[dateKey].units;
