@@ -80,9 +80,9 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
   // Return a promise
   service.load = function(userId,baseDate) {
     if (userId != undefined) {
-      service.currentDetails.userId = userId
+      service.currentDetails.userId = userId;
     } else {
-      userId = service.currentDetails.userId
+      userId = service.currentDetails.userId;
     };
     
     var timesheetHardReset = false;
