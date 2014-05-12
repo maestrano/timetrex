@@ -580,9 +580,9 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
                 //console.log("After create");
                 //console.log(value);
                 if(value.data && value.data.api_details && value.data.api_details.description == "INVALID DATA") {
-                  service.meta.errorMsg = "It looks like something wrong happened while saving your timesheet.";
-                  service.meta.errorMsg += "Maybe your administrator did not give you the right permissions.";
-                  service.meta.errorMsg += "<br/>Please contact your application administrator.";
+                  service.meta.errorMsg = "It looks like something wrong happened while saving your timesheet. ";
+                  service.meta.errorMsg += "Maybe your administrator did not give you the right permissions. ";
+                  service.meta.errorMsg += "Please contact your application administrator. ";
                   service.meta.errorMsg += "If the problem persists please contact support@maestrano.com";
                 };
                 qLocalAction.resolve(value);
@@ -668,9 +668,9 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
                   //console.log([valuePunchIn,valuePunchOut]);
                   
                   if(valuePunchIn.data && valuePunchIn.data.api_details && valuePunchIn.data.api_details.description == "INVALID DATA") {
-                    service.meta.errorMsg = "It looks like something wrong happened while saving your timesheet.";
-                    service.meta.errorMsg += "Maybe your administrator did not give you the right permissions.";
-                    service.meta.errorMsg += "<br/>Please contact your application administrator.";
+                    service.meta.errorMsg = "It looks like something wrong happened while saving your timesheet. ";
+                    service.meta.errorMsg += "Maybe your administrator did not give you the right permissions. ";
+                    service.meta.errorMsg += "Please contact your application administrator. ";
                     service.meta.errorMsg += "If the problem persists please contact support@maestrano.com";
                   };
                   
