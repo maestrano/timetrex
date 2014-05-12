@@ -132,8 +132,8 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
           }
         }
       }).then(function(response){
-        console.log("Paystub data");
-        console.log(response);
+        //console.log("Paystub data");
+        //console.log(response);
         for (var key in service.payStubsdata) {
           if (service.payStubsdata.hasOwnProperty(key)) {
             delete service.payStubsdata[key];
@@ -262,7 +262,7 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
     
     // Reset Timesheet
     if (timesheetHardReset) {
-      console.log("Performing hard reset");
+      //console.log("Performing hard reset");
       simpleTimesheet = service.simpleTimesheet = {};
     } else {
       for (var key in service.simpleTimesheet) {
@@ -307,7 +307,7 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
     
     // Reset zonesheet
     if (timesheetHardReset) {
-      console.log("Performing hard reset");
+      //console.log("Performing hard reset");
       simpleZonesheet = service.simpleZonesheet = {};
     } else {
       for (var key in service.simpleZonesheet) {
@@ -534,7 +534,7 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
     
     _.each(service.simpleZonesheet, function(zoneObj,rowKey) {
       _.each(zoneObj.days, function(dayObj,dayDateKey) {
-        console.log(dayObj);
+        //console.log(dayObj);
         // Action is undertaken only if the number of
         // hours worked were changed for a given branch>department>day
         if (dayObj.units != dayObj.$origUnits) {
@@ -546,7 +546,7 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
           // Then delete all punches for that branch>department>day
           var deletePromises = []
           _.each(dayObj.paystubs, function(paystub){
-            console.log("Deleting paystub id: " + paystub.id);
+            //console.log("Deleting paystub id: " + paystub.id);
             deletePromises.push(PaystubEntity.delete(paystub.id));
           });
           
@@ -557,8 +557,8 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
           } else {
             // Once deleted create the new paystub
             $q.all(deletePromises).then(function(values){
-              console.log(values);
-              console.log(dayObj.date);
+              //console.log(values);
+              //console.log(dayObj.date);
               
               var newPaystubData = {
                 effective_date: dayObj.date.toLocaleString(),
@@ -568,13 +568,13 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
                 pay_stub_entry_name_id: 31
               };
             
-              console.log("Before paystub create");
-              console.log(newPaystubData)
+              //console.log("Before paystub create");
+              //console.log(newPaystubData)
             
               // Create paystub then resolve locaAction promise
               PaystubEntity.create(newPaystubData).then(function(value){
-                console.log("After create");
-                console.log(value);
+                //console.log("After create");
+                //console.log(value);
                 qLocalAction.resolve(value);
               });
             });
@@ -596,7 +596,7 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
     
     _.each(service.simpleTimesheet, function(rowObj,rowKey) {
       _.each(rowObj.days, function(dayObj,dayDateKey) {
-        console.log(dayObj);
+        //console.log(dayObj);
         // Action is undertaken only if the number of
         // hours worked were changed for a given branch>department>day
         if (dayObj.hours != dayObj.$origHours 
@@ -610,7 +610,7 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
           // Then delete all punches for that branch>department>day
           var deletePromises = []
           _.each(dayObj.punches, function(punch){
-            console.log("Deleting punch id: " + punch.id);
+            //console.log("Deleting punch id: " + punch.id);
             deletePromises.push(PunchEntity.delete(punch.id));
           });
           
@@ -625,8 +625,8 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
             // After creation of both punches we resolve the
             // qLocalAction promise
             $q.all(deletePromises).then(function(values){
-              console.log(values);
-              console.log(dayObj.date);
+              //console.log(values);
+              //console.log(dayObj.date);
               var punchInData = {
                 department_id: rowObj.departmentId,
                 branch_id: rowObj.branchId,
@@ -647,21 +647,21 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
                 status: "Out"
               };
             
-              console.log("Before create");
-              console.log([punchInData,punchOutData])
+              //console.log("Before create");
+              //console.log([punchInData,punchOutData])
             
               // Create punches then resolve locaAction promise
               // Punches NEED to be created sequentially
               PunchEntity.create(punchInData).then(function(valuePunchIn){
                 PunchEntity.create(punchOutData).then(function(valuePunchOut){
-                  console.log("After create");
-                  console.log([valuePunchIn,valuePunchOut]);
+                  //console.log("After create");
+                  //console.log([valuePunchIn,valuePunchOut]);
                   
                   if(valuePunchIn.data && valuePunchIn.data.api_details && valuePunchIn.data.api_details.description == "INVALID DATA") {
                     service.errorMsg = "It looks like something wrong happened while saving your timesheet.";
-                    service.errorMsg += "Maybe your administrator did not give you the right permissions."
-                    service.errorMsg += "<br/>Please contact your application administrator."
-                    service.errorMsg += "If the problem persists please contact support@maestrano.com"
+                    service.errorMsg += "Maybe your administrator did not give you the right permissions.";
+                    service.errorMsg += "<br/>Please contact your application administrator.";
+                    service.errorMsg += "If the problem persists please contact support@maestrano.com";
                   };
                   
                   qLocalAction.resolve([valuePunchIn,valuePunchOut]);
@@ -847,8 +847,8 @@ function($http, $cookies, $q) {
     qDefaultPunch.then(function(defaultPunch) {
       punch = _.clone(defaultPunch);
       _.extend(punch,data);
-      console.log("Inside create - Punch to send");
-      console.log(punch);
+      //console.log("Inside create - Punch to send");
+      //console.log(punch);
       $http.get("/api/json/api.php",
       {
         params: {
@@ -890,7 +890,7 @@ function($http, $cookies, $q) {
         SessionID: $cookies.SessionID,
       }
     }).then(function(response){
-      console.log(response);
+      //console.log(response);
       service.defaultPunch = {};
       _.extend(service.defaultPunch,response.data);
       qLoad.resolve(service.defaultPunch);
@@ -926,8 +926,8 @@ function($http, $cookies, $q) {
     qDefaultPaystub.then(function(defaultPaystub) {
       paystub = _.clone(defaultPaystub);
       _.extend(paystub,data);
-      console.log("Inside create - Paystub to send");
-      console.log(paystub);
+      //console.log("Inside create - Paystub to send");
+      //console.log(paystub);
       $http.get("/api/json/api.php",
       {
         params: {
@@ -969,7 +969,7 @@ function($http, $cookies, $q) {
         SessionID: $cookies.SessionID,
       }
     }).then(function(response){
-      console.log(response);
+      //console.log(response);
       service.defaultPaystub = {};
       _.extend(service.defaultPaystub,response.data);
       qLoad.resolve(service.defaultPaystub);

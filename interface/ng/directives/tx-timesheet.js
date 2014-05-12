@@ -42,7 +42,7 @@ function($scope,$q,UserEntity,TimesheetEntity){
     TimesheetEntity.load(UserEntity.data.id,helper.currentDate).then(function(value){
       // Build table structure
       $scope.timesheetHeader.length = 0;
-      console.log(TimesheetEntity);
+      //console.log(TimesheetEntity);
       var dateIterator = new Date(TimesheetEntity.data.timesheet_dates.start_display_date);
       
       $scope.timesheetStartDate = new Date(dateIterator);
@@ -57,10 +57,10 @@ function($scope,$q,UserEntity,TimesheetEntity){
       // Load scope
       $scope.timesheet = TimesheetEntity.simpleTimesheet;
       $scope.simpleZonesheet = TimesheetEntity.simpleZonesheet;
-      $scope.timesheetTotals = TimesheetEntity.timesheetTotals //function
-      $scope.branchDropdown = TimesheetEntity.branchDropDownList //function
-      $scope.departmentDropdown = TimesheetEntity.departmentDropDownList //function
-      console.log($scope.timesheetHeader);
+      $scope.timesheetTotals = TimesheetEntity.timesheetTotals; //function
+      $scope.branchDropdown = TimesheetEntity.branchDropDownList; //function
+      $scope.departmentDropdown = TimesheetEntity.departmentDropDownList; //function
+      //console.log($scope.timesheetHeader);
       helper.isTimesheetLoading = false;
     });
   };
@@ -111,7 +111,7 @@ function($scope,$q,UserEntity,TimesheetEntity){
   };
   
   helper.performLogout = function() {
-    console.log("logout");
+    //console.log("logout");
     UserEntity.logout();
   };
   
@@ -134,7 +134,7 @@ function($scope,$q,UserEntity,TimesheetEntity){
   //----------------------------------
   UserEntity.load().then(function(value){
     $scope.user = UserEntity.data;
-    console.log($scope.user);
+    //console.log($scope.user);
     helper.isUserLoading = false;
     helper.reloadTimesheet();
   });
