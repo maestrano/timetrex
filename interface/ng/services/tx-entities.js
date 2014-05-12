@@ -651,10 +651,13 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
               console.log([punchInData,punchOutData])
             
               // Create punches then resolve locaAction promise
-              $q.all([PunchEntity.create(punchInData),PunchEntity.create(punchOutData)]).then(function(values){
-                console.log("After create");
-                console.log(values);
-                qLocalAction.resolve(values);
+              // Punches NEED to be created sequentially
+              PunchEntity.create(punchInData).then(function(valuePunchIn){
+                PunchEntity.create(punchOutData).then(function(valuePunchOut){
+                  console.log("After create");
+                  console.log([valuePunchIn,valuePunchOut]);
+                  qLocalAction.resolve([valuePunchIn,valuePunchOut]);
+                });
               });
             });
           };
