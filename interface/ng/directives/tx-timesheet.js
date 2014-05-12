@@ -1,3 +1,5 @@
+"use strict";
+
 var module = angular.module('tx.timesheet',[]);
 
 // Custom filter to sort objects in ng-repeat
@@ -23,7 +25,7 @@ function($scope,$q,UserEntity,TimesheetEntity){
   // Helpers
   //----------------------------------
   $scope.timesheetHeader = [];
-  $scope.helper = helper = {};
+  var helper = $scope.helper = {};
   helper.currentDate = new Date();
   //helper.currentDate.setDate(helper.currentDate.getDate() - 1); 
   

@@ -1,3 +1,4 @@
+"use strict";
 // Angular app declaration
 
 // Declare module

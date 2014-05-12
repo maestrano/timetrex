@@ -1,3 +1,5 @@
+"use strict";
+
 // This service is used to interact with Timetrex's backend
 // It defines entities that can be retrieved and saved
 var module = angular.module('tx.entities',[]);
@@ -845,7 +847,7 @@ function($http, $cookies, $q) {
     // Perform the creation request
     var qCreation = $q.defer();
     qDefaultPunch.then(function(defaultPunch) {
-      punch = _.clone(defaultPunch);
+      var punch = _.clone(defaultPunch);
       _.extend(punch,data);
       //console.log("Inside create - Punch to send");
       //console.log(punch);
@@ -924,7 +926,7 @@ function($http, $cookies, $q) {
     // Perform the creation request
     var qCreation = $q.defer();
     qDefaultPaystub.then(function(defaultPaystub) {
-      paystub = _.clone(defaultPaystub);
+      var paystub = _.clone(defaultPaystub);
       _.extend(paystub,data);
       //console.log("Inside create - Paystub to send");
       //console.log(paystub);
