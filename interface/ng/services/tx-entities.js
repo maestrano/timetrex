@@ -130,7 +130,7 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
           SessionID: $cookies.SessionID,
           json: {0: {filter_data:{
               start_date: service.data.timesheet_dates.start_date,
-              end_date: service.data.timesheet_dates.end_date
+              end_date: service.data.timesheet_dates.end_date,
             }}
           }
         }
@@ -569,7 +569,7 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
                 units: dayObj.units,
                 rate: zoneObj.rate,
                 user_id: service.currentDetails.userId,
-                pay_stub_entry_name_id: 31
+                pay_stub_entry_name_id: service.travelPayStubAccountId
               };
             
               //console.log("Before paystub create");

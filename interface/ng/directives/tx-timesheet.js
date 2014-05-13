@@ -58,6 +58,7 @@ function($scope,$q,UserEntity,TimesheetEntity){
       
       
       // Load scope
+      //console.log(TimesheetEntity);
       $scope.timesheetMeta = TimesheetEntity.meta;
       $scope.timesheet = TimesheetEntity.simpleTimesheet;
       $scope.simpleZonesheet = TimesheetEntity.simpleZonesheet;
