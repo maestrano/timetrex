@@ -65,7 +65,7 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
   service.departments = {};
   service.currentDetails = {};
   service.temporaryAddedRows = [];
-  service.travelPayStubAccountId = 31; // Travel Expenses
+  service.travelPayStubAccountId = 45; // Travel Expenses
   service.zoneConfig = [
     {name: 'Zone 1', rate: 15.0000, desc: '1-8kms'},
     {name: 'Zone 2', rate: 20.0000, desc: '9-14kms'},
@@ -74,6 +74,11 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
     {name: 'Zone 5', rate: 40.0000, desc: '25-30kms'},
     {name: 'Zone 6', rate: 45.0000, desc: '31-36kms'}
   ];
+  service.deptChoicesForBranch = {
+    0: [0],
+    1: [1,2,3,4,5],
+    2: [6,7,8]
+  };
   
   // Load a user which is then accessible via
   // UserEntity.user
@@ -691,15 +696,17 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
   
   // Return the remaining list of [branch,department]
   // combinations
-  service.remainingBranchDeptCombinations = function(){
+  service.remainingBranchDeptCombinations = function(restrictedChoices){
     var remainingCombinations = {};
     
     _.each(service.branches, function(branch,branchId){
       _.each(service.departments, function(dept,deptId){
-        remainingCombinations[branchId] = (remainingCombinations[branchId] || {});
-        remainingCombinations[branchId][deptId] = {
-          branchName: branch.name,
-          departmentName: dept.name
+        if (!restrictedChoices || _.contains(service.deptChoicesForBranch[branchId],parseInt(deptId))){
+          remainingCombinations[branchId] = (remainingCombinations[branchId] || {});
+          remainingCombinations[branchId][deptId] = {
+            branchName: branch.name,
+            departmentName: dept.name
+          };
         };
       });
     });
@@ -717,7 +724,7 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
         };
       };
     });
-    
+    //console.log(remainingCombinations);
     return remainingCombinations;
   };
   
@@ -754,9 +761,13 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
       var combinations = service.remainingBranchDeptCombinations();
       var branchDepts = combinations[specifiedBranchId];
       _.each(branchDepts, function(branchDept, deptId){
-        list[deptId] = service.departments[deptId].name;
+        if (_.contains(service.deptChoicesForBranch[specifiedBranchId],parseInt(deptId))){
+          list[deptId] = service.departments[deptId].name;
+        };
       });
-      list[specifiedDeptId] = service.departments[specifiedDeptId].name;
+      if (_.contains(service.deptChoicesForBranch[specifiedBranchId],parseInt(specifiedDeptId))){
+        list[specifiedDeptId] = service.departments[specifiedDeptId].name;
+      };
     } else {
       if (service.departments){
         _.each(service.departments, function(value,key){
@@ -770,7 +781,8 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
   
   // Return wether there are remaining combinations available or not
   service.isBranchDeptPairAvailable = function() {
-    var combinations = service.remainingBranchDeptCombinations();
+    var combinations = service.remainingBranchDeptCombinations(true);
+    console.log(combinations);
     var size = 0;
     for (var key in combinations) {
       if (combinations.hasOwnProperty(key)) size++;
@@ -784,7 +796,7 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
   service.firstAvailableBranchDepartment = function() {
     var branchDeptPair = {};
     if (service.isBranchDeptPairAvailable()){
-      var combinations = service.remainingBranchDeptCombinations();
+      var combinations = service.remainingBranchDeptCombinations(true);
       for (var branchId in combinations);
       for (var deptId in combinations[branchId]);
     
