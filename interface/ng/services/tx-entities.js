@@ -715,7 +715,7 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
           // and add it to the array of promises
           var qLocalAction = $q.defer();
           actionPromises.push(qLocalAction.promise);
-          console.log(actionPromises);
+          
           // Initialize the last punchout for that day
           if (daysLastPunchOut[dayDateKey] == undefined) {
             daysLastPunchOut[dayDateKey] = 0;
