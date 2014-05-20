@@ -105,6 +105,10 @@ function($scope,$q,UserEntity,TimesheetEntity){
     TimesheetEntity.quickAddRowToTimesheet();
   };
   
+  helper.performDeleteRow = function(rowKey){
+    TimesheetEntity.deleteRowFromTimesheet(rowKey);
+  };
+  
   helper.inputCellStyle = function(number) {
     if (number < 0) return {color: 'red'};
     if (number == 0) return {color:'#bbbbbb'};

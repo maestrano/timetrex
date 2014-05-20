@@ -60,11 +60,13 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
   var service = {};
   service.meta = {};
   service.data = {};
+  service.internalIndex = 0;
   service.payStubsdata = {};
   service.branches = {};
   service.departments = {};
   service.currentDetails = {};
   service.temporaryAddedRows = [];
+  service.temporaryDeletedRows = {};
   service.travelPayStubAccountId = 45; // Travel Expenses
   service.zoneConfig = [
     {name: 'Zone 1', rate: 15.0000, desc: '1-8kms'},
@@ -101,7 +103,9 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
     };
     
     // Reset the temporary values
+    service.internalIndex = 0;
     service.temporaryAddedRows.length = 0;
+    service.temporaryDeletedRows = {};
     
     // Declare loading promise
     var qLoad = $q.defer();
@@ -218,7 +222,19 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
     };
     
     return size;
-  }
+  };
+  
+  // Return the number of rows currently deleted
+  service.deletedRowCount = function() {
+    var size = 0;
+    if (service.temporaryDeletedRows){
+      for (var key in service.temporaryDeletedRows) {
+        if (service.temporaryDeletedRows.hasOwnProperty(key)) size++;
+      };
+    };
+    
+    return size;
+  };
   
   // Build a new row in the simple timesheet if it does not
   // exist already
@@ -240,11 +256,13 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
     if (existingRowKey != undefined) {
       rowKey = existingRowKey;
     } else {
-      rowKey = service.rowCount() + 1;
+      service.internalIndex += 1;
+      rowKey = service.internalIndex;
     }
     
     // Initialize branch>department if not initialized yet
     st[rowKey] = (st[rowKey] || {});
+    st[rowKey].rowKey = rowKey;
     st[rowKey].branchId = branchId;
     st[rowKey].$origBranchId = branchId;
     st[rowKey].departmentId = departmentId;
@@ -482,6 +500,10 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
     var isChanged = false;
     
     if (service.simpleTimesheet != undefined) {
+      if (service.deletedRowCount() > 0){
+        isChanged = true;
+      };
+      
       _.each(service.simpleTimesheet, function(rowObj,rowKey) {
         isChanged = (isChanged || rowObj.branchId != rowObj.$origBranchId);
         isChanged = (isChanged || rowObj.departmentId != rowObj.$origDepartmentId);
@@ -518,6 +540,12 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
     if (service.simpleTimesheet != undefined) {
       _.each(service.temporaryAddedRows, function(rowKey){
         delete service.simpleTimesheet[rowKey];
+      });
+      service.temporaryAddedRows.length = 0;
+      
+      _.each(service.temporaryDeletedRows, function(data, rowKey){
+        service.simpleTimesheet[rowKey] = service.temporaryDeletedRows[rowKey];
+        delete service.temporaryDeletedRows[rowKey];
       });
       
       _.each(service.simpleTimesheet, function(rowObj,rowKey) {
@@ -821,12 +849,24 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
     return branchDeptPair;
   }
   
-  // timesheet row keys can get out of sync. This function
-  // resyncs the keys based on the selected branch and department
-  // service.resyncTimesheetRowKeys = function() {
-  //   var ts2 = _.clone(service.simpleTimesheet);
-  //   _.each()
-  // }
+  // Delete a row from the timesheet
+  service.deleteRowFromTimesheet = function(rowKey) {
+    if (service.simpleTimesheet[rowKey] != undefined) {
+      
+      // Remove the key from the temporary added rows if present
+      var rowKeyIndex = _.indexOf(service.temporaryAddedRows, rowKey);
+      if (rowKeyIndex != -1){
+        service.temporaryAddedRows.splice(rowKeyIndex, 1);
+      } else {
+        service.temporaryDeletedRows[rowKey] = service.simpleTimesheet[rowKey];
+      };
+      delete service.simpleTimesheet[rowKey];
+      console.log(service.temporaryAddedRows);
+      return true;
+    };
+    
+    return false;
+  };
   
   // Add a row with the first available [branch, department] pair
   service.quickAddRowToTimesheet = function() {

@@ -58,6 +58,7 @@
       <table class="table table-striped">
         <thead>
         <tr>
+          <th></th>
           <th>Branch</th>
           <th>Department</th>
           <th class="cell-day" ng-repeat="headerDate in timesheetHeader">{{headerDate | date:'EEE, MMM dd'}}</th>
@@ -68,6 +69,9 @@
           <td colspan="9"><em>This timesheet is empty. Click the + button below to start adding hours</em></td>
         </tr>
         <tr ng-repeat="rowObj in timesheet | orderObjectBy:'displayOrder'">
+          <td>
+            <button type="button" class="close" aria-hidden="true" ng-click="helper.performDeleteRow(rowObj.rowKey)">&times;</button>
+          </td>
           <td>
             <select ng-model="rowObj.branchId" ng-options="branchId as branchName for (branchId,branchName) in branchDropdown(rowObj.branchId, rowObj.departmentId)"></select>
           </td>
