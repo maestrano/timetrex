@@ -227,8 +227,23 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
     service.simpleTimesheet = (service.simpleTimesheet || {});
     var st = service.simpleTimesheet;
     
-    // Initialize branch>department
-    var rowKey = branchId + '--' + departmentId;
+    // Check if a row already exist for this branch and department
+    var existingRowKey = undefined;
+    _.each(service.simpleTimesheet, function(row,key){
+      if (row.branchId == branchId && row.departmentId == departmentId) {
+        existingRowKey = key;
+      };
+    });
+    
+    // Use existing key and create a new one
+    var rowKey;
+    if (existingRowKey != undefined) {
+      rowKey = existingRowKey;
+    } else {
+      rowKey = service.rowCount() + 1;
+    }
+    
+    // Initialize branch>department if not initialized yet
     st[rowKey] = (st[rowKey] || {});
     st[rowKey].branchId = branchId;
     st[rowKey].$origBranchId = branchId;
@@ -782,7 +797,7 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
   // Return wether there are remaining combinations available or not
   service.isBranchDeptPairAvailable = function() {
     var combinations = service.remainingBranchDeptCombinations(true);
-    console.log(combinations);
+    //console.log(combinations);
     var size = 0;
     for (var key in combinations) {
       if (combinations.hasOwnProperty(key)) size++;
@@ -806,11 +821,20 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
     return branchDeptPair;
   }
   
+  // timesheet row keys can get out of sync. This function
+  // resyncs the keys based on the selected branch and department
+  // service.resyncTimesheetRowKeys = function() {
+  //   var ts2 = _.clone(service.simpleTimesheet);
+  //   _.each()
+  // }
+  
   // Add a row with the first available [branch, department] pair
   service.quickAddRowToTimesheet = function() {
+    //console.log(service.simpleTimesheet);
     if (service.simpleTimesheet && service.isBranchDeptPairAvailable()){
       var pair = service.firstAvailableBranchDepartment();
       var rowKey = service.initSimpleTimesheetRow(pair.branchId,pair.departmentId);
+      //console.log(rowKey);
       service.temporaryAddedRows.push(rowKey)
       
       return true;
