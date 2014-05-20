@@ -66,7 +66,7 @@
       </thead>
       <tbody>
         <tr ng-show="helper.isTimesheetEmpty()">
-          <td colspan="9"><em>This timesheet is empty. Click the + button below to start adding hours</em></td>
+          <td colspan="10"><em>This timesheet is empty. Click the + button below to start adding hours</em></td>
         </tr>
         <tr ng-repeat="rowObj in timesheet | orderObjectBy:'displayOrder'">
           <td>
@@ -83,7 +83,7 @@
           </td>
         </tr>
         <tr class="add-row" ng-show="helper.isAddRowBtnShown()">
-          <td colspan="9">
+          <td colspan="10">
             <button class="btn btn-primary btn-circle" ng-click="helper.performAddRow()">
               <span class="glyphicon glyphicon-plus"></span>
             </button>
@@ -91,13 +91,14 @@
         </tr>
         <tr class="table-footer">
           <td></td>
+          <td></td>
           <td>Totals</td>
           <td ng-repeat="dayTotal in timesheetTotals()">
             <span ng-style="dayTotal > 24 && {color:'red'}">{{dayTotal}}</span>
           </td>
         </tr>
         <tr ng-repeat="zoneObj in simpleZonesheet" class="zone-row">
-          <td colspan="2">{{zoneObj.name}} ({{zoneObj.desc}})</td>
+          <td colspan="3">{{zoneObj.name}} ({{zoneObj.desc}})</td>
           <td ng-repeat="zoneDayObj in zoneObj.days">
             <input class="form-control input-sm" type="number" ng-model="zoneDayObj.units" ng-style="helper.inputCellStyle(zoneDayObj.units)" ng-disabled="!helper.inputCellEnabled()"/>
           </td>
