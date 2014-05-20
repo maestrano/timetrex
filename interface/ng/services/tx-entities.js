@@ -614,7 +614,7 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
               //console.log(dayObj.date);
               
               var newPaystubData = {
-                effective_date: dayObj.date.toLocaleString(),
+                effective_date: moment(dayObj.date).format("M/D/YYYY h:mm:ss A"),
                 units: dayObj.units,
                 rate: zoneObj.rate,
                 user_id: service.currentDetails.userId,
@@ -732,7 +732,7 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
             var punchInData = {
               department_id: rowObj.departmentId,
               branch_id: rowObj.branchId,
-              time_stamp: punchInDate.toLocaleString(),
+              time_stamp: moment(punchInDate).format("M/D/YYYY h:mm:ss A"),
               punch_time: service.formatDateToTxTime(punchInDate),
               status_id: 10,
               status: "In"
@@ -745,7 +745,7 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
             var punchOutData = {
               department_id: rowObj.departmentId,
               branch_id: rowObj.branchId,
-              time_stamp: punchOutDate.toLocaleString(),
+              time_stamp: moment(punchOutDate).format("M/D/YYYY h:mm:ss A"),
               punch_time: service.formatDateToTxTime(punchOutDate),
               status_id: 20,
               status: "Out"
@@ -762,6 +762,7 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
                 //console.log([valuePunchIn,valuePunchOut]);
               
                 if (valuePunchIn.data && valuePunchIn.data.api_details && valuePunchIn.data.api_details.description == "INVALID DATA") {
+                  //console.log(valuePunchIn);
                   service.meta.errorMsg = "It looks like something wrong happened while saving your timesheet. ";
                   service.meta.errorMsg += "Maybe your administrator did not give you the right permissions. ";
                   service.meta.errorMsg += "Please contact your application administrator. ";
