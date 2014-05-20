@@ -652,6 +652,8 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
   // and deleting/creating punches when hours have changed
   service.saveSimpleTimesheet = function() {
     var actionPromises = [];
+    var globalDeletionPromises = [];
+    var daysLastPunchOut = {}
     
     // Delete all rows in temporaryDeleteRows
     _.each(service.temporaryDeletedRows, function(rowObj,rowKey) {
@@ -660,7 +662,7 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
         // First create a promise for the local action
         // and add it to the array of promises
         var qLocalAction = $q.defer();
-        actionPromises.push(qLocalAction.promise);
+        globalDeletionPromises.push(qLocalAction.promise);
         
         // Delete all punches for that branch>department>day
         var deletePromises = []
@@ -676,89 +678,121 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
       });
     });
     
-    // Update all rows in the timesheet
+    // Delete all remote punches
     _.each(service.simpleTimesheet, function(rowObj,rowKey) {
       _.each(rowObj.days, function(dayObj,dayDateKey) {
-        //console.log(dayObj);
-        // Action is undertaken only if the number of
-        // hours worked were changed for a given branch>department>day
-        if (dayObj.hours != dayObj.$origHours 
-          || rowObj.branchId != rowObj.$origBranchId
-          || rowObj.departmentId != rowObj.$origDepartmentId) {
+        // First create a promise for the local action
+        // and add it to the array of promises
+        var qLocalAction = $q.defer();
+        globalDeletionPromises.push(qLocalAction.promise);
+        
+        // Delete all punches for that branch>department>day
+        var deletePromises = []
+        _.each(dayObj.punches, function(punch){
+          //console.log("Deleting punch id: " + punch.id);
+          deletePromises.push(PunchEntity.destroy(punch.id));
+        });
+        
+        // When all delete are done resolve the promise
+        $q.all(deletePromises).then(function(values){
+          qLocalAction.resolve(values);
+        });
+      });
+    });
+    
+    
+    // This promise is used to make sure we wait
+    // until all the promises have been added to the array
+    // to evaluate when it is resolved
+    var qCreationList = $q.defer();
+    
+    // Once everything has been cleaned then recreate the punches
+    $q.all(globalDeletionPromises).then(function(deletionValues){
+      // Create all punches in the timesheet
+      _.each(service.simpleTimesheet, function(rowObj,rowKey) {
+        _.each(rowObj.days, function(dayObj,dayDateKey) {
           // First create a promise for the local action
           // and add it to the array of promises
           var qLocalAction = $q.defer();
           actionPromises.push(qLocalAction.promise);
-          
-          // Then delete all punches for that branch>department>day
-          var deletePromises = []
-          _.each(dayObj.punches, function(punch){
-            //console.log("Deleting punch id: " + punch.id);
-            deletePromises.push(PunchEntity.destroy(punch.id));
-          });
-          
-          if (dayObj.hours <= 0){
-            $q.all(deletePromises).then(function(values){
-              qLocalAction.resolve([{},{}]);
-            });
+          console.log(actionPromises);
+          // Initialize the last punchout for that day
+          if (daysLastPunchOut[dayDateKey] == undefined) {
+            daysLastPunchOut[dayDateKey] = 0;
+          };
+        
+        
+          if (dayObj.hours <= 0) {
+            qLocalAction.resolve([]);
           } else {
-            // Once deleted create one PunchIn and one PunchOut
-            // for that branch>department>day to reflect the 
-            // number of hours worked
-            // After creation of both punches we resolve the
-            // qLocalAction promise
-            $q.all(deletePromises).then(function(values){
-              //console.log(values);
-              //console.log(dayObj.date);
-              var punchInData = {
-                department_id: rowObj.departmentId,
-                branch_id: rowObj.branchId,
-                time_stamp: dayObj.date.toLocaleString(),
-                punch_time: "12:00 AM",
-                status_id: 10,
-                status: "In"
-              };
-            
-              var punchOutDate = new Date(dayObj.date);
-              punchOutDate.setHours(punchOutDate.getHours()+dayObj.hours);
-              var punchOutData = {
-                department_id: rowObj.departmentId,
-                branch_id: rowObj.branchId,
-                time_stamp: punchOutDate.toLocaleString(),
-                punch_time: service.formatDateToTxTime(punchOutDate),
-                status_id: 20,
-                status: "Out"
-              };
-            
-              //console.log("Before create");
-              //console.log([punchInData,punchOutData])
-            
-              // Create punches then resolve locaAction promise
-              // Punches NEED to be created sequentially
-              PunchEntity.create(punchInData).then(function(valuePunchIn){
-                PunchEntity.create(punchOutData).then(function(valuePunchOut){
-                  //console.log("After create");
-                  //console.log([valuePunchIn,valuePunchOut]);
-                  
-                  if(valuePunchIn.data && valuePunchIn.data.api_details && valuePunchIn.data.api_details.description == "INVALID DATA") {
-                    service.meta.errorMsg = "It looks like something wrong happened while saving your timesheet. ";
-                    service.meta.errorMsg += "Maybe your administrator did not give you the right permissions. ";
-                    service.meta.errorMsg += "Please contact your application administrator. ";
-                    service.meta.errorMsg += "If the problem persists please contact support@maestrano.com";
-                  };
-                  
-                  qLocalAction.resolve([valuePunchIn,valuePunchOut]);
-                });
+            // Create punchIn data
+            // punchIn time is set on last punchOut for that day
+            var punchInDate = new Date(dayObj.date);
+            punchInDate.setHours(punchInDate.getHours()+daysLastPunchOut[dayDateKey]);
+            var punchInData = {
+              department_id: rowObj.departmentId,
+              branch_id: rowObj.branchId,
+              time_stamp: punchInDate.toLocaleString(),
+              punch_time: service.formatDateToTxTime(punchInDate),
+              status_id: 10,
+              status: "In"
+            };
+          
+            // Create punchOut data
+            // punchOut time is set on last punchOut for that day + number of hours worked
+            var punchOutDate = new Date(dayObj.date);
+            punchOutDate.setHours(punchOutDate.getHours()+daysLastPunchOut[dayDateKey]+dayObj.hours);
+            var punchOutData = {
+              department_id: rowObj.departmentId,
+              branch_id: rowObj.branchId,
+              time_stamp: punchOutDate.toLocaleString(),
+              punch_time: service.formatDateToTxTime(punchOutDate),
+              status_id: 20,
+              status: "Out"
+            };
+          
+            // Increment the last punchout for that day
+            daysLastPunchOut[dayDateKey] += dayObj.hours;
+        
+            // Create punches then resolve locaAction promise
+            // Punches NEED to be created sequentially
+            PunchEntity.create(punchInData).then(function(valuePunchIn){
+              PunchEntity.create(punchOutData).then(function(valuePunchOut){
+                //console.log("After create");
+                //console.log([valuePunchIn,valuePunchOut]);
+              
+                if (valuePunchIn.data && valuePunchIn.data.api_details && valuePunchIn.data.api_details.description == "INVALID DATA") {
+                  service.meta.errorMsg = "It looks like something wrong happened while saving your timesheet. ";
+                  service.meta.errorMsg += "Maybe your administrator did not give you the right permissions. ";
+                  service.meta.errorMsg += "Please contact your application administrator. ";
+                  service.meta.errorMsg += "If the problem persists please contact support@maestrano.com";
+                };
+              
+                qLocalAction.resolve([valuePunchIn,valuePunchOut]);
               });
             });
           };
-        };
+        });
+      });
+      
+      // Resolve the creation list promise
+      qCreationList.resolve(true);
+    });
+    
+    
+    // Global promise resolution
+    var qFinal = $q.defer();
+    
+    qCreationList.promise.then(function(){
+      $q.all(actionPromises).then(function(){
+        qFinal.resolve()
       });
     });
     
+    
     // Return a global combined promise for all
     // actions
-    return $q.all(actionPromises);
+    return qFinal.promise;
   };
   
   
@@ -865,10 +899,14 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
     var branchDeptPair = {};
     if (service.isBranchDeptPairAvailable()){
       var combinations = service.remainingBranchDeptCombinations(true);
+      
+      // Take the last one or preferred one
       for (var branchId in combinations) {
         if (branchId == service.preferredBranch) break;
       };
-      for (var deptId in combinations[branchId]);
+      
+      // Take the first one
+      for (var deptId in combinations[branchId]) break;
     
       branchDeptPair = {branchId: branchId, departmentId: deptId};
     };
