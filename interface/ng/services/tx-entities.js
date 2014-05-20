@@ -652,6 +652,30 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
   service.saveSimpleTimesheet = function() {
     var actionPromises = [];
     
+    // Delete all rows in temporaryDeleteRows
+    _.each(service.temporaryDeletedRows, function(rowObj,rowKey) {
+      _.each(rowObj.days, function(dayObj,dayDateKey) {
+        
+        // First create a promise for the local action
+        // and add it to the array of promises
+        var qLocalAction = $q.defer();
+        actionPromises.push(qLocalAction.promise);
+        
+        // Delete all punches for that branch>department>day
+        var deletePromises = []
+        _.each(dayObj.punches, function(punch){
+          //console.log("Deleting punch id: " + punch.id);
+          deletePromises.push(PunchEntity.destroy(punch.id));
+        });
+        
+        // When all delete are done resolve the promise
+        $q.all(deletePromises).then(function(values){
+          qLocalAction.resolve(values);
+        });
+      });
+    });
+    
+    // Update all rows in the timesheet
     _.each(service.simpleTimesheet, function(rowObj,rowKey) {
       _.each(rowObj.days, function(dayObj,dayDateKey) {
         //console.log(dayObj);
@@ -861,7 +885,7 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
         service.temporaryDeletedRows[rowKey] = service.simpleTimesheet[rowKey];
       };
       delete service.simpleTimesheet[rowKey];
-      console.log(service.temporaryAddedRows);
+      //console.log(service.temporaryAddedRows);
       return true;
     };
     
