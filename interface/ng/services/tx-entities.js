@@ -81,6 +81,7 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
     1: [1,2,3,4,5],
     2: [6,7,8]
   };
+  service.preferredBranch = 1;
   
   // Load a user which is then accessible via
   // UserEntity.user
@@ -864,7 +865,9 @@ function($http, $cookies, $q, PunchEntity, PaystubEntity) {
     var branchDeptPair = {};
     if (service.isBranchDeptPairAvailable()){
       var combinations = service.remainingBranchDeptCombinations(true);
-      for (var branchId in combinations);
+      for (var branchId in combinations) {
+        if (branchId == service.preferredBranch) break;
+      };
       for (var deptId in combinations[branchId]);
     
       branchDeptPair = {branchId: branchId, departmentId: deptId};
