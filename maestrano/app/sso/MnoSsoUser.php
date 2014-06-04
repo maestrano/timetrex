@@ -137,8 +137,8 @@ class MnoSsoUser extends MnoSsoBaseUser
    * @return integer the next available employee number
    */
   protected function getEmployeeNumberToAssign() {
-    
-    $result = $this->connection->Execute("SELECT employee_number FROM users ORDER BY employee_number DESC LIMIT 1");
+    # Note ::int is for typecasting on postgresql - will not work with mysql
+    $result = $this->connection->Execute("SELECT employee_number FROM users ORDER BY employee_number::int DESC LIMIT 1");
     $result = $result->fields;
     
     if ($result && $result['employee_number']) {
