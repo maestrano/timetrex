@@ -2513,15 +2513,18 @@ class PayStubFactory extends Factory {
 
 				//Company name/address
 				$pdf->SetFont('','B',14);
-				$pdf->setXY( Misc::AdjustXY(50, $adjust_x), Misc::AdjustXY(0, $adjust_y) );
+				$pdf->setXY( Misc::AdjustXY(50, $adjust_x), Misc::AdjustXY(-4, $adjust_y) );
 				$pdf->Cell(75,5,$company_obj->getName(), $border, 0, 'C', FALSE, '', 1);
 
 				$pdf->SetFont('','',10);
-				$pdf->setXY( Misc::AdjustXY(50, $adjust_x), Misc::AdjustXY(6, $adjust_y) );
+				$pdf->setXY( Misc::AdjustXY(50, $adjust_x), Misc::AdjustXY(2, $adjust_y) );
 				$pdf->Cell(75,5,$company_obj->getAddress1().' '.$company_obj->getAddress2(), $border, 0, 'C', FALSE, '', 1);
 
-				$pdf->setXY( Misc::AdjustXY(50, $adjust_x), Misc::AdjustXY(10, $adjust_y) );
+				$pdf->setXY( Misc::AdjustXY(50, $adjust_x), Misc::AdjustXY(6, $adjust_y) );
 				$pdf->Cell(75,5,$company_obj->getCity().', '.$company_obj->getProvince() .' '. strtoupper($company_obj->getPostalCode()), $border, 0, 'C', FALSE, '', 1);
+        
+				$pdf->setXY( Misc::AdjustXY(50, $adjust_x), Misc::AdjustXY(11, $adjust_y) );
+				$pdf->Cell(75,5,"ABN: " . $company_obj->getBusinessNumber(), $border, 0, 'C', FALSE, '', 1);
 
 				//Pay Period info
 				$pdf->SetFont('','',10);
