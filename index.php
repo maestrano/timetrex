@@ -103,7 +103,7 @@ setInterval(function(){
     <div class="row">
       <div class="well" style="max-width: 400px; margin: 0 auto 10px;">
         <a href="/interface/ng" type="button" class="btn btn-primary btn-lg btn-block">EasyTimesheet</a>
-        <a href="/interface/flex" type="button" class="btn btn-default btn-lg btn-block">Administration Panel</a>
+        <a href="/interface/flex" type="button" class="btn btn-default btn-lg btn-block">Personal Space</a>
       </div>
     </div>
   </div>
