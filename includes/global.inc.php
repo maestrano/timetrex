@@ -481,5 +481,9 @@ header('Access-Control-Allow-Headers: Content-Type, REQUEST_URI_FRAGMENT' );
 unset($origin_url);
 
 require_once('Database.inc.php');
-require_once('Cache.inc.php'); //Put cache after Database so we can handle our own DB caching.
+
+// Hook:Maestrano
+// Load Maestrano
+require_once Environment::getBasePath() . 'maestrano/app/init/base.php';
+
 ?>

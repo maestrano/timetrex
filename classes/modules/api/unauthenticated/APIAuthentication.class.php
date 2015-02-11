@@ -201,11 +201,19 @@ class APIAuthentication extends APIFactory {
 
 	function Logout() {
 		global $authentication;
-
+    
 		if ( is_object($authentication) AND $authentication->getSessionID() != '' ) {
 			Debug::text('Logging out session ID: '. $authentication->getSessionID(), __FILE__, __LINE__, __METHOD__, 10);
 
-			return $authentication->Logout();
+			$result = $authentication->Logout();
+      
+      // Hook:Maestrano
+      // Set cookie instructing to redirect
+      $maestrano = MaestranoService::getInstance();
+      if ($result && $maestrano->isSsoEnabled()) {
+        setcookie('timetrex_logout',true, 0,'/');
+      }
+      return $result;
 		}
 
 		return FALSE;
@@ -234,8 +242,20 @@ class APIAuthentication extends APIFactory {
 			if ( isset($config_vars['other']['web_session_timeout']) AND $config_vars['other']['web_session_timeout'] != '' ) {
 				$authentication->setIdle( (int)$config_vars['other']['web_session_timeout'] );
 			}
-			if ( $authentication->Check( $session_id, $touch_updated_date ) === TRUE ) {
-				return TRUE;
+			
+      if ( $authentication->Check( $session_id, $touch_updated_date ) === TRUE ) {
+        // Hook: Maestrano
+        // Check Maestrano session is still valid
+        $maestrano = MaestranoService::getInstance();
+        if ($maestrano->isSsoEnabled()) {
+          if (!isset($_SESSION)) session_start();
+          if (!$maestrano->getSsoSession()->isValid()) {
+            setcookie('timetrex_relogin',true, 0,'/');
+            return FALSE;
+          }
+        }
+        
+        return TRUE;
 			}
 		}
 

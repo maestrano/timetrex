@@ -1646,7 +1646,7 @@ abstract class Factory {
 			throw new DBError($e);
 		}
 
-		$table = $this->getTable(); //STRICT warning from v5.4
+		$table = $this->getTable(); //STRICT warning from v5.4pUser
 
 		//Use table name instead of recordset, especially when using CacheLite for caching empty recordsets.
 		//$query = $this->db->GetInsertSQL($rs, $this->data);
