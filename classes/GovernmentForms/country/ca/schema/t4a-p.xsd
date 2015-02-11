@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-	<!-- @@@@ Definition of T4A-P ComplexTypes @@@@  2011/Sept/28  Version# 1.12 (version #.yy)-->
+	<!-- @@@@ Definition of T4A-P ComplexTypes @@@@  2011/June/22  Version# 1.11 (version #.yy)-->
 	<xsd:complexType name="T4A_PSlipType">
 		<xsd:all>
 			<xsd:element name="RCPNT_NM" type="NameType"/>
@@ -10,8 +10,9 @@
 			<xsd:element name="bn" type="bnType"/>
 			<xsd:element name="rpt_tcd" type="slipDataType"/>
 			<xsd:element name="DT" type="DateType" minOccurs="0"/>
-			<xsd:element name="mo_cnt" type="int2Type" minOccurs="0"/>
-			<xsd:element name="T4AP_AMT" type="T4apAmtType" minOccurs="0"/>
+            <xsd:element name="cqpp_dsblt_ben_mo_cnt" type="int2Type" minOccurs="0"/>	
+            <xsd:element name="cqpp_rtir_ben_mo_cnt" type="int2Type" minOccurs="0"/>		
+           	<xsd:element name="T4AP_AMT" type="T4apAmtType" minOccurs="0"/>
 			<xsd:element name="LMP_DSBLT" type="LumpSumDisabilityType" minOccurs="0"/>
 		</xsd:all>
 	</xsd:complexType>
@@ -22,6 +23,7 @@
 			<xsd:element name="dsblt_ben_amt" type="decimal9Type" minOccurs="0"/>
 			<xsd:element name="chld_ben_amt" type="decimal9Type" minOccurs="0"/>
 			<xsd:element name="dth_ben_amt" type="decimal9Type" minOccurs="0"/>
+            <xsd:element name="cqpp_prtir_bnamt" type="decimal9Type" minOccurs="0"/>
 			<xsd:element name="tx_cpp_qpp_ben_amt" type="decimal9Type" minOccurs="0"/>
 			<xsd:element name="itx_ddct_amt" type="decimal9Type" minOccurs="0"/>
 			<xsd:element name="net_oasp_amt" type="decimal9Type" minOccurs="0"/>
@@ -60,6 +62,7 @@
 			<xsd:element name="tot_dsblt_ben_amt" type="decimal13Type" minOccurs="0"/>
 			<xsd:element name="tot_chld_ben_amt" type="decimal13Type" minOccurs="0"/>
 			<xsd:element name="tot_dth_ben_amt" type="decimal13Type" minOccurs="0"/>
+      	    <xsd:element name="rtot_cqpp_prtir_bnamt" type="decimal13Type" minOccurs="0"/>
 			<xsd:element name="tot_tx_cpp_qpp_amt" type="decimal13Type" minOccurs="0"/>
 			<xsd:element name="tot_itx_ddct_amt" type="decimal13Type" minOccurs="0"/>
 			<xsd:element name="tot_net_oasp_amt" type="decimal13Type" minOccurs="0"/>

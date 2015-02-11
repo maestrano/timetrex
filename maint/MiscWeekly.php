@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 1396 $
- * $Id: CheckForUpdate.php 1396 2007-11-07 16:49:35Z ipso $
- * $Date: 2007-11-07 08:49:35 -0800 (Wed, 07 Nov 2007) $
- */
+
 /*
  * Checks for any version updates...
  *
@@ -49,9 +45,9 @@ require_once( dirname(__FILE__) . DIRECTORY_SEPARATOR .'..'. DIRECTORY_SEPARATOR
 //Check system requirements.
 //
 if ( PRODUCTION == TRUE AND DEPLOYMENT_ON_DEMAND == FALSE ) {
-	Debug::Text('Checking system requirements... '. TTDate::getDate('DATE+TIME', time() ), __FILE__, __LINE__, __METHOD__,10);
+	Debug::Text('Checking system requirements... '. TTDate::getDate('DATE+TIME', time() ), __FILE__, __LINE__, __METHOD__, 10);
 	$install_obj = new Install();
-	$failed_requirment_requirements = $install_obj->getFailedRequirements( FALSE, array('clean_cache', 'file_checksums') );
+	$failed_requirment_requirements = $install_obj->getFailedRequirements( FALSE, array('base_url', 'clean_cache', 'file_checksums') );
 
 	$sslf = new SystemSettingListFactory();
 	$sslf->getByName('valid_install_requirements');
@@ -63,7 +59,7 @@ if ( PRODUCTION == TRUE AND DEPLOYMENT_ON_DEMAND == FALSE ) {
 	$obj->setName( 'valid_install_requirements' );
 	if ( is_array( $failed_requirment_requirements ) AND count($failed_requirment_requirements) > 1 ) {
 		$obj->setValue( 0 );
-		Debug::Text('Failed system requirements: '. implode($failed_requirment_requirements), __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Failed system requirements: '. implode($failed_requirment_requirements), __FILE__, __LINE__, __METHOD__, 10);
 		TTLog::addEntry( 0, 510, 'Failed system requirements: '. implode($failed_requirment_requirements), 0, 'company' );
 	} else {
 		$obj->setValue( 1 );
@@ -72,7 +68,7 @@ if ( PRODUCTION == TRUE AND DEPLOYMENT_ON_DEMAND == FALSE ) {
 		$obj->Save();
 	}
 	unset($install_obj, $sslf, $obj, $check_all_requirements);
-	Debug::Text('Checking system requirements complete... '. TTDate::getDate('DATE+TIME', time() ), __FILE__, __LINE__, __METHOD__,10);
+	Debug::Text('Checking system requirements complete... '. TTDate::getDate('DATE+TIME', time() ), __FILE__, __LINE__, __METHOD__, 10);
 }
 
 //
@@ -95,12 +91,12 @@ if ( !isset($config_vars['other']['disable_cache_purging'])
 			AND strpos( $config_vars['path']['log'], $config_vars['cache']['dir'] ) === FALSE
 			AND strpos( $config_vars['path']['storage'], $config_vars['cache']['dir'] ) === FALSE ) {
 
-		Debug::Text('Purging Cache directory: '. $config_vars['cache']['dir'] .' - '. TTDate::getDate('DATE+TIME', time() ), __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Purging Cache directory: '. $config_vars['cache']['dir'] .' - '. TTDate::getDate('DATE+TIME', time() ), __FILE__, __LINE__, __METHOD__, 10);
 		$install_obj = new Install();
-		$install_obj->cleanCacheDirectory();
-		Debug::Text('Purging Cache directory complete: '. TTDate::getDate('DATE+TIME', time() ), __FILE__, __LINE__, __METHOD__,10);
+		$install_obj->cleanCacheDirectory( '' ); //Don't exclude .ZIP files, so if there is a corrupt one it will be redownloaded within a week.
+		Debug::Text('Purging Cache directory complete: '. TTDate::getDate('DATE+TIME', time() ), __FILE__, __LINE__, __METHOD__, 10);
 	} else {
-		Debug::Text('Cache directory is invalid: '. TTDate::getDate('DATE+TIME', time() ), __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Cache directory is invalid: '. TTDate::getDate('DATE+TIME', time() ), __FILE__, __LINE__, __METHOD__, 10);
 	}
 }
 Debug::writeToLog();

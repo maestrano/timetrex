@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 10749 $
- * $Id: Authentication.class.php 10749 2013-08-26 22:00:42Z ipso $
- * $Date: 2013-08-26 15:00:42 -0700 (Mon, 26 Aug 2013) $
- */
+
 
 
 /**
@@ -179,7 +175,7 @@ class Authentication {
 		$authentication->Write();
 
 		//$authentication->UpdateLastLoginDate(); //Don't do this when switching users.
-		//TTLog::addEntry( $authentication->getObject()->getID(), 100,  TTi18n::getText('SourceIP').': '. $authentication->getIPAddress() .' '. TTi18n::getText('Type').': '. $type .' '.  TTi18n::getText('SessionID') .': '.$authentication->getSessionID() .' '.  TTi18n::getText('UserID').': '. $authentication->getObject()->getId(), $authentication->getObject()->getID() , 'authentication'); //Login
+		//TTLog::addEntry( $authentication->getObject()->getID(), 100, TTi18n::getText('SourceIP').': '. $authentication->getIPAddress() .' '. TTi18n::getText('Type').': '. $type .' '.  TTi18n::getText('SessionID') .': '.$authentication->getSessionID() .' '.	TTi18n::getText('UserID').': '. $authentication->getObject()->getId(), $authentication->getObject()->getID(), 'authentication'); //Login
 
 		return $authentication->getSessionID();
 	}
@@ -212,19 +208,22 @@ class Authentication {
 	}
 	function setObject($user_id) {
 		if ( !empty($user_id) ) {
-
 			$ulf = TTnew( 'UserListFactory' );
-
 			$ulf->getByID($user_id);
+			if ( $ulf->getRecordCount() == 1 ) {
+				foreach ($ulf as $user) {
+					$this->obj = $user;
 
-			foreach ($ulf as $user) {
-				$this->obj = $user;
-
-				return TRUE;
+					return TRUE;
+				}
 			}
 		}
 
 		return FALSE;
+	}
+
+	function getSecureSessionID() {
+		return substr_replace( $this->getSessionID(), '...', ( strlen( $this->getSessionID() ) / 3 ), ( strlen( $this->getSessionID() ) / 3 ) );
 	}
 
 	function getSessionID() {
@@ -270,11 +269,30 @@ class Authentication {
 		return FALSE;
 	}
 
+	//Checks just the username, used in conjunction with HTTP Authentication/SSO.
+	function checkUsername($user_name ) {
+		//Use UserFactory to set name.
+		$ulf = TTnew( 'UserListFactory' );
+
+		$ulf->getByUserNameAndStatus( $user_name, 10 ); //Active
+		foreach ($ulf as $user) {
+			if ( strtolower( $user->getUsername() ) == strtolower(trim($user_name)) ) {
+				$this->setObject( $user->getID() );
+
+				return TRUE;
+			} else {
+				return FALSE;
+			}
+		}
+
+		return FALSE;
+	}
+
 	function checkPassword($user_name, $password) {
 		//Use UserFactory to set name.
 		$ulf = TTnew( 'UserListFactory' );
 
-		$ulf->getByUserNameAndStatus(strtolower(trim($user_name)), 10 ); //Active
+		$ulf->getByUserNameAndStatus( $user_name, 10 ); //Active
 
 		foreach ($ulf as $user) {
 			if ( $user->checkPassword($password) ) {
@@ -319,22 +337,7 @@ class Authentication {
 				}
 			}
 		}
-/*
-		//Use UserFactory to set name.
-		$ulf = TTnew( 'UserListFactory' );
 
-		$ulf->getByIButtonIdAndStatus($id, 10 );
-
-		foreach ($ulf as $user) {
-			if ( $user->checkIButton($id) ) {
-				$this->setObject( $user->getID() );
-
-				return TRUE;
-			} else {
-				return FALSE;
-			}
-		}
-*/
 		return FALSE;
 	}
 
@@ -395,26 +398,18 @@ class Authentication {
 		return FALSE;
 	}
 
-	function isSSL() {
-		if ( isset($_SERVER['HTTPS']) AND ( $_SERVER['HTTPS'] == 'on' OR $_SERVER['HTTPS'] == 1 ) ) {
-			return TRUE;
-		}
-
-		return FALSE;
-	}
-
 	private function setCookie() {
 		if ( $this->getSessionID() ) {
-			$cookie_expires = time()+7776000; //90 Days
+			$cookie_expires = ( time() + 7776000 ); //90 Days
 			if ( $this->getEnableExpireSession() === TRUE ) {
 				$cookie_expires = 0; //Expire when browser closes.
 			}
 			Debug::text('Cookie Expires: '. $cookie_expires, __FILE__, __LINE__, __METHOD__, 10);
 
-			setcookie($this->getName(), NULL, time()+9999999, Environment::getBaseURL(), NULL, $this->isSSL() ); //Delete old directory cookie as it can cause a conflict if it stills exists.
+			setcookie($this->getName(), NULL, ( time() + 9999999 ), Environment::getBaseURL(), NULL, Misc::isSSL( TRUE ) ); //Delete old directory cookie as it can cause a conflict if it stills exists.
 
 			//Set cookie in root directory so other interfaces can access it.
-			setcookie( $this->getName(), $this->getSessionID(), $cookie_expires, '/', NULL, $this->isSSL() );
+			setcookie( $this->getName(), $this->getSessionID(), $cookie_expires, '/', NULL, Misc::isSSL( TRUE ) );
 
 			return TRUE;
 		}
@@ -423,7 +418,7 @@ class Authentication {
 	}
 
 	private function destroyCookie() {
-		setcookie($this->getName(), NULL, time()+9999999, '/', NULL, $this->isSSL() );
+		setcookie($this->getName(), NULL, ( time() + 9999999 ), '/', NULL, Misc::isSSL( TRUE ) );
 
 		return TRUE;
 	}
@@ -474,7 +469,7 @@ class Authentication {
 		//Assume none are longer then one day though.
 		$query = 'delete from authentication
 						where session_id = ?
-							OR (updated_date - created_date) > '. (86400*2) .'
+							OR (updated_date - created_date) > '. (86400 * 2) .'
 							OR ('. TTDate::getTime() .' - updated_date) > 86400';
 
 		try {
@@ -495,7 +490,7 @@ class Authentication {
 					'updated_date' => $this->getUpdatedDate()
 					);
 
-		$query = 'insert into authentication (session_id,user_id,ip_address,created_date,updated_date)
+		$query = 'insert into authentication (session_id, user_id, ip_address, created_date, updated_date)
 						VALUES(
 								?,
 								?,
@@ -523,7 +518,7 @@ class Authentication {
 		//When using SSL, don't check for IP address changing at all as we use secure cookies.
 		//When *not* using SSL, always require the same IP address for the session.
 		//However we need to still allow multiple sessions for the same user, using different IPs.
-		$query = 'select session_id,user_id,ip_address,created_date,updated_date from authentication
+		$query = 'select session_id, user_id, ip_address, created_date, updated_date from authentication
 					WHERE session_id = ?
 						AND updated_date >= ?
 						';
@@ -533,11 +528,11 @@ class Authentication {
 		$result = $this->db->GetRow($query, $ph);
 
 		if ( count($result) > 0) {
-			if ( $result['ip_address'] != $this->getIPAddress() ) {
-				Debug::text('WARNING: IP Address has changed for existing session... Original IP: '. $result['ip_address'] .' Current IP: '. $this->getIPAddress() .' isSSL: '. (int)$this->isSSL(), __FILE__, __LINE__, __METHOD__, 10);
+			if ( PRODUCTION == TRUE AND $result['ip_address'] != $this->getIPAddress() ) {
+				Debug::text('WARNING: IP Address has changed for existing session... Original IP: '. $result['ip_address'] .' Current IP: '. $this->getIPAddress() .' isSSL: '. (int)Misc::isSSL( TRUE ), __FILE__, __LINE__, __METHOD__, 10);
 				//When using SSL, we don't care if the IP address has changed, as the session should still be secure.
 				//This allows sessions to work across load balancing routers, or between mobile/wifi connections, which can change 100% of the IP address (so close matches are useless anyways)
-				if ( $this->isSSL() != TRUE ) {
+				if ( Misc::isSSL( TRUE ) != TRUE ) {
 					//When not using SSL there is no 100% method of preventing session hijacking, so just insist that IP addresses match exactly as its as close as we can get.
 					Debug::text('Not using SSL, IP addresses must match exactly...', __FILE__, __LINE__, __METHOD__, 10);
 					return FALSE;
@@ -555,6 +550,50 @@ class Authentication {
 
 		return FALSE;
 	}
+	
+	function getHTTPAuthenticationUsername() {
+		$user_name = FALSE;
+		if ( isset($_SERVER['PHP_AUTH_USER']) AND $_SERVER['PHP_AUTH_USER'] != '' ) {
+			$user_name = $_SERVER['PHP_AUTH_USER'];
+		} elseif ( isset($_SERVER['REMOTE_USER']) AND $_SERVER['REMOTE_USER'] != '' ) {
+			$user_name = $_SERVER['REMOTE_USER'];
+		}
+
+		return $user_name;
+	}
+
+	function HTTPAuthenticationHeader() {
+		global $config_vars;
+		if ( isset($config_vars['other']['enable_http_authentication']) AND $config_vars['other']['enable_http_authentication'] == 1
+				AND isset($config_vars['other']['enable_http_authentication_prompt']) AND $config_vars['other']['enable_http_authentication_prompt'] == 1 ) {
+			header('WWW-Authenticate: Basic realm="'. APPLICATION_NAME .'"');
+			header('HTTP/1.0 401 Unauthorized');
+			echo TTi18n::getText('ERROR: A valid username/password is required to access this application. Press refresh in your web browser to try again.');
+			Debug::writeToLog();
+			exit;
+		}
+	}
+	
+	//Allow web server to handle authentication with Basic Auth/LDAP/SSO/AD, etc...
+	function loginHTTPAuthentication() {
+		$user_name = self::getHTTPAuthenticationUsername();
+		
+		global $config_vars;
+		if ( isset($config_vars['other']['enable_http_authentication']) AND $config_vars['other']['enable_http_authentication'] == 1 AND $user_name != '' ) {
+			//Debug::Arr($_SERVER, 'Server vars: ', __FILE__, __LINE__, __METHOD__, 10);
+			if ( isset($_SERVER['PHP_AUTH_PW']) AND $_SERVER['PHP_AUTH_PW'] != '' ) {
+				Debug::Text('Handling HTTPAuthentication with password.', __FILE__, __LINE__, __METHOD__, 10);
+				return $this->Login( $user_name, $_SERVER['PHP_AUTH_PW'], 'USER_NAME' );
+			} else {
+				Debug::Text('Handling HTTPAuthentication without password.', __FILE__, __LINE__, __METHOD__, 10);
+				return $this->Login( $user_name, 'HTTP_AUTH', 'HTTP_AUTH' );
+			}
+		} elseif( $user_name != '' )  {
+			Debug::Text('HTTPAuthentication is passing username: '. $user_name .' however enable_http_authentication is not enabled.', __FILE__, __LINE__, __METHOD__, 10);
+		}
+
+		return FALSE;
+	}
 
 	function Login($user_name, $password, $type = 'USER_NAME') {
 		//DO NOT lowercase username, because iButton values are case sensitive.
@@ -562,7 +601,7 @@ class Authentication {
 		$password = html_entity_decode( $password );
 
 		//Checks user_name/password
-        if ( $user_name == '' OR $password == '' ) {
+		if ( $user_name == '' OR $password == '' ) {
 			return FALSE;
 		}
 
@@ -571,7 +610,7 @@ class Authentication {
 			//Prevent brute force attacks by IP address.
 			//Allowed up to 20 attempts in a 30 min period.
 			if ( $this->rl->check() == FALSE ) {
-				Debug::Text('Excessive failed password attempts... Preventing login from: '. $_SERVER['REMOTE_ADDR'] .' for up to 15 minutes...', __FILE__, __LINE__, __METHOD__,10);
+				Debug::Text('Excessive failed password attempts... Preventing login from: '. $_SERVER['REMOTE_ADDR'] .' for up to 15 minutes...', __FILE__, __LINE__, __METHOD__, 10);
 				sleep(5); //Excessive password attempts, sleep longer.
 				return FALSE;
 			}
@@ -579,7 +618,7 @@ class Authentication {
 			if ( strtolower($type) == 'user_name' ) {
 				if ( $this->checkCompanyStatus( $user_name ) == 10 ) { //Active
 					//Lowercase regular user_names here only.
-					$password_result = $this->checkPassword( strtolower($user_name), $password);
+					$password_result = $this->checkPassword( $user_name, $password);
 				} else {
 					$password_result = FALSE; //No company by that user name.
 				}
@@ -599,6 +638,13 @@ class Authentication {
 
 				//$password_result = $this->checkClientPC( $user_name );
 				$password_result = $this->checkBarcode($user_name, $password);
+			} elseif (strtolower($type) == 'http_auth') {
+				if ( $this->checkCompanyStatus( $user_name ) == 10 ) { //Active
+					//Lowercase regular user_names here only.
+					$password_result = $this->checkUsername( $user_name );
+				} else {
+					$password_result = FALSE; //No company by that user name.
+				}
 			} else {
 				return FALSE;
 			}
@@ -622,7 +668,8 @@ class Authentication {
 					$this->UpdateLastLoginDate();
 				}
 
-				TTLog::addEntry( $this->getObject()->getID(), 100,  TTi18n::getText('SourceIP').': '. $this->getIPAddress() .' '. TTi18n::getText('Type').': '. $type .' '.  TTi18n::getText('SessionID') .': '.$this->getSessionID() .' '.  TTi18n::getText('UserID').': '. $this->getObject()->getId(), $this->getObject()->getID() , 'authentication'); //Login
+				//Truncate SessionID for security reasons, so someone with access to the audit log can't steal sessions.
+				TTLog::addEntry( $this->getObject()->getID(), 100, TTi18n::getText('SourceIP').': '. $this->getIPAddress() .' '. TTi18n::getText('Type').': '. $type .' '.	TTi18n::getText('SessionID') .': '. $this->getSecureSessionID() .' '.	TTi18n::getText('UserID').': '. $this->getObject()->getId(), $this->getObject()->getID(), 'authentication'); //Login
 
 				$this->rl->delete(); //Clear failed password rate limit upon successful login.
 
@@ -631,7 +678,7 @@ class Authentication {
 
 			Debug::text('Login Failed! Attempt: '. $this->rl->getAttempts(), __FILE__, __LINE__, __METHOD__, 10);
 
-			sleep( ($this->rl->getAttempts()*0.5) ); //If password is incorrect, sleep for some time to slow down brute force attacks.
+			sleep( ($this->rl->getAttempts() * 0.5) ); //If password is incorrect, sleep for some time to slow down brute force attacks.
 		} catch (Exception $e) {
 			//Database not initialized, or some error, redirect to Install page.
 			throw new DBError($e, 'DBInitialize');
@@ -640,12 +687,12 @@ class Authentication {
 		return FALSE;
 	}
 
-	function Logout( $session_id = NULL ) {
+	function Logout() {
 		$this->destroyCookie();
 		$this->Delete();
 
 		if ( is_object( $this->getObject() ) ) {
-			TTLog::addEntry( $this->getObject()->getID(), 110,  TTi18n::getText('SourceIP').': '. $this->getIPAddress() .' '.  TTi18n::getText('SessionID').': '.$this->getSessionID() .' '.  TTi18n::getText('UserID').': '. $this->getObject()->getId(), $this->getObject()->getID() , 'authentication');
+			TTLog::addEntry( $this->getObject()->getID(), 110, TTi18n::getText('SourceIP').': '. $this->getIPAddress() .' '.  TTi18n::getText('SessionID').': '. $this->getSecureSessionID() .' '. TTi18n::getText('UserID').': '. $this->getObject()->getId(), $this->getObject()->getID(), 'authentication');
 		}
 
 		BreadCrumb::Delete();
@@ -677,7 +724,7 @@ class Authentication {
 			}
 		}
 
-		Debug::text('Session ID: '. $session_id .' IP Address: '. $_SERVER['REMOTE_ADDR'] .' URL: '. $_SERVER['REQUEST_URI'] , __FILE__, __LINE__, __METHOD__, 10);
+		Debug::text('Session ID: '. $session_id .' IP Address: '. $_SERVER['REMOTE_ADDR'] .' URL: '. $_SERVER['REQUEST_URI'] .' Touch Updated Date: '. (int)$touch_updated_date, __FILE__, __LINE__, __METHOD__, 10);
 		//Checks session cookie, returns user_id;
 		if ( isset( $session_id ) ) {
 			/*
@@ -711,6 +758,42 @@ class Authentication {
 		$profiler->stopTimer( "Authentication::Check()");
 
 		return FALSE;
+	}
+
+	//When company status changes, logout all users for the company.
+	function logoutCompany( $company_id ) {
+		$ph = array(
+					'company_id' => (int)$company_id,
+					);
+
+		$query = 'delete from authentication as a USING users as b WHERE a.user_id = b.id AND b.company_id = ?';
+					
+		try {
+			Debug::text('Logging out entire company ID: '. $company_id, __FILE__, __LINE__, __METHOD__, 10);
+			$this->db->Execute($query, $ph);
+		} catch (Exception $e) {
+			throw new DBError($e);
+		}
+
+		return TRUE;
+	}
+
+	//When user resets password, logout all sessions for that user.
+	function logoutUser( $user_id ) {
+		$ph = array(
+					'user_id' => (int)$user_id,
+					);
+
+		$query = 'delete from authentication as a WHERE a.user_id = ?';
+
+		try {
+			Debug::text('Logging all user sessions: '. $user_id, __FILE__, __LINE__, __METHOD__, 10);
+			$this->db->Execute($query, $ph);
+		} catch (Exception $e) {
+			throw new DBError($e);
+		}
+
+		return TRUE;
 	}
 }
 ?>

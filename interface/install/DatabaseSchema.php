@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,17 +33,13 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 9936 $
- * $Id: DatabaseSchema.php 9936 2013-05-20 16:40:47Z ipso $
- * $Date: 2013-05-20 09:40:47 -0700 (Mon, 20 May 2013) $
- */
+
 require_once('../../includes/global.inc.php');
 require_once('HTML/Progress.php');
 
 ignore_user_abort(TRUE);
 ini_set( 'max_execution_time', 0 );
-ini_set( 'memory_limit', '1024M' ); //Just in case.
+ini_set( 'memory_limit', '-1' ); //Just in case.
 
 //Debug::setVerbosity(11);
 
@@ -167,11 +163,15 @@ switch ($action) {
 			//Create SQL, always try to install every schema version, as
 			//installSchema() will check if its already been installed or not.
 			$install_obj->setDatabaseDriver( $config_vars['database']['type'] );
-			$install_obj->createSchemaRange( NULL, NULL ); //All schema versions
-			//FIXME: Notify the user of any errors.
-			$install_obj->setVersions();
+			$create_schema_retval = $install_obj->createSchemaRange( NULL, NULL ); //All schema versions
+			if ( $create_schema_retval == TRUE ) {
+				//FIXME: Notify the user of any errors.
+				$install_obj->setVersions();
+			} else {
+				Debug::Text('ERROR: Database schema upgrade failed!', __FILE__, __LINE__, __METHOD__,10);
+			}
 		} else {
-			Debug::Text('bDatabase does not exist.', __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text('ERROR: Database does not exist.', __FILE__, __LINE__, __METHOD__,10);
 		}
 		//$install_obj->getDatabaseConnection()->FailTrans(); //Used for debugging only.
 

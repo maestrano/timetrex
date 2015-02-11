@@ -11,7 +11,7 @@
  * @author     Michael Wallner <mike@php.net>
  * @copyright  2003-2005 Michael Wallner
  * @license    BSD, revisewd
- * @version    CVS: $Id: Archive.php,v 1.4 2005/11/13 19:18:55 mike Exp $
+ * @version    CVS: $Id: Archive.php 304423 2010-10-15 13:36:46Z clockwerx $
  * @link       http://pear.php.net/package/HTTP_Download
  */
 
@@ -31,7 +31,7 @@ require_once 'System.php';
  * Helper class for sending Archives.
  *
  * @access   public
- * @version  $Revision: 1.4 $
+ * @version  $Revision: 304423 $
  */
 class HTTP_Download_Archive
 {
@@ -60,7 +60,7 @@ class HTTP_Download_Archive
      * @param   string  $add_path   path that should be prepended to the files
      * @param   string  $strip_path path that should be stripped from the files
      */
-    static function send($name, $files, $type = HTTP_DOWNLOAD_TGZ, $add_path = '', $strip_path = '')
+    function send($name, $files, $type = HTTP_DOWNLOAD_TGZ, $add_path = '', $strip_path = '')
     {
         $tmp = System::mktemp();
         
@@ -68,25 +68,25 @@ class HTTP_Download_Archive
         {
             case HTTP_DOWNLOAD_TAR:
                 include_once 'Archive/Tar.php';
-                $arc = new Archive_Tar($tmp);
+                $arc = &new Archive_Tar($tmp);
                 $content_type = 'x-tar';
             break;
 
             case HTTP_DOWNLOAD_TGZ:
                 include_once 'Archive/Tar.php';
-                $arc = new Archive_Tar($tmp, 'gz');
+                $arc = &new Archive_Tar($tmp, 'gz');
                 $content_type = 'x-gzip';
             break;
 
             case HTTP_DOWNLOAD_BZ2:
                 include_once 'Archive/Tar.php';
-                $arc = new Archive_Tar($tmp, 'bz2');
+                $arc = &new Archive_Tar($tmp, 'bz2');
                 $content_type = 'x-bzip2';
             break;
 
             case HTTP_DOWNLOAD_ZIP:
                 include_once 'Archive/Zip.php';
-                $arc = new Archive_Zip($tmp);
+                $arc = &new Archive_Zip($tmp);
                 $content_type = 'x-zip';
             break;
             
@@ -113,7 +113,7 @@ class HTTP_Download_Archive
         }
         unset($arc);
         
-        $dl = new HTTP_Download(array('file' => $tmp));
+        $dl = &new HTTP_Download(array('file' => $tmp));
         $dl->setContentType('application/' . $content_type);
         $dl->setContentDisposition(HTTP_DOWNLOAD_ATTACHMENT, $name);
         return $dl->send();

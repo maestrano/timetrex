@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 8720 $
- * $Id: CA.class.php 8720 2012-12-29 01:06:58Z ipso $
- * $Date: 2012-12-28 17:06:58 -0800 (Fri, 28 Dec 2012) $
- */
+
 
 /**
  * @package PayrollDeduction\CA
@@ -52,10 +48,25 @@ class PayrollDeduction_CA extends PayrollDeduction_CA_Data {
 	function getFederalTotalClaimAmount() {
 		//Check to make sure the claim amount is at the minimum,
 		//as long as it is NOT 0. (outside country)
+
+		//Check claim amount from the previous year, so if the current year setting matches
+		//that exactly, we know to use the current year value instead.
+		//This helps when the claim amount decreases.
+		//Also check next years amount in case the amount gets increased then they try to calculate pay stubs in the previous year.
+		$previous_year = ( TTDate::getBeginYearEpoch( $this->getDate() ) - 86400 );
+		$next_year = ( TTDate::getEndYearEpoch( $this->getDate() ) + 86400 );
+
 		if ( $this->data['federal_total_claim_amount'] > 0 ) {
 			if ( $this->getBasicFederalClaimCodeAmount() > 0
-					AND $this->data['federal_total_claim_amount'] < $this->getBasicFederalClaimCodeAmount() ) {
-				Debug::text('Using Basic Federal Claim Code Amount: '. $this->getBasicFederalClaimCodeAmount() .' (Previous Amount: '. $this->data['federal_total_claim_amount'] .')', __FILE__, __LINE__, __METHOD__, 10);
+					AND (
+							$this->data['federal_total_claim_amount'] < $this->getBasicFederalClaimCodeAmount()
+							OR
+							$this->data['federal_total_claim_amount'] == $this->getBasicFederalClaimCodeAmount( $previous_year )
+							OR
+							$this->data['federal_total_claim_amount'] == $this->getBasicFederalClaimCodeAmount( $next_year )
+						)
+				) {
+				Debug::text('Using Basic Federal Claim Code Amount: '. $this->getBasicFederalClaimCodeAmount() .' (Previous Amount: '. $this->data['federal_total_claim_amount'] .') Date: '. TTDate::getDate('DATE', $this->getDate() ), __FILE__, __LINE__, __METHOD__, 10);
 				return $this->getBasicFederalClaimCodeAmount();
 			}
 		}
@@ -72,10 +83,25 @@ class PayrollDeduction_CA extends PayrollDeduction_CA_Data {
 	function getProvincialTotalClaimAmount() {
 		//Check to make sure the claim amount is at the minimum,
 		//as long as it is NOT 0. (outside country)
+
+		//Check claim amount from the previous year, so if the current year setting matches
+		//that exactly, we know to use the current year value instead.
+		//This helps when the claim amount decreases.
+		//Also check next years amount in case the amount gets increased then they try to calculate pay stubs in the previous year.
+		$previous_year = ( TTDate::getBeginYearEpoch( $this->getDate() ) - 86400 );
+		$next_year = ( TTDate::getEndYearEpoch( $this->getDate() ) + 86400 );
+
 		if ( $this->data['provincial_total_claim_amount'] > 0 ) {
 			if ( $this->getBasicProvinceClaimCodeAmount() > 0
-					AND $this->data['provincial_total_claim_amount'] < $this->getBasicProvinceClaimCodeAmount() ) {
-				Debug::text('Using Basic Provincial Claim Code Amount: '. $this->getBasicProvinceClaimCodeAmount() .' (Previous Amount: '. $this->data['provincial_total_claim_amount'] .')', __FILE__, __LINE__, __METHOD__, 10);
+					AND (
+							$this->data['provincial_total_claim_amount'] < $this->getBasicProvinceClaimCodeAmount()
+							OR
+							$this->data['provincial_total_claim_amount'] == $this->getBasicProvinceClaimCodeAmount( $previous_year )
+							OR
+							$this->data['provincial_total_claim_amount'] == $this->getBasicProvinceClaimCodeAmount( $next_year )
+						)
+				) {
+				Debug::text('Using Basic Provincial Claim Code Amount: '. $this->getBasicProvinceClaimCodeAmount() .' (Previous Amount: '. $this->data['provincial_total_claim_amount'] .') Date: '. TTDate::getDate('DATE', $this->getDate() ), __FILE__, __LINE__, __METHOD__, 10);
 				return $this->getBasicProvinceClaimCodeAmount();
 			}
 		}
@@ -279,7 +305,6 @@ class PayrollDeduction_CA extends PayrollDeduction_CA_Data {
 		//$A = ($P * ($I - $F - $F2 - $U1) ) - $HD - $F1;
 		$A = bcsub( bcsub( bcmul($P, bcsub( bcsub( bcsub($I, $F), $F2 ), $U1 ) ), $HD ), $F1 );
 		Debug::text('A: '. $A, __FILE__, __LINE__, __METHOD__, 10);
-
 
 		return $A;
 	}

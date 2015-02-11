@@ -1,0 +1,31 @@
+.view-min-tab-bar {
+    bottom: 4px;
+    left: 20px;
+    position: fixed;
+    z-index: 39;
+}
+
+.view-min-tab {
+    background: #345372;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    padding: 6px;
+    cursor: pointer;
+    display: inline-block;
+    margin-left: 3px;
+}
+
+.view-min-tab .view-name {
+    color: #FFFFFF;
+}
+
+.view-min-tab .close-btn {
+    background-image: url("../../../../images/close_1.png");
+    background-color: transparent;
+    background-position: 0px 0px;
+    border: medium none;
+    height: 14px;
+    width: 14px;
+    cursor: pointer;
+    padding: 0px;
+}

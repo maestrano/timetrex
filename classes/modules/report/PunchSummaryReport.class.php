@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2095 $
- * $Id: Sort.class.php 2095 2008-09-01 07:04:25Z ipso $
- * $Date: 2008-09-01 00:04:25 -0700 (Mon, 01 Sep 2008) $
- */
+
 
 /**
  * @package Modules\Report
@@ -54,12 +50,23 @@ class PunchSummaryReport extends Report {
 	}
 
 	protected function _checkPermissions( $user_id, $company_id ) {
-		if ( $this->getPermissionObject()->Check('report','enabled', $user_id, $company_id )
-				AND $this->getPermissionObject()->Check('report','view_punch_summary', $user_id, $company_id ) ) { //Piggyback on timesheet summary permissions.
+		if ( $this->getPermissionObject()->Check('report', 'enabled', $user_id, $company_id )
+				AND $this->getPermissionObject()->Check('report', 'view_punch_summary', $user_id, $company_id ) ) { //Piggyback on timesheet summary permissions.
 			return TRUE;
 		}
 
 		return FALSE;
+	}
+
+	protected function _validateConfig() {
+		$config = $this->getConfig();
+
+		//Make sure some time period is selected.
+		if ( !isset($config['filter']['time_period']) AND !isset($config['filter']['pay_period_id']) ) {
+			$this->validator->isTrue( 'time_period', FALSE, TTi18n::gettext('No time period defined for this report') );
+		}
+
+		return TRUE;
 	}
 
 	protected function _getOptions( $name, $params = NULL ) {
@@ -73,7 +80,7 @@ class PunchSummaryReport extends Report {
 										'template',
 										'time_period',
 										'columns',
-							   );
+								);
 				break;
 			case 'setup_fields':
 				$retval = array(
@@ -91,13 +98,13 @@ class PunchSummaryReport extends Report {
 										'-2070-default_department_id' => TTi18n::gettext('Default Department'),
 										'-2080-punch_branch_id' => TTi18n::gettext('Punch Branch'),
 										'-2090-punch_department_id' => TTi18n::gettext('Punch Department'),
-                                        '-2100-custom_filter' => TTi18n::gettext('Custom Filter'),
+										'-2100-custom_filter' => TTi18n::gettext('Custom Filter'),
 
 										'-5000-columns' => TTi18n::gettext('Display Columns'),
 										'-5010-group' => TTi18n::gettext('Group By'),
 										'-5020-sub_total' => TTi18n::gettext('SubTotal By'),
 										'-5030-sort' => TTi18n::gettext('Sort By'),
-							   );
+								);
 
 				if ( $this->getUserObject()->getCompanyObject()->getProductEdition() >= TT_PRODUCT_CORPORATE ) {
 					$corporate_edition_setup_fields = array(
@@ -124,12 +131,12 @@ class PunchSummaryReport extends Report {
 				//Get custom fields for report data.
 				$oflf = TTnew( 'OtherFieldListFactory' );
 				//User and Punch fields conflict as they are merged together in a secondary process.
-				$other_field_names = $oflf->getByCompanyIdAndTypeIdArray( $this->getUserObject()->getCompany(), array(15,20,30), array( 15 => '', 20 => 'job_', 30 => 'job_item_') );
+				$other_field_names = $oflf->getByCompanyIdAndTypeIdArray( $this->getUserObject()->getCompany(), array(15, 20, 30), array( 15 => '', 20 => 'job_', 30 => 'job_item_') );
 				if ( is_array($other_field_names) ) {
 					$retval = Misc::addSortPrefix( $other_field_names, 9000 );
 				}
 				break;
-            case 'report_custom_column':
+			case 'report_custom_column':
 				if ( getTTProductEdition() >= TT_PRODUCT_PROFESSIONAL ) {
 					$rcclf = TTnew( 'ReportCustomColumnListFactory' );
 					// Because the Filter type is just only a filter criteria and not need to be as an option of Display Columns, Group By, Sub Total, Sort By dropdowns.
@@ -139,14 +146,14 @@ class PunchSummaryReport extends Report {
 						$retval = Misc::addSortPrefix( $custom_column_labels, 9500 );
 					}
 				}
-                break; 
-            case 'report_custom_filters':
+				break;
+			case 'report_custom_filters':
 				if ( getTTProductEdition() >= TT_PRODUCT_PROFESSIONAL ) {
 					$rcclf = TTnew( 'ReportCustomColumnListFactory' );
 					$retval = $rcclf->getByCompanyIdAndTypeIdAndFormatIdAndScriptArray( $this->getUserObject()->getCompany(), $rcclf->getOptions('filter_column_type_ids'), NULL, 'PunchSummaryReport', 'custom_column' );
 				}
-                break;
-            case 'report_dynamic_custom_column':
+				break;
+			case 'report_dynamic_custom_column':
 				if ( getTTProductEdition() >= TT_PRODUCT_PROFESSIONAL ) {
 					$rcclf = TTnew( 'ReportCustomColumnListFactory' );
 					$report_dynamic_custom_column_labels = $rcclf->getByCompanyIdAndTypeIdAndFormatIdAndScriptArray( $this->getUserObject()->getCompany(), $rcclf->getOptions('display_column_type_ids'), $rcclf->getOptions('dynamic_format_ids'), 'PunchSummaryReport', 'custom_column' );
@@ -154,8 +161,8 @@ class PunchSummaryReport extends Report {
 						$retval = Misc::addSortPrefix( $report_dynamic_custom_column_labels, 9700 );
 					}
 				}
-                break;
-            case 'report_static_custom_column':
+				break;
+			case 'report_static_custom_column':
 				if ( getTTProductEdition() >= TT_PRODUCT_PROFESSIONAL ) {
 					$rcclf = TTnew( 'ReportCustomColumnListFactory' );
 					$report_static_custom_column_labels = $rcclf->getByCompanyIdAndTypeIdAndFormatIdAndScriptArray( $this->getUserObject()->getCompany(), $rcclf->getOptions('display_column_type_ids'), $rcclf->getOptions('static_format_ids'), 'PunchSummaryReport', 'custom_column' );
@@ -163,13 +170,13 @@ class PunchSummaryReport extends Report {
 						$retval = Misc::addSortPrefix( $report_static_custom_column_labels, 9700 );
 					}
 				}
-                break;
-            case 'formula_columns':
-                $retval = TTMath::formatFormulaColumns( array_merge( array_diff( $this->getOptions('static_columns'), (array)$this->getOptions('report_static_custom_column') ), $this->getOptions('dynamic_columns') ) );
-                break; 
-            case 'filter_columns':
-                $retval = TTMath::formatFormulaColumns( array_merge( $this->getOptions('static_columns'), $this->getOptions('dynamic_columns'), (array)$this->getOptions('report_dynamic_custom_column') ) );
-                break;
+				break;
+			case 'formula_columns':
+				$retval = TTMath::formatFormulaColumns( array_merge( array_diff( $this->getOptions('static_columns'), (array)$this->getOptions('report_static_custom_column') ), $this->getOptions('dynamic_columns') ) );
+				break;
+			case 'filter_columns':
+				$retval = TTMath::formatFormulaColumns( array_merge( $this->getOptions('static_columns'), $this->getOptions('dynamic_columns'), (array)$this->getOptions('report_dynamic_custom_column') ) );
+				break;
 			case 'static_columns':
 				$retval = array(
 										//Static Columns - Aggregate functions can't be used on these.
@@ -229,7 +236,7 @@ class PunchSummaryReport extends Report {
 
 										'-1950-tainted' => TTi18n::gettext('Tainted'),
 										'-1951-tainted_status' => TTi18n::gettext('Tainted Status'),
-							   );
+								);
 
 				if ( $this->getUserObject()->getCompanyObject()->getProductEdition() >= TT_PRODUCT_CORPORATE ) {
 					$corporate_edition_static_columns = array(
@@ -245,7 +252,7 @@ class PunchSummaryReport extends Report {
 											'-1920-job_item_manual_id' => TTi18n::gettext('Task Code'),
 											'-1930-job_item_description' => TTi18n::gettext('Task Description'),
 											'-1940-job_item_group' => TTi18n::gettext('Task Group'),
-								   );
+									);
 					$retval = array_merge( $retval, $corporate_edition_static_columns );
 				}
 
@@ -333,7 +340,7 @@ class PunchSummaryReport extends Report {
 										//'-1010-by_job+punch_summary+total_time' => TTi18n::gettext('Punch Summary by Job'),
 										//'-1010-by_job_item+punch_summary+total_time' => TTi18n::gettext('Punch Summary by Task'),
 										'-1120-by_employee+verified_time_sheet' => TTi18n::gettext('TimeSheet Verification Tainted'),
-							   );
+								);
 
 				if ( $this->getUserObject()->getCompanyObject()->getProductEdition() >= TT_PRODUCT_CORPORATE ) {
 					$professional_edition_templates = array(
@@ -411,14 +418,14 @@ class PunchSummaryReport extends Report {
 							$retval['sort'][] = array('first_name' => 'desc');
 							break;
 						default:
-							Debug::Text(' Parsing template name: '. $template, __FILE__, __LINE__, __METHOD__,10);
+							Debug::Text(' Parsing template name: '. $template, __FILE__, __LINE__, __METHOD__, 10);
 							$retval['-1010-time_period']['time_period'] = 'last_pay_period';
 
 							//Parse template name, and use the keywords separated by '+' to determine settings.
 							$template_keywords = explode('+', $template );
 							if ( is_array($template_keywords) ) {
 								foreach( $template_keywords as $template_keyword ) {
-									Debug::Text(' Keyword: '. $template_keyword, __FILE__, __LINE__, __METHOD__,10);
+									Debug::Text(' Keyword: '. $template_keyword, __FILE__, __LINE__, __METHOD__, 10);
 
 									switch( $template_keyword ) {
 										//Columns
@@ -685,7 +692,7 @@ class PunchSummaryReport extends Report {
 					$retval['-5040-sort'] = $retval['sort'];
 					unset($retval['sort']);
 				}
-				Debug::Arr($retval, ' Template Config for: '. $template, __FILE__, __LINE__, __METHOD__,10);
+				Debug::Arr($retval, ' Template Config for: '. $template, __FILE__, __LINE__, __METHOD__, 10);
 
 				break;
 			default:
@@ -704,39 +711,39 @@ class PunchSummaryReport extends Report {
 		$columns = $this->getColumnDataConfig();
 		$filter_data = $this->getFilterConfig();
 
-		if ( $this->getPermissionObject()->Check('punch','view') == FALSE OR $this->getPermissionObject()->Check('wage','view') == FALSE ) {
+		if ( $this->getPermissionObject()->Check('punch', 'view') == FALSE OR $this->getPermissionObject()->Check('wage', 'view') == FALSE ) {
 			$hlf = TTnew( 'HierarchyListFactory' );
 			$permission_children_ids = $wage_permission_children_ids = $hlf->getHierarchyChildrenByCompanyIdAndUserIdAndObjectTypeID( $this->getUserObject()->getCompany(), $this->getUserObject()->getID() );
-			//Debug::Arr($permission_children_ids,'Permission Children Ids:', __FILE__, __LINE__, __METHOD__,10);
+			//Debug::Arr($permission_children_ids, 'Permission Children Ids:', __FILE__, __LINE__, __METHOD__, 10);
 		} else {
 			//Get Permission Hierarchy Children first, as this can be used for viewing, or editing.
 			$permission_children_ids = array();
 			$wage_permission_children_ids = array();
 		}
-		if ( $this->getPermissionObject()->Check('punch','view') == FALSE ) {
-			if ( $this->getPermissionObject()->Check('punch','view_child') == FALSE ) {
+		if ( $this->getPermissionObject()->Check('punch', 'view') == FALSE ) {
+			if ( $this->getPermissionObject()->Check('punch', 'view_child') == FALSE ) {
 				$permission_children_ids = array();
 			}
-			if ( $this->getPermissionObject()->Check('punch','view_own') ) {
+			if ( $this->getPermissionObject()->Check('punch', 'view_own') ) {
 				$permission_children_ids[] = $this->getUserObject()->getID();
 			}
 
 			$filter_data['permission_children_ids'] = $permission_children_ids;
 		}
 		//Get Wage Permission Hierarchy Children first, as this can be used for viewing, or editing.
-		if ( $this->getPermissionObject()->Check('wage','view') == TRUE ) {
+		if ( $this->getPermissionObject()->Check('wage', 'view') == TRUE ) {
 			$wage_permission_children_ids = TRUE;
-		} elseif ( $this->getPermissionObject()->Check('wage','view') == FALSE ) {
-			if ( $this->getPermissionObject()->Check('wage','view_child') == FALSE ) {
+		} elseif ( $this->getPermissionObject()->Check('wage', 'view') == FALSE ) {
+			if ( $this->getPermissionObject()->Check('wage', 'view_child') == FALSE ) {
 				$wage_permission_children_ids = array();
 			}
-			if ( $this->getPermissionObject()->Check('wage','view_own') ) {
+			if ( $this->getPermissionObject()->Check('wage', 'view_own') ) {
 				$wage_permission_children_ids[] = $this->getUserObject()->getID();
 			}
 		}
-		//Debug::Text(' Permission Children: '. count($permission_children_ids) .' Wage Children: '. count($wage_permission_children_ids), __FILE__, __LINE__, __METHOD__,10);
-		//Debug::Arr($permission_children_ids, 'Permission Children: '. count($permission_children_ids), __FILE__, __LINE__, __METHOD__,10);
-		//Debug::Arr($wage_permission_children_ids, 'Wage Children: '. count($wage_permission_children_ids), __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Text(' Permission Children: '. count($permission_children_ids) .' Wage Children: '. count($wage_permission_children_ids), __FILE__, __LINE__, __METHOD__, 10);
+		//Debug::Arr($permission_children_ids, 'Permission Children: '. count($permission_children_ids), __FILE__, __LINE__, __METHOD__, 10);
+		//Debug::Arr($wage_permission_children_ids, 'Wage Children: '. count($wage_permission_children_ids), __FILE__, __LINE__, __METHOD__, 10);
 
 		$slf = TTnew( 'StationListFactory' );
 		$station_type_options = $slf->getOptions('type');
@@ -754,22 +761,22 @@ class PunchSummaryReport extends Report {
 		$punch_type_options = $plf->getOptions('type');
 
 		$plf->getPunchSummaryReportByCompanyIdAndArrayCriteria( $this->getUserObject()->getCompany(), $filter_data );
-		Debug::Text(' Total Rows: '. $plf->getRecordCount(), __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text(' Total Rows: '. $plf->getRecordCount(), __FILE__, __LINE__, __METHOD__, 10);
 		$this->getProgressBarObject()->start( $this->getAMFMessageID(), $plf->getRecordCount(), NULL, TTi18n::getText('Retrieving Data...') );
 		if ( $plf->getRecordCount() > 0 ) {
 			foreach ( $plf as $key => $p_obj ) {
 				$pay_period_ids[$p_obj->getColumn('pay_period_id')] = TRUE;
 
-				if ( !isset($this->tmp_data['punch'][$p_obj->getColumn('user_id')][$p_obj->getColumn('punch_control_id')]) ) {
+				if ( !isset($this->tmp_data['punch'][$p_obj->getUser()][$p_obj->getColumn('punch_control_id')]) ) {
 					$hourly_rate = 0;
-					if ( $wage_permission_children_ids === TRUE OR in_array( $p_obj->getColumn('user_id'), $wage_permission_children_ids) ) {
+					if ( $wage_permission_children_ids === TRUE OR in_array( $p_obj->getUser(), $wage_permission_children_ids) ) {
 						$hourly_rate = $p_obj->getColumn( 'hourly_rate' );
 					}
 
-					$actual_time_diff = (int)$p_obj->getColumn('actual_total_time') - (int)$p_obj->getColumn('total_time');
+					$actual_time_diff = ( (int)$p_obj->getColumn('actual_total_time') - (int)$p_obj->getColumn('total_time') );
 
-					$this->tmp_data['punch'][$p_obj->getColumn('user_id')][$p_obj->getColumn('punch_control_id')] = array(
-						'user_id' => $p_obj->getColumn('user_id'),
+					$this->tmp_data['punch'][$p_obj->getUser()][$p_obj->getColumn('punch_control_id')] = array(
+						'user_id' => $p_obj->getUser(),
 						'user_group' => $p_obj->getColumn('group'),
 						'branch' => $p_obj->getColumn('branch'),
 						'department' => $p_obj->getColumn('department'),
@@ -834,50 +841,50 @@ class PunchSummaryReport extends Report {
 				}
 
 				if ( $p_obj->getColumn('status_id') == 10 ) {
-					$this->tmp_data['punch'][$p_obj->getColumn('user_id')][$p_obj->getColumn('punch_control_id')]['in_time_stamp'] = TTDate::strtotime( $p_obj->getColumn('punch_time_stamp') );
-					$this->tmp_data['punch'][$p_obj->getColumn('user_id')][$p_obj->getColumn('punch_control_id')]['in_type'] = Option::getByKey($p_obj->getColumn('type_id'), $punch_type_options, NULL );
-					$this->tmp_data['punch'][$p_obj->getColumn('user_id')][$p_obj->getColumn('punch_control_id')]['in_actual_time_stamp'] = TTDate::strtotime( $p_obj->getColumn('punch_actual_time_stamp') );
+					$this->tmp_data['punch'][$p_obj->getUser()][$p_obj->getColumn('punch_control_id')]['in_time_stamp'] = TTDate::strtotime( $p_obj->getColumn('punch_time_stamp') );
+					$this->tmp_data['punch'][$p_obj->getUser()][$p_obj->getColumn('punch_control_id')]['in_type'] = Option::getByKey($p_obj->getColumn('type_id'), $punch_type_options, NULL );
+					$this->tmp_data['punch'][$p_obj->getUser()][$p_obj->getColumn('punch_control_id')]['in_actual_time_stamp'] = TTDate::strtotime( $p_obj->getColumn('punch_actual_time_stamp') );
 
-					$this->tmp_data['punch'][$p_obj->getColumn('user_id')][$p_obj->getColumn('punch_control_id')]['in_station_type'] = Option::getByKey($p_obj->getColumn('station_type_id'), $station_type_options, '--' );
-					$this->tmp_data['punch'][$p_obj->getColumn('user_id')][$p_obj->getColumn('punch_control_id')]['in_station_station_id'] = $p_obj->getColumn('station_station_id');
-					$this->tmp_data['punch'][$p_obj->getColumn('user_id')][$p_obj->getColumn('punch_control_id')]['in_station_source']  = $p_obj->getColumn('station_source');
-					$this->tmp_data['punch'][$p_obj->getColumn('user_id')][$p_obj->getColumn('punch_control_id')]['in_station_description'] = $p_obj->getColumn('station_description');
+					$this->tmp_data['punch'][$p_obj->getUser()][$p_obj->getColumn('punch_control_id')]['in_station_type'] = Option::getByKey($p_obj->getColumn('station_type_id'), $station_type_options, '--' );
+					$this->tmp_data['punch'][$p_obj->getUser()][$p_obj->getColumn('punch_control_id')]['in_station_station_id'] = $p_obj->getColumn('station_station_id');
+					$this->tmp_data['punch'][$p_obj->getUser()][$p_obj->getColumn('punch_control_id')]['in_station_source']	= $p_obj->getColumn('station_source');
+					$this->tmp_data['punch'][$p_obj->getUser()][$p_obj->getColumn('punch_control_id')]['in_station_description'] = $p_obj->getColumn('station_description');
 
-					$this->tmp_data['punch'][$p_obj->getColumn('user_id')][$p_obj->getColumn('punch_control_id')]['in_created_date'] = TTDate::strtotime( $p_obj->getColumn('punch_created_date') );
-					$this->tmp_data['punch'][$p_obj->getColumn('user_id')][$p_obj->getColumn('punch_control_id')]['in_created_by'] = Misc::getFullName( $p_obj->getColumn('punch_created_by_first_name'), $p_obj->getColumn('punch_created_by_middle_name'), $p_obj->getColumn('punch_created_by_last_name'), FALSE, FALSE );
-					$this->tmp_data['punch'][$p_obj->getColumn('user_id')][$p_obj->getColumn('punch_control_id')]['in_updated_date'] = TTDate::strtotime( $p_obj->getColumn('punch_updated_date') );
-					$this->tmp_data['punch'][$p_obj->getColumn('user_id')][$p_obj->getColumn('punch_control_id')]['in_updated_by'] = Misc::getFullName( $p_obj->getColumn('punch_updated_by_first_name'), $p_obj->getColumn('punch_updated_by_middle_name'), $p_obj->getColumn('punch_updated_by_last_name'), FALSE, FALSE );
+					$this->tmp_data['punch'][$p_obj->getUser()][$p_obj->getColumn('punch_control_id')]['in_created_date'] = TTDate::strtotime( $p_obj->getColumn('punch_created_date') );
+					$this->tmp_data['punch'][$p_obj->getUser()][$p_obj->getColumn('punch_control_id')]['in_created_by'] = Misc::getFullName( $p_obj->getColumn('punch_created_by_first_name'), $p_obj->getColumn('punch_created_by_middle_name'), $p_obj->getColumn('punch_created_by_last_name'), FALSE, FALSE );
+					$this->tmp_data['punch'][$p_obj->getUser()][$p_obj->getColumn('punch_control_id')]['in_updated_date'] = TTDate::strtotime( $p_obj->getColumn('punch_updated_date') );
+					$this->tmp_data['punch'][$p_obj->getUser()][$p_obj->getColumn('punch_control_id')]['in_updated_by'] = Misc::getFullName( $p_obj->getColumn('punch_updated_by_first_name'), $p_obj->getColumn('punch_updated_by_middle_name'), $p_obj->getColumn('punch_updated_by_last_name'), FALSE, FALSE );
 
-					$this->tmp_data['punch'][$p_obj->getColumn('user_id')][$p_obj->getColumn('punch_control_id')]['total_punch']++;
+					$this->tmp_data['punch'][$p_obj->getUser()][$p_obj->getColumn('punch_control_id')]['total_punch']++;
 				} else {
-					$this->tmp_data['punch'][$p_obj->getColumn('user_id')][$p_obj->getColumn('punch_control_id')]['out_time_stamp'] = TTDate::strtotime( $p_obj->getColumn('punch_time_stamp') );
-					$this->tmp_data['punch'][$p_obj->getColumn('user_id')][$p_obj->getColumn('punch_control_id')]['out_type'] = Option::getByKey($p_obj->getColumn('type_id'), $punch_type_options, NULL );
-					$this->tmp_data['punch'][$p_obj->getColumn('user_id')][$p_obj->getColumn('punch_control_id')]['out_actual_time_stamp'] = TTDate::strtotime( $p_obj->getColumn('punch_actual_time_stamp') );
+					$this->tmp_data['punch'][$p_obj->getUser()][$p_obj->getColumn('punch_control_id')]['out_time_stamp'] = TTDate::strtotime( $p_obj->getColumn('punch_time_stamp') );
+					$this->tmp_data['punch'][$p_obj->getUser()][$p_obj->getColumn('punch_control_id')]['out_type'] = Option::getByKey($p_obj->getColumn('type_id'), $punch_type_options, NULL );
+					$this->tmp_data['punch'][$p_obj->getUser()][$p_obj->getColumn('punch_control_id')]['out_actual_time_stamp'] = TTDate::strtotime( $p_obj->getColumn('punch_actual_time_stamp') );
 
-					$this->tmp_data['punch'][$p_obj->getColumn('user_id')][$p_obj->getColumn('punch_control_id')]['out_station_type'] = Option::getByKey($p_obj->getColumn('station_type_id'), $station_type_options, '--' );
-					$this->tmp_data['punch'][$p_obj->getColumn('user_id')][$p_obj->getColumn('punch_control_id')]['out_station_station_id'] = $p_obj->getColumn('station_station_id');
-					$this->tmp_data['punch'][$p_obj->getColumn('user_id')][$p_obj->getColumn('punch_control_id')]['out_station_source']  = $p_obj->getColumn('station_source');
-					$this->tmp_data['punch'][$p_obj->getColumn('user_id')][$p_obj->getColumn('punch_control_id')]['out_station_description'] = $p_obj->getColumn('station_description');
+					$this->tmp_data['punch'][$p_obj->getUser()][$p_obj->getColumn('punch_control_id')]['out_station_type'] = Option::getByKey($p_obj->getColumn('station_type_id'), $station_type_options, '--' );
+					$this->tmp_data['punch'][$p_obj->getUser()][$p_obj->getColumn('punch_control_id')]['out_station_station_id'] = $p_obj->getColumn('station_station_id');
+					$this->tmp_data['punch'][$p_obj->getUser()][$p_obj->getColumn('punch_control_id')]['out_station_source']	 = $p_obj->getColumn('station_source');
+					$this->tmp_data['punch'][$p_obj->getUser()][$p_obj->getColumn('punch_control_id')]['out_station_description'] = $p_obj->getColumn('station_description');
 
-					$this->tmp_data['punch'][$p_obj->getColumn('user_id')][$p_obj->getColumn('punch_control_id')]['out_created_date'] = TTDate::strtotime( $p_obj->getColumn('punch_created_date') );
-					$this->tmp_data['punch'][$p_obj->getColumn('user_id')][$p_obj->getColumn('punch_control_id')]['out_created_by'] = Misc::getFullName( $p_obj->getColumn('punch_created_by_first_name'), $p_obj->getColumn('punch_created_by_middle_name'), $p_obj->getColumn('punch_created_by_last_name'), FALSE, FALSE );
-					$this->tmp_data['punch'][$p_obj->getColumn('user_id')][$p_obj->getColumn('punch_control_id')]['out_updated_date'] = TTDate::strtotime( $p_obj->getColumn('punch_updated_date') );
-					$this->tmp_data['punch'][$p_obj->getColumn('user_id')][$p_obj->getColumn('punch_control_id')]['out_updated_by'] = Misc::getFullName( $p_obj->getColumn('punch_updated_by_first_name'), $p_obj->getColumn('punch_updated_by_middle_name'), $p_obj->getColumn('punch_updated_by_last_name'), FALSE, FALSE );
+					$this->tmp_data['punch'][$p_obj->getUser()][$p_obj->getColumn('punch_control_id')]['out_created_date'] = TTDate::strtotime( $p_obj->getColumn('punch_created_date') );
+					$this->tmp_data['punch'][$p_obj->getUser()][$p_obj->getColumn('punch_control_id')]['out_created_by'] = Misc::getFullName( $p_obj->getColumn('punch_created_by_first_name'), $p_obj->getColumn('punch_created_by_middle_name'), $p_obj->getColumn('punch_created_by_last_name'), FALSE, FALSE );
+					$this->tmp_data['punch'][$p_obj->getUser()][$p_obj->getColumn('punch_control_id')]['out_updated_date'] = TTDate::strtotime( $p_obj->getColumn('punch_updated_date') );
+					$this->tmp_data['punch'][$p_obj->getUser()][$p_obj->getColumn('punch_control_id')]['out_updated_by'] = Misc::getFullName( $p_obj->getColumn('punch_updated_by_first_name'), $p_obj->getColumn('punch_updated_by_middle_name'), $p_obj->getColumn('punch_updated_by_last_name'), FALSE, FALSE );
 
-					$this->tmp_data['punch'][$p_obj->getColumn('user_id')][$p_obj->getColumn('punch_control_id')]['total_punch']++;
+					$this->tmp_data['punch'][$p_obj->getUser()][$p_obj->getColumn('punch_control_id')]['total_punch']++;
 				}
 
 				if ( $p_obj->getTainted() == TRUE ) {
-					$this->tmp_data['punch'][$p_obj->getColumn('user_id')][$p_obj->getColumn('punch_control_id')]['tainted'] = 1;
-					$this->tmp_data['punch'][$p_obj->getColumn('user_id')][$p_obj->getColumn('punch_control_id')]['total_tainted_punch']++;
+					$this->tmp_data['punch'][$p_obj->getUser()][$p_obj->getColumn('punch_control_id')]['tainted'] = 1;
+					$this->tmp_data['punch'][$p_obj->getUser()][$p_obj->getColumn('punch_control_id')]['total_tainted_punch']++;
 
-					if ( $this->tmp_data['punch'][$p_obj->getColumn('user_id')][$p_obj->getColumn('punch_control_id')]['tainted_status'] !== NULL ) {
-						$this->tmp_data['punch'][$p_obj->getColumn('user_id')][$p_obj->getColumn('punch_control_id')]['tainted_status'] = TTi18n::getText('Both (In&Out)');
+					if ( $this->tmp_data['punch'][$p_obj->getUser()][$p_obj->getColumn('punch_control_id')]['tainted_status'] !== NULL ) {
+						$this->tmp_data['punch'][$p_obj->getUser()][$p_obj->getColumn('punch_control_id')]['tainted_status'] = TTi18n::getText('Both (In&Out)');
 					} else {
 						if ( $p_obj->getColumn('status_id') == 10 ) {
-							$this->tmp_data['punch'][$p_obj->getColumn('user_id')][$p_obj->getColumn('punch_control_id')]['tainted_status'] = TTi18n::getText('In');
+							$this->tmp_data['punch'][$p_obj->getUser()][$p_obj->getColumn('punch_control_id')]['tainted_status'] = TTi18n::getText('In');
 						} else {
-							$this->tmp_data['punch'][$p_obj->getColumn('user_id')][$p_obj->getColumn('punch_control_id')]['tainted_status'] = TTi18n::getText('Out');
+							$this->tmp_data['punch'][$p_obj->getUser()][$p_obj->getColumn('punch_control_id')]['tainted_status'] = TTi18n::getText('Out');
 						}
 					}
 				}
@@ -887,19 +894,19 @@ class PunchSummaryReport extends Report {
 				$this->getProgressBarObject()->set( $this->getAMFMessageID(), $key );
 			}
 		}
-		//Debug::Arr($this->tmp_data['punch'], 'Punch Raw Data: ', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($this->tmp_data['punch'], 'Punch Raw Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		//Get user data for joining.
 		$ulf = TTnew( 'UserListFactory' );
 		$ulf->getAPISearchByCompanyIdAndArrayCriteria( $this->getUserObject()->getCompany(), $filter_data );
-		Debug::Text(' User Total Rows: '. $ulf->getRecordCount(), __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text(' User Total Rows: '. $ulf->getRecordCount(), __FILE__, __LINE__, __METHOD__, 10);
 		$this->getProgressBarObject()->start( $this->getAMFMessageID(), $ulf->getRecordCount(), NULL, TTi18n::getText('Retrieving Data...') );
 		foreach ( $ulf as $key => $u_obj ) {
 			$this->tmp_data['user'][$u_obj->getId()] = (array)$u_obj->getObjectAsArray( $this->getColumnDataConfig() );
 
 			$this->getProgressBarObject()->set( $this->getAMFMessageID(), $key );
 		}
-		//Debug::Arr($this->tmp_data['user'], 'User Raw Data: ', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($this->tmp_data['user'], 'User Raw Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		//Get verified timesheets for all pay periods considered in report.
 		$pay_period_ids = array_keys( $pay_period_ids );
@@ -924,7 +931,7 @@ class PunchSummaryReport extends Report {
 		$this->getProgressBarObject()->start( $this->getAMFMessageID(), count($this->tmp_data['punch']), NULL, TTi18n::getText('Pre-Processing Data...') );
 
 		//Merge time data with user data
-		$key=0;
+		$key = 0;
 		if ( isset($this->tmp_data['punch']) ) {
 			foreach( $this->tmp_data['punch'] as $user_id => $level_1 ) {
 				if ( isset($this->tmp_data['user'][$user_id]) ) {
@@ -932,7 +939,7 @@ class PunchSummaryReport extends Report {
 						$date_columns = TTDate::getReportDates( NULL, $row['date_stamp'], FALSE, $this->getUserObject(), array('pay_period_start_date' => $row['pay_period_start_date'], 'pay_period_end_date' => $row['pay_period_end_date'], 'pay_period_transaction_date' => $row['pay_period_transaction_date']) );
 						//$date_columns1 = TTDate::getReportDates( 'in_time_stamp', $row['in_time_stamp'], FALSE, $this->getUserObject() );
 						//$date_columns2 = TTDate::getReportDates( 'out_time_stamp', $row['out_time_stamp'], FALSE, $this->getUserObject() );
-						$processed_data  = array(
+						$processed_data	 = array(
 												//'pay_period' => array('sort' => $row['pay_period_start_date'], 'display' => TTDate::getDate('DATE', $row['pay_period_start_date'] ).' -> '. TTDate::getDate('DATE', $row['pay_period_end_date'] ) ),
 												);
 
@@ -961,7 +968,7 @@ class PunchSummaryReport extends Report {
 			}
 			unset($this->tmp_data, $row, $date_columns, $processed_data, $level_1);
 		}
-		//Debug::Arr($this->data, 'preProcess Data: ', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($this->data, 'preProcess Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		return TRUE;
 	}

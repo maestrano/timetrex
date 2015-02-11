@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 9521 $
- * $Id: UserGenericStatusFactory.class.php 9521 2013-04-08 23:09:52Z ipso $
- * $Date: 2013-04-08 16:09:52 -0700 (Mon, 08 Apr 2013) $
- */
+
 
 /**
  * @package Modules\Users
@@ -64,11 +60,11 @@ class UserGenericStatusFactory extends Factory {
 										30 => TTi18n::gettext('Success'),
 									);
 				break;
-            case 'columns':
+			case 'columns':
 				$retval = array(
 										'-1010-label' => TTi18n::gettext('Label'),
 										'-1020-status' => TTi18n::gettext('Status'),
-                                        '-1030-description' => TTi18n::gettext('Description'),
+										'-1030-description' => TTi18n::gettext('Description'),
 
 										'-2000-created_by' => TTi18n::gettext('Created By'),
 										'-2010-created_date' => TTi18n::gettext('Created Date'),
@@ -76,14 +72,14 @@ class UserGenericStatusFactory extends Factory {
 										'-2030-updated_date' => TTi18n::gettext('Updated Date'),
 							);
 				break;
-            case 'list_columns':
+			case 'list_columns':
 				$retval = Misc::arrayIntersectByKey( $this->getOptions('default_display_columns'), Misc::trimSortPrefix( $this->getOptions('columns') ) );
 				break;
-            case 'default_display_columns': //Columns that are displayed by default.
+			case 'default_display_columns': //Columns that are displayed by default.
 				$retval = array(
 								'label',
 								'status',
-                                'description',
+								'description',
 								);
 				break;
 
@@ -95,7 +91,7 @@ class UserGenericStatusFactory extends Factory {
 
 	function getUser() {
 		if ( isset($this->data['user_id']) ) {
-			return $this->data['user_id'];
+			return (int)$this->data['user_id'];
 		}
 
 		return FALSE;
@@ -124,7 +120,7 @@ class UserGenericStatusFactory extends Factory {
 	}
 	function getBatchID() {
 		if ( isset($this->data['batch_id']) ) {
-			return $this->data['batch_id'];
+			return (int)$this->data['batch_id'];
 		}
 
 		return FALSE;
@@ -184,7 +180,7 @@ class UserGenericStatusFactory extends Factory {
 		if (	$this->Validator->isLength(	'label',
 											$val,
 											TTi18n::gettext('Invalid label'),
-											1,1024)
+											1, 1024)
 						) {
 
 			$this->data['label'] = $val;
@@ -209,7 +205,7 @@ class UserGenericStatusFactory extends Factory {
 				$this->Validator->isLength(	'description',
 											$val,
 											TTi18n::gettext('Invalid description'),
-											1,1024)
+											1, 1024)
 						) {
 
 			$this->data['description'] = $val;
@@ -234,7 +230,7 @@ class UserGenericStatusFactory extends Factory {
 				$this->Validator->isLength(	'link',
 											$val,
 											TTi18n::gettext('Invalid link'),
-											1,1024)
+											1, 1024)
 						) {
 
 			$this->data['link'] = $val;
@@ -262,7 +258,7 @@ class UserGenericStatusFactory extends Factory {
 		return TRUE;
 	}
 	static function queueGenericStatus($label, $status, $description = NULL, $link = NULL ) {
-		Debug::Text('Add Generic Status row to queue... Label: '. $label .' Status: '. $status, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Add Generic Status row to queue... Label: '. $label .' Status: '. $status, __FILE__, __LINE__, __METHOD__, 10);
 		$arr = array(
 					'label' => $label,
 					'status' => $status,
@@ -287,12 +283,12 @@ class UserGenericStatusFactory extends Factory {
 
 	function saveQueue() {
 		if ( is_array($this->queue) ) {
-			Debug::Arr($this->queue, 'Generic Status Queue', __FILE__, __LINE__, __METHOD__,10);
+			Debug::Arr($this->queue, 'Generic Status Queue', __FILE__, __LINE__, __METHOD__, 10);
 			foreach( $this->queue as $key => $queue_data ) {
 
 				$ugsf = TTnew( 'UserGenericStatusFactory' );
 				$ugsf->setUser( $this->getUser() );
-				if ( $this->getBatchId() !== FALSE ) {
+				if ( $this->getBatchId() > 0 ) {
 					$ugsf->setBatchID( $this->getBatchID() );
 				} else {
 					$this->setBatchId( $this->getNextBatchId() );
@@ -313,7 +309,7 @@ class UserGenericStatusFactory extends Factory {
 			return TRUE;
 		}
 
-		Debug::Text('Generic Status Queue Empty', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Generic Status Queue Empty', __FILE__, __LINE__, __METHOD__, 10);
 		return FALSE;
 	}
 

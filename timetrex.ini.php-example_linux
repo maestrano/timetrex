@@ -1,3 +1,4 @@
+;<?php die('Access denied...');?>
 ;
 ;
 ; TimeTrex Configuration File
@@ -43,7 +44,7 @@ type = mysqli
 host = localhost
 database_name = timetrex
 user = timetrex
-password = ENTER_PASSWORD_HERE
+password = "ENTER_PASSWORD_HERE"
 
 
 ;
@@ -93,7 +94,10 @@ installer_enabled = TRUE
 primary_company_id = 0
 hostname = localhost
 
-default_interface = flex
+; System Administrators Email address to send critical errors to if necessary. Set to FALSE to disable completely.
+;system_admin_email = "sysadmin@mydomain.com"
+
+default_interface = html5
 
 ;WARNING: DO NOT CHANGE THIS AFTER YOU HAVE INSTALLED TIMETREX.
 ;If you do it will cause all your passwords to become invalid,
@@ -101,36 +105,3 @@ default_interface = flex
 salt = 0
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-;<?php if (; //Cause parse error to hide from prying eyes, just in case. DO NOT REMOVE?>

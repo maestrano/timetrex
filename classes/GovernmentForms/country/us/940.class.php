@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2286 $
- * $Id: CA.class.php 2286 2008-12-12 23:12:41Z ipso $
- * $Date: 2008-12-12 15:12:41 -0800 (Fri, 12 Dec 2008) $
- */
+
 
 include_once( 'US.class.php' );
 
@@ -1040,10 +1036,11 @@ class GovernmentForms_US_940 extends GovernmentForms_US {
 	function calcL9( $value, $schema ) {
 		//Taxable FUTA wages
 
-		//If line 10 or 11 are filled out, do not fill out line 9.
+		//Lines 9, 10 and 11 are all optional and completely on their own.
+		//Currently we can't handle line 9 at all.
 		if ( ( $this->l10 == '' OR $this->l10 == 0 ) AND ( $this->l11 == '' OR $this->l11 == 0 ) ) {
-			$this->l9 = $this->l7 * $this->futa_tax_rate;
-			return $this->l9;
+			//$this->l9 = $this->l7 * $this->futa_tax_rate;
+			//return $this->l9;
 		}
 
 		return FALSE;
@@ -1157,7 +1154,7 @@ class GovernmentForms_US_940 extends GovernmentForms_US {
             $xml->IRS940->ExemptWages->addChild('ExemptWagesAmt', $this->l4 );
             
             $xml->IRS940->ExemptWages->addChild('ExemptionCategory');
-            foreach( range('a','e') as $z ) {
+            foreach( range('a', 'e') as $z ) {
                 $col = 'l4'.$z;
                 if ( isset( $this->$col ) ) {
                     switch( $z ) {
@@ -1186,44 +1183,44 @@ class GovernmentForms_US_940 extends GovernmentForms_US {
             $xml->IRS940->addChild('WagesOverLimitAmt', $this->l5);
         }
               
-        if ( $this->calcL6(NULL,NULL) >= 0 ) {
-            $xml->IRS940->addChild('TotalExemptWagesAmt', $this->calcL6(NULL,NULL));
+        if ( $this->calcL6(NULL, NULL) >= 0 ) {
+            $xml->IRS940->addChild('TotalExemptWagesAmt', $this->calcL6(NULL, NULL));
         }   
-        if ( $this->calcL7(NULL,NULL) >= 0 ) {
-            $xml->IRS940->addChild('TotalTaxableWagesAmt', $this->calcL7(NULL,NULL)); 
+        if ( $this->calcL7(NULL, NULL) >= 0 ) {
+            $xml->IRS940->addChild('TotalTaxableWagesAmt', $this->calcL7(NULL, NULL));
         } else {
             $xml->IRS940->addChild('TotalTaxableWagesAmt', 0.00); 
         }         
         
-        if ( $this->calcL8(NULL,NULL) >= 0 ) {
-            $xml->IRS940->addChild('FUTATaxBeforeAdjustmentsAmt', $this->calcL8(NULL,NULL));
+        if ( $this->calcL8(NULL, NULL) >= 0 ) {
+            $xml->IRS940->addChild('FUTATaxBeforeAdjustmentsAmt', $this->calcL8(NULL, NULL));
         }
           
-        if ( $this->calcL9(NULL,NULL) >= 0 ) {
-            $xml->IRS940->addChild('MaximumCreditAmt', $this->calcL9(NULL,NULL));
+        if ( $this->calcL9(NULL, NULL) >= 0 ) {
+            $xml->IRS940->addChild('MaximumCreditAmt', $this->calcL9(NULL, NULL));
         } elseif ( isset( $this->l10 ) ) {
             $xml->IRS940->addChild('AdjustmentsToFUTATax');
             $xml->IRS940->AdjustmentsToFUTATax->addChild('FUTAAdjustmentAmt', $this->l10);           
             
         }
         
-        if ( $this->calcL12(NULL,NULL) >= 0 ) {
-            $xml->IRS940->addChild('FUTATaxAfterAdjustments',$this->calcL12(NULL,NULL) );
+        if ( $this->calcL12(NULL, NULL) >= 0 ) {
+            $xml->IRS940->addChild('FUTATaxAfterAdjustments', $this->calcL12(NULL, NULL) );
         }
         
         if ( isset($this->l13) ) {
             
-            $xml->IRS940->addChild('TotalTaxDepositedAmt',$this->l13 );
+            $xml->IRS940->addChild('TotalTaxDepositedAmt', $this->l13 );
         }
-        if ( $this->calcL14(NULL,NULL) >= 0 ) {
-            $xml->IRS940->addChild('BalanceDue',$this->calcL14(NULL,NULL) );
-        } elseif ( $this->calcL15(NULL,NULL) >= 0 ) {
+        if ( $this->calcL14(NULL, NULL) >= 0 ) {
+            $xml->IRS940->addChild('BalanceDue', $this->calcL14(NULL, NULL) );
+        } elseif ( $this->calcL15(NULL, NULL) >= 0 ) {
             $xml->IRS940->addChild('Overpayment' );
-            $xml->IRS940->Overpayment->addChild('Amount',$this->calcL15(NULL,NULL) );
-            $xml->IRS940->Overpayment->addChild('Refund','X' );
+            $xml->IRS940->Overpayment->addChild('Amount', $this->calcL15(NULL, NULL) );
+            $xml->IRS940->Overpayment->addChild('Refund', 'X' );
         }
         
-        foreach( range('a','d') as $z ) {
+        foreach( range('a', 'd') as $z ) {
             $col = 'l16'.$z;
             if ( isset( $this->$col ) ) {
                 switch( $z ) {
@@ -1244,8 +1241,8 @@ class GovernmentForms_US_940 extends GovernmentForms_US {
             
         }
                 
-        if ( $this->calcL17(NULL,NULL) >= 0 ) {
-            $xml->IRS940->addChild('TotalYearLiabilityAmt', $this->calcL17(NULL,NULL));
+        if ( $this->calcL17(NULL, NULL) >= 0 ) {
+            $xml->IRS940->addChild('TotalYearLiabilityAmt', $this->calcL17(NULL, NULL));
         }
         
         

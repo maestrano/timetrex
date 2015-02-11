@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2196 $
- * $Id: APIUser.class.php 2196 2008-10-14 16:08:54Z ipso $
- * $Date: 2008-10-14 09:08:54 -0700 (Tue, 14 Oct 2008) $
- */
+
 
 /**
  * @package API\Users
@@ -58,18 +54,18 @@ class APIUser extends APIFactory {
 	function getUserDefaultData( $tmp_company_id = NULL ) {
 
 		//Allow getting default data from other companies, so it makes it easier to create the first employee of a company.
-		if ( $tmp_company_id != '' AND $tmp_company_id > 0 AND $this->getPermissionObject()->Check('company','enabled') AND $this->getPermissionObject()->Check('company','view') ) {
+		if ( $tmp_company_id != '' AND $tmp_company_id > 0 AND $this->getPermissionObject()->Check('company', 'enabled') AND $this->getPermissionObject()->Check('company', 'view') ) {
 			$company_id = $tmp_company_id;
 		} else {
 			$company_id = $this->getCurrentCompanyObject()->getId();
 		}
-		Debug::Text('Getting user default data for Company ID: '. $company_id .' TMP Company ID: '. $tmp_company_id, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Getting user default data for Company ID: '. $company_id .' TMP Company ID: '. $tmp_company_id, __FILE__, __LINE__, __METHOD__, 10);
 
 		//Get New Hire Defaults.
 		$udlf = TTnew( 'UserDefaultListFactory' );
 		$udlf->getByCompanyId( $company_id );
 		if ( $udlf->getRecordCount() > 0 ) {
-			Debug::Text('Using User Defaults, as they exist...', __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text('Using User Defaults, as they exist...', __FILE__, __LINE__, __METHOD__, 10);
 			$udf_obj = $udlf->getCurrent();
 
 			$data = array(
@@ -98,6 +94,14 @@ class APIUser extends APIFactory {
 			$data['company_id'] = $company_id;
 		}
 
+		if ( !isset( $data['status_id'] ) ) {
+			$data['status_id'] = 10; //Active
+		}
+
+		if ( !isset( $data['currency_id'] ) ) {
+			$data['currency_id'] = 0;
+		}
+
 		if ( !isset( $data['country'] ) ) {
 			$data['country'] = 'US';
 		}
@@ -105,11 +109,11 @@ class APIUser extends APIFactory {
 		$ulf = TTnew( 'UserListFactory' );
 		$ulf->getHighestEmployeeNumberByCompanyId( $company_id );
 		if ( $ulf->getRecordCount() > 0 ) {
-			Debug::Text('Highest Employee Number: '. $ulf->getCurrent()->getEmployeeNumber(), __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text('Highest Employee Number: '. $ulf->getCurrent()->getEmployeeNumber(), __FILE__, __LINE__, __METHOD__, 10);
 			if ( is_numeric( $ulf->getCurrent()->getEmployeeNumber() ) == TRUE ) {
-				$data['next_available_employee_number'] = $ulf->getCurrent()->getEmployeeNumber()+1;
+				$data['next_available_employee_number'] = ( $ulf->getCurrent()->getEmployeeNumber() + 1 );
 			} else {
-				Debug::Text('Highest Employee Number is not an integer.', __FILE__, __LINE__, __METHOD__,10);
+				Debug::Text('Highest Employee Number is not an integer.', __FILE__, __LINE__, __METHOD__, 10);
 				$data['next_available_employee_number'] = NULL;
 			}
 		} else {
@@ -131,13 +135,13 @@ class APIUser extends APIFactory {
 	 * @return array
 	 */
 	function getUser( $data = NULL, $disable_paging = FALSE ) {
-		if ( !$this->getPermissionObject()->Check('user','enabled')
-				OR !( $this->getPermissionObject()->Check('user','view') OR $this->getPermissionObject()->Check('user','view_own') OR $this->getPermissionObject()->Check('user','view_child')  ) ) {
+		if ( !$this->getPermissionObject()->Check('user', 'enabled')
+				OR !( $this->getPermissionObject()->Check('user', 'view') OR $this->getPermissionObject()->Check('user', 'view_own') OR $this->getPermissionObject()->Check('user', 'view_child')  ) ) {
 			return $this->getPermissionObject()->PermissionDenied();
 		}
 		$data = $this->initializeFilterAndPager( $data, $disable_paging );
 
-		//We need to take into account different permissions, ie: punch->view,view_child,view_own when displaying the dropdown
+		//We need to take into account different permissions, ie: punch->view, view_child, view_own when displaying the dropdown
 		//box in the TimeSheet view and other views as well. Allow the caller of this function to pass a "permission_section"
 		//that can be used to determine this.
 		if ( isset($data['permission_section']) AND $data['permission_section'] != '' ) {
@@ -152,9 +156,11 @@ class APIUser extends APIFactory {
 		//Debug::Arr($data['filter_data']['permission_children_ids'], 'Permission Section: '. $permission_section .' Child IDs: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		//Allow getting users from other companies, so we can change admin contacts when using the master company.
+		//Need to allow -1 to be accepted for Edit Company view to not show any employees in Contact dropdowns when creating a new company.
+		//But show the proper employees (for that company) in Contact dropdowns when editing an existing company.
 		if ( isset($data['filter_data']['company_id'])
-				AND $data['filter_data']['company_id'] > 0
-				AND ( $this->getPermissionObject()->Check('company','enabled') AND $this->getPermissionObject()->Check('company','view') ) ) {
+				AND !empty($data['filter_data']['company_id'])
+				AND ( $this->getPermissionObject()->Check('company', 'enabled') AND $this->getPermissionObject()->Check('company', 'view') ) ) {
 			$company_id = $data['filter_data']['company_id'];
 		} else {
 			$company_id = $this->getCurrentCompanyObject()->getId();
@@ -173,7 +179,7 @@ class APIUser extends APIFactory {
 				$user_data = $u_obj->getObjectAsArray( $data['filter_columns'] );
 
 				//Hide SIN if user doesn't have permissions to see it.
-				if ( isset($user_data['sin']) AND $user_data['sin'] != '' AND $this->getPermissionObject()->Check('user','view_sin') == FALSE ) {
+				if ( isset($user_data['sin']) AND $user_data['sin'] != '' AND $this->getPermissionObject()->Check('user', 'view_sin') == FALSE ) {
 					$user_data['sin'] = $u_obj->getSecureSIN();
 				}
 
@@ -222,9 +228,9 @@ class APIUser extends APIFactory {
 			return $this->returnHandler( FALSE );
 		}
 
-		if ( !$this->getPermissionObject()->Check('user','enabled')
-				OR !( $this->getPermissionObject()->Check('user','edit') OR $this->getPermissionObject()->Check('user','edit_own') OR $this->getPermissionObject()->Check('user','edit_child') OR $this->getPermissionObject()->Check('user','add') ) ) {
-			return  $this->getPermissionObject()->PermissionDenied();
+		if ( !$this->getPermissionObject()->Check('user', 'enabled')
+				OR !( $this->getPermissionObject()->Check('user', 'edit') OR $this->getPermissionObject()->Check('user', 'edit_own') OR $this->getPermissionObject()->Check('user', 'edit_child') OR $this->getPermissionObject()->Check('user', 'add') ) ) {
+			return	$this->getPermissionObject()->PermissionDenied();
 		}
 
 		if ( $validate_only == TRUE ) {
@@ -249,7 +255,7 @@ class APIUser extends APIFactory {
 				$lf->StartTransaction();
 
 				//Force Company ID to current company.
-				if ( !isset($row['company_id']) OR !$this->getPermissionObject()->Check('company','view') ) {
+				if ( !isset($row['company_id']) OR ( isset($row['company_id']) AND $row['company_id'] == '' ) OR !$this->getPermissionObject()->Check('company', 'view') ) {
 					$row['company_id'] = $this->getCurrentCompanyObject()->getId();
 				}
 
@@ -261,12 +267,12 @@ class APIUser extends APIFactory {
 						//Object exists, check edit permissions
 						//Debug::Text('User ID: '. $row['id'] .' Created By: '. $lf->getCurrent()->getCreatedBy() .' Is Owner: '. (int)$this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) .' Is Child: '. (int)$this->getPermissionObject()->isChild( $lf->getCurrent()->getId(), $permission_children_ids ), __FILE__, __LINE__, __METHOD__, 10);
 						if (
-							  $validate_only == TRUE
-							  OR
+							$validate_only == TRUE
+							OR
 								(
-								$this->getPermissionObject()->Check('user','edit')
-									OR ( $this->getPermissionObject()->Check('user','edit_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE )
-									OR ( $this->getPermissionObject()->Check('user','edit_child') AND $this->getPermissionObject()->isChild( $lf->getCurrent()->getId(), $permission_children_ids ) === TRUE )
+								$this->getPermissionObject()->Check('user', 'edit')
+									OR ( $this->getPermissionObject()->Check('user', 'edit_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE )
+									OR ( $this->getPermissionObject()->Check('user', 'edit_child') AND $this->getPermissionObject()->isChild( $lf->getCurrent()->getId(), $permission_children_ids ) === TRUE )
 								) ) {
 
 							Debug::Text('Row Exists, getting current data: ', $row['id'], __FILE__, __LINE__, __METHOD__, 10);
@@ -282,13 +288,16 @@ class APIUser extends APIFactory {
 					}
 				} else {
 					//Adding new object, check ADD permissions.
-					$primary_validator->isTrue( 'permission', $this->getPermissionObject()->Check('user','add'), TTi18n::gettext('Add permission denied') );
+					$primary_validator->isTrue( 'permission', $this->getPermissionObject()->Check('user', 'add'), TTi18n::gettext('Add permission denied') );
+
+					//Because password encryption requires the user_id, we need to get it first when creating a new employee.
+					$row['id'] = $lf->getNextInsertId();
 				}
 
 				//When doing a mass edit of employees, user name is never specified, so we need to avoid this validation issue.
 				//Generate random user name if its validate only and not otherwise specified.
 				if ( $validate_only == TRUE AND ( !isset($row['user_name']) OR $row['user_name'] == '' ) ) {
-					$row['user_name'] = 'random'.rand(10000000,99999999);
+					$row['user_name'] = 'random'.rand(10000000, 99999999);
 				}
 				//Debug::Arr($row, 'Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
@@ -301,7 +310,7 @@ class APIUser extends APIFactory {
 						unset($row['permission_control_id'], $row['status_id'], $row['phone_id'], $row['user_name'], $row['password']);
 					}
 
-					if ( $this->getPermissionObject()->Check('user','edit_advanced') == FALSE ) {
+					if ( $this->getPermissionObject()->Check('user', 'edit_advanced') == FALSE ) {
 						Debug::Text('NOT allowing advanced edit...', __FILE__, __LINE__, __METHOD__, 10);
 						//Unset all advanced fields.
 						unset(
@@ -328,7 +337,7 @@ class APIUser extends APIFactory {
 					}
 
 					//If the user doesn't have permissions to change the hierarchy_control, unset that data.
-					if ( isset($row['hierarchy_control']) AND ( $this->getPermissionObject()->Check('hierarchy','edit') OR $this->getPermissionObject()->Check('user','edit_hierarchy') ) ) {
+					if ( isset($row['hierarchy_control']) AND ( $this->getPermissionObject()->Check('hierarchy', 'edit') OR $this->getPermissionObject()->Check('user', 'edit_hierarchy') ) ) {
 						Debug::Text('Allowing change of hierarchy...', __FILE__, __LINE__, __METHOD__, 10);
 					} else {
 						Debug::Text('NOT allowing change of hierarchy...', __FILE__, __LINE__, __METHOD__, 10);
@@ -337,21 +346,21 @@ class APIUser extends APIFactory {
 
 					//Handle additional permission checks for setPermissionControl().
 					if ( isset($row['permission_control_id'])
-						AND ( $lf->getPermissionLevel() <= $this->getPermissionObject()->getLevel() AND ( $this->getPermissionObject()->Check('permission','edit') OR $this->getPermissionObject()->Check('permission','edit_own') OR $this->getPermissionObject()->Check('user','edit_permission_group') ) ) ) {
+						AND ( $lf->getPermissionLevel() <= $this->getPermissionObject()->getLevel() AND ( $this->getPermissionObject()->Check('permission', 'edit') OR $this->getPermissionObject()->Check('permission', 'edit_own') OR $this->getPermissionObject()->Check('user', 'edit_permission_group') ) ) ) {
 						Debug::Text('Allowing change of permissions...', __FILE__, __LINE__, __METHOD__, 10);
 					} else {
 						Debug::Text('NOT allowing change of permissions...', __FILE__, __LINE__, __METHOD__, 10);
 						unset($row['permission_control_id']);
 					}
 
-					if ( isset($row['pay_period_schedule_id']) AND ( $this->getPermissionObject()->Check('pay_period_schedule','edit') OR $this->getPermissionObject()->Check('user','edit_pay_period_schedule') ) ) {
+					if ( isset($row['pay_period_schedule_id']) AND ( $this->getPermissionObject()->Check('pay_period_schedule', 'edit') OR $this->getPermissionObject()->Check('user', 'edit_pay_period_schedule') ) ) {
 						Debug::Text('Allowing change of pay period schedule...', __FILE__, __LINE__, __METHOD__, 10);
 					} else {
 						Debug::Text('NOT allowing change of pay period schedule...', __FILE__, __LINE__, __METHOD__, 10);
 						unset($row['pay_period_schedule_id']);
 					}
 
-					if ( isset($row['policy_group_id']) AND ( $this->getPermissionObject()->Check('policy_group','edit') OR $this->getPermissionObject()->Check('user','edit_policy_group') ) ) {
+					if ( isset($row['policy_group_id']) AND ( $this->getPermissionObject()->Check('policy_group', 'edit') OR $this->getPermissionObject()->Check('user', 'edit_policy_group') ) ) {
 						Debug::Text('Allowing change of policy group...', __FILE__, __LINE__, __METHOD__, 10);
 					} else {
 						Debug::Text('NOT allowing change of policy group...', __FILE__, __LINE__, __METHOD__, 10);
@@ -392,7 +401,7 @@ class APIUser extends APIFactory {
 						if ( $validate_only == TRUE ) {
 							$save_result[$key] = TRUE;
 						} else {
-							$save_result[$key] = $lf->Save();
+							$save_result[$key] = $lf->Save( TRUE, TRUE );
 						}
 						$validator_stats['valid_records']++;
 					}
@@ -409,7 +418,7 @@ class APIUser extends APIFactory {
 						$validator[$key] = $lf->Validator->getErrorsArray();
 					}
 				} elseif ( $validate_only == TRUE ) {
-					//Always fail transaction when valididate only is used, as  is saved to different tables immediately.
+					//Always fail transaction when valididate only is used, as	is saved to different tables immediately.
 					$lf->FailTransaction();
 				}
 
@@ -452,9 +461,9 @@ class APIUser extends APIFactory {
 			return $this->returnHandler( FALSE );
 		}
 
-		if ( !$this->getPermissionObject()->Check('user','enabled')
-				OR !( $this->getPermissionObject()->Check('user','delete') OR $this->getPermissionObject()->Check('user','delete_own') OR $this->getPermissionObject()->Check('user','delete_child') ) ) {
-			return  $this->getPermissionObject()->PermissionDenied();
+		if ( !$this->getPermissionObject()->Check('user', 'enabled')
+				OR !( $this->getPermissionObject()->Check('user', 'delete') OR $this->getPermissionObject()->Check('user', 'delete_own') OR $this->getPermissionObject()->Check('user', 'delete_child') ) ) {
+			return	$this->getPermissionObject()->PermissionDenied();
 		}
 
 		//Get Permission Hierarchy Children first, as this can be used for viewing, or editing.
@@ -473,7 +482,7 @@ class APIUser extends APIFactory {
 				$lf = TTnew( 'UserListFactory' );
 				$lf->StartTransaction();
 				if ( is_numeric($id) ) {
-					if ( $this->getPermissionObject()->Check('company','view') == TRUE ) {
+					if ( $this->getPermissionObject()->Check('company', 'view') == TRUE ) {
 						$lf->getById( $id );//Allow deleting employees in other companies.
 					} else {
 						$lf->getByIdAndCompanyId( $id, $this->getCurrentCompanyObject()->getId() );
@@ -481,9 +490,9 @@ class APIUser extends APIFactory {
 					if ( $lf->getRecordCount() == 1 ) {
 						//Object exists, check edit permissions
 						//Debug::Text('User ID: '. $user['id'] .' Created By: '. $lf->getCurrent()->getCreatedBy() .' Is Owner: '. (int)$this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) .' Is Child: '. (int)$this->getPermissionObject()->isChild( $lf->getCurrent()->getId(), $permission_children_ids ), __FILE__, __LINE__, __METHOD__, 10);
-						if ( $this->getPermissionObject()->Check('user','delete')
-								OR ( $this->getPermissionObject()->Check('user','delete_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE )
-								OR ( $this->getPermissionObject()->Check('user','delete_child') AND $this->getPermissionObject()->isChild( $lf->getCurrent()->getId(), $permission_children_ids ) === TRUE )) {
+						if ( $this->getPermissionObject()->Check('user', 'delete')
+								OR ( $this->getPermissionObject()->Check('user', 'delete_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE )
+								OR ( $this->getPermissionObject()->Check('user', 'delete_child') AND $this->getPermissionObject()->isChild( $lf->getCurrent()->getId(), $permission_children_ids ) === TRUE )) {
 
 							Debug::Text('Record Exists, deleting record: ', $id, __FILE__, __LINE__, __METHOD__, 10);
 							$lf = $lf->getCurrent();
@@ -563,7 +572,7 @@ class APIUser extends APIFactory {
 	 * @return bool
 	 */
 	function isUniqueUserName( $user_name ) {
-		Debug::Text('Checking for unique user name: '. $user_name, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Checking for unique user name: '. $user_name, __FILE__, __LINE__, __METHOD__, 10);
 
 		$uf = TTNew('UserFactory');
 		$retval = $uf->isUniqueUserName( $user_name );
@@ -579,83 +588,86 @@ class APIUser extends APIFactory {
 	 * @return bool
 	 */
 	function changePassword( $current_password, $new_password, $new_password2, $type = 'web' ) {
-
 		$ulf = TTnew( 'UserListFactory' );
 		$ulf->getByIdAndCompanyId( $this->getCurrentUserObject()->getId(), $this->getCurrentCompanyObject()->getId() );
 		if ( $ulf->getRecordCount() == 1 ) {
 			$uf = $ulf->getCurrent();
 
-			switch ( strtolower($type) ) {
-				case 'quick_punch':
-				case 'phone':
-					if ( $this->getPermissionObject()->Check('user','edit_own_phone_password') == FALSE ) {
-						return $this->getPermissionObject()->PermissionDenied();
-					}
+			global $authentication;
+			if ( $authentication->rl->check() == FALSE ) {
+				Debug::Text('Excessive failed password attempts... Preventing password change from: '. $_SERVER['REMOTE_ADDR'] .' for up to 15 minutes...', __FILE__, __LINE__, __METHOD__, 10);
+				sleep(5); //Excessive password attempts, sleep longer.
 
-					$log_description = TTi18n::getText('Password - Phone');
-					if ( $current_password != '' ) {
-						if ( $uf->checkPhonePassword($current_password) !== TRUE ) {
-							Debug::Text('Password check failed!', __FILE__, __LINE__, __METHOD__,10);
+				$uf->Validator->isTrue(	'current_password',
+										FALSE,
+										TTi18n::gettext('Current password is incorrect') .' (z)' );
+			} else {
+				switch ( strtolower($type) ) {
+					case 'quick_punch':
+					case 'phone':
+						if ( $this->getPermissionObject()->Check('user', 'edit_own_phone_password') == FALSE ) {
+							return $this->getPermissionObject()->PermissionDenied();
+						}
+
+						$log_description = TTi18n::getText('Password - Phone');
+						if ( $current_password != '' ) {
+							if ( $uf->checkPhonePassword($current_password) !== TRUE ) {
+								Debug::text('Password check failed! Attempt: '. $authentication->rl->getAttempts(), __FILE__, __LINE__, __METHOD__, 10);
+								sleep( ($authentication->rl->getAttempts() * 0.5) ); //If password is incorrect, sleep for some time to slow down brute force attacks.
+
+								$uf->Validator->isTrue(	'current_password',
+														FALSE,
+														TTi18n::gettext('Current password is incorrect') );
+							}
+						} else {
+							Debug::Text('Current password not specified', __FILE__, __LINE__, __METHOD__, 10);
 							$uf->Validator->isTrue(	'current_password',
 													FALSE,
 													TTi18n::gettext('Current password is incorrect') );
 						}
-					} else {
-						Debug::Text('Current password not specified', __FILE__, __LINE__, __METHOD__,10);
-						$uf->Validator->isTrue(	'current_password',
-												FALSE,
-												TTi18n::gettext('Current password is incorrect') );
-					}
 
-					if ( $new_password != '' OR $new_password2 != ''  ) {
-						if ( $new_password == $new_password2 ) {
-							$uf->setPhonePassword($new_password);
-						} else {
-							$uf->Validator->isTrue(	'password',
-													FALSE,
-													TTi18n::gettext('Passwords don\'t match') );
+						if ( $new_password != '' OR $new_password2 != ''  ) {
+							if ( $new_password === $new_password2 ) {
+								$uf->setPhonePassword($new_password);
+							} else {
+								$uf->Validator->isTrue(	'password',
+														FALSE,
+														TTi18n::gettext('Passwords don\'t match') );
+							}
 						}
-					} else {
-						$uf->Validator->isTrue(	'password',
-												FALSE,
-												TTi18n::gettext('Passwords don\'t match') );
-					}
+						break;
+					case 'web':
+						if ( $this->getPermissionObject()->Check('user', 'edit_own_password') == FALSE ) {
+							return $this->getPermissionObject()->PermissionDenied();
+						}
 
-					break;
-				case 'web':
-					if ( $this->getPermissionObject()->Check('user','edit_own_password') == FALSE ) {
-						return $this->getPermissionObject()->PermissionDenied();
-					}
-
-					$log_description = TTi18n::getText('Password - Web');
-					if ( $current_password != '' ) {
-						if ( $uf->checkPassword($current_password) !== TRUE ) {
-							Debug::Text('Password check failed!', __FILE__, __LINE__, __METHOD__,10);
+						$log_description = TTi18n::getText('Password - Web');
+						if ( $current_password != '' ) {
+							if ( $uf->checkPassword($current_password) !== TRUE ) {
+								Debug::text('Password check failed! Attempt: '. $authentication->rl->getAttempts(), __FILE__, __LINE__, __METHOD__, 10);
+								sleep( ($authentication->rl->getAttempts() * 0.5) ); //If password is incorrect, sleep for some time to slow down brute force attacks.
+								$uf->Validator->isTrue(	'current_password',
+														FALSE,
+														TTi18n::gettext('Current password is incorrect') );
+							}
+						} else {
+							Debug::Text('Current password not specified', __FILE__, __LINE__, __METHOD__, 10);
 							$uf->Validator->isTrue(	'current_password',
 													FALSE,
 													TTi18n::gettext('Current password is incorrect') );
 						}
-					} else {
-						Debug::Text('Current password not specified', __FILE__, __LINE__, __METHOD__,10);
-						$uf->Validator->isTrue(	'current_password',
-												FALSE,
-												TTi18n::gettext('Current password is incorrect') );
-					}
 
-					if ( $new_password != '' OR $new_password2 != ''  ) {
-						if ( $new_password == $new_password2 ) {
-							$uf->setPassword($new_password);
-						} else {
-							$uf->Validator->isTrue(	'password',
-													FALSE,
-													TTi18n::gettext('Passwords don\'t match') );
+						if ( $new_password != '' OR $new_password2 != ''  ) {
+							if ( $new_password === $new_password2 ) {
+								$uf->setPassword($new_password);
+							} else {
+								$uf->Validator->isTrue(	'password',
+														FALSE,
+														TTi18n::gettext('Passwords don\'t match') );
+							}
 						}
-					} else {
-						$uf->Validator->isTrue(	'password',
-												FALSE,
-												TTi18n::gettext('Passwords don\'t match') );
-					}
-					break;
+						break;
+				}
 			}
 
 			if ( $uf->isValid() ) {
@@ -664,6 +676,9 @@ class APIUser extends APIFactory {
 					return $this->returnHandler( TRUE );
 				} else {
 					TTLog::addEntry( $this->getCurrentUserObject()->getId(), 20, $log_description, NULL, $uf->getTable() );
+
+					$authentication->rl->delete(); //Clear failed password rate limit upon successful login.
+
 					return $this->returnHandler( $uf->Save() ); //Single valid record
 				}
 			} else {
@@ -696,7 +711,7 @@ class APIUser extends APIFactory {
 	}
 
 	function UnsubscribeEmail( $email ) {
-		if ( $email != '' AND $this->getPermissionObject()->Check('company','edit') ) {
+		if ( $email != '' AND $this->getPermissionObject()->Check('company', 'edit') ) {
 			return UserFactory::UnsubscribeEmail( $email );
 		}
 

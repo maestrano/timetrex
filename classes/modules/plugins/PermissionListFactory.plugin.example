@@ -1,10 +1,6 @@
 <?php
 /*$License$*/
-/*
- * $Revision: 4034 $
- * $Id: UserFactory.plugin.php 4034 2010-12-15 00:02:50Z ipso $
- * $Date: 2010-12-14 16:02:50 -0800 (Tue, 14 Dec 2010) $
- */
+
 
 /*
  * Example plugin.

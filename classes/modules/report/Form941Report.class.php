@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2095 $
- * $Id: Sort.class.php 2095 2008-09-01 07:04:25Z ipso $
- * $Date: 2008-09-01 00:04:25 -0700 (Mon, 01 Sep 2008) $
- */
+
 
 /**
  * @package Modules\Report
@@ -56,15 +52,15 @@ class Form941Report extends Report {
 	}
 
 	protected function _checkPermissions( $user_id, $company_id ) {
-		if ( $this->getPermissionObject()->Check('report','enabled', $user_id, $company_id )
-				AND $this->getPermissionObject()->Check('report','view_form941', $user_id, $company_id ) ) {
+		if ( $this->getPermissionObject()->Check('report', 'enabled', $user_id, $company_id )
+				AND $this->getPermissionObject()->Check('report', 'view_form941', $user_id, $company_id ) ) {
 			return TRUE;
 		}
 
 		return FALSE;
 	}
-    
-    protected function _validateConfig() {
+
+	protected function _validateConfig() {
 		$config = $this->getConfig();
 
 		//Make sure some time period is selected.
@@ -91,7 +87,7 @@ class Form941Report extends Report {
 										'template',
 										'time_period',
 										'columns',
-							   );
+								);
 
 				break;
 			case 'setup_fields':
@@ -107,7 +103,7 @@ class Form941Report extends Report {
 										'-2050-exclude_user_id' => TTi18n::gettext('Employee Exclude'),
 										'-2060-default_branch_id' => TTi18n::gettext('Default Branch'),
 										'-2070-default_department_id' => TTi18n::gettext('Default Department'),
-                                        '-2100-custom_filter' => TTi18n::gettext('Custom Filter'),
+										'-2100-custom_filter' => TTi18n::gettext('Custom Filter'),
 
 										'-4020-exclude_ytd_adjustment' => TTi18n::gettext('Exclude YTD Adjustments'),
 
@@ -115,15 +111,15 @@ class Form941Report extends Report {
 										'-5010-group' => TTi18n::gettext('Group By'),
 										'-5020-sub_total' => TTi18n::gettext('SubTotal By'),
 										'-5030-sort' => TTi18n::gettext('Sort By'),
-							   );
+								);
 				break;
 			case 'time_period':
-				$retval = TTDate::getTimePeriodOptions();
+				$retval = TTDate::getTimePeriodOptions( FALSE ); //Exclude Pay Period options.
 				break;
 			case 'date_columns':
 				$retval = TTDate::getReportDateOptions( NULL, TTi18n::getText('Date'), 13, TRUE );
 				break;
-            case 'report_custom_column':
+			case 'report_custom_column':
 				if ( getTTProductEdition() >= TT_PRODUCT_PROFESSIONAL ) {
 					$rcclf = TTnew( 'ReportCustomColumnListFactory' );
 					// Because the Filter type is just only a filter criteria and not need to be as an option of Display Columns, Group By, Sub Total, Sort By dropdowns.
@@ -133,14 +129,14 @@ class Form941Report extends Report {
 						$retval = Misc::addSortPrefix( $custom_column_labels, 9500 );
 					}
 				}
-                break; 
-            case 'report_custom_filters':
+				break;
+			case 'report_custom_filters':
 				if ( getTTProductEdition() >= TT_PRODUCT_PROFESSIONAL ) {
 					$rcclf = TTnew( 'ReportCustomColumnListFactory' );
 					$retval = $rcclf->getByCompanyIdAndTypeIdAndFormatIdAndScriptArray( $this->getUserObject()->getCompany(), $rcclf->getOptions('filter_column_type_ids'), NULL, 'Form941Report', 'custom_column' );
 				}
-                break;
-            case 'report_dynamic_custom_column':
+				break;
+			case 'report_dynamic_custom_column':
 				if ( getTTProductEdition() >= TT_PRODUCT_PROFESSIONAL ) {
 					$rcclf = TTnew( 'ReportCustomColumnListFactory' );
 					$report_dynamic_custom_column_labels = $rcclf->getByCompanyIdAndTypeIdAndFormatIdAndScriptArray( $this->getUserObject()->getCompany(), $rcclf->getOptions('display_column_type_ids'), $rcclf->getOptions('dynamic_format_ids'), 'Form941Report', 'custom_column' );
@@ -148,8 +144,8 @@ class Form941Report extends Report {
 						$retval = Misc::addSortPrefix( $report_dynamic_custom_column_labels, 9700 );
 					}
 				}
-                break;
-            case 'report_static_custom_column':
+				break;
+			case 'report_static_custom_column':
 				if ( getTTProductEdition() >= TT_PRODUCT_PROFESSIONAL ) {
 					$rcclf = TTnew( 'ReportCustomColumnListFactory' );
 					$report_static_custom_column_labels = $rcclf->getByCompanyIdAndTypeIdAndFormatIdAndScriptArray( $this->getUserObject()->getCompany(), $rcclf->getOptions('display_column_type_ids'), $rcclf->getOptions('static_format_ids'), 'Form941Report', 'custom_column' );
@@ -157,13 +153,13 @@ class Form941Report extends Report {
 						$retval = Misc::addSortPrefix( $report_static_custom_column_labels, 9700 );
 					}
 				}
-                break;
-            case 'formula_columns':
-                $retval = TTMath::formatFormulaColumns( array_merge( array_diff( $this->getOptions('static_columns'), (array)$this->getOptions('report_static_custom_column') ), $this->getOptions('dynamic_columns') ) );
-                break; 
-            case 'filter_columns':
-                $retval = TTMath::formatFormulaColumns( array_merge( $this->getOptions('static_columns'), $this->getOptions('dynamic_columns'), (array)$this->getOptions('report_dynamic_custom_column') ) );
-                break;
+				break;
+			case 'formula_columns':
+				$retval = TTMath::formatFormulaColumns( array_merge( array_diff( $this->getOptions('static_columns'), (array)$this->getOptions('report_static_custom_column') ), $this->getOptions('dynamic_columns') ) );
+				break;
+			case 'filter_columns':
+				$retval = TTMath::formatFormulaColumns( array_merge( $this->getOptions('static_columns'), $this->getOptions('dynamic_columns'), (array)$this->getOptions('report_dynamic_custom_column') ) );
+				break;
 			case 'static_columns':
 				$retval = array(
 										//Static Columns - Aggregate functions can't be used on these.
@@ -192,7 +188,7 @@ class Form941Report extends Report {
 										'-1400-permission_control' => TTi18n::gettext('Permission Group'),
 										'-1410-pay_period_schedule' => TTi18n::gettext('Pay Period Schedule'),
 										'-1420-policy_group' => TTi18n::gettext('Policy Group'),
-							   );
+								);
 
 				$retval = array_merge( $retval, $this->getOptions('date_columns'), (array)$this->getOptions('report_static_custom_column') );
 				ksort($retval);
@@ -252,7 +248,7 @@ class Form941Report extends Report {
 										'-1070-by_month_by_branch' => TTi18n::gettext('by Month/Branch'),
 										'-1080-by_month_by_department' => TTi18n::gettext('by Month/Department'),
 										'-1090-by_month_by_branch_by_department' => TTi18n::gettext('by Month/Branch/Department'),
-							   );
+								);
 
 				break;
 			case 'template_config':
@@ -273,14 +269,14 @@ class Form941Report extends Report {
 
 							break;
 						default:
-							Debug::Text(' Parsing template name: '. $template, __FILE__, __LINE__, __METHOD__,10);
+							Debug::Text(' Parsing template name: '. $template, __FILE__, __LINE__, __METHOD__, 10);
 							$retval['-1010-time_period']['time_period'] = 'last_quarter';
 
 							//Parse template name, and use the keywords separated by '+' to determine settings.
 							$template_keywords = explode('+', $template );
 							if ( is_array($template_keywords) ) {
 								foreach( $template_keywords as $template_keyword ) {
-									Debug::Text(' Keyword: '. $template_keyword, __FILE__, __LINE__, __METHOD__,10);
+									Debug::Text(' Keyword: '. $template_keyword, __FILE__, __LINE__, __METHOD__, 10);
 
 									switch( $template_keyword ) {
 										//Columns
@@ -422,7 +418,7 @@ class Form941Report extends Report {
 					$retval['-5040-sort'] = $retval['sort'];
 					unset($retval['sort']);
 				}
-				Debug::Arr($retval, ' Template Config for: '. $template, __FILE__, __LINE__, __METHOD__,10);
+				Debug::Arr($retval, ' Template Config for: '. $template, __FILE__, __LINE__, __METHOD__, 10);
 
 				break;
 			default:
@@ -458,8 +454,8 @@ class Form941Report extends Report {
 
 		return $this->form_obj['f941'];
 	}
-    
-    function getRETURN941Object() {
+
+	function getRETURN941Object() {
 		if ( !isset($this->form_obj['return941']) OR !is_object($this->form_obj['return941']) ) {
 			$this->form_obj['return941'] = $this->getFormObject()->getFormObject( 'RETURN941', 'US' );
 			return $this->form_obj['return941'];
@@ -473,12 +469,12 @@ class Form941Report extends Report {
 
 		$default_arr = array(
 				'wages' => $default_include_exclude_arr,
-                'income_tax' => $default_include_exclude_arr,
-                'social_security_wages' => $default_include_exclude_arr,
-                'social_security_tips' => $default_include_exclude_arr,
-                'medicare_wages' => $default_include_exclude_arr,
-                'sick_wages' =>$default_include_exclude_arr,
-                'eic' => $default_include_exclude_arr,
+				'income_tax' => $default_include_exclude_arr,
+				'social_security_wages' => $default_include_exclude_arr,
+				'social_security_tips' => $default_include_exclude_arr,
+				'medicare_wages' => $default_include_exclude_arr,
+				'sick_wages' => $default_include_exclude_arr,
+				'eic' => $default_include_exclude_arr,
 			);
 
 		$retarr = array_merge( $default_arr, (array)$this->getFormConfig() );
@@ -494,20 +490,20 @@ class Form941Report extends Report {
 		$form_data = $this->formatFormConfig();
 
 		require_once( Environment::getBasePath().'/classes/payroll_deduction/PayrollDeduction.class.php');
-		$pd_obj = new PayrollDeduction('US','WA'); //State doesn't matter.
+		$pd_obj = new PayrollDeduction('US', 'WA'); //State doesn't matter.
 		$pd_obj->setDate($filter_data['end_date']);
 
 		$social_security_wage_limit = $pd_obj->getSocialSecurityMaximumEarnings();
 		$medicare_additional_threshold_limit = $pd_obj->getMedicareAdditionalEmployerThreshold();
-		Debug::Text('Social Security Wage Limit: '. $social_security_wage_limit .' Medicare Threshold: '. $medicare_additional_threshold_limit .' Date: '. TTDate::getDate('DATE', $filter_data['end_date'] ), __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Social Security Wage Limit: '. $social_security_wage_limit .' Medicare Threshold: '. $medicare_additional_threshold_limit .' Date: '. TTDate::getDate('DATE', $filter_data['end_date'] ), __FILE__, __LINE__, __METHOD__, 10);
 
 		//Need to get totals up to the beginning of this quarter so we can determine if any employees have exceeded the social security limit.
 		$pself = TTnew( 'PayStubEntryListFactory' );
 		$ytd_filter_data = $filter_data;
-		$ytd_filter_data['end_date'] = $ytd_filter_data['start_date']-1;
+		$ytd_filter_data['end_date'] = ( $ytd_filter_data['start_date'] - 1 );
 		$ytd_filter_data['start_date'] = TTDate::getBeginYearEpoch( $ytd_filter_data['start_date'] );
 		$pself->getAPIReportByCompanyIdAndArrayCriteria( $this->getUserObject()->getCompany(), $ytd_filter_data );
-		//Debug::Arr($ytd_filter_data, 'YTD Filter Data: Row Count: '.  $pself->getRecordCount(), __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($ytd_filter_data, 'YTD Filter Data: Row Count: '.	$pself->getRecordCount(), __FILE__, __LINE__, __METHOD__, 10);
 		if ( $pself->getRecordCount() > 0 ) {
 			foreach( $pself as $pse_obj ) {
 				$user_id = $pse_obj->getColumn('user_id'); //Make sure we don't add this to the unique user_id list.
@@ -539,20 +535,20 @@ class Form941Report extends Report {
 						if ( !isset($this->tmp_data['ytd_pay_stub_entry'][$user_id]['social_security_wages']) ) {
 							$this->tmp_data['ytd_pay_stub_entry'][$user_id]['social_security_wages'] = 0;
 						}
-						$this->tmp_data['ytd_pay_stub_entry'][$user_id]['social_security_wages'] 	+= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['social_security_wages']['include_pay_stub_entry_account'], 	$form_data['social_security_wages']['exclude_pay_stub_entry_account'] );
+						$this->tmp_data['ytd_pay_stub_entry'][$user_id]['social_security_wages']	+= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['social_security_wages']['include_pay_stub_entry_account'], $form_data['social_security_wages']['exclude_pay_stub_entry_account'] );
 						//Include tips in this amount as well.
-						$this->tmp_data['ytd_pay_stub_entry'][$user_id]['social_security_wages'] 	+= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['social_security_tips']['include_pay_stub_entry_account'], 	$form_data['social_security_tips']['exclude_pay_stub_entry_account'] );
+						$this->tmp_data['ytd_pay_stub_entry'][$user_id]['social_security_wages']	+= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['social_security_tips']['include_pay_stub_entry_account'], $form_data['social_security_tips']['exclude_pay_stub_entry_account'] );
 
-						//Handle additional medicare wages in excess of 200,000
+						//Handle additional medicare wages in excess of 200, 000
 						if ( !isset($this->tmp_data['ytd_pay_stub_entry'][$user_id]['medicare_wages']) ) {
 							$this->tmp_data['ytd_pay_stub_entry'][$user_id]['medicare_wages'] = 0;
 						}
-						$this->tmp_data['ytd_pay_stub_entry'][$user_id]['medicare_wages'] 	+= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['medicare_wages']['include_pay_stub_entry_account'], 	$form_data['medicare_wages']['exclude_pay_stub_entry_account'] );
+						$this->tmp_data['ytd_pay_stub_entry'][$user_id]['medicare_wages']	+= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['medicare_wages']['include_pay_stub_entry_account'], $form_data['medicare_wages']['exclude_pay_stub_entry_account'] );
 					}
 				}
 			}
 
-			//Debug::Arr($this->tmp_data['ytd_pay_stub_entry'], 'YTD Tmp Raw Data: ', __FILE__, __LINE__, __METHOD__,10);
+			//Debug::Arr($this->tmp_data['ytd_pay_stub_entry'], 'YTD Tmp Raw Data: ', __FILE__, __LINE__, __METHOD__, 10);
 		}
 		unset($pse_obj, $user_id, $date_stamp, $branch, $department, $pay_stub_entry_name_id, $this->tmp_data['pay_stub_entry']);
 
@@ -589,26 +585,32 @@ class Form941Report extends Report {
 				foreach($this->tmp_data['pay_stub_entry'] as $user_id => $data_a) {
 					foreach($data_a as $date_stamp => $data_b) {
 						$quarter_month = TTDate::getYearQuarterMonthNumber( $date_stamp );
-						//Debug::Text('Quarter Month: '. $quarter_month .' Epoch: '. TTDate::getDate('DATE', $date_stamp), __FILE__, __LINE__, __METHOD__,10);
+						//Debug::Text('Quarter Month: '. $quarter_month .' Epoch: '. TTDate::getDate('DATE', $date_stamp), __FILE__, __LINE__, __METHOD__, 10);
 
-						$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['wages'] 					= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['wages']['include_pay_stub_entry_account'], 					$form_data['wages']['exclude_pay_stub_entry_account'] );
-						$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['income_tax'] 				= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['income_tax']['include_pay_stub_entry_account'], 				$form_data['income_tax']['exclude_pay_stub_entry_account'] );
+						$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['wages']					= ( isset($form_data['wages']) ) ? Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['wages']['include_pay_stub_entry_account'], $form_data['wages']['exclude_pay_stub_entry_account'] ) : 0;
+						$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['income_tax']				= ( isset($form_data['income_tax']) ) ? Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['income_tax']['include_pay_stub_entry_account'], $form_data['income_tax']['exclude_pay_stub_entry_account'] ) : 0;
 
-						//FIXME: If employees are excluded from Social Security, it will still include total wages
-						//resulting in the 941 form being incorrect in its calculation.
-						//Add Form Setup tab field to select the Social Security tax/deductions?
-						//However there can often be two of them, is just the employee one enough? We could use the employees and include/exclude accounts from that at least then.
-						$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['social_security_wages'] 	= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['social_security_wages']['include_pay_stub_entry_account'], 	$form_data['social_security_wages']['exclude_pay_stub_entry_account'] );
+						//Because employees can be excluded from Social Security/Medicare, only include wage amounts if the SS tax is not 0.
+						$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['social_security_tax']	= ( isset($form_data['social_security_tax']) ) ? Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['social_security_tax']['include_pay_stub_entry_account'], $form_data['social_security_tax']['exclude_pay_stub_entry_account'] ) : 0;
+						if ( ( isset($form_data['social_security_tax']['include_pay_stub_entry_account']) AND !is_array($form_data['social_security_tax']['include_pay_stub_entry_account']) ) OR $this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['social_security_tax'] != 0 ) {
+							$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['social_security_wages'] = ( isset($form_data['social_security_wages']) ) ? Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['social_security_wages']['include_pay_stub_entry_account'], $form_data['social_security_wages']['exclude_pay_stub_entry_account'] ) : 0;
+						} else {
+							$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['social_security_wages'] = 0;
+						}
 
 						//Handle social security wage limit.
 						if ( !isset($this->tmp_data['ytd_pay_stub_entry'][$user_id]['social_security_wages']) ) {
 							$this->tmp_data['ytd_pay_stub_entry'][$user_id]['social_security_wages'] = 0;
 						}
 						if ( $this->tmp_data['ytd_pay_stub_entry'][$user_id]['social_security_wages'] < $social_security_wage_limit ) {
-							$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['social_security_wages'] 	= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['social_security_wages']['include_pay_stub_entry_account'], 	$form_data['social_security_wages']['exclude_pay_stub_entry_account'] );
-							$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['social_security_tips'] 	= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['social_security_tips']['include_pay_stub_entry_account'], 	$form_data['social_security_tips']['exclude_pay_stub_entry_account'] );
-							if ( ($this->tmp_data['ytd_pay_stub_entry'][$user_id]['social_security_wages']+$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['social_security_wages']+$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['social_security_tips']) > $social_security_wage_limit ) {
-								$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['social_security_wages'] = $this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['social_security_wages']-(($this->tmp_data['ytd_pay_stub_entry'][$user_id]['social_security_wages']+$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['social_security_wages']+$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['social_security_tips'])-$social_security_wage_limit);
+							if ( ( isset($form_data['social_security_tax']['include_pay_stub_entry_account']) AND !is_array($form_data['social_security_tax']['include_pay_stub_entry_account']) ) OR $this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['social_security_tax'] != 0 ) {
+								$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['social_security_wages']	= ( isset($form_data['social_security_wages']) ) ? Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['social_security_wages']['include_pay_stub_entry_account'], $form_data['social_security_wages']['exclude_pay_stub_entry_account'] ) : 0;
+								$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['social_security_tips']	= ( isset($form_data['social_security_tips']) ) ? Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['social_security_tips']['include_pay_stub_entry_account'], $form_data['social_security_tips']['exclude_pay_stub_entry_account'] ) : 0;
+							} else {
+								$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['social_security_tips'] = 0;
+							}
+							if ( ($this->tmp_data['ytd_pay_stub_entry'][$user_id]['social_security_wages'] + $this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['social_security_wages'] + $this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['social_security_tips']) > $social_security_wage_limit ) {
+								$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['social_security_wages'] = ( $this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['social_security_wages'] - (($this->tmp_data['ytd_pay_stub_entry'][$user_id]['social_security_wages'] + $this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['social_security_wages'] + $this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['social_security_tips']) - $social_security_wage_limit) );
 								$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['social_security_tips'] = 0;
 								$this->tmp_data['ytd_pay_stub_entry'][$user_id]['social_security_wages'] = $social_security_wage_limit;
 							} else {
@@ -620,7 +622,12 @@ class Form941Report extends Report {
 							$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['social_security_tips'] = 0;
 						}
 
-						$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['medicare_wages'] = Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['medicare_wages']['include_pay_stub_entry_account'], 			$form_data['medicare_wages']['exclude_pay_stub_entry_account'] );
+						$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['medicare_tax'] = ( isset($form_data['medicare_tax']) ) ? Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['medicare_tax']['include_pay_stub_entry_account'], $form_data['medicare_tax']['exclude_pay_stub_entry_account'] ) : 0;
+						if ( ( isset($form_data['medicare_tax']['include_pay_stub_entry_account']) AND !is_array($form_data['medicare_tax']['include_pay_stub_entry_account']) ) OR $this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['medicare_tax'] != 0 ) {
+							$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['medicare_wages'] = ( isset($form_data['medicare_wages']) ) ? Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['medicare_wages']['include_pay_stub_entry_account'], $form_data['medicare_wages']['exclude_pay_stub_entry_account'] ) : 0;
+						} else {
+							$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['medicare_wages'] = 0;
+						}
 						$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['medicare_additional_wages'] = 0;
 
 						//Handle medicare additional wage limit, only consider wages earned above the threshold to be "medicare_additional_wages"
@@ -630,20 +637,21 @@ class Form941Report extends Report {
 						if ( $this->tmp_data['ytd_pay_stub_entry'][$user_id]['medicare_wages'] > $medicare_additional_threshold_limit ) {
 							$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['medicare_additional_wages'] = $this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['medicare_wages'];
 						} else {
-							if ( ($this->tmp_data['ytd_pay_stub_entry'][$user_id]['medicare_wages']+$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['medicare_wages']) > $medicare_additional_threshold_limit  ) {
-								$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['medicare_additional_wages'] = ($this->tmp_data['ytd_pay_stub_entry'][$user_id]['medicare_wages']+$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['medicare_wages']) - $medicare_additional_threshold_limit;
+							if ( ( ( isset($form_data['medicare_tax']['include_pay_stub_entry_account']) AND !is_array($form_data['medicare_tax']['include_pay_stub_entry_account']) ) OR $this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['medicare_tax'] != 0 )
+									AND ($this->tmp_data['ytd_pay_stub_entry'][$user_id]['medicare_wages'] + $this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['medicare_wages']) > $medicare_additional_threshold_limit	) {
+								$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['medicare_additional_wages'] = ( ($this->tmp_data['ytd_pay_stub_entry'][$user_id]['medicare_wages'] + $this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['medicare_wages']) - $medicare_additional_threshold_limit );
 							} else {
 								$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['medicare_additional_wages'] = 0;
 							}
 						}
-						//Debug::Text('User ID: '. $user_id .' DateStamp: '. $date_stamp .' YTD Medicare Additional Wages: '. $this->tmp_data['ytd_pay_stub_entry'][$user_id]['medicare_wages'] .' This Pay Stub: '. $this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['medicare_additional_wages'], __FILE__, __LINE__, __METHOD__,10);
+						//Debug::Text('User ID: '. $user_id .' DateStamp: '. $date_stamp .' YTD Medicare Additional Wages: '. $this->tmp_data['ytd_pay_stub_entry'][$user_id]['medicare_wages'] .' This Pay Stub: '. $this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['medicare_additional_wages'], __FILE__, __LINE__, __METHOD__, 10);
 
-						$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['sick_wages'] 				= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['sick_wages']['include_pay_stub_entry_account'], 				$form_data['sick_wages']['exclude_pay_stub_entry_account'] );
-						$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['eic'] 					= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['eic']['include_pay_stub_entry_account'], 					$form_data['eic']['exclude_pay_stub_entry_account'] );
+						$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['sick_wages']				= ( isset($form_data['sick_wages']) ) ? Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['sick_wages']['include_pay_stub_entry_account'], $form_data['sick_wages']['exclude_pay_stub_entry_account'] ) : 0;
+						$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['eic']						= ( isset($form_data['eic']) ) ? Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['eic']['include_pay_stub_entry_account'], $form_data['eic']['exclude_pay_stub_entry_account'] ) : 0;
 
 						//Separate data used for reporting, grouping, sorting, from data specific used for the Form.
 						if ( !isset($this->form_data['pay_period'][$quarter_month][$date_stamp]) ) {
-							$this->form_data['pay_period'][$quarter_month][$date_stamp] = Misc::preSetArrayValues( array(), array('l2','l3','l5a','l5b','l5c','l5d','l7','l9','l5a2','l5b2','l5c2','l5d','l8','l10' ), 0 );
+							$this->form_data['pay_period'][$quarter_month][$date_stamp] = Misc::preSetArrayValues( array(), array('l2', 'l3', 'l5a', 'l5b', 'l5c', 'l5d', 'l7', 'l9', 'l5a2', 'l5b2', 'l5c2', 'l5d', 'l8', 'l10' ), 0 );
 						}
 						$this->form_data['pay_period'][$quarter_month][$date_stamp]['l2'] += $this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['wages'];
 						$this->form_data['pay_period'][$quarter_month][$date_stamp]['l3'] += $this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['income_tax'];
@@ -687,38 +695,38 @@ class Form941Report extends Report {
 
 		$this->user_ids = array_unique( $this->user_ids ); //Used to get the total number of employees.
 
-		//Debug::Arr($this->user_ids, 'User IDs: ', __FILE__, __LINE__, __METHOD__,10);
-		Debug::Arr($this->form_data, 'Form Raw Data: ', __FILE__, __LINE__, __METHOD__,10);
-		//Debug::Arr($this->tmp_data, 'Tmp Raw Data: ', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($this->user_ids, 'User IDs: ', __FILE__, __LINE__, __METHOD__, 10);
+		Debug::Arr($this->form_data, 'Form Raw Data: ', __FILE__, __LINE__, __METHOD__, 10);
+		//Debug::Arr($this->tmp_data, 'Tmp Raw Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		//Get user data for joining.
 		$ulf = TTnew( 'UserListFactory' );
 		$ulf->getAPISearchByCompanyIdAndArrayCriteria( $this->getUserObject()->getCompany(), $filter_data );
-		Debug::Text(' User Total Rows: '. $ulf->getRecordCount(), __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text(' User Total Rows: '. $ulf->getRecordCount(), __FILE__, __LINE__, __METHOD__, 10);
 		$this->getProgressBarObject()->start( $this->getAMFMessageID(), $ulf->getRecordCount(), NULL, TTi18n::getText('Retrieving Data...') );
 		foreach ( $ulf as $key => $u_obj ) {
 			$this->tmp_data['user'][$u_obj->getId()] = (array)$u_obj->getObjectAsArray( $this->getColumnDataConfig() );
 			$this->getProgressBarObject()->set( $this->getAMFMessageID(), $key );
 		}
-		//Debug::Arr($this->tmp_data['user'], 'User Raw Data: ', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($this->tmp_data['user'], 'User Raw Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		return TRUE;
 	}
 
 	//PreProcess data such as calculating additional columns from raw data etc...
 	function _preProcess() {
-	    if ( isset( $this->tmp_data['pay_stub_entry'] ) == FALSE ) {
-	           return TRUE;
-	    }
+		if ( isset( $this->tmp_data['pay_stub_entry'] ) == FALSE ) {
+			return TRUE;
+		}
 		$this->getProgressBarObject()->start( $this->getAMFMessageID(), count($this->tmp_data['pay_stub_entry']), NULL, TTi18n::getText('Pre-Processing Data...') );
 
 		//Merge time data with user data
-		$key=0;
+		$key = 0;
 		if ( isset($this->tmp_data['pay_stub_entry']) ) {
 			foreach( $this->tmp_data['pay_stub_entry'] as $user_id => $level_1 ) {
 				foreach( $level_1 as $date_stamp => $row ) {
 					$date_columns = TTDate::getReportDates( NULL, $date_stamp, FALSE, $this->getUserObject(), array('pay_period_start_date' => $row['pay_period_start_date'], 'pay_period_end_date' => $row['pay_period_end_date'], 'pay_period_transaction_date' => $row['pay_period_transaction_date']) );
-					$processed_data  = array(
+					$processed_data	 = array(
 											//'pay_period' => array('sort' => $row['pay_period_start_date'], 'display' => TTDate::getDate('DATE', $row['pay_period_start_date'] ).' -> '. TTDate::getDate('DATE', $row['pay_period_end_date'] ) ),
 											);
 
@@ -730,7 +738,7 @@ class Form941Report extends Report {
 			}
 			unset($this->tmp_data, $row, $date_columns, $processed_data, $level_1, $level_2, $level_3);
 		}
-		//Debug::Arr($this->data, 'preProcess Data: ', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($this->data, 'preProcess Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		return TRUE;
 	}
@@ -740,35 +748,35 @@ class Form941Report extends Report {
 		if ( $format == 'pdf_form_print' ) {
 			$show_background = FALSE;
 		}
-		Debug::Text('Generating Form... Format: '. $format, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Generating Form... Format: '. $format, __FILE__, __LINE__, __METHOD__, 10);
 
 		$setup_data = $this->getFormConfig();
 		$filter_data = $this->getFilterConfig();
-		//Debug::Arr($filter_data, 'Filter Data: ', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($filter_data, 'Filter Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		$current_company = $this->getUserObject()->getCompanyObject();
 		if ( !is_object($current_company) ) {
-			Debug::Text('Invalid company object...', __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text('Invalid company object...', __FILE__, __LINE__, __METHOD__, 10);
 			return FALSE;
 		}
-        
-         if ( $format == 'efile_xml' ) {
-            $return941 = $this->getRETURN941Object();
-            
-            $return941->TaxPeriodEndDate = TTDate::getDate('Y-m-d', TTDate::getEndDayEpoch( $filter_data['end_date'] ));
-            $return941->ReturnType = '';
-            $return941->ein = ( isset($setup_data['ein']) AND $setup_data['ein'] != '' ) ? $setup_data['ein'] : $current_company->getBusinessNumber();
-            $return941->BusinessName1 = '';
-            $return941->BusinessNameControl = '';
-            
-            $return941->AddressLine = ( isset($setup_data['address1']) AND $setup_data['address1'] != '' ) ? $setup_data['address1'] : $current_company->getAddress1() .' '. $current_company->getAddress2();
-            $return941->City = ( isset($setup_data['city']) AND $setup_data['city'] != '' ) ? $setup_data['city'] : $current_company->getCity();
-            $return941->State = ( isset($setup_data['province']) AND ( $setup_data['province'] != '' AND $setup_data['province'] != 0 ) ) ? $setup_data['province'] : $current_company->getProvince();
-            $return941->ZIPCode = ( isset($setup_data['postal_code']) AND $setup_data['postal_code'] != '' ) ? $setup_data['postal_code'] : $current_company->getPostalCode();
-                      
-            
-            $this->getFormObject()->addForm( $return941 );
-        }
+
+		if ( $format == 'efile_xml' ) {
+			$return941 = $this->getRETURN941Object();
+
+			$return941->TaxPeriodEndDate = TTDate::getDate('Y-m-d', TTDate::getEndDayEpoch( $filter_data['end_date'] ));
+			$return941->ReturnType = '';
+			$return941->ein = ( isset($setup_data['ein']) AND $setup_data['ein'] != '' ) ? $setup_data['ein'] : $current_company->getBusinessNumber();
+			$return941->BusinessName1 = '';
+			$return941->BusinessNameControl = '';
+
+			$return941->AddressLine = ( isset($setup_data['address1']) AND $setup_data['address1'] != '' ) ? $setup_data['address1'] : $current_company->getAddress1() .' '. $current_company->getAddress2();
+			$return941->City = ( isset($setup_data['city']) AND $setup_data['city'] != '' ) ? $setup_data['city'] : $current_company->getCity();
+			$return941->State = ( isset($setup_data['province']) AND ( $setup_data['province'] != '' AND $setup_data['province'] != 0 ) ) ? $setup_data['province'] : $current_company->getProvince();
+			$return941->ZIPCode = ( isset($setup_data['postal_code']) AND $setup_data['postal_code'] != '' ) ? $setup_data['postal_code'] : $current_company->getPostalCode();
+
+
+			$this->getFormObject()->addForm( $return941 );
+		}
 
 		$f941 = $this->getF941Object();
 		$f941->setDebug(FALSE);
@@ -787,7 +795,7 @@ class Form941Report extends Report {
 
 		$f941->quarter = TTDate::getYearQuarter( $filter_data['end_date'] );
 
-		//Debug::Arr($this->form_data, 'Final Data for Form: ', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($this->form_data, 'Final Data for Form: ', __FILE__, __LINE__, __METHOD__, 10);
 		if ( isset($this->form_data) AND count($this->form_data) == 3 ) {
 
 			$f941->l1 = count($this->user_ids);
@@ -799,10 +807,10 @@ class Form941Report extends Report {
 			$f941->l5c = $this->form_data['total']['l5c'];
 			$f941->l5d = $this->form_data['total']['l5d'];
 
-			if ( isset($setup_data['quarter_deposit']) AND $setup_data['quarter_deposit'] != ''  ) {
+			if ( isset($setup_data['quarter_deposit']) AND $setup_data['quarter_deposit'] != ''	 ) {
 				$f941->l11 = Misc::MoneyFormat($setup_data['quarter_deposit'], FALSE);
 			}
-			//Debug::Text('L11: '. $f941->l11 .' L6: '. $f941->calcL6() .' - '. $this->form_data['total']['l10'] , __FILE__, __LINE__, __METHOD__,10);
+			//Debug::Text('L11: '. $f941->l11 .' L6: '. $f941->calcL6() .' - '. $this->form_data['total']['l10'], __FILE__, __LINE__, __METHOD__, 10);
 
 			$f941->l15b = TRUE;
 
@@ -825,10 +833,10 @@ class Form941Report extends Report {
 				$f941sb->name = $f941->name;
 				$f941sb->quarter = $f941->quarter;
 
-				for( $i=1; $i <= 3; $i++ ) {
+				for( $i = 1; $i <= 3; $i++ ) {
 					if ( isset($this->form_data['pay_period'][$i]) ) {
 						foreach( $this->form_data['pay_period'][$i] as $pay_period_epoch => $data ) {
-							//Debug::Text('SB: Month: '. $i .' Pay Period Date: '. TTDate::getDate('DATE', $pay_period_epoch) .' DOM: '. TTDate::getDayOfMonth($pay_period_epoch) .' Amount: '. $data['l10'], __FILE__, __LINE__, __METHOD__,10);
+							//Debug::Text('SB: Month: '. $i .' Pay Period Date: '. TTDate::getDate('DATE', $pay_period_epoch) .' DOM: '. TTDate::getDayOfMonth($pay_period_epoch) .' Amount: '. $data['l10'], __FILE__, __LINE__, __METHOD__, 10);
 							$f941sb_data[$i][TTDate::getDayOfMonth($pay_period_epoch)] = $data['l10']; //Don't round this as it can cause mismatches in the totals.
 						}
 					}
@@ -846,7 +854,7 @@ class Form941Report extends Report {
 				unset($i, $d, $f941sb_data);
 			}
 		} else {
-			Debug::Arr($this->data, 'Invalid Form Data: ', __FILE__, __LINE__, __METHOD__,10);
+			Debug::Arr($this->data, 'Invalid Form Data: ', __FILE__, __LINE__, __METHOD__, 10);
 		}
 
 		$this->getFormObject()->addForm( $f941 );
@@ -861,7 +869,7 @@ class Form941Report extends Report {
 			$mime_type = 'applications/octet-stream'; //Force file to download.
 		} else {
 			$output_format = 'PDF';
-			$file_name = $this->file_name;
+			$file_name = $this->file_name.'.pdf';
 			$mime_type = $this->file_mime_type;
 		}
 

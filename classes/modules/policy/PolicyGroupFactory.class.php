@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 11018 $
- * $Id: PolicyGroupFactory.class.php 11018 2013-09-24 23:39:40Z ipso $
- * $Date: 2013-09-24 16:39:40 -0700 (Tue, 24 Sep 2013) $
- */
+
 
 /**
  * @package Modules\Policy
@@ -55,6 +51,7 @@ class PolicyGroupFactory extends Factory {
 			case 'columns':
 				$retval = array(
 										'-1000-name' => TTi18n::gettext('Name'),
+										'-1010-description' => TTi18n::gettext('Description'),
 										'-1100-total_users' => TTi18n::gettext('Employees'),
 
 										'-2000-created_by' => TTi18n::gettext('Created By'),
@@ -69,6 +66,7 @@ class PolicyGroupFactory extends Factory {
 			case 'default_display_columns': //Columns that are displayed by default.
 				$retval = array(
 								'name',
+								'description',
 								'total_users',
 								'updated_date',
 								'updated_by',
@@ -90,8 +88,10 @@ class PolicyGroupFactory extends Factory {
 										'id' => 'ID',
 										'company_id' => 'Company',
 										'name' => 'Name',
+										'description' => 'Description',
 										'user' => 'User',
 										'total_users' => 'TotalUsers',
+										'regular_time_policy' => 'RegularTimePolicy',
 										'over_time_policy' => 'OverTimePolicy',
 										'round_interval_policy' => 'RoundIntervalPolicy',
 										'premium_policy' => 'PremiumPolicy',
@@ -99,8 +99,8 @@ class PolicyGroupFactory extends Factory {
 										'break_policy' => 'BreakPolicy',
 										'holiday_policy' => 'HolidayPolicy',
 										'accrual_policy' => 'AccrualPolicy',
-                                        'expense_policy' => 'ExpensePolicy',
-                                        'absence_policy' => 'AbsencePolicy',
+										'expense_policy' => 'ExpensePolicy',
+										'absence_policy' => 'AbsencePolicy',
 										'exception_policy_control_id' => 'ExceptionPolicyControlID',
 										'deleted' => 'Deleted',
 										);
@@ -108,19 +108,12 @@ class PolicyGroupFactory extends Factory {
 	}
 
 	function getCompanyObject() {
-		if ( is_object($this->company_obj) ) {
-			return $this->company_obj;
-		} else {
-			$clf = TTnew( 'CompanyListFactory' );
-			$this->company_obj = $clf->getById( $this->getCompany() )->getCurrent();
-
-			return $this->company_obj;
-		}
+		return $this->getGenericObject( 'CompanyListFactory', $this->getCompany(), 'company_obj' );
 	}
 
 	function getCompany() {
 		if ( isset($this->data['company_id']) ) {
-			return $this->data['company_id'];
+			return (int)$this->data['company_id'];
 		}
 
 		return FALSE;
@@ -128,7 +121,7 @@ class PolicyGroupFactory extends Factory {
 	function setCompany($id) {
 		$id = trim($id);
 
-		Debug::Text('Company ID: '. $id, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Company ID: '. $id, __FILE__, __LINE__, __METHOD__, 10);
 		$clf = TTnew( 'CompanyListFactory' );
 
 		if ( $this->Validator->isResultSetWithRows(	'company',
@@ -152,7 +145,7 @@ class PolicyGroupFactory extends Factory {
 
 		$query = 'select id from '. $this->getTable() .' where company_id = ? AND lower(name) = ? AND deleted=0';
 		$id = $this->db->GetOne($query, $ph);
-		Debug::Arr($id,'Unique: '. $name, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Arr($id, 'Unique: '. $name, __FILE__, __LINE__, __METHOD__, 10);
 
 		if ( $id === FALSE ) {
 			return TRUE;
@@ -176,7 +169,7 @@ class PolicyGroupFactory extends Factory {
 		if (	$this->Validator->isLength(	'name',
 											$name,
 											TTi18n::gettext('Name is too short or too long'),
-											2,50)
+											2, 50)
 				AND
 				$this->Validator->isTrue(	'name',
 											$this->isUniqueName($name),
@@ -184,6 +177,30 @@ class PolicyGroupFactory extends Factory {
 						) {
 
 			$this->data['name'] = $name;
+
+			return TRUE;
+		}
+
+		return FALSE;
+	}
+
+	function getDescription() {
+		if ( isset($this->data['description']) ) {
+			return $this->data['description'];
+		}
+
+		return FALSE;
+	}
+	function setDescription($description) {
+		$description = trim($description);
+
+		if (	$description == ''
+				OR $this->Validator->isLength(	'description',
+												$description,
+												TTi18n::gettext('Description is invalid'),
+												1, 250) ) {
+
+			$this->data['description'] = $description;
 
 			return TRUE;
 		}
@@ -210,12 +227,11 @@ class PolicyGroupFactory extends Factory {
 		}
 
 		if ( is_array($ids) ) {
+			$tmp_ids = array();
 			if ( !$this->isNew() ) {
 				//If needed, delete mappings first.
 				$pgulf = TTnew( 'PolicyGroupUserListFactory' );
 				$pgulf->getByPolicyGroupId( $this->getId() );
-
-				$tmp_ids = array();
 				foreach ($pgulf as $obj) {
 					$id = $obj->getUser();
 					Debug::text('Policy ID: '. $obj->getPolicyGroup() .' ID: '. $id, __FILE__, __LINE__, __METHOD__, 10);
@@ -263,8 +279,15 @@ class PolicyGroupFactory extends Factory {
 
 	function getTotalUsers() {
 		$pgulf = TTnew( 'PolicyGroupUserListFactory' );
-		$pgulf->getByPolicyGroupId( $this->getId() );
-		return $pgulf->getRecordCount();
+		return $pgulf->getTotalByPolicyGroupId( $this->getId() );
+	}
+
+	function getRegularTimePolicy() {
+		return CompanyGenericMapListFactory::getArrayByCompanyIDAndObjectTypeIDAndObjectID( $this->getCompany(), 100, $this->getID() );
+	}
+	function setRegularTimePolicy($ids) {
+		Debug::text('Setting Regular Time Policy IDs : ', __FILE__, __LINE__, __METHOD__, 10);
+		return CompanyGenericMapFactory::setMapIDs( $this->getCompany(), 100, $this->getID(), $ids );
 	}
 
 	function getOverTimePolicy() {
@@ -315,14 +338,14 @@ class PolicyGroupFactory extends Factory {
 		return CompanyGenericMapFactory::setMapIDs( $this->getCompany(), 160, $this->getID(), $ids );
 	}
 
-    function getAbsencePolicy() {
-        return CompanyGenericMapListFactory::getArrayByCompanyIDAndObjectTypeIDAndObjectID( $this->getCompany(), 170, $this->getID() );
-    }
+	function getAbsencePolicy() {
+		return CompanyGenericMapListFactory::getArrayByCompanyIDAndObjectTypeIDAndObjectID( $this->getCompany(), 170, $this->getID() );
+	}
 
-    function setAbsencePolicy($ids) {
-        Debug::text('Setting Absence Policy IDs : ', __FILE__, __LINE__, __METHOD__, 10);
+	function setAbsencePolicy($ids) {
+		Debug::text('Setting Absence Policy IDs : ', __FILE__, __LINE__, __METHOD__, 10);
 		return CompanyGenericMapFactory::setMapIDs( $this->getCompany(), 170, $this->getID(), (array)$ids );
-    }
+	}
 
 	function getHolidayPolicy() {
 		return CompanyGenericMapListFactory::getArrayByCompanyIDAndObjectTypeIDAndObjectID( $this->getCompany(), 180, $this->getID() );
@@ -332,19 +355,19 @@ class PolicyGroupFactory extends Factory {
 		return CompanyGenericMapFactory::setMapIDs( $this->getCompany(), 180, $this->getID(), (array)$ids );
 	}
 
-    function getExpensePolicy() {
-        return CompanyGenericMapListFactory::getArrayByCompanyIDAndObjectTypeIDAndObjectID( $this->getCompany(), 200, $this->getID() );
-    }
+	function getExpensePolicy() {
+		return CompanyGenericMapListFactory::getArrayByCompanyIDAndObjectTypeIDAndObjectID( $this->getCompany(), 200, $this->getID() );
+	}
 
-    function setExpensePolicy($ids) {
-        Debug::text('Setting Expense Policy IDs : ', __FILE__, __LINE__, __METHOD__, 10);
+	function setExpensePolicy($ids) {
+		Debug::text('Setting Expense Policy IDs : ', __FILE__, __LINE__, __METHOD__, 10);
 		return CompanyGenericMapFactory::setMapIDs( $this->getCompany(), 200, $this->getID(), (array)$ids );
-    }
+	}
 
 
 	function getExceptionPolicyControlID() {
 		if ( isset($this->data['exception_policy_control_id']) ) {
-			return $this->data['exception_policy_control_id'];
+			return (int)$this->data['exception_policy_control_id'];
 		}
 
 		return FALSE;
@@ -383,7 +406,7 @@ class PolicyGroupFactory extends Factory {
 
 	function postSave() {
 		if ( $this->getDeleted() == TRUE ) {
-			Debug::Text('UnAssign Policy Group from User Defaults...'. $this->getId(), __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text('UnAssign Policy Group from User Defaults...'. $this->getId(), __FILE__, __LINE__, __METHOD__, 10);
 			$udf = TTnew( 'UserDefaultFactory' );
 
 			$query = 'update '. $udf->getTable() .' set policy_group_id = 0 where company_id = '. (int)$this->getCompany() .' AND policy_group_id = '. (int)$this->getId();
@@ -393,7 +416,7 @@ class PolicyGroupFactory extends Factory {
 		return TRUE;
 	}
 
-	//Support setting created_by,updated_by especially for importing data.
+	//Support setting created_by, updated_by especially for importing data.
 	//Make sure data is set based on the getVariableToFunctionMap order.
 	function setObjectFromArray( $data ) {
 		if ( is_array( $data ) ) {
@@ -447,7 +470,7 @@ class PolicyGroupFactory extends Factory {
 	}
 
 	function addLog( $log_action ) {
-		return TTLog::addEntry( $this->getId(), $log_action,  TTi18n::getText('Policy Group'), NULL, $this->getTable(), $this );
+		return TTLog::addEntry( $this->getId(), $log_action, TTi18n::getText('Policy Group'), NULL, $this->getTable(), $this );
 	}
 }
 ?>

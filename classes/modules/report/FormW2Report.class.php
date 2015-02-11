@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2095 $
- * $Id: Sort.class.php 2095 2008-09-01 07:04:25Z ipso $
- * $Date: 2008-09-01 00:04:25 -0700 (Mon, 01 Sep 2008) $
- */
+
 
 /**
  * @package Modules\Report
@@ -56,15 +52,15 @@ class FormW2Report extends Report {
 	}
 
 	protected function _checkPermissions( $user_id, $company_id ) {
-		if ( $this->getPermissionObject()->Check('report','enabled', $user_id, $company_id )
-				AND $this->getPermissionObject()->Check('report','view_formW2', $user_id, $company_id ) ) {
+		if ( $this->getPermissionObject()->Check('report', 'enabled', $user_id, $company_id )
+				AND $this->getPermissionObject()->Check('report', 'view_formW2', $user_id, $company_id ) ) {
 			return TRUE;
 		}
 
 		return FALSE;
 	}
-    
-    protected function _validateConfig() {
+
+	protected function _validateConfig() {
 		$config = $this->getConfig();
 
 		//Make sure some time period is selected.
@@ -92,7 +88,7 @@ class FormW2Report extends Report {
 										'template',
 										'time_period',
 										'columns',
-							   );
+								);
 
 				break;
 			case 'setup_fields':
@@ -108,7 +104,7 @@ class FormW2Report extends Report {
 										'-2050-exclude_user_id' => TTi18n::gettext('Employee Exclude'),
 										'-2060-default_branch_id' => TTi18n::gettext('Default Branch'),
 										'-2070-default_department_id' => TTi18n::gettext('Default Department'),
-                                        '-2100-custom_filter' => TTi18n::gettext('Custom Filter'),
+										'-2100-custom_filter' => TTi18n::gettext('Custom Filter'),
 
 										'-4020-exclude_ytd_adjustment' => TTi18n::gettext('Exclude YTD Adjustments'),
 
@@ -116,16 +112,16 @@ class FormW2Report extends Report {
 										'-5010-group' => TTi18n::gettext('Group By'),
 										'-5020-sub_total' => TTi18n::gettext('SubTotal By'),
 										'-5030-sort' => TTi18n::gettext('Sort By'),
-							   );
+								);
 				break;
 			case 'time_period':
-				$retval = TTDate::getTimePeriodOptions();
+				$retval = TTDate::getTimePeriodOptions( FALSE ); //Exclude Pay Period options.
 				break;
 			case 'date_columns':
 				//$retval = TTDate::getReportDateOptions( NULL, TTi18n::getText('Date'), 13, TRUE );
 				$retval = array();
 				break;
-            case 'report_custom_column':
+			case 'report_custom_column':
 				if ( getTTProductEdition() >= TT_PRODUCT_PROFESSIONAL ) {
 					$rcclf = TTnew( 'ReportCustomColumnListFactory' );
 					// Because the Filter type is just only a filter criteria and not need to be as an option of Display Columns, Group By, Sub Total, Sort By dropdowns.
@@ -135,14 +131,14 @@ class FormW2Report extends Report {
 						$retval = Misc::addSortPrefix( $custom_column_labels, 9500 );
 					}
 				}
-                break; 
-            case 'report_custom_filters':
+				break;
+			case 'report_custom_filters':
 				if ( getTTProductEdition() >= TT_PRODUCT_PROFESSIONAL ) {
 					$rcclf = TTnew( 'ReportCustomColumnListFactory' );
 					$retval = $rcclf->getByCompanyIdAndTypeIdAndFormatIdAndScriptArray( $this->getUserObject()->getCompany(), $rcclf->getOptions('filter_column_type_ids'), NULL, 'FormW2Report', 'custom_column' );
 				}
-                break;
-            case 'report_dynamic_custom_column':
+				break;
+			case 'report_dynamic_custom_column':
 				if ( getTTProductEdition() >= TT_PRODUCT_PROFESSIONAL ) {
 					$rcclf = TTnew( 'ReportCustomColumnListFactory' );
 					$report_dynamic_custom_column_labels = $rcclf->getByCompanyIdAndTypeIdAndFormatIdAndScriptArray( $this->getUserObject()->getCompany(), $rcclf->getOptions('display_column_type_ids'), $rcclf->getOptions('dynamic_format_ids'), 'FormW2Report', 'custom_column' );
@@ -150,8 +146,8 @@ class FormW2Report extends Report {
 						$retval = Misc::addSortPrefix( $report_dynamic_custom_column_labels, 9700 );
 					}
 				}
-                break;
-            case 'report_static_custom_column':
+				break;
+			case 'report_static_custom_column':
 				if ( getTTProductEdition() >= TT_PRODUCT_PROFESSIONAL ) {
 					$rcclf = TTnew( 'ReportCustomColumnListFactory' );
 					$report_static_custom_column_labels = $rcclf->getByCompanyIdAndTypeIdAndFormatIdAndScriptArray( $this->getUserObject()->getCompany(), $rcclf->getOptions('display_column_type_ids'), $rcclf->getOptions('static_format_ids'), 'FormW2Report', 'custom_column' );
@@ -159,13 +155,13 @@ class FormW2Report extends Report {
 						$retval = Misc::addSortPrefix( $report_static_custom_column_labels, 9700 );
 					}
 				}
-                break;
-            case 'formula_columns':
-                $retval = TTMath::formatFormulaColumns( array_merge( array_diff( $this->getOptions('static_columns'), (array)$this->getOptions('report_static_custom_column') ), $this->getOptions('dynamic_columns') ) );
-                break; 
-            case 'filter_columns':
-                $retval = TTMath::formatFormulaColumns( array_merge( $this->getOptions('static_columns'), $this->getOptions('dynamic_columns'), (array)$this->getOptions('report_dynamic_custom_column') ) );
-                break;
+				break;
+			case 'formula_columns':
+				$retval = TTMath::formatFormulaColumns( array_merge( array_diff( $this->getOptions('static_columns'), (array)$this->getOptions('report_static_custom_column') ), $this->getOptions('dynamic_columns') ) );
+				break;
+			case 'filter_columns':
+				$retval = TTMath::formatFormulaColumns( array_merge( $this->getOptions('static_columns'), $this->getOptions('dynamic_columns'), (array)$this->getOptions('report_dynamic_custom_column') ) );
+				break;
 			case 'static_columns':
 				$retval = array(
 										//Static Columns - Aggregate functions can't be used on these.
@@ -205,7 +201,7 @@ class FormW2Report extends Report {
 										'-1560-home_email' => TTi18n::gettext('Home Email'),
 										'-1590-note' => TTi18n::gettext('Note'),
 										'-1595-tag' => TTi18n::gettext('Tags'),
-							   );
+								);
 
 				$retval = array_merge( $retval, $this->getOptions('date_columns'), (array)$this->getOptions('report_static_custom_column') );
 				ksort($retval);
@@ -271,7 +267,7 @@ class FormW2Report extends Report {
 										//'-1070-by_month_by_branch' => TTi18n::gettext('by Month/Branch'),
 										//'-1080-by_month_by_department' => TTi18n::gettext('by Month/Department'),
 										//'-1090-by_month_by_branch_by_department' => TTi18n::gettext('by Month/Branch/Department'),
-							   );
+								);
 
 				break;
 			case 'template_config':
@@ -292,14 +288,14 @@ class FormW2Report extends Report {
 
 							break;
 						default:
-							Debug::Text(' Parsing template name: '. $template, __FILE__, __LINE__, __METHOD__,10);
+							Debug::Text(' Parsing template name: '. $template, __FILE__, __LINE__, __METHOD__, 10);
 							$retval['-1010-time_period']['time_period'] = 'last_year';
 
 							//Parse template name, and use the keywords separated by '+' to determine settings.
 							$template_keywords = explode('+', $template );
 							if ( is_array($template_keywords) ) {
 								foreach( $template_keywords as $template_keyword ) {
-									Debug::Text(' Keyword: '. $template_keyword, __FILE__, __LINE__, __METHOD__,10);
+									Debug::Text(' Keyword: '. $template_keyword, __FILE__, __LINE__, __METHOD__, 10);
 
 									switch( $template_keyword ) {
 										//Columns
@@ -441,7 +437,7 @@ class FormW2Report extends Report {
 					$retval['-5040-sort'] = $retval['sort'];
 					unset($retval['sort']);
 				}
-				Debug::Arr($retval, ' Template Config for: '. $template, __FILE__, __LINE__, __METHOD__,10);
+				Debug::Arr($retval, ' Template Config for: '. $template, __FILE__, __LINE__, __METHOD__, 10);
 
 				break;
 			default:
@@ -461,7 +457,7 @@ class FormW2Report extends Report {
 			require_once( Environment::getBasePath() .'/classes/GovernmentForms/GovernmentForms.class.php');
 
 			$gf = new GovernmentForms();
-            
+
 			$this->form_obj['gf'] = $gf;
 			return $this->form_obj['gf'];
 		}
@@ -485,7 +481,7 @@ class FormW2Report extends Report {
 
 		return $this->form_obj['fw3'];
 	}
-    function getRETURN1040Object() {
+	function getRETURN1040Object() {
 		if ( !isset($this->form_obj['return1040']) OR !is_object($this->form_obj['return1040']) ) {
 			$this->form_obj['return1040'] = $this->getFormObject()->getFormObject( 'RETURN1040', 'US' );
 			return $this->form_obj['return1040'];
@@ -493,14 +489,14 @@ class FormW2Report extends Report {
 
 		return $this->form_obj['return1040'];
 	}
-    
+
 
 	function formatFormConfig() {
 		$default_include_exclude_arr = array( 'include_pay_stub_entry_account' => array(), 'exclude_pay_stub_entry_account' => array() );
 
 		$default_arr = array(
 				'l1' => $default_include_exclude_arr,
-                'l2' => $default_include_exclude_arr,
+				'l2' => $default_include_exclude_arr,
 				'l3' => $default_include_exclude_arr,
 				'l4' => $default_include_exclude_arr,
 				'l5' => $default_include_exclude_arr,
@@ -516,10 +512,10 @@ class FormW2Report extends Report {
 				'l12d' => $default_include_exclude_arr,
 				'l13' => $default_include_exclude_arr,
 				'l14' => $default_include_exclude_arr,
-                'l14a' => $default_include_exclude_arr,
-                'l14b' => $default_include_exclude_arr,
-                'l14c' => $default_include_exclude_arr,
-                'l14d' => $default_include_exclude_arr,
+				'l14a' => $default_include_exclude_arr,
+				'l14b' => $default_include_exclude_arr,
+				'l14c' => $default_include_exclude_arr,
+				'l14d' => $default_include_exclude_arr,
 				'l15' => $default_include_exclude_arr,
 				'l16' => $default_include_exclude_arr,
 				'l17' => $default_include_exclude_arr,
@@ -537,16 +533,16 @@ class FormW2Report extends Report {
 		$this->tmp_data = array( 'pay_stub_entry' => array() );
 
 		$columns = $this->getColumnDataConfig();
-        
+
 		$filter_data = $this->getFilterConfig();
-        
+
 		$form_data = $this->formatFormConfig();
 
 		//
 		//Figure out state/locality wages/taxes.
 		//
 		$cdlf = TTnew( 'CompanyDeductionListFactory' );
-		$cdlf->getByCompanyIdAndStatusIdAndTypeId( $this->getUserObject()->getCompany(), $rcclf->getOptions('display_column_type_ids'), 10 );
+		$cdlf->getByCompanyIdAndStatusIdAndTypeId( $this->getUserObject()->getCompany(), array(10, 20), 10 );
 		if ( $cdlf->getRecordCount() > 0 ) {
 			foreach( $cdlf as $cd_obj ) {
 				$tax_deductions[$cd_obj->getId()] = array(
@@ -565,7 +561,7 @@ class FormW2Report extends Report {
 										);
 				$tax_deduction_pay_stub_account_id_map[$cd_obj->getPayStubEntryAccount()][] = $cd_obj->getId();
 			}
-			Debug::Arr($tax_deductions, 'Tax Deductions: ', __FILE__, __LINE__, __METHOD__,10);
+			//Debug::Arr($tax_deductions, 'Tax Deductions: ', __FILE__, __LINE__, __METHOD__, 10);
 		}
 
 		$pself = TTnew( 'PayStubEntryListFactory' );
@@ -596,70 +592,89 @@ class FormW2Report extends Report {
 					$this->tmp_data['pay_stub_entry'][$user_id]['psen_ids'][$pay_stub_entry_name_id] = $pse_obj->getColumn('amount');
 				}
 			}
-            
+
 			if ( isset($this->tmp_data['pay_stub_entry']) AND is_array($this->tmp_data['pay_stub_entry']) ) {
 				foreach($this->tmp_data['pay_stub_entry'] as $user_id => $data_b) {
-					$this->tmp_data['pay_stub_entry'][$user_id]['l1'] 		= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['l1']['include_pay_stub_entry_account'], 					$form_data['l1']['exclude_pay_stub_entry_account'] );
-					$this->tmp_data['pay_stub_entry'][$user_id]['l2'] 		= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['l2']['include_pay_stub_entry_account'], 					$form_data['l2']['exclude_pay_stub_entry_account'] );
-					$this->tmp_data['pay_stub_entry'][$user_id]['l3'] 		= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['l3']['include_pay_stub_entry_account'], 					$form_data['l3']['exclude_pay_stub_entry_account'] );
-					$this->tmp_data['pay_stub_entry'][$user_id]['l4'] 		= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['l4']['include_pay_stub_entry_account'], 					$form_data['l4']['exclude_pay_stub_entry_account'] );
-					$this->tmp_data['pay_stub_entry'][$user_id]['l5'] 		= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['l5']['include_pay_stub_entry_account'], 					$form_data['l5']['exclude_pay_stub_entry_account'] );
-					$this->tmp_data['pay_stub_entry'][$user_id]['l6'] 		= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['l6']['include_pay_stub_entry_account'], 					$form_data['l6']['exclude_pay_stub_entry_account'] );
-					$this->tmp_data['pay_stub_entry'][$user_id]['l7'] 		= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['l7']['include_pay_stub_entry_account'], 					$form_data['l7']['exclude_pay_stub_entry_account'] );
-					$this->tmp_data['pay_stub_entry'][$user_id]['l8'] 		= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['l8']['include_pay_stub_entry_account'], 					$form_data['l8']['exclude_pay_stub_entry_account'] );
-					$this->tmp_data['pay_stub_entry'][$user_id]['l10']	 	= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['l10']['include_pay_stub_entry_account'], 					$form_data['l10']['exclude_pay_stub_entry_account'] );
-					$this->tmp_data['pay_stub_entry'][$user_id]['l11']	 	= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['l11']['include_pay_stub_entry_account'], 					$form_data['l11']['exclude_pay_stub_entry_account'] );
-					$this->tmp_data['pay_stub_entry'][$user_id]['l12a'] 	= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['l12a']['include_pay_stub_entry_account'], 					$form_data['l12a']['exclude_pay_stub_entry_account'] );
-					$this->tmp_data['pay_stub_entry'][$user_id]['l12b'] 	= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['l12b']['include_pay_stub_entry_account'], 					$form_data['l12b']['exclude_pay_stub_entry_account'] );
-					$this->tmp_data['pay_stub_entry'][$user_id]['l12c'] 	= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['l12c']['include_pay_stub_entry_account'], 					$form_data['l12c']['exclude_pay_stub_entry_account'] );
-					$this->tmp_data['pay_stub_entry'][$user_id]['l12d'] 	= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['l12d']['include_pay_stub_entry_account'], 					$form_data['l12d']['exclude_pay_stub_entry_account'] );
+					$this->tmp_data['pay_stub_entry'][$user_id]['l1']		= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['l1']['include_pay_stub_entry_account'], $form_data['l1']['exclude_pay_stub_entry_account'] );
+					$this->tmp_data['pay_stub_entry'][$user_id]['l2']		= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['l2']['include_pay_stub_entry_account'], $form_data['l2']['exclude_pay_stub_entry_account'] );
+					$this->tmp_data['pay_stub_entry'][$user_id]['l3']		= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['l3']['include_pay_stub_entry_account'], $form_data['l3']['exclude_pay_stub_entry_account'] );
+					$this->tmp_data['pay_stub_entry'][$user_id]['l4']		= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['l4']['include_pay_stub_entry_account'], $form_data['l4']['exclude_pay_stub_entry_account'] );
+					$this->tmp_data['pay_stub_entry'][$user_id]['l5']		= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['l5']['include_pay_stub_entry_account'], $form_data['l5']['exclude_pay_stub_entry_account'] );
+					$this->tmp_data['pay_stub_entry'][$user_id]['l6']		= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['l6']['include_pay_stub_entry_account'], $form_data['l6']['exclude_pay_stub_entry_account'] );
+					$this->tmp_data['pay_stub_entry'][$user_id]['l7']		= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['l7']['include_pay_stub_entry_account'], $form_data['l7']['exclude_pay_stub_entry_account'] );
+					$this->tmp_data['pay_stub_entry'][$user_id]['l8']		= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['l8']['include_pay_stub_entry_account'], $form_data['l8']['exclude_pay_stub_entry_account'] );
+					$this->tmp_data['pay_stub_entry'][$user_id]['l10']		= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['l10']['include_pay_stub_entry_account'], $form_data['l10']['exclude_pay_stub_entry_account'] );
+					$this->tmp_data['pay_stub_entry'][$user_id]['l11']		= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['l11']['include_pay_stub_entry_account'], $form_data['l11']['exclude_pay_stub_entry_account'] );
+					$this->tmp_data['pay_stub_entry'][$user_id]['l12a']		= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['l12a']['include_pay_stub_entry_account'], $form_data['l12a']['exclude_pay_stub_entry_account'] );
+					$this->tmp_data['pay_stub_entry'][$user_id]['l12b']		= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['l12b']['include_pay_stub_entry_account'], $form_data['l12b']['exclude_pay_stub_entry_account'] );
+					$this->tmp_data['pay_stub_entry'][$user_id]['l12c']		= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['l12c']['include_pay_stub_entry_account'], $form_data['l12c']['exclude_pay_stub_entry_account'] );
+					$this->tmp_data['pay_stub_entry'][$user_id]['l12d']		= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['l12d']['include_pay_stub_entry_account'], $form_data['l12d']['exclude_pay_stub_entry_account'] );
 
-					$this->tmp_data['pay_stub_entry'][$user_id]['l14a'] 	= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['l14a']['include_pay_stub_entry_account'], 					$form_data['l14a']['exclude_pay_stub_entry_account'] );
-					$this->tmp_data['pay_stub_entry'][$user_id]['l14b'] 	= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['l14b']['include_pay_stub_entry_account'], 					$form_data['l14b']['exclude_pay_stub_entry_account'] );
-					$this->tmp_data['pay_stub_entry'][$user_id]['l14c'] 	= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['l14c']['include_pay_stub_entry_account'], 					$form_data['l14c']['exclude_pay_stub_entry_account'] );
-					$this->tmp_data['pay_stub_entry'][$user_id]['l14d'] 	= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['l14d']['include_pay_stub_entry_account'], 					$form_data['l14d']['exclude_pay_stub_entry_account'] );
-                    
+					$this->tmp_data['pay_stub_entry'][$user_id]['l14a']		= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['l14a']['include_pay_stub_entry_account'], $form_data['l14a']['exclude_pay_stub_entry_account'] );
+					$this->tmp_data['pay_stub_entry'][$user_id]['l14b']		= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['l14b']['include_pay_stub_entry_account'], $form_data['l14b']['exclude_pay_stub_entry_account'] );
+					$this->tmp_data['pay_stub_entry'][$user_id]['l14c']		= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['l14c']['include_pay_stub_entry_account'], $form_data['l14c']['exclude_pay_stub_entry_account'] );
+					$this->tmp_data['pay_stub_entry'][$user_id]['l14d']		= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['l14d']['include_pay_stub_entry_account'], $form_data['l14d']['exclude_pay_stub_entry_account'] );
+
 					if ( is_array($data_b['psen_ids']) ) {
 						foreach( $data_b['psen_ids'] as $psen_id => $psen_amount ) {
-						  if ( isset($tax_deduction_pay_stub_account_id_map[$psen_id]) ) {
-								//$tax_deduction_arr = $tax_deductions[$tax_deduction_pay_stub_account_id_map[$psen_id]];
-                                
+							if ( isset($tax_deduction_pay_stub_account_id_map[$psen_id]) ) {
 								//Support multiple tax/deductions that deposit to the same pay stub account.
 								foreach( $tax_deduction_pay_stub_account_id_map[$psen_id] as $tax_deduction_id ) {
-									$tax_deduction_arr = $tax_deductions[$tax_deduction_id];                                    
-									//determine how many district/states currently exist for this employee.
-									foreach( range('a','z') as $z ) {
-										if ( !isset($this->tmp_data['pay_stub_entry'][$user_id]['l16'.$z]) ) {
-											$state_id = $z;
-											break;
-										}
-									}
-                                    
-									foreach( range('a','z') as $z ) {
-										if ( !isset($this->tmp_data['pay_stub_entry'][$user_id]['l18'.$z]) ) {
-											$district_id = $z;
-											break;
-										}
-									}
+									$tax_deduction_arr = $tax_deductions[$tax_deduction_id];
 
 									//Found Tax/Deduction associated with this pay stub account.
-									Debug::Text('Found User ID: '. $user_id .' in Tax Deduction Name: '. $tax_deduction_arr['name'] .'('.$tax_deduction_arr['id'].') Pay Stub Entry Account ID: '. $psen_id .' Calculation ID: '. $tax_deduction_arr['calculation_id'], __FILE__, __LINE__, __METHOD__,10);
+									Debug::Text('Found User ID: '. $user_id .' in Tax Deduction Name: '. $tax_deduction_arr['name'] .'('.$tax_deduction_arr['id'].') Pay Stub Entry Account ID: '. $psen_id .' Calculation ID: '. $tax_deduction_arr['calculation_id'], __FILE__, __LINE__, __METHOD__, 10);
 									if ( $tax_deduction_arr['calculation_id'] == 200 AND $tax_deduction_arr['province'] != '' ) {
+										//determine how many district/states currently exist for this employee.
+										foreach( range('a', 'z') as $z ) {
+											//Make sure we are able to combine multiple state Tax/Deduction amounts together in the case
+											//where they are using different Pay Stub Accounts for the State Income Tax and State Addl. Income Tax PSA's.
+											if ( !( isset($this->tmp_data['pay_stub_entry'][$user_id]['l17'.$z]) AND isset($this->tmp_data['pay_stub_entry'][$user_id]['l15'. $z .'_state']) AND $this->tmp_data['pay_stub_entry'][$user_id]['l15'. $z .'_state'] != $tax_deduction_arr['province'] ) ) {
+												$state_id = $z;
+												break;
+											}
+										}
+										//Debug::Text('State ID: '. $state_id .' Z: '. $z, __FILE__, __LINE__, __METHOD__, 10);
+
 										//State Wages/Taxes
 										$this->tmp_data['pay_stub_entry'][$user_id]['l15'. $state_id .'_state'] = $tax_deduction_arr['province'];
-										$this->tmp_data['pay_stub_entry'][$user_id]['l16'. $state_id] = Misc::calculateMultipleColumns( $data_b['psen_ids'], $tax_deduction_arr['include'], $tax_deduction_arr['exclude'] );
-										$this->tmp_data['pay_stub_entry'][$user_id]['l17'. $state_id] = Misc::calculateMultipleColumns( $data_b['psen_ids'], array($tax_deduction_arr['pay_stub_entry_account_id']) );
-									} elseif ( $tax_deduction_arr['calculation_id'] == 300 AND ( $tax_deduction_arr['district'] != '' OR $tax_deduction_arr['company_value1'] != '' ) )  {
-										//District Wages/Taxes
-										if ( $tax_deduction_arr['district'] == '' AND $tax_deduction_arr['company_value1'] != '' ) {
-											$this->tmp_data['pay_stub_entry'][$user_id]['l20'. $district_id] = $tax_deduction_arr['company_value1'];
-										} else {
-											$this->tmp_data['pay_stub_entry'][$user_id]['l20'. $district_id] = $tax_deduction_arr['district'];
+										if ( !isset($this->tmp_data['pay_stub_entry'][$user_id]['l16'. $state_id]) OR ( isset($this->tmp_data['pay_stub_entry'][$user_id]['l16'. $state_id]) AND $this->tmp_data['pay_stub_entry'][$user_id]['l16'. $state_id] == 0 ) ) {
+											$this->tmp_data['pay_stub_entry'][$user_id]['l16'. $state_id] = Misc::calculateMultipleColumns( $data_b['psen_ids'], $tax_deduction_arr['include'], $tax_deduction_arr['exclude'] );
 										}
-										$this->tmp_data['pay_stub_entry'][$user_id]['l18'. $district_id] = Misc::calculateMultipleColumns( $data_b['psen_ids'], $tax_deduction_arr['include'], $tax_deduction_arr['exclude'] );
-										$this->tmp_data['pay_stub_entry'][$user_id]['l19'. $district_id] = Misc::calculateMultipleColumns( $data_b['psen_ids'], array($tax_deduction_arr['pay_stub_entry_account_id']) );
+										if ( !isset($this->tmp_data['pay_stub_entry'][$user_id]['l17'. $state_id]) ) {
+											$this->tmp_data['pay_stub_entry'][$user_id]['l17'. $state_id] = 0;
+										}
+										//Just combine the tax withheld part, not the wages/earnings, as we don't want to double up on that.
+										$this->tmp_data['pay_stub_entry'][$user_id]['l17'. $state_id] += Misc::calculateMultipleColumns( $data_b['psen_ids'], array($tax_deduction_arr['pay_stub_entry_account_id']) );
+									} elseif ( $tax_deduction_arr['calculation_id'] == 300 AND ( $tax_deduction_arr['district'] != '' OR $tax_deduction_arr['company_value1'] != '' ) )	 {
+										if ( $tax_deduction_arr['district'] == '' AND $tax_deduction_arr['company_value1'] != '' ) {
+											$district_name = $tax_deduction_arr['company_value1'];
+										} else {
+											$district_name = $tax_deduction_arr['district'];
+										}
+
+										foreach( range('a', 'z') as $z ) {
+											//Make sure we are able to combine multiple district Tax/Deduction amounts together in the case
+											//where they are using different Pay Stub Accounts for the District Income Tax and District Addl. Income Tax PSA's.
+											if ( !( isset($this->tmp_data['pay_stub_entry'][$user_id]['l19'.$z]) AND isset($this->tmp_data['pay_stub_entry'][$user_id]['l20'. $z]) AND $this->tmp_data['pay_stub_entry'][$user_id]['l20'. $z] != $district_name ) ) {
+												$district_id = $z;
+												break;
+											}
+										}
+										//Debug::Text('District Name ID: '. $district_name .' Z: '. $z, __FILE__, __LINE__, __METHOD__, 10);
+
+										//District Wages/Taxes
+										$this->tmp_data['pay_stub_entry'][$user_id]['l20'. $district_id] = $district_name;
+										if ( !isset($this->tmp_data['pay_stub_entry'][$user_id]['l18'. $district_id]) OR ( isset($this->tmp_data['pay_stub_entry'][$user_id]['l18'. $district_id]) AND $this->tmp_data['pay_stub_entry'][$user_id]['l18'. $district_id] == 0 ) ) {
+											$this->tmp_data['pay_stub_entry'][$user_id]['l18'. $district_id] = Misc::calculateMultipleColumns( $data_b['psen_ids'], $tax_deduction_arr['include'], $tax_deduction_arr['exclude'] );
+										}
+										if ( !isset($this->tmp_data['pay_stub_entry'][$user_id]['l19'. $district_id]) ) {
+											$this->tmp_data['pay_stub_entry'][$user_id]['l19'. $district_id] = 0;
+										}
+										//Just combine the tax withheld part, not the wages/earnings, as we don't want to double up on that.
+										$this->tmp_data['pay_stub_entry'][$user_id]['l19'. $district_id] += Misc::calculateMultipleColumns( $data_b['psen_ids'], array($tax_deduction_arr['pay_stub_entry_account_id']) );
 									} else {
-										Debug::Text('Not State or Local income tax: '. $tax_deduction_arr['id'] .' Calculation: '. $tax_deduction_arr['calculation_id'] .' District: '. $tax_deduction_arr['district'] .' UserValue5: '.$tax_deduction_arr['user_value5'] .' CompanyValue1: '. $tax_deduction_arr['company_value1'], __FILE__, __LINE__, __METHOD__,10);
+										Debug::Text('Not State or Local income tax: '. $tax_deduction_arr['id'] .' Calculation: '. $tax_deduction_arr['calculation_id'] .' District: '. $tax_deduction_arr['district'] .' UserValue5: '.$tax_deduction_arr['user_value5'] .' CompanyValue1: '. $tax_deduction_arr['company_value1'], __FILE__, __LINE__, __METHOD__, 10);
 									}
 									unset($tax_deduction_arr);
 								}
@@ -670,23 +685,23 @@ class FormW2Report extends Report {
 				}
 			}
 		}
-        
+
 		$this->user_ids = array_unique( $this->user_ids ); //Used to get the total number of employees.
 
-		//Debug::Arr($this->tmp_data['user'], 'User Raw Data: ', __FILE__, __LINE__, __METHOD__,10);
-		//Debug::Arr($this->user_ids, 'User IDs: ', __FILE__, __LINE__, __METHOD__,10);
-		//Debug::Arr($this->tmp_data, 'Tmp Raw Data: ', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($this->tmp_data['user'], 'User Raw Data: ', __FILE__, __LINE__, __METHOD__, 10);
+		//Debug::Arr($this->user_ids, 'User IDs: ', __FILE__, __LINE__, __METHOD__, 10);
+		//Debug::Arr($this->tmp_data, 'Tmp Raw Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		//Get user data for joining.
 		$ulf = TTnew( 'UserListFactory' );
 		$ulf->getAPISearchByCompanyIdAndArrayCriteria( $this->getUserObject()->getCompany(), $filter_data );
-		Debug::Text(' User Total Rows: '. $ulf->getRecordCount(), __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text(' User Total Rows: '. $ulf->getRecordCount(), __FILE__, __LINE__, __METHOD__, 10);
 		$this->getProgressBarObject()->start( $this->getAMFMessageID(), $ulf->getRecordCount(), NULL, TTi18n::getText('Retrieving Data...') );
 		foreach ( $ulf as $key => $u_obj ) {
 			$this->tmp_data['user'][$u_obj->getId()] = (array)$u_obj->getObjectAsArray( $this->getColumnDataConfig() );
 			$this->getProgressBarObject()->set( $this->getAMFMessageID(), $key );
 		}
-        
+
 		return TRUE;
 	}
 
@@ -695,12 +710,12 @@ class FormW2Report extends Report {
 		$this->getProgressBarObject()->start( $this->getAMFMessageID(), count($this->tmp_data['pay_stub_entry']), NULL, TTi18n::getText('Pre-Processing Data...') );
 
 		//Merge time data with user data
-		$key=0;
+		$key = 0;
 		if ( isset($this->tmp_data['pay_stub_entry']) ) {
 			foreach( $this->tmp_data['pay_stub_entry'] as $user_id => $row ) {
 				if ( isset($this->tmp_data['user'][$user_id]) ) {
 					$date_columns = TTDate::getReportDates( NULL, $row['date_stamp'], FALSE, $this->getUserObject(), array('pay_period_start_date' => $row['pay_period_start_date'], 'pay_period_end_date' => $row['pay_period_end_date'], 'pay_period_transaction_date' => $row['pay_period_transaction_date']) );
-					$processed_data  = array(
+					$processed_data	 = array(
 											'user_id' => $user_id,
 											);
 
@@ -712,64 +727,64 @@ class FormW2Report extends Report {
 			}
 			unset($this->tmp_data, $row, $date_columns, $processed_data, $level_1, $level_2, $level_3);
 		}
-		//Debug::Arr($this->data, 'preProcess Data: ', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($this->data, 'preProcess Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		$this->form_data = $this->data; //Copy data to Form Data so group/sort doesn't affect it.
-        
+
 		return TRUE;
 	}
 
 	function _outputPDFForm( $format = NULL ) {
-	    
+	
 		$show_background = TRUE;
 		if ( $format == 'pdf_form_print' OR $format == 'pdf_form_print_government' OR $format == 'efile' ) {
 			$show_background = FALSE;
 		}
-		Debug::Text('Generating Form... Format: '. $format, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Generating Form... Format: '. $format, __FILE__, __LINE__, __METHOD__, 10);
 
 		$setup_data = $this->getFormConfig();
 		$filter_data = $this->getFilterConfig();
-		//Debug::Arr($filter_data, 'Filter Data: ', __FILE__, __LINE__, __METHOD__,10);
-        
+		//Debug::Arr($filter_data, 'Filter Data: ', __FILE__, __LINE__, __METHOD__, 10);
+
 		$current_company = $this->getUserObject()->getCompanyObject();
 		if ( !is_object($current_company) ) {
-			Debug::Text('Invalid company object...', __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text('Invalid company object...', __FILE__, __LINE__, __METHOD__, 10);
 			return FALSE;
 		}
 
 		$current_user = $this->getUserObject();
 		if ( !is_object($current_user) ) {
-			Debug::Text('Invalid user object...', __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text('Invalid user object...', __FILE__, __LINE__, __METHOD__, 10);
 			return FALSE;
 		}
-        
-        if ( $format == 'efile_xml' ) {
+
+		if ( $format == 'efile_xml' ) {
 			$return1040 = $this->getRETURN1040Object();
 			// Ceate the all needed data for Return1040.xsd at here.
-            $return1040->return_created_timestamp = TTDate::getDBTimeStamp( TTDate::getTime(), FALSE );
-            $return1040->year = TTDate::getYear( $filter_data['end_date'] );
-            $return1040->tax_period_begin_date =  TTDate::getDate('Y-m-d', TTDate::getBeginDayEpoch( $filter_data['start_date'] ));
-            $return1040->tax_period_end__date = TTDate::getDate('Y-m-d', TTDate::getEndDayEpoch( $filter_data['end_date'] ));
-            $return1040->software_id = ''; 
-            $return1040->originator_efin = '';
-            $return1040->originator_type_code = '';
-            $return1040->pin_type_code = '';
-            $return1040->jurat_disclosure_code = '';
-            $return1040->pin_entered_by = ''; 
-            $return1040->signature_date = TTDate::getDate('Y-m-d', TTDate::getTime());
-            $return1040->return_type = '';
-            $return1040->ssn = '';
-            $return1040->name = ( isset($setup_data['company_name']) AND $setup_data['company_name'] != '' ) ? $setup_data['company_name'] : $current_company->getName();
-            $return1040->name_control = '';
-            $return1040->address1 = ( isset($setup_data['address1']) AND $setup_data['address1'] != '' ) ? $setup_data['address1'] : $current_company->getAddress1() .' '. $current_company->getAddress2(); 
-            $return1040->city = ( isset($setup_data['city']) AND $setup_data['city'] != '' ) ? $setup_data['city'] : $current_company->getCity();
-            $return1040->state = ( isset($setup_data['province']) AND ( $setup_data['province'] != '' AND $setup_data['province'] != 0 ) ) ? $setup_data['province'] : $current_company->getProvince();
-            $return1040->zip_code = ( isset($setup_data['postal_code']) AND $setup_data['postal_code'] != '' ) ? $setup_data['postal_code'] : $current_company->getPostalCode();
-            $return1040->ip_address = '';
-            $return1040->ip_date = TTDate::getDate('Y-m-d', TTDate::getTime());
-            $return1040->ip_time = TTDate::getDate('H:i:s', TTDate::getTime());    
-            $return1040->timezone = TTDate::getTimeZone();
-            
+			$return1040->return_created_timestamp = TTDate::getDBTimeStamp( TTDate::getTime(), FALSE );
+			$return1040->year = TTDate::getYear( $filter_data['end_date'] );
+			$return1040->tax_period_begin_date = TTDate::getDate('Y-m-d', TTDate::getBeginDayEpoch( $filter_data['start_date'] ));
+			$return1040->tax_period_end__date = TTDate::getDate('Y-m-d', TTDate::getEndDayEpoch( $filter_data['end_date'] ));
+			$return1040->software_id = '';
+			$return1040->originator_efin = '';
+			$return1040->originator_type_code = '';
+			$return1040->pin_type_code = '';
+			$return1040->jurat_disclosure_code = '';
+			$return1040->pin_entered_by = '';
+			$return1040->signature_date = TTDate::getDate('Y-m-d', TTDate::getTime());
+			$return1040->return_type = '';
+			$return1040->ssn = '';
+			$return1040->name = ( isset($setup_data['company_name']) AND $setup_data['company_name'] != '' ) ? $setup_data['company_name'] : $current_company->getName();
+			$return1040->name_control = '';
+			$return1040->address1 = ( isset($setup_data['address1']) AND $setup_data['address1'] != '' ) ? $setup_data['address1'] : $current_company->getAddress1() .' '. $current_company->getAddress2();
+			$return1040->city = ( isset($setup_data['city']) AND $setup_data['city'] != '' ) ? $setup_data['city'] : $current_company->getCity();
+			$return1040->state = ( isset($setup_data['province']) AND ( $setup_data['province'] != '' AND $setup_data['province'] != 0 ) ) ? $setup_data['province'] : $current_company->getProvince();
+			$return1040->zip_code = ( isset($setup_data['postal_code']) AND $setup_data['postal_code'] != '' ) ? $setup_data['postal_code'] : $current_company->getPostalCode();
+			$return1040->ip_address = '';
+			$return1040->ip_date = TTDate::getDate('Y-m-d', TTDate::getTime());
+			$return1040->ip_time = TTDate::getDate('H:i:s', TTDate::getTime());
+			$return1040->timezone = TTDate::getTimeZone();
+
 			$this->getFormObject()->addForm( $return1040 );
 		}
 
@@ -788,7 +803,7 @@ class FormW2Report extends Report {
 		} else {
 			$form_type = 'employee';
 		}
-		Debug::Text('Form Type: '. $form_type, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Form Type: '. $form_type, __FILE__, __LINE__, __METHOD__, 10);
 
 		$fw2->setType( $form_type );
 		$fw2->year = TTDate::getYear( $filter_data['end_date'] );
@@ -796,8 +811,8 @@ class FormW2Report extends Report {
 		$fw2->ein = ( isset($setup_data['ein']) AND $setup_data['ein'] != '' ) ? $setup_data['ein'] : $current_company->getBusinessNumber();
 		$fw2->name = ( isset($setup_data['name']) AND $setup_data['name'] != '' ) ? $setup_data['name'] : $this->getUserObject()->getFullName();
 		$fw2->trade_name = ( isset($setup_data['company_name']) AND $setup_data['company_name'] != '' ) ? $setup_data['company_name'] : $current_company->getName();
-        $fw2->company_address1 = ( isset($setup_data['address1']) AND $setup_data['address1'] != '' ) ? $setup_data['address1'] : $current_company->getAddress1() .' '. $current_company->getAddress2();     
-        $fw2->company_city = ( isset($setup_data['city']) AND $setup_data['city'] != '' ) ? $setup_data['city'] : $current_company->getCity();
+		$fw2->company_address1 = ( isset($setup_data['address1']) AND $setup_data['address1'] != '' ) ? $setup_data['address1'] : $current_company->getAddress1() .' '. $current_company->getAddress2();
+		$fw2->company_city = ( isset($setup_data['city']) AND $setup_data['city'] != '' ) ? $setup_data['city'] : $current_company->getCity();
 		$fw2->company_state = ( isset($setup_data['province']) AND ( $setup_data['province'] != '' AND $setup_data['province'] != 0 ) ) ? $setup_data['province'] : $current_company->getProvince();
 		$fw2->company_zip_code = ( isset($setup_data['postal_code']) AND $setup_data['postal_code'] != '' ) ? $setup_data['postal_code'] : $current_company->getPostalCode();
 		$fw2->efile_user_id = ( isset($setup_data['efile_user_id']) AND $setup_data['efile_user_id'] != '' ) ? $setup_data['efile_user_id'] : NULL;
@@ -809,11 +824,11 @@ class FormW2Report extends Report {
 		$fw2->contact_email = $current_user->getWorkEmail();
 		
 		if ( isset($this->form_data) AND count($this->form_data) > 0 ) {
-			$i=0;
-			$n=1;
+			$i = 0;
+			$n = 1;
 			foreach((array)$this->form_data as $row) {
 				if ( !isset($row['user_id']) ) {
-					Debug::Text('User ID not set!', __FILE__, __LINE__, __METHOD__,10);
+					Debug::Text('User ID not set!', __FILE__, __LINE__, __METHOD__, 10);
 					continue;
 				}
 
@@ -835,32 +850,32 @@ class FormW2Report extends Report {
 								'zip_code' => $user_obj->getPostalCode(),
 								'ssn' => $user_obj->getSIN(),
 								'employee_number' => $user_obj->getEmployeeNumber(),
-								'l1' => $row['l1'],
-								'l2' => $row['l2'],
-								'l3' => $row['l3'],
-								'l4' => $row['l4'],
-								'l5' => $row['l5'],
-								'l6' => $row['l6'],
-								'l7' => $row['l7'],
-								'l8' => $row['l8'],
-								'l10' => $row['l10'],
-								'l11' => $row['l11'],
+								'l1' => ( $row['l1'] != 0 ) ? $row['l1'] : NULL,
+								'l2' => ( $row['l2'] != 0 ) ? $row['l2'] : NULL,
+								'l3' => ( $row['l3'] != 0 ) ? $row['l3'] : NULL,
+								'l4' => ( $row['l4'] != 0 ) ? $row['l4'] : NULL,
+								'l5' => ( $row['l5'] != 0 ) ? $row['l5'] : NULL,
+								'l6' => ( $row['l6'] != 0 ) ? $row['l6'] : NULL,
+								'l7' => ( $row['l7'] != 0 ) ? $row['l7'] : NULL,
+								'l8' => ( $row['l8'] != 0 ) ? $row['l8'] : NULL,
+								'l10' => ( $row['l10'] != 0 ) ? $row['l10'] : NULL,
+								'l11' => ( $row['l11'] != 0 ) ? $row['l11'] : NULL,
 								'l12a_code' => NULL,
-								'l12a'  => NULL,
+								'l12a'	=> NULL,
 								'l12b_code' => NULL,
-								'l12b'  => NULL,
+								'l12b'	=> NULL,
 								'l12c_code' => NULL,
-								'l12c'  => NULL,
+								'l12c'	=> NULL,
 								'l12d_code' => NULL,
-								'l12d'  => NULL,
+								'l12d'	=> NULL,
 								'l14a_name' => NULL,
-								'l14a'  => NULL,
+								'l14a'	=> NULL,
 								'l14b_name' => NULL,
-								'l14b'  => NULL,
+								'l14b'	=> NULL,
 								'l14c_name' => NULL,
-								'l14c'  => NULL,
+								'l14c'	=> NULL,
 								'l14d_name' => NULL,
-								'l14d'  => NULL,
+								'l14d'	=> NULL,
 								);
 
 					if ( $row['l12a'] > 0 AND isset($setup_data['l12a_code']) AND $setup_data['l12a_code'] != '') {
@@ -897,7 +912,7 @@ class FormW2Report extends Report {
 						$ee_data['l14d'] = $row['l14d'];
 					}
 
-					foreach( range('a','z') as $z ) {
+					foreach( range('a', 'z') as $z ) {
 						//State income tax
 						if ( isset($row['l16'.$z]) ) {
 							if ( isset($setup_data['state'][$row['l15'.$z.'_state']]) ) {
@@ -962,24 +977,43 @@ class FormW2Report extends Report {
 			}
 
 			$fw3->lc = count($this->form_data);
-			$fw3->control_number = $fw3->lc+1;
+			$fw3->control_number = ($fw3->lc + 1 );
 			//$fw3->ld = '1234568';
 
-			$total_row = Misc::ArrayAssocSum( $this->form_data );
-			//Debug::Arr($total_row, 'Total Row Data: ', __FILE__, __LINE__, __METHOD__,10);
-			if ( is_array($total_row) ) {
-				$fw3->l1 = $total_row['l1'];
-				$fw3->l2 = $total_row['l2'];
-				$fw3->l3 = $total_row['l3'];
-				$fw3->l4 = $total_row['l4'];
-				$fw3->l5 = $total_row['l5'];
-				$fw3->l6 = $total_row['l6'];
-				$fw3->l7 = $total_row['l7'];
-				$fw3->l8 = $total_row['l8'];
-				$fw3->l10 = $total_row['l10'];
-				$fw3->l11 = $total_row['l11'];
+			//Use sumRecords()/getRecordsTotal() so all amounts are capped properly.
+			$fw2->sumRecords();
+			$total_row = $fw2->getRecordsTotal();
+			//$total_row = Misc::ArrayAssocSum( $this->form_data );
 
-				foreach( range('a','z') as $z ) {
+			//Debug::Arr($total_row, 'Total Row Data: ', __FILE__, __LINE__, __METHOD__, 10);
+			if ( is_array($total_row) ) {
+				$fw3->l1 = ( $total_row['l1'] != 0 ) ? $total_row['l1'] : NULL;
+				$fw3->l2 = ( $total_row['l2'] != 0 ) ? $total_row['l2'] : NULL;
+				$fw3->l3 = ( $total_row['l3'] != 0 ) ? $total_row['l3'] : NULL;
+				$fw3->l4 = ( $total_row['l4'] != 0 ) ? $total_row['l4'] : NULL;
+				$fw3->l5 = ( $total_row['l5'] != 0 ) ? $total_row['l5'] : NULL;
+				$fw3->l6 = ( $total_row['l6'] != 0 ) ? $total_row['l6'] : NULL;
+				$fw3->l7 = ( $total_row['l7'] != 0 ) ? $total_row['l7'] : NULL;
+				$fw3->l8 = ( $total_row['l8'] != 0 ) ? $total_row['l8'] : NULL;
+				$fw3->l10 = ( $total_row['l10'] != 0 ) ? $total_row['l10'] : NULL;
+				$fw3->l11 = ( $total_row['l11'] != 0 ) ? $total_row['l11'] : NULL;
+
+				$l12a_letters = array( 'd', 'e', 'f', 'g', 'h', 's', 'y', 'aa', 'bb', 'ee' );
+				$fw3->l12a = NULL;
+				if ( isset($total_row['l12a_code']) AND in_array( strtolower($total_row['l12a_code']), $l12a_letters ) ) {
+					$fw3->l12a += $total_row['l12a'];
+				}
+				if ( isset($total_row['l12b_code']) AND in_array( strtolower($total_row['l12b_code']), $l12a_letters ) ) {
+					$fw3->l12a += $total_row['l12b'];
+				}
+				if ( isset($total_row['l12c_code']) AND in_array( strtolower($total_row['l12c_code']), $l12a_letters ) ) {
+					$fw3->l12a += $total_row['l12c'];
+				}
+				if ( isset($total_row['l12d_code']) AND in_array( strtolower($total_row['l12d_code']), $l12a_letters ) ) {
+					$fw3->l12a += $total_row['l12d'];
+				}
+
+				foreach( range('a', 'z') as $z ) {
 					//State income tax
 					if ( isset($total_row['l16'.$z]) ) {
 						$fw3->l16 += $total_row['l16'.$z];
@@ -1010,7 +1044,7 @@ class FormW2Report extends Report {
 			$mime_type = 'applications/octet-stream'; //Force file to download.
 		} else {
 			$output_format = 'PDF';
-			$file_name = $this->file_name;
+			$file_name = $this->file_name.'.pdf';
 			$mime_type = $this->file_mime_type;
 		}
 
@@ -1022,7 +1056,7 @@ class FormW2Report extends Report {
 	//Short circuit this function, as no postprocessing is required for exporting the data.
 	function _postProcess( $format = NULL ) {
 		if ( ( $format == 'pdf_form' OR $format == 'pdf_form_government' ) OR ( $format == 'pdf_form_print' OR $format == 'pdf_form_print_government' ) OR $format == 'efile' OR $format == 'efile_xml' ) {
-			Debug::Text('Skipping postProcess! Format: '. $format, __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text('Skipping postProcess! Format: '. $format, __FILE__, __LINE__, __METHOD__, 10);
 			return TRUE;
 		} else {
 			return parent::_postProcess( $format );

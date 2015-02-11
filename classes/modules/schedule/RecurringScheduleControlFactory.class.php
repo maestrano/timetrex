@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 10132 $
- * $Id: RecurringScheduleControlFactory.class.php 10132 2013-06-06 05:56:44Z ipso $
- * $Date: 2013-06-05 22:56:44 -0700 (Wed, 05 Jun 2013) $
- */
+
 
 /**
  * @package Modules\Schedule
@@ -126,7 +122,7 @@ class RecurringScheduleControlFactory extends Factory {
 
 	function getCompany() {
 		if ( isset($this->data['company_id']) ) {
-			return $this->data['company_id'];
+			return (int)$this->data['company_id'];
 		}
 
 		return FALSE;
@@ -151,7 +147,7 @@ class RecurringScheduleControlFactory extends Factory {
 
 	function getRecurringScheduleTemplateControl() {
 		if ( isset($this->data['recurring_schedule_template_control_id']) ) {
-			return $this->data['recurring_schedule_template_control_id'];
+			return (int)$this->data['recurring_schedule_template_control_id'];
 		}
 
 		return FALSE;
@@ -184,11 +180,15 @@ class RecurringScheduleControlFactory extends Factory {
 	function setStartWeek($int) {
 		$int = trim($int);
 
-		if 	(	$int > 0
+		if	(
+				$this->Validator->isGreaterThan(	'week',
+													$int,
+													TTi18n::gettext('Start week is invalid'),
+													1)
 				AND
 				$this->Validator->isNumeric(		'week',
 													$int,
-													TTi18n::gettext('Week is invalid')) ) {
+													TTi18n::gettext('Start week is invalid')) ) {
 			$this->data['start_week'] = $int;
 
 			return TRUE;
@@ -211,7 +211,7 @@ class RecurringScheduleControlFactory extends Factory {
 	function setStartDate($epoch) {
 		$epoch = trim($epoch);
 
-		if 	(	$this->Validator->isDate(		'start_date',
+		if	(	$this->Validator->isDate(		'start_date',
 												$epoch,
 												TTi18n::gettext('Incorrect start date'))
 			) {
@@ -238,11 +238,11 @@ class RecurringScheduleControlFactory extends Factory {
 	function setEndDate($epoch) {
 		$epoch = trim($epoch);
 
-		if ( $epoch == '' ){
+		if ( $epoch == '' ) {
 			$epoch = NULL;
 		}
 
-		if 	(	$epoch == NULL
+		if	(	$epoch == NULL
 				OR
 				$this->Validator->isDate(		'end_date',
 												$epoch,
@@ -267,7 +267,7 @@ class RecurringScheduleControlFactory extends Factory {
 	function setAutoFill($bool) {
 		$this->data['auto_fill'] = $this->toBool($bool);
 
-		return true;
+		return TRUE;
 	}
 
 	function getUser() {
@@ -285,16 +285,23 @@ class RecurringScheduleControlFactory extends Factory {
 	}
 	function setUser($ids) {
 		if ( !is_array($ids) ) {
-			$ids = array($ids);
+			global $current_user;
+			if ( (int)$ids == 0 AND ( getTTProductEdition() == TT_PRODUCT_COMMUNITY OR $current_user->getCompanyObject()->getProductEdition() == 10 ) ) {
+				$this->Validator->isTrue(		'user',
+												FALSE,
+												TTi18n::gettext('Please select at least one employee') );
+				return FALSE;
+			} else {
+				$ids = array($ids);
+			}
 		}
 
-		if ( is_array($ids) ) {
+		if ( is_array($ids) AND count($ids) > 0 ) {
+			$tmp_ids = array();
 			if ( !$this->isNew() ) {
 				//If needed, delete mappings first.
 				$rsulf = TTnew( 'RecurringScheduleUserListFactory' );
 				$rsulf->getByRecurringScheduleControlId( $this->getId() );
-
-				$tmp_ids = array();
 				foreach ($rsulf as $obj) {
 					$id = $obj->getUser();
 					Debug::text('Recurring Schedule ID: '. $obj->getRecurringScheduleControl() .' ID: '. $id, __FILE__, __LINE__, __METHOD__, 10);
@@ -305,7 +312,7 @@ class RecurringScheduleControlFactory extends Factory {
 						$obj->Delete();
 					} else {
 						//Save ID's that need to be updated.
-						Debug::text('NOT Deleting : '. $id, __FILE__, __LINE__, __METHOD__, 10);
+						Debug::text('NOT Deleting: '. $id, __FILE__, __LINE__, __METHOD__, 10);
 						$tmp_ids[] = $id;
 					}
 				}
@@ -316,7 +323,7 @@ class RecurringScheduleControlFactory extends Factory {
 			$ulf = TTnew( 'UserListFactory' );
 
 			foreach ($ids as $id) {
-				if ( isset($ids) AND !in_array($id, $tmp_ids) ) {
+				if ( $id >= 0 AND isset($tmp_ids) AND !in_array($id, $tmp_ids) ) { //-1 is used as "NONE", so ignore it here.
 					//Handle OPEN shifts.
 					$full_name = NULL;
 					if ( $id == 0 ) {
@@ -334,10 +341,14 @@ class RecurringScheduleControlFactory extends Factory {
 
 					if ( $this->Validator->isTrue(		'user',
 														$rsuf->Validator->isValid(),
-														TTi18n::gettext('Selected Employee is invalid').' ('. $full_name .')' )) {
+														TTi18n::gettext('Selected employee is invalid').' ('. $full_name .')' )) {
 						$rsuf->save();
 					}
 					unset($full_name);
+				} elseif ( $id == -1 ) { //Make sure -1 isn't the only selected option.
+					$this->Validator->isTrue(		'user',
+													FALSE,
+													TTi18n::gettext('Please select at least one employee') );
 				}
 			}
 
@@ -349,34 +360,34 @@ class RecurringScheduleControlFactory extends Factory {
 	}
 
 	function reMapWeek( $current, $start, $max ) {
-		 return ((($current-1)+$max-($start-1))%$max) + 1;
+		return ( ( ( ( $current - 1 ) + $max - ( $start - 1 ) ) % $max) + 1 );
 	}
 
 	function ReMapWeeks($week_arr) {
 		//We should be able to re-map weeks with simple math:
 		//For example:
-		//  Start Week = 3, Max Week = 5
+		//	Start Week = 3, Max Week = 5
 		// If template week is less then start week, we add the start week.
 		// If template week is greater or equal then start week, we minus the 1-start_week.
-		//  Template Week 1 -- 1 + 3(start week)   = ReMapped Week 4
-		//  Template Week 2 -- 2 + 3               = ReMapped Week 5
-		//  Template Week 3 -- 3 - 2(start week-1) = ReMapped Week 1
-		//  Template Week 4 -- 4 - 2               = ReMapped Week 2
-		//  Template Week 5 -- 5 - 2               = ReMapped Week 3
+		//	Template Week 1 -- 1 + 3(start week)   = ReMapped Week 4
+		//	Template Week 2 -- 2 + 3			   = ReMapped Week 5
+		//	Template Week 3 -- 3 - 2(start week-1) = ReMapped Week 1
+		//	Template Week 4 -- 4 - 2			   = ReMapped Week 2
+		//	Template Week 5 -- 5 - 2			   = ReMapped Week 3
 
 		//Remaps weeks based on start week
-		Debug::text('Start Week: '.  $this->getStartWeek(), __FILE__, __LINE__, __METHOD__, 10);
+		Debug::text('Start Week: '.	 $this->getStartWeek(), __FILE__, __LINE__, __METHOD__, 10);
 
 		if ( $this->getStartWeek() > 1 AND in_array( $this->getStartWeek(), $week_arr) ) {
 			Debug::text('Weeks DO need reordering: ', __FILE__, __LINE__, __METHOD__, 10);
 			$max_week = count($week_arr);
 
-			$i=1;
+			$i = 1;
 			foreach( $week_arr as $key => $val ) {
-				$new_val = $key - ($this->getStartWeek()-1);
+				$new_val = ( $key - ($this->getStartWeek() - 1) );
 
 				if ( $key < $this->getStartWeek() ) {
-					$new_val = $new_val + $max_week;
+					$new_val = ( $new_val + $max_week );
 				}
 
 				$arr[$new_val] = $key;
@@ -440,48 +451,49 @@ class RecurringScheduleControlFactory extends Factory {
 
 		//Get week of start_date
 		$start_date_week = TTDate::getBeginWeekEpoch( $this->getStartDate(), 0 ); //Start week on Sunday to match Recurring Schedule.
-		//Debug::text('Week of Start Date: '. $start_date_week .' Date: '. TTDate::getDate('DATE+TIME', $this->getStartDate() ) ,__FILE__, __LINE__, __METHOD__, 10);
+		//Debug::text('Week of Start Date: '. $start_date_week .' Date: '. TTDate::getDate('DATE+TIME', $this->getStartDate() ), __FILE__, __LINE__, __METHOD__, 10);
 
 		//Since we add 43200 to each iteration (even though its removed right after), we need to add 43200 to the end_date as well so we loop the
 		//proper amount of times, otherwise schedules may be added too late.
-		for ( $i=$start_date; $i <= ($end_date+43200); $i+=(86400+43200)) {
+		for ( $i = $start_date; $i <= ($end_date + 43200); $i += (86400 + 43200) ) {
 			//Handle DST by adding 12hrs to the date to get the mid-day epoch, then forcing it back to the beginning of the day.
 			$i = TTDate::getBeginDayEpoch( $i );
 
 			//This needs to take into account weeks spanning January 1st of each year. Where the week goes from 53 to 1.
 			//Rather then use the week of the year, calculate the weeks between the recurring schedule start date and now.
 			$current_week = round( ( TTDate::getBeginWeekEpoch( $i, 0 ) - $start_date_week ) / ( 604800 ) ); //Find out which week we are on based on the recurring schedule start date. Use round due to DST the week might be 6.9 or 7.1, so we need to round to the nearest full week.
-			//Debug::text('I: '. $i .' User ID: '. $this->getColumn('user_id') .' Current Date: '. TTDate::getDate('DATE+TIME', $i) .' Current Week: '. $current_week .' Start Week: '. $start_date_week,__FILE__, __LINE__, __METHOD__, 10);
+			//Debug::text('I: '. $i .' User ID: '. $this->getColumn('user_id') .' Current Date: '. TTDate::getDate('DATE+TIME', $i) .' Current Week: '. $current_week .' Start Week: '. $start_date_week, __FILE__, __LINE__, __METHOD__, 10);
 
-			$template_week = ( $current_week % $max_week ) + 1;
-			//Debug::text('Template Week: '. $template_week .' Max Week: '. $max_week,__FILE__, __LINE__, __METHOD__, 10);
+			$template_week = ( ( $current_week % $max_week ) + 1 );
+			//Debug::text('Template Week: '. $template_week .' Max Week: '. $max_week, __FILE__, __LINE__, __METHOD__, 10);
 
 			$day_of_week = strtolower( date('D', $i) );
-			//Debug::text('Day Of Week: '. $day_of_week,__FILE__, __LINE__, __METHOD__, 10);
+			//Debug::text('Day Of Week: '. $day_of_week, __FILE__, __LINE__, __METHOD__, 10);
 
 			if ( isset($weeks[$template_week] ) ) {
 				$mapped_template_week = $weeks[$template_week];
-				//Debug::text('&nbsp;&nbsp;Mapped Template Week: '. $mapped_template_week,__FILE__, __LINE__, __METHOD__, 10);
+				//Debug::text('&nbsp;&nbsp;Mapped Template Week: '. $mapped_template_week, __FILE__, __LINE__, __METHOD__, 10);
 
 				if ( isset($template_week_rows[$mapped_template_week]) ) {
-					//Debug::text('&nbsp;&nbsp;&nbsp;&nbsp;Starting Looping...!',__FILE__, __LINE__, __METHOD__, 10);
+					//Debug::text('&nbsp;&nbsp;&nbsp;&nbsp;Starting Looping...!', __FILE__, __LINE__, __METHOD__, 10);
 
 					foreach( $template_week_rows[$mapped_template_week] as $template_week_arr ) {
 						if ( $template_week_arr['days'][$day_of_week] == TRUE ) {
-							//Debug::text('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Found Scheduled Time: Start Time: '. TTDate::getDate('DATE+TIME', TTDate::getTimeLockedDate( $template_week_arr['start_time'], $i ) ),__FILE__, __LINE__, __METHOD__, 10);
+							//Debug::text('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Found Scheduled Time: Start Time: '. TTDate::getDate('DATE+TIME', TTDate::getTimeLockedDate( $template_week_arr['start_time'], $i ) ), __FILE__, __LINE__, __METHOD__, 10);
 
 							$start_time = TTDate::getTimeLockedDate( $template_week_arr['raw_start_time'], $i );
 							$end_time = TTDate::getTimeLockedDate( $template_week_arr['raw_end_time'], $i );
 							if ( $end_time < $start_time ) {
 								//Spans the day boundary, add 86400 to end_time
-								$end_time = $end_time + 86400;
-								//Debug::text('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Schedule spans day boundary, bumping endtime to next day: ',__FILE__, __LINE__, __METHOD__, 10);
+								$end_time = ( $end_time + 86400 );
+								//Debug::text('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Schedule spans day boundary, bumping endtime to next day: ', __FILE__, __LINE__, __METHOD__, 10);
 							}
-							//Debug::text('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Start Date: '. TTDate::getDate('DATE+TIME', $start_time) .' End Date: '. TTDate::getDate('DATE+TIME', $end_time),__FILE__, __LINE__, __METHOD__, 10);
+							//Debug::text('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Start Date: '. TTDate::getDate('DATE+TIME', $start_time) .' End Date: '. TTDate::getDate('DATE+TIME', $end_time), __FILE__, __LINE__, __METHOD__, 10);
 
 							//$shifts[TTDate::getBeginDayEpoch($i)][] = array(
 							$shifts[TTDate::getISODateStamp($i)][] = array(
 																'status_id' => $template_week_arr['status_id'],
+																'absence_policy_id' => (int)$template_week_arr['absence_policy_id'],
 																'start_time' => $start_time,
 																'raw_start_time' => TTDate::getDate('DATE+TIME', $start_time ),
 																'end_time' => $end_time,
@@ -494,17 +506,10 @@ class RecurringScheduleControlFactory extends Factory {
 																'job_item_id' => $template_week_arr['job_item_id']
 																);
 							unset($start_time, $end_time);
-						} else {
-							//Debug::text('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;aSkipping!',__FILE__, __LINE__, __METHOD__, 10);
-						}
+						} //else { //Debug::text('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;aSkipping!', __FILE__, __LINE__, __METHOD__, 10);
 					}
-
-				} else {
-					//Debug::text('&nbsp;&nbsp;&nbsp;&nbsp;bSkipping!',__FILE__, __LINE__, __METHOD__, 10);
-				}
-			} else {
-				//Debug::text('&nbsp;&nbsp;cSkipping!',__FILE__, __LINE__, __METHOD__, 10);
-			}
+				} //else { //Debug::text('&nbsp;&nbsp;&nbsp;&nbsp;bSkipping!', __FILE__, __LINE__, __METHOD__, 10);
+			} //else { //Debug::text('&nbsp;&nbsp;cSkipping!', __FILE__, __LINE__, __METHOD__, 10);
 		}
 
 		//var_dump($shifts);
@@ -513,6 +518,14 @@ class RecurringScheduleControlFactory extends Factory {
 		}
 
 		return FALSE;
+	}
+
+	function preSave() {
+		if ( $this->getStartWeek() < 1 ) {
+			$this->setStartWeek( 1 );
+		}
+		
+		return TRUE;
 	}
 
 	function setObjectFromArray( $data ) {
@@ -599,7 +612,7 @@ class RecurringScheduleControlFactory extends Factory {
 	}
 
 	function addLog( $log_action ) {
-		return TTLog::addEntry( $this->getId(), $log_action,  TTi18n::getText('Recurring Schedule'), NULL, $this->getTable(), $this );
+		return TTLog::addEntry( $this->getId(), $log_action, TTi18n::getText('Recurring Schedule'), NULL, $this->getTable(), $this );
 	}
 }
 ?>

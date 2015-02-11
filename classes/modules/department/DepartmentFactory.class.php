@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 11018 $
- * $Id: DepartmentFactory.class.php 11018 2013-09-24 23:39:40Z ipso $
- * $Date: 2013-09-24 16:39:40 -0700 (Tue, 24 Sep 2013) $
- */
+
 
 /**
  * @package Modules\Department
@@ -111,7 +107,7 @@ class DepartmentFactory extends Factory {
 	}
 
 	function getCompany() {
-		return $this->data['company_id'];
+		return (int)$this->data['company_id'];
 	}
 	function setCompany($id) {
 		$id = trim($id);
@@ -134,7 +130,7 @@ class DepartmentFactory extends Factory {
 	function getStatus() {
 		//Have to return the KEY because it should always be a drop down box.
 		//return Option::getByKey($this->data['status_id'], $this->getOptions('status') );
-		return $this->data['status_id'];
+		return (int)$this->data['status_id'];
 	}
 	function setStatus($status) {
 		$status = trim($status);
@@ -164,12 +160,12 @@ class DepartmentFactory extends Factory {
 
 		$ph = array(
 					'manual_id' => $id,
-					'company_id' =>  $this->getCompany(),
+					'company_id' =>	$this->getCompany(),
 					);
 
 		$query = 'select id from '. $this->getTable() .' where manual_id = ? AND company_id = ? AND deleted=0';
 		$id = $this->db->GetOne($query, $ph);
-		Debug::Arr($id,'Unique Department: '. $id, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Arr($id, 'Unique Department: '. $id, __FILE__, __LINE__, __METHOD__, 10);
 
 		if ( $id === FALSE ) {
 			return TRUE;
@@ -193,7 +189,7 @@ class DepartmentFactory extends Factory {
 		$dlf = TTnew( 'DepartmentListFactory' );
 		$dlf->getHighestManualIDByCompanyId( $company_id );
 		if ( $dlf->getRecordCount() > 0 ) {
-			$next_available_manual_id = $dlf->getCurrent()->getManualId()+1;
+			$next_available_manual_id = ( $dlf->getCurrent()->getManualId() + 1 );
 		} else {
 			$next_available_manual_id = 1;
 		}
@@ -203,7 +199,7 @@ class DepartmentFactory extends Factory {
 
 	function getManualID() {
 		if ( isset($this->data['manual_id']) ) {
-			return $this->data['manual_id'];
+			return (int)$this->data['manual_id'];
 		}
 
 		return FALSE;
@@ -258,7 +254,7 @@ class DepartmentFactory extends Factory {
 						AND name = ?
 						AND deleted = 0';
 		$name_id = $this->db->GetOne($query, $ph);
-		//Debug::Arr($name_id,'Unique Name: '. $name, __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($name_id, 'Unique Name: '. $name, __FILE__, __LINE__, __METHOD__, 10);
 
 		if ( $name_id === FALSE ) {
 			return TRUE;
@@ -280,7 +276,7 @@ class DepartmentFactory extends Factory {
 	function setName($name) {
 		$name = trim($name);
 
-		if 	(	$this->Validator->isLength(		'name',
+		if	(	$this->Validator->isLength(		'name',
 												$name,
 												TTi18n::gettext('Department name is too short or too long'),
 												2,
@@ -310,7 +306,7 @@ class DepartmentFactory extends Factory {
 	function setNameMetaphone($value) {
 		$value = metaphone( trim($value) );
 
-		if 	( $value != '' ) {
+		if	( $value != '' ) {
 			$this->data['name_metaphone'] = $value;
 
 			return TRUE;
@@ -333,7 +329,7 @@ class DepartmentFactory extends Factory {
 		return FALSE;
 	}
 	function setBranch($ids) {
-		if (is_array($ids) and count($ids) > 0) {
+		if (is_array($ids) AND count($ids) > 0) {
 			//If needed, delete mappings first.
 			$dblf = TTnew( 'DepartmentBranchListFactory' );
 			$dblf->getByDepartmentId( $this->getId() );
@@ -390,7 +386,7 @@ class DepartmentFactory extends Factory {
 				$this->Validator->isLength(	'other_id1',
 											$value,
 											TTi18n::gettext('Other ID 1 is invalid'),
-											1,255) ) {
+											1, 255) ) {
 
 			$this->data['other_id1'] = $value;
 
@@ -415,7 +411,7 @@ class DepartmentFactory extends Factory {
 				$this->Validator->isLength(	'other_id2',
 											$value,
 											TTi18n::gettext('Other ID 2 is invalid'),
-											1,255) ) {
+											1, 255) ) {
 
 			$this->data['other_id2'] = $value;
 
@@ -440,7 +436,7 @@ class DepartmentFactory extends Factory {
 				$this->Validator->isLength(	'other_id3',
 											$value,
 											TTi18n::gettext('Other ID 3 is invalid'),
-											1,255) ) {
+											1, 255) ) {
 
 			$this->data['other_id3'] = $value;
 
@@ -465,7 +461,7 @@ class DepartmentFactory extends Factory {
 				$this->Validator->isLength(	'other_id4',
 											$value,
 											TTi18n::gettext('Other ID 4 is invalid'),
-											1,255) ) {
+											1, 255) ) {
 
 			$this->data['other_id4'] = $value;
 
@@ -490,7 +486,7 @@ class DepartmentFactory extends Factory {
 				$this->Validator->isLength(	'other_id5',
 											$value,
 											TTi18n::gettext('Other ID 5 is invalid'),
-											1,255) ) {
+											1, 255) ) {
 
 			$this->data['other_id5'] = $value;
 
@@ -540,7 +536,7 @@ class DepartmentFactory extends Factory {
 		}
 
 		if ( $this->getDeleted() == TRUE ) {
-			Debug::Text('UnAssign Hours from Department: '. $this->getId(), __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text('UnAssign Hours from Department: '. $this->getId(), __FILE__, __LINE__, __METHOD__, 10);
 			//Unassign hours from this department.
 			$pcf = TTnew( 'PunchControlFactory' );
 			$udtf = TTnew( 'UserDateTotalFactory' );
@@ -590,7 +586,7 @@ class DepartmentFactory extends Factory {
 		return TRUE;
 	}
 
-	//Support setting created_by,updated_by especially for importing data.
+	//Support setting created_by, updated_by especially for importing data.
 	//Make sure data is set based on the getVariableToFunctionMap order.
 	function setObjectFromArray( $data ) {
 		if ( is_array( $data ) ) {

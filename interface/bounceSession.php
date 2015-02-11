@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 9128 $
- * $Id: Login.php 9128 2013-02-15 19:36:46Z ipso $
- * $Date: 2013-02-15 11:36:46 -0800 (Fri, 15 Feb 2013) $
- */
+
 require_once('../includes/global.inc.php');
 
 /*
@@ -52,19 +48,29 @@ extract	(FormVariables::GetVariables(
 												'key'
 												) ) );
 
-//Used to help set cookies across domains.
+//Used to help set cookies across domains. Currently used by Flex
 $authentication = new Authentication();
 if ( $name == '' ) {
 	$name = $authentication->getName();
 }
 
 if ( $expires == '' ) {
-	$expires = time()+7776000;
+	$expires = ( time() + 7776000 );
 }
 
-setcookie( $name, $value, $expires, '/', NULL, $authentication->isSSL() );
+setcookie( $name, $value, $expires, '/', NULL, Misc::isSSL( TRUE ) );
 
 if ( $redirect != '' ) {
-	Redirect::Page( $redirect );
+	//This can result in a phishing attack, if the user is redirected to an outside site.
+	Debug::Text('Attempting Redirect: '. $redirect .' Current hostname: '. Misc::getHostName(), __FILE__, __LINE__, __METHOD__, 10);
+
+	if ( str_replace( array('http://', 'https://'), '', $redirect ) == Misc::getHostName()
+			OR strpos( str_replace( array('http://', 'https://'), '', $redirect ), Misc::getHostName().'/' ) === 0 ) { //Make sure we match exactly or with a '/' at the end to prevent ondemand.mydomain.com.phish.com from being accepted.
+		Redirect::Page( $redirect );
+	} else {
+		Debug::Text('ERROR, unable to redirect to: '. $redirect .' as it does not contain hostname: '. Misc::getHostName(), __FILE__, __LINE__, __METHOD__, 10);
+		echo "ERROR: Unable to redirect...<br>\n";
+	}
 }
+Debug::writeToLog();
 ?>

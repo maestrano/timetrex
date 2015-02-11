@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 3055 $
- * $Id: UserGenericDataListFactory.class.php 3055 2009-11-13 01:13:02Z ipso $
- * $Date: 2009-11-12 17:13:02 -0800 (Thu, 12 Nov 2009) $
- */
+
 
 /**
  * @package Modules\Users
@@ -46,7 +42,7 @@ class UserReportDataListFactory extends UserReportDataFactory implements Iterato
 
 	function getAll($limit = NULL, $page = NULL, $where = NULL, $order = NULL) {
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					WHERE deleted = 0';
 		$query .= $this->getWhereSQL( $where );
@@ -67,7 +63,7 @@ class UserReportDataListFactory extends UserReportDataFactory implements Iterato
 					);
 
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					where	id = ?
 						AND deleted = 0';
@@ -89,7 +85,7 @@ class UserReportDataListFactory extends UserReportDataFactory implements Iterato
 					);
 
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					where	user_id = ?
 						AND deleted = 0';
@@ -116,7 +112,7 @@ class UserReportDataListFactory extends UserReportDataFactory implements Iterato
 					);
 
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					where	user_id = ?
 						AND id = ?
@@ -153,7 +149,7 @@ class UserReportDataListFactory extends UserReportDataFactory implements Iterato
 					);
 
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					where	user_id = ?
 						AND script = ?
@@ -191,7 +187,7 @@ class UserReportDataListFactory extends UserReportDataFactory implements Iterato
 					);
 
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					where	user_id = ?
 						AND script = ?
@@ -245,7 +241,7 @@ class UserReportDataListFactory extends UserReportDataFactory implements Iterato
 					);
 
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					where	company_id = ?
 						AND user_id is NULL
@@ -273,7 +269,7 @@ class UserReportDataListFactory extends UserReportDataFactory implements Iterato
 					);
 
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					where	company_id = ?
 						AND user_id is NULL
@@ -311,7 +307,7 @@ class UserReportDataListFactory extends UserReportDataFactory implements Iterato
 					);
 
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					where	company_id = ?
 						AND user_id is NULL
@@ -346,11 +342,11 @@ class UserReportDataListFactory extends UserReportDataFactory implements Iterato
 		$ph = array(
 					'company_id' => $company_id,
 					'script' => $script,
-					'default' =>  $this->toBool($default)
+					'default' => $this->toBool($default)
 					);
 
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					where	company_id = ?
 						AND user_id is NULL
@@ -377,11 +373,11 @@ class UserReportDataListFactory extends UserReportDataFactory implements Iterato
 			}
 		}
 
-		$additional_order_fields = array();
+		$additional_order_fields = array( 'is_scheduled' );
 
 		$sort_column_aliases = array(
-									 'script_name' => 'script',
-									 );
+									'script_name' => 'script',
+									);
 
 		$order = $this->getColumnsFromAliases( $order, $sort_column_aliases );
 		if ( $order == NULL ) {
@@ -390,20 +386,35 @@ class UserReportDataListFactory extends UserReportDataFactory implements Iterato
 		} else {
 			$strict = TRUE;
 		}
-		//Debug::Arr($order,'Order Data:', __FILE__, __LINE__, __METHOD__,10);
-		//Debug::Arr($filter_data,'Filter Data:', __FILE__, __LINE__, __METHOD__,10);
-        $uf = new UserFactory();
-        
+		//Debug::Arr($order, 'Order Data:', __FILE__, __LINE__, __METHOD__, 10);
+		//Debug::Arr($filter_data, 'Filter Data:', __FILE__, __LINE__, __METHOD__, 10);
+		$uf = new UserFactory();
+
+		if ( getTTProductEdition() >= TT_PRODUCT_PROFESSIONAL ) {
+			$rsf = new ReportScheduleFactory();
+		}
+
 		$ph = array(
 					'company_id' => $company_id,
 					);
 
 		$query = '
-					select 	a.*
-					from 	'. $this->getTable() .' as a
-                        LEFT JOIN '. $uf->getTable() .' as y ON ( a.created_by = y.id AND y.deleted = 0 )
+					select	a.* ';
+					
+		if ( getTTProductEdition() >= TT_PRODUCT_PROFESSIONAL ) {
+			$query .= ', _ADODB_COUNT
+							(
+								CASE WHEN EXISTS (select 1 from '. $rsf->getTable() .' as rsf where rsf.user_report_data_id = a.id AND rsf.status_id = 10 AND rsf.deleted = 0 ) THEN 1 ELSE 0 END
+							) as is_scheduled
+						_ADODB_COUNT ';
+		} else {
+			$query .= ', 0 as is_scheduled ';
+		}
+	
+		$query .= '	from '. $this->getTable() .' as a
+						LEFT JOIN '. $uf->getTable() .' as y ON ( a.created_by = y.id AND y.deleted = 0 )
 						LEFT JOIN '. $uf->getTable() .' as z ON ( a.updated_by = z.id AND z.deleted = 0 )
-					where	a.company_id = ?
+					where a.company_id = ?
 					';
 
 		$query .= ( isset($filter_data['id']) ) ? $this->getWhereClauseSQL( 'a.id', $filter_data['id'], 'numeric_list', $ph ) : NULL;
@@ -411,21 +422,21 @@ class UserReportDataListFactory extends UserReportDataFactory implements Iterato
 		$query .= ( isset($filter_data['script']) ) ? $this->getWhereClauseSQL( 'a.script', $filter_data['script'], 'text', $ph ) : NULL;
 		$query .= ( isset($filter_data['name']) ) ? $this->getWhereClauseSQL( 'a.name', $filter_data['name'], 'text', $ph ) : NULL;
 
-		if ( isset($filter_data['is_default']) ) {
-			$ph[] = $this->toBool($filter_data['is_default']);
-			$query  .=	' AND a.is_default = ? ';
-		}
-        
-        $query .= ( isset($filter_data['created_by']) ) ? $this->getWhereClauseSQL( array('a.created_by','y.first_name','y.last_name'), $filter_data['created_by'], 'user_id_or_name', $ph ) : NULL;
-        $query .= ( isset($filter_data['updated_by']) ) ? $this->getWhereClauseSQL( array('a.updated_by','z.first_name','z.last_name'), $filter_data['updated_by'], 'user_id_or_name', $ph ) : NULL;
+		$query .= ( isset($filter_data['is_default']) ) ? $this->getWhereClauseSQL( 'a.is_default', $filter_data['is_default'], 'boolean', $ph ) : NULL;
+		$query .= ( isset($filter_data['is_scheduled']) ) ? $this->getWhereClauseSQL( 'is_scheduled', $filter_data['is_scheduled'], 'boolean', $ph ) : NULL;
 
-		$query .= 	'
+		$query .= ( isset($filter_data['created_by']) ) ? $this->getWhereClauseSQL( array('a.created_by', 'y.first_name', 'y.last_name'), $filter_data['created_by'], 'user_id_or_name', $ph ) : NULL;
+		$query .= ( isset($filter_data['updated_by']) ) ? $this->getWhereClauseSQL( array('a.updated_by', 'z.first_name', 'z.last_name'), $filter_data['updated_by'], 'user_id_or_name', $ph ) : NULL;
+
+		$query .=	'
 						AND a.deleted = 0
 					';
 		$query .= $this->getWhereSQL( $where );
 		$query .= $this->getSortSQL( $order, $strict, $additional_order_fields );
 
 		$this->ExecuteSQL( $query, $ph, $limit, $page );
+
+		//Debug::Arr($ph, 'Query: '. $query, __FILE__, __LINE__, __METHOD__, 10);
 
 		return $this;
 	}

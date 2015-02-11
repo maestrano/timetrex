@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="ISO-8859-1"?>
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 	<!--@@@@@@  List of Form Type Choices   @@@@@@  2011/Sept/28  Version# 1.12 (version #.yy)-->
 	<xsd:complexType name="ReturnChoiceType">
@@ -32,6 +32,10 @@
 			<xsd:element name="SAFER" type="SAFERReturnType" minOccurs="0"/>
 			<xsd:element name="NR4" type="NR4ReturnType" minOccurs="0"/>
 			<xsd:element name="TFSA" type="TFSAReturnType" minOccurs="0"/>
+
+			<!-- New form types for 2014 -->
+			<xsd:element name="PRPP" type="PRPPReturnType" minOccurs="0"/>
+			<xsd:element name="RRSPOrRRIFNonQualifiedInvestment" type="RRSPOrRRIFNQIReturnType" minOccurs="0"/>			
 		</xsd:choice>
 	</xsd:complexType>
 	<xsd:complexType name="T4ReturnType">
@@ -152,6 +156,18 @@
 		<xsd:sequence>
 			<xsd:element name="T5018Slip" type="T5018SlipType" maxOccurs="unbounded"/>
 			<xsd:element name="T5018Summary" type="T5018SummaryType"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="PRPPReturnType">
+		<xsd:sequence>
+			<xsd:element name="PRPPSlip" type="PRPPSlipType" maxOccurs="unbounded"/>
+			<xsd:element name="PRPPSummary" type="PRPPSummaryType"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="RRSPOrRRIFNQIReturnType">
+		<xsd:sequence>
+			<xsd:element name="RRSPOrRRIFNQISlip" type="RRSPOrRRIFNQISlipType" maxOccurs="unbounded"/>
+			<xsd:element name="RRSPOrRRIFNQISummary" type="RRSPOrRRIFNQISummaryType"/>
 		</xsd:sequence>
 	</xsd:complexType>
 </xsd:schema>

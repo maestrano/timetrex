@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,32 +33,30 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 3224 $
- * $Id: ajax_server.php 3224 2009-12-26 18:10:21Z ipso $
- * $Date: 2009-12-26 10:10:21 -0800 (Sat, 26 Dec 2009) $
- */
+
 
 require_once('../includes/global.inc.php');
 if ( ( isset($config_vars['other']['installer_enabled']) AND $config_vars['other']['installer_enabled'] == 1)
 		OR ( isset($_SERVER['HTTP_REFERER']) AND stristr( $_SERVER['HTTP_REFERER'], 'quick_punch') ) ) {
-        Debug::text('AJAX Server - Installer enabled, or using quickpunch... NOT AUTHENTICATING...', __FILE__, __LINE__, __METHOD__, 10);
+		Debug::text('AJAX Server - Installer enabled, or using quickpunch... NOT AUTHENTICATING...', __FILE__, __LINE__, __METHOD__, 10);
 		$authenticate = FALSE;
 }
 $skip_message_check = TRUE;
+
+unset( $_GET['cb'], $_POST['cb'] ); //Prevent usage of a callback function which could result in an exploit.
 
 require_once(Environment::getBasePath() .'includes/Interface.inc.php');
 require_once('HTML/AJAX/Server.php');
 
 class AutoServer extends HTML_AJAX_Server {
-        // this flag must be set for your init methods to be used
-        var $initMethods = true;
+		// this flag must be set for your init methods to be used
+		var $initMethods = TRUE;
 
-        // init method for my ajax class
-        function initAJAX_Server() {
+		// init method for my ajax class
+		function initAJAX_Server() {
 			$ajax = new AJAX_Server();
 			$this->registerClass($ajax);
-        }
+		}
 }
 
 $server = new AutoServer();

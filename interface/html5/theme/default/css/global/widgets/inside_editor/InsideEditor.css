@@ -1,0 +1,83 @@
+.inside-editor {
+    text-align: center;
+}
+
+.inside-editor .title {
+    font-weight: bold;
+
+}
+
+.inside-editor .render-div {
+    margin-top: 10px;
+}
+
+.inside-editor-render {
+    border-collapse: collapse;
+}
+
+.inside-editor-render .title {
+    font-weight: bold;
+
+}
+
+.inside-editor-render .cell {
+    text-align: center;
+    width: 15px;
+}
+
+.inside-editor-render .awesome-box-cell {
+    padding-left: 20px;
+}
+
+.inside-editor-render td {
+    border-collapse: collapse;
+}
+
+.inside-editor-row {
+
+}
+
+.inside-editor-row td {
+    vertical-align: top;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    border-bottom: 1px solid #c7c7c7;
+}
+
+.inside-editor .no-line {
+    border-bottom: none !important;
+}
+
+.tblList {
+    /*background: none repeat scroll 0 0 #7a9bbd;*/
+    background: none repeat scroll 0 0 #eaeaea;
+    /*background: none repeat scroll 0 0 #c7c7c7;*/
+
+    border: 0 none;
+    border-spacing: 1px;
+    border-collapse: separate;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0;
+    width: 100%;
+}
+
+.tblHeader {
+    /*background-color: #b8cadb;*/
+    background-color: #375a7c;
+
+    /*color: #369;*/
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 3px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.tblDataWhite {
+    background-color: #fff;
+    color: #000;
+    padding: 5px;
+    text-align: center;
+}

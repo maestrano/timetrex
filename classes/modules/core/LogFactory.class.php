@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 9889 $
- * $Id: LogFactory.class.php 9889 2013-05-14 22:49:16Z ipso $
- * $Date: 2013-05-14 15:49:16 -0700 (Tue, 14 May 2013) $
- */
+
 
 /**
  * @package Core
@@ -75,10 +71,11 @@ class LogFactory extends Factory {
 											'branch'							=> TTi18n::getText('Branch'),
 											'department'						=> TTi18n::getText('Department'),
 											'currency'							=> TTi18n::getText('Currency'),
+											'currency_rate'						=> TTi18n::getText('Currency Rate'),
 											'accrual'							=> TTi18n::getText('Accrual'),
 											'authorizations'					=> TTi18n::getText('Authorizations'),
 											'request'							=> TTi18n::getText('Request'),
-											'message'							=> TTi18n::getText('Messages'), //Old version
+											//'message'							=> TTi18n::getText('Messages'), //Old version
 											'message_control'					=> TTi18n::getText('Messages'),
 											'holidays'							=> TTi18n::getText('Holidays'),
 											'bank_account'						=> TTi18n::getText('Bank Account'),
@@ -107,8 +104,10 @@ class LogFactory extends Factory {
 											'round_interval_policy'				=> TTi18n::getText('Rounding Policy'),
 											'meal_policy'						=> TTi18n::getText('Meal Policy'),
 											'break_policy'						=> TTi18n::getText('Break Policy'),
+											'accrual_policy_account'			=> TTi18n::getText('Accrual Account'),
 											'accrual_policy'					=> TTi18n::getText('Accrual Policy'),
 											'accrual_policy_milestone'			=> TTi18n::getText('Accrual Policy Milestone'),
+											'accrual_policy_user_modifier'		=> TTi18n::getText('Accrual Policy Employee Modifier'),
 											'over_time_policy'					=> TTi18n::getText('Overtime Policy'),
 											'premium_policy'					=> TTi18n::getText('Premium Policy'),
 											'premium_policy_branch'				=> TTi18n::getText('Premium Policy Branch'),
@@ -122,6 +121,11 @@ class LogFactory extends Factory {
 											'exception_policy'					=> TTi18n::getText('Exception Policy'),
 											'holiday_policy'					=> TTi18n::getText('Holiday Policy'),
 											'holiday_policy_recurring_holiday'	=> TTi18n::getText('Holiday Policy'),
+											'regular_time_policy'				=> TTi18n::getText('Regular Time Policy'),
+											'pay_formula_policy' 				=> TTi18n::getText('Pay Formula Policy'),
+											'contributing_pay_code_policy'		=> TTi18n::getText('Contributing Pay Code Policy'),
+											'contributing_shift_policy'			=> TTi18n::getText('Contributing Shift Policy'),
+											'pay_code'							=> TTi18n::getText('Pay Code'),
 
 											'pay_period'						=> TTi18n::getText('Pay Period'),
 											'pay_period_schedule'				=> TTi18n::getText('Pay Period Schedule'),
@@ -161,7 +165,7 @@ class LogFactory extends Factory {
 
 											'user_report_data'					=> TTi18n::getText('Reports'),
 											'report_schedule'					=> TTi18n::getText('Report Schedule'),
-                                            'report_custom_column'              => TTi18n::getText('Report Custom Column'),
+											'report_custom_column'				=> TTi18n::getText('Report Custom Column'),
 
 											'job'								=> TTi18n::getText('Job'),
 											'job_user_branch'					=> TTi18n::getText('Job Branch'),
@@ -188,32 +192,187 @@ class LogFactory extends Factory {
 											'tax_area_policy'					=> TTi18n::getText('Invoice Tax Area Policy'),
 											'tax_policy'						=> TTi18n::getText('Invoice Tax Policy'),
 											'transaction'						=> TTi18n::getText('Invoice Transaction'),
-                                            'user_contact'                      => TTi18n::getText('Employee Contact'),
-                                            'user_expense'                      => TTi18n::getText('Expense'),
-                                            'expense_policy'                    => TTi18n::getText('Expense Policy'),
-                                            'user_review'                       => TTi18n::getText('Review'),
-                                            'user_review_control'               => TTi18n::getText('Review (Control)'),
-                                            'kpi'                               => TTi18n::getText('Key Performance Indicator'),
-                                            'qualification'                     => TTi18n::getText('Qualification'),
-                                            'user_skill'                        => TTi18n::getText('Skill'),
-                                            'user_education'                    => TTi18n::getText('Education'),
-                                            'user_membership'                   => TTi18n::getText('Memberships'),
-                                            'user_license'                      => TTi18n::getText('Licenses'),
-                                            'user_language'                     => TTi18n::getText('Languages'),
-                                            'job_vacancy'                       => TTi18n::getText('Job Vacancy'),
-                                            'job_applicant'                     => TTi18n::getText('Job Applicant'),
-                                            'job_application'                   => TTi18n::getText('Job Application'),
-                                            'job_applicant_location'            => TTi18n::getText('Job Applicant Location'),
-                                            'job_applicant_employment'          => TTi18n::getText('Job Applicant Employment'),
-                                            'job_applicant_reference'           => TTi18n::getText('Job Applicant Reference'),
-                                            'job_applicant_skill'               => TTi18n::getText('Job Applicant Skill'),
-                                            'job_applicant_education'           => TTi18n::getText('Job Applicant Education'),
-                                            'job_applicant_license'             => TTi18n::getText('Job Applicant Licenses'),
-                                            'job_applicant_language'            => TTi18n::getText('Job Applicant Languages'),
-                                            'job_applicant_membership'          => TTi18n::getText('Job Applicant Memberships'),
-                                            'ethnic_group'                      => TTi18n::getText('Ethnic Group'),
-
+											'user_contact'						=> TTi18n::getText('Employee Contact'),
+											'user_expense'						=> TTi18n::getText('Expense'),
+											'expense_policy'					=> TTi18n::getText('Expense Policy'),
+											'user_review'						=> TTi18n::getText('Review'),
+											'user_review_control'				=> TTi18n::getText('Review (Control)'),
+											'kpi'								=> TTi18n::getText('Key Performance Indicator'),
+											'qualification'						=> TTi18n::getText('Qualification'),
+											'user_skill'						=> TTi18n::getText('Skill'),
+											'user_education'					=> TTi18n::getText('Education'),
+											'user_membership'					=> TTi18n::getText('Memberships'),
+											'user_license'						=> TTi18n::getText('Licenses'),
+											'user_language'						=> TTi18n::getText('Languages'),
+											'job_vacancy'						=> TTi18n::getText('Job Vacancy'),
+											'job_applicant'						=> TTi18n::getText('Job Applicant'),
+											'job_application'					=> TTi18n::getText('Job Application'),
+											'job_applicant_location'			=> TTi18n::getText('Job Applicant Location'),
+											'job_applicant_employment'			=> TTi18n::getText('Job Applicant Employment'),
+											'job_applicant_reference'			=> TTi18n::getText('Job Applicant Reference'),
+											'job_applicant_skill'				=> TTi18n::getText('Job Applicant Skill'),
+											'job_applicant_education'			=> TTi18n::getText('Job Applicant Education'),
+											'job_applicant_license'				=> TTi18n::getText('Job Applicant Licenses'),
+											'job_applicant_language'			=> TTi18n::getText('Job Applicant Languages'),
+											'job_applicant_membership'			=> TTi18n::getText('Job Applicant Memberships'),
+											'ethnic_group'						=> TTi18n::getText('Ethnic Group'),
 									);
+				asort( $retval ); //Sort by name so its easier to find objects.
+				break;
+			case 'table_name_permission_map':
+				$retval = array(
+											'authentication'					=> array('user'),
+											'company'							=> array('company'),
+											'branch'							=> array('branch'),
+											'department'						=> array('department'),
+											'currency'							=> array('currency'),
+											'currency_rate'						=> array('currency'),
+											'accrual'							=> array('accrual'),
+											'authorizations'					=> array('user'),
+											'request'							=> array('request'),
+											'message'							=> array('message'),
+											'message_control'					=> array('message'),
+											'holidays'							=> array('holiday_policy'),
+											'bank_account'						=> array('user'),
+											'roe'								=> array('user'),
+											'station'							=> array('station'),
+											'station_user_group'				=> array('station'),
+											'station_branch'					=> array('station'),
+											'station_department'				=> array('station'),
+											'station_include_user'				=> array('station'),
+											'station_exclude_user'				=> array('station'),
+											'station'							=> array('station'),
+											'punch'								=> array('punch'),
+											'punch_control'						=> array('punch'),
+											'exception'							=> array('punch'),
+											'schedule'							=> array('schedule'),
+											'other_field'						=> array('company'),
+											'system_setting'					=> array('company'),
+											'cron'								=> array('company'),
+											'permission_control'				=> array('permission'),
+											'permission_user'					=> array('permission'),
+											'permission'						=> array('permission'),
+
+											'policy_group'						=> array('policy_group'),
+											'policy_group_user'					=> array('policy_group'),
+											'schedule_policy'					=> array('schedule_policy'),
+											'round_interval_policy'				=> array('round_policy'),
+											'meal_policy'						=> array('meal_policy'),
+											'break_policy'						=> array('break_policy'),
+											'accrual_policy_account'			=> array('accrual_policy'),
+											'accrual_policy'					=> array('accrual_policy'),
+											'accrual_policy_milestone'			=> array('accrual_policy'),
+											'accrual_policy_user_modifier'		=> array('accrual_policy'),
+											'over_time_policy'					=> array('over_time_policy'),
+											'premium_policy'					=> array('premium_policy'),
+											'premium_policy_branch'				=> array('premium_policy'),
+											'premium_policy_department'			=> array('premium_policy'),
+											'premium_policy_job_group'			=> array('premium_policy'),
+											'premium_policy_job'				=> array('premium_policy'),
+											'premium_policy_job_item_group'		=> array('premium_policy'),
+											'premium_policy_job_item'			=> array('premium_policy'),
+											'absence_policy'					=> array('absence_policy'),
+											'exception_policy_control'			=> array('exception_policy'),
+											'exception_policy'					=> array('excepton_policy'),
+											'holiday_policy'					=> array('holiday_policy'),
+											'holiday_policy_recurring_holiday'	=> array('holiday_policy'),
+											'regular_time_policy'				=> array('regular_time_policy'),
+											'pay_formula_policy' 				=> array('pay_formula_policy'),
+											'contributing_pay_code_policy'		=> array('contributing_pay_code_policy'),
+											'contributing_shift_policy'			=> array('contributing_shift_policy'),
+											'pay_code'							=> array('pay_code'),
+
+											'pay_period'						=> array('pay_period_schedule'),
+											'pay_period_schedule'				=> array('pay_period_schedule'),
+											'pay_period_schedule_user'			=> array('pay_period_schedule'),
+											'pay_period_time_sheet_verify'		=> array('user'),
+
+											'pay_stub'							=> array('pay_stub'),
+											'pay_stub_amendment'				=> array('pay_stub_amendment'),
+											'pay_stub_entry_account'			=> array('pay_stub_account'),
+											'pay_stub_entry_account_link'		=> array('pay_stub_account'),
+
+											'recurring_holiday'					=> array('pay_stub_amendment'),
+											'recurring_ps_amendment'			=> array('pay_stub_amendment'),
+											'recurring_ps_amendment_user'		=> array('pay_stub_amendment'),
+											'recurring_schedule_control'		=> array('recurring_schedule'),
+											'recurring_schedule_user'			=> array('recurring_schedule'),
+											'recurring_schedule_template_control' => array('recurring_schedule_template'),
+											'recurring_schedule_template'		=> array('recurring_schedule_template'),
+
+											'user_date_total'					=> array('punch'),
+											'user_default'						=> array('company'),
+											'user_generic_data'					=> array('user'),
+											'user_preference'					=> array('user_preference'),
+											'users'								=> array('user'),
+											'user_identification'				=> array('user'),
+											'company_deduction'					=> array('company_tax_deduction'),
+											'company_deduction_pay_stub_entry_account' => array('company_tax_deduction'),
+											'user_deduction'					=> array('user_tax_deduction'),
+											'user_title'						=> array('user'),
+											'user_wage'							=> array('wage'),
+
+											'hierarchy_control'					=> array('hierarchy'),
+											'hierarchy_object_type'				=> array('hierarchy'),
+											'hierarchy_user'					=> array('hierarchy'),
+											'hierarchy_level'					=> array('hierarchy'),
+											'hierarchy'							=> array('hierarchy'),
+
+											'user_report_data'					=> array('user'),
+											'report_schedule'					=> array('user'),
+											'report_custom_column'				=> array('report_custom_column'),
+
+											'job'								=> array('job'),
+											'job_user_branch'					=> array('job'),
+											'job_user_department'				=> array('job'),
+											'job_user_group'					=> array('job'),
+											'job_include_user'					=> array('job'),
+											'job_exclude_user'					=> array('job'),
+											'job_job_item_group'				=> array('job'),
+											'job_include_job_item'				=> array('job'),
+											'job_exclude_job_item'				=> array('job'),
+											'job_item'							=> array('job'),
+											'job_item_amendment'				=> array('job'),
+											'document'							=> array('document'),
+											'document_revision'					=> array('document'),
+											'client'							=> array('client'),
+											'client_contact'					=> array('client_contact'),
+											'client_payment'					=> array('client_payment'),
+											'invoice'							=> array('invoice'),
+											'invoice_config'					=> array('invoice_config'),
+											'invoice_transaction'				=> array('invoice'),
+											'product'							=> array('product'),
+											'product_price'						=> array('product'),
+											'product_tax_policy'				=> array('product'),
+											'tax_area_policy'					=> array('area_policy'),
+											'tax_policy'						=> array('tax_policy'),
+											'transaction'						=> array('transaction'),
+											'user_contact'						=> array('user_contact'),
+											'user_expense'						=> array('user_expense'),
+											'expense_policy'					=> array('expense_policy'),
+											'user_review'						=> array('user_review'),
+											'user_review_control'				=> array('user_review'),
+											'kpi'								=> array('kpi'),
+											'qualification'						=> array('qualification'),
+											'user_skill'						=> array('user_skill'),
+											'user_education'					=> array('user_education'),
+											'user_membership'					=> array('user_membership'),
+											'user_license'						=> array('user_license'),
+											'user_language'						=> array('user_language'),
+											'job_vacancy'						=> array('job_vacancy'),
+											'job_applicant'						=> array('job_applicant'),
+											'job_application'					=> array('job_application'),
+											'job_applicant_location'			=> array('job_applicant'),
+											'job_applicant_employment'			=> array('job_applicant'),
+											'job_applicant_reference'			=> array('job_applicant'),
+											'job_applicant_skill'				=> array('job_applicant'),
+											'job_applicant_education'			=> array('job_applicant'),
+											'job_applicant_license'				=> array('job_applicant'),
+											'job_applicant_language'			=> array('job_applicant'),
+											'job_applicant_membership'			=> array('job_applicant'),
+											'ethnic_group'						=> array('user'),
+									);
+
 				break;
 			case 'columns':
 				$retval = array(
@@ -288,7 +447,7 @@ class LogFactory extends Factory {
 		$link = FALSE;
 
 		//Only show links on add/edit/allow actions.
-		if ( !in_array( $this->getAction(), array(10,20,200) ) ) {
+		if ( !in_array( $this->getAction(), array(10, 20, 200) ) ) {
 			return $link;
 		}
 
@@ -471,7 +630,7 @@ class LogFactory extends Factory {
 	}
 
 	function getUser() {
-		return $this->data['user_id'];
+		return (int)$this->data['user_id'];
 	}
 	function setUser($id) {
 		$id = trim($id);
@@ -498,7 +657,7 @@ class LogFactory extends Factory {
 
 	function getObject() {
 		if ( isset($this->data['object_id']) ) {
-			return $this->data['object_id'];
+			return (int)$this->data['object_id'];
 		}
 
 		return FALSE;
@@ -545,7 +704,7 @@ class LogFactory extends Factory {
 	}
 
 	function getAction() {
-		return $this->data['action_id'];
+		return (int)$this->data['action_id'];
 	}
 	function setAction($action) {
 		$action = trim($action);
@@ -606,7 +765,7 @@ class LogFactory extends Factory {
 			$epoch = TTDate::getTime();
 		}
 
-		if 	(	$this->Validator->isDate(		'date',
+		if	(	$this->Validator->isDate(		'date',
 												$epoch,
 												TTi18n::gettext('Date is invalid')) ) {
 
@@ -658,12 +817,12 @@ class LogFactory extends Factory {
 	function getDetails() {
 		if ( getTTProductEdition() > 10 AND $this->isNew() == FALSE AND is_object( $this->getUserObject() ) ) {
 			//Get class for this table
-			Debug::Text( 'Table: '. $this->getTableName(), __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text( 'Table: '. $this->getTableName(), __FILE__, __LINE__, __METHOD__, 10);
 			require_once( Environment::getBasePath() . DIRECTORY_SEPARATOR . 'includes'. DIRECTORY_SEPARATOR .'TableMap.inc.php');
 			if ( isset($global_table_map[$this->getTableName()]) ) {
 				$table_class = $global_table_map[$this->getTableName()];
 				$class = new $table_class;
-				Debug::Text( 'Table Class: '. $table_class, __FILE__, __LINE__, __METHOD__,10);
+				Debug::Text( 'Table Class: '. $table_class, __FILE__, __LINE__, __METHOD__, 10);
 
 				$ldlf = TTnew( 'LogDetailListFactory' );
 				$ldlf->getBySystemLogIdAndCompanyId( $this->getID(), $this->getUserObject()->getCompany() );
@@ -681,14 +840,14 @@ class LogFactory extends Factory {
 					}
 
 					$detail_row = Sort::multiSort( $detail_row, 'display_field' ) ;
-					//Debug::Arr( $detail_row, 'Detail Row: ', __FILE__, __LINE__, __METHOD__,10);
+					//Debug::Arr( $detail_row, 'Detail Row: ', __FILE__, __LINE__, __METHOD__, 10);
 
 					return $detail_row;
 				}
 			}
 		}
 
-		Debug::Text('No Log Details... ID: '. $this->getID(), __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('No Log Details... ID: '. $this->getID(), __FILE__, __LINE__, __METHOD__, 10);
 		return FALSE;
 	}
 
@@ -720,7 +879,7 @@ class LogFactory extends Factory {
 
 	function getObjectAsArray( $include_columns = NULL ) {
 		$variable_function_map = $this->getVariableToFunctionMap();
-        $data = array();
+		$data = array();
 		if ( is_array( $variable_function_map ) ) {
 			foreach( $variable_function_map as $variable => $function_stub ) {
 				if ( $include_columns == NULL OR ( isset($include_columns[$variable]) AND $include_columns[$variable] == TRUE ) ) {

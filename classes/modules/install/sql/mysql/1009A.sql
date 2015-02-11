@@ -12,21 +12,21 @@ alter table accrual_policy change maximum maximum_time integer;
 alter table accrual_policy change minimum minimum_time integer;
 
 CREATE TABLE accrual_policy_milestone (
-    id serial NOT NULL,
-    accrual_policy_id integer NOT NULL,
+	id serial NOT NULL,
+	accrual_policy_id integer NOT NULL,
 	length_of_service numeric(9,2),
 	length_of_service_unit_id smallint,
 	length_of_service_days numeric(9,2), 
 	accrual_rate integer, 
 	minimum_time integer,
 	maximum_time integer,
-    created_date integer,
-    created_by integer,
-    updated_date integer,
-    updated_by integer,
-    deleted_date integer,
-    deleted_by integer,
-    deleted smallint DEFAULT 0 NOT NULL,
+	created_date integer,
+	created_by integer,
+	updated_date integer,
+	updated_by integer,
+	deleted_date integer,
+	deleted_by integer,
+	deleted smallint DEFAULT 0 NOT NULL,
 	PRIMARY KEY(id)
 ) ENGINE=InnoDB;
 

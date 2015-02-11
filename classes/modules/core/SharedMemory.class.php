@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2490 $
- * $Id: SharedMemory.class.php 2490 2009-04-24 22:13:40Z ipso $
- * $Date: 2009-04-24 15:13:40 -0700 (Fri, 24 Apr 2009) $
- */
+
 
 /**
  * @package Core
@@ -50,13 +46,15 @@ class SharedMemory {
 		global $config_vars;
 
 		$shared_memory = new System_SharedMemory();
-		if ( OPERATING_SYSTEM == 'WIN' ) {
-			//$this->obj = &System_SharedMemory::Factory( 'File', array('tmp' => $config_vars['cache']['dir'] ) );
-			$this->obj = $shared_memory->Factory( 'File', array('tmp' => $config_vars['cache']['dir'] ) );
+		if ( isset($config_vars['cache']['redis_host']) AND $config_vars['cache']['redis_host'] != '' ) {
+			$this->obj = $shared_memory->Factory( 'Redis', array('host' => $config_vars['cache']['redis_host'], 'db' => ( isset($config_vars['cache']['redis_db']) ) ? $config_vars['cache']['redis_db'] : '', 'timeout' => 1 ) );
 		} else {
-			//$this->obj = &System_SharedMemory::Factory( 'File', array('tmp' => $config_vars['cache']['dir'] ) );
-			$this->obj = $shared_memory->Factory( 'File', array('tmp' => $config_vars['cache']['dir'] ) );
-			////$this->obj = &System_SharedMemory::Factory( 'Systemv', array( 'size' => $size ) ); //Run into size issues all the time.
+			if ( OPERATING_SYSTEM == 'WIN' ) {
+				$this->obj = $shared_memory->Factory( 'File', array('tmp' => $config_vars['cache']['dir'] ) );
+			} else {
+				$this->obj = $shared_memory->Factory( 'File', array('tmp' => $config_vars['cache']['dir'] ) );
+				////$this->obj = &System_SharedMemory::Factory( 'Systemv', array( 'size' => $size ) ); //Run into size issues all the time.
+			}
 		}
 
 		return TRUE;

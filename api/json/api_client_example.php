@@ -27,6 +27,36 @@ function handleResult( $result, $raw = FALSE ) {
 		if ( $raw === TRUE ) {
 			return $result;
 		} else {
+			if ( $result['api_retval'] === FALSE ) {
+				//Display any error messages that might be returned.
+				$output[] = '  Returned:';
+				$output[] = ( $result['api_retval'] === TRUE ) ? '    IsValid: YES' : '    IsValid: NO';
+				if ( $result['api_retval'] === TRUE ) {
+					$output[] = '    Return Value: '. $result['api_retval'];
+				} else {
+					$output[] = '    Code: '. $result['api_details']['code'];
+					$output[] = '    Description: '. $result['api_details']['description'];
+					$output[] = '    Details: ';
+
+					$details = $result['api_details']['details'];
+					if ( is_array($details) ) {
+						foreach( $details as $row => $detail ) {
+							$output[] = '      Row: '. $row;
+							foreach( $detail as $field => $msgs ) {
+								$output[] = '      --Field: '. $field;
+								foreach( $msgs as $key => $msg ) {
+									$output[] = '      ----Message: '. $msg;
+								}
+							}
+						}
+					}
+				}
+				$output[] = '==============================================================';
+				$output[] = '';
+
+				echo implode( "\n", $output );
+			}
+
 			return $result['api_retval'];
 		}
 	}
@@ -41,6 +71,7 @@ function postToURL( $url, $data, $raw_result = FALSE ) {
 	curl_setopt($curl_connection, CURLOPT_RETURNTRANSFER, TRUE );
 	curl_setopt($curl_connection, CURLOPT_SSL_VERIFYPEER, FALSE );
 	curl_setopt($curl_connection, CURLOPT_FOLLOWLOCATION, 1 );
+	curl_setopt($curl_connection, CURLOPT_REFERER, $url ); //Referred is required is CSRF checks are enabled on the server.
 	//When sending JSON data to POST, it must be sent as JSON=<JSON DATA>
 	//<JSON DATA> should be an associative array with the first level being the number of arguments, where each argument can be of mixed type. ie:
 	// array(
@@ -52,9 +83,9 @@ function postToURL( $url, $data, $raw_result = FALSE ) {
 	$post_data = 'json='.urlencode( json_encode($data) );
 	curl_setopt($curl_connection, CURLOPT_POSTFIELDS, $post_data );
 
-	echo "--------------------------------------------------------------\n";
+	echo "==============================================================\n";
 	echo "Posting data to URL: ". $url ."\n";
-	echo "  POST Data: ". $post_data ."\n\n";
+	echo "  POST Data: ". $post_data ."\n";
 	echo "--------------------------------------------------------------\n";
 	$result = curl_exec($curl_connection);
 	curl_close($curl_connection);
@@ -75,7 +106,8 @@ echo "Session ID: $TIMETREX_SESSION_ID<br>\n";
 // - Many other filter methods can be used, such as branch, department, user_name, province, state, etc...
 //
 $arguments = array( 'filter_data' => array(
-													'id' => array(1023,11353)
+													//'id' => array(1023,11353)
+													'user_name' => 'john.doe567',
 											)
 					);
 $user_data = postToURL( buildURL( 'APIUser', 'getUser' ), array( $arguments ) );
@@ -206,15 +238,17 @@ Array
 //
 //Update data for the second employee, mark their status as Terminated and update Termination Date
 //
-$user_data[1]['status_id'] = 20; //Terminated
-$user_data[1]['termination_date'] = '01-Jul-09';
+if ( isset($user_data[1]) ) {
+	$user_data[1]['status_id'] = 20; //Terminated
+	$user_data[1]['termination_date'] = '01-Jul-09';
 
-$result = postToURL( buildURL( 'APIUser', 'setUser' ), array( $user_data[1] ) );
-if ( $result === TRUE ) {
-	echo "Employee data saved successfully.<br>\n";
-} else {
-	echo "Employee save failed.<br>\n";
-	print $result; //Show error messages
+	$result = postToURL( buildURL( 'APIUser', 'setUser' ), array( $user_data[1] ) );
+	if ( $result === TRUE ) {
+		echo "Employee data saved successfully.<br>\n";
+	} else {
+		echo "Employee save failed.<br>\n";
+		print $result; //Show error messages
+	}
 }
 
 
@@ -222,9 +256,9 @@ if ( $result === TRUE ) {
 //Update employee record in a single operation. Several records can be updated in a single operation as well.
 //
 $user_data = array(
-				   'id' => 11353,
-				   'termination_date' => '02-Jul-09'
-				   );
+					'id' => 11353,
+					'termination_date' => '02-Jul-09'
+					);
 
 $result = postToURL( buildURL( 'APIUser', 'setUser' ), array( $user_data ) );
 if ( $result === TRUE ) {
@@ -242,8 +276,8 @@ $user_data = array(
 					'status_id' => 10, //Active
 					'first_name' => 'Michael',
 					'last_name' => 'Jackson',
-					'employee_number' => 239842,
-					'user_name' => 'mjackson',
+					'employee_number' => rand(10000, 99999),
+					'user_name' => 'mjackson_'. rand(10000, 99999),
 					'password' => 'whiteglove123',
 					'hire_date' => '01-Oct-09',
 					'currency_id' => 3,

@@ -95,16 +95,14 @@ function smarty_block_t($params, $text, &$smarty)
     // *** Start TimeTrex Mod - Calls TT specific gettext function if defined.
 	if ( class_exists( 'TTi18n' ) ) {
 		$text = TTi18n::gettext( $text );
+	} else {
+		// use plural if required parameters are set
+		if (isset($count) && isset($plural)) {
+			$text = ngettext($text, $plural, $count);
+		} else { // use normal
+			$text = gettext($text);
+		}
 	}
-	//else  // this becomes an "else if" when flow continues to the orginal "if" below.
-    // *** End TimeTrex Mod
-
- 	// use plural if required parameters are set
- 	if (isset($count) && isset($plural)) {
- 		$text = ngettext($text, $plural, $count);
- 	} else { // use normal
- 		$text = gettext($text);
- 	}
 
 	// run strarg if there are parameters
 	if (count($params)) {

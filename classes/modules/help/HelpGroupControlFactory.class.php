@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 8371 $
- * $Id: HelpGroupControlFactory.class.php 8371 2012-11-22 21:18:57Z ipso $
- * $Date: 2012-11-22 13:18:57 -0800 (Thu, 22 Nov 2012) $
- */
+
 
 /**
  * @package Modules\Help
@@ -54,7 +50,7 @@ class HelpGroupControlFactory extends Factory {
 		if (	$this->Validator->isLength(	'script_name',
 											$value,
 											TTi18n::gettext('Incorrect Script Name'),
-											2,255) ) {
+											2, 255) ) {
 
 			$this->data['script_name'] = $value;
 
@@ -75,7 +71,7 @@ class HelpGroupControlFactory extends Factory {
 				$this->Validator->isLength(	'name',
 											$value,
 											TTi18n::gettext('Incorrect Name'),
-											2,255) ) {
+											2, 255) ) {
 
 			$this->data['name'] = $value;
 
@@ -112,11 +108,11 @@ class HelpGroupControlFactory extends Factory {
 			$help_group_entry->Delete();
 		}
 		
-		if (is_array($ids) and count($ids) > 0) {
+		if (is_array($ids) AND count($ids) > 0) {
 
 			//Insert new mappings.
 			$hgf = TTnew( 'HelpGroupFactory' );
-			$i=0;
+			$i = 0;
 			foreach ($ids as $id) {
 				//if ( !in_array($id, $help_ids) ) {
 					$hgf->setHelpGroupControl( $this->getId() );

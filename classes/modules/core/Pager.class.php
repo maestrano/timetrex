@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 4045 $
- * $Id: Pager.class.php 4045 2010-12-20 22:38:30Z ipso $
- * $Date: 2010-12-20 14:38:30 -0800 (Mon, 20 Dec 2010) $
- */
+
 
 /**
  * @package Core
@@ -62,7 +58,7 @@ class Pager {
 
 	function getPreviousPage() {
 		if ( is_object($this->rs) ) {
-			return $this->rs->absolutepage() - 1;
+			return (int)( $this->rs->absolutepage() - 1 );
 		}
 
 		return FALSE;
@@ -70,7 +66,7 @@ class Pager {
 
 	function getCurrentPage() {
 		if ( is_object($this->rs) ) {
-			return $this->rs->absolutepage();
+			return (int)$this->rs->absolutepage();
 		}
 
 		return FALSE;
@@ -78,7 +74,7 @@ class Pager {
 
 	function getNextPage() {
 		if ( is_object($this->rs) ) {
-			return $this->rs->absolutepage() + 1;
+			return (int)( $this->rs->absolutepage() + 1 );
 		}
 
 		return FALSE;
@@ -86,7 +82,7 @@ class Pager {
 
 	function isFirstPage() {
 		if ( is_object($this->rs) ) {
-			return $this->rs->atfirstpage();
+			return (bool)$this->rs->atfirstpage();
 		}
 
 		return TRUE;
@@ -99,7 +95,7 @@ class Pager {
 		}
 
 		if ( is_object($this->rs) ) {
-			return $this->rs->atlastpage();
+			return (bool)$this->rs->atlastpage();
 		}
 
 		return TRUE;
@@ -110,19 +106,19 @@ class Pager {
 			if ( $this->count_rows === FALSE ) {
 				if ( $this->getCurrentPage() < 0 ) {
 					//Only one page in result set.
-					return $this->rs->lastpageno();
+					return (int)$this->rs->lastpageno();
 				} else {
 					//More than one page in result set.
 					if ( $this->rs->atlastpage() == TRUE ) {
-						return $this->getCurrentPage();
+						return (int)$this->getCurrentPage();
 					} else {
 						//Since we don't know what the actual last page is, just add 100 pages to the current one.
 						//The user may need to click this several times if there are more than 100 pages.
-						return $this->getCurrentPage()+99;
+						return (int)( $this->getCurrentPage() + 99 );
 					}
 				}
 			} else {
-				return $this->rs->lastpageno();
+				return (int)$this->rs->lastpageno();
 			}
 		}
 
@@ -132,7 +128,11 @@ class Pager {
 	//Return maximum rows per page
 	function getRowsPerPage() {
 		if ( is_object($this->rs) ) {
-			return $this->rs->recordcount();
+			if ( isset($this->rs->rowsPerPage) ) {
+				return (int)$this->rs->rowsPerPage;
+			} else {
+				return (int)$this->rs->recordcount();
+			}
 		}
 
 		return FALSE;
@@ -140,7 +140,15 @@ class Pager {
 
 	function getTotalRows() {
 		if ( is_object($this->rs) ) {
-			return $this->rs->maxrecordcount();
+			if ( $this->count_rows === FALSE ) {
+				if ( $this->isLastPage() === TRUE ) {
+					return (int)( ( $this->getPreviousPage() * $this->getRowsPerPage() ) + $this->rs->recordcount() );
+				} else {
+					return FALSE;
+				}
+			} else {
+				return (int)$this->rs->maxrecordcount();
+			}
 		}
 
 		return FALSE;
@@ -149,16 +157,16 @@ class Pager {
 	function getPageVariables() {
 		//Make sure the ListFactory function is doing a pageselect
 		$paging_data = array(
-							'previous_page' 	=> $this->getPreviousPage(),
-							'current_page' 		=> $this->getCurrentPage(),
+							'previous_page'		=> $this->getPreviousPage(),
+							'current_page'		=> $this->getCurrentPage(),
 							'next_page'			=> $this->getNextPage(),
 							'is_first_page'		=> $this->isFirstPage(),
 							'is_last_page'		=> $this->isLastPage(),
 							'last_page_number'	=> $this->LastPageNumber(),
-							'rows_per_page' 	=> $this->getRowsPerPage(),
-							'total_rows' 		=> $this->getTotalRows(),
+							'rows_per_page'		=> $this->getRowsPerPage(),
+							'total_rows'		=> $this->getTotalRows(),
 							);
-		//var_dump($paging_data);
+		//Debug::Arr($paging_data, ' Paging Data: Count Rows: '. (int)$this->count_rows, __FILE__, __LINE__, __METHOD__, 10);
 		return $paging_data;
 	}
 }

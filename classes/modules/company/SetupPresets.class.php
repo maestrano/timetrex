@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2095 $
- * $Id: UserTitleFactory.class.php 2095 2008-09-01 07:04:25Z ipso $
- * $Date: 2008-09-01 00:04:25 -0700 (Mon, 01 Sep 2008) $
- */
+
 
 /**
  * @package Modules\Users
@@ -102,7 +98,7 @@ class SetupPresets extends Factory {
 			$psealf->setCompany( $this->getCompany() );
 		}
 
-		Debug::text('Country: '. $country , __FILE__, __LINE__, __METHOD__, 10);
+		Debug::text('Country: '. $country, __FILE__, __LINE__, __METHOD__, 10);
 		if ( $country != '' AND $province == '' ) {
 			switch ($country) {
 				case 'ca':
@@ -115,6 +111,7 @@ class SetupPresets extends Factory {
 														'ps_order' => 200,
 													)
 												);
+					/* //Don't separate this into its own pay stub account, as for US at least we can't rejoin it when multiple states are involved.
 					$this->createPayStubAccount(
 													array(
 														'company_id' => $this->getCompany(),
@@ -124,7 +121,7 @@ class SetupPresets extends Factory {
 														'ps_order' => 201,
 													)
 												);
-
+					*/
 					$cpp_employee_psea_id = $this->createPayStubAccount( //Need to update PayStubAccountLink for: $psealf->setEmployeeCPP( $psea_id );
 													array(
 														'company_id' => $this->getCompany(),
@@ -174,7 +171,7 @@ class SetupPresets extends Factory {
 														'company_id' => $this->getCompany(),
 														'status_id' => 10,
 														'type_id' => 30,
-														'name' => 'WCB - Employer',
+														'name' => 'Workers Compensation - Employer',
 														'ps_order' => 305,
 													)
 												);
@@ -239,6 +236,7 @@ class SetupPresets extends Factory {
 														'ps_order' => 200,
 													)
 												);
+					/*
 					$this->createPayStubAccount(
 													array(
 														'company_id' => $this->getCompany(),
@@ -248,7 +246,7 @@ class SetupPresets extends Factory {
 														'ps_order' => 201,
 													)
 												);
-
+					*/
 					$this->createPayStubAccount(
 													array(
 														'company_id' => $this->getCompany(),
@@ -319,6 +317,15 @@ class SetupPresets extends Factory {
 													array(
 														'company_id' => $this->getCompany(),
 														'status_id' => 10,
+														'type_id' => 30,
+														'name' => 'Workers Compensation - Employer',
+														'ps_order' => 305,
+													)
+												);
+					$this->createPayStubAccount(
+													array(
+														'company_id' => $this->getCompany(),
+														'status_id' => 10,
 														'type_id' => 10,
 														'name' => 'Vacation',
 														'ps_order' => 181,
@@ -335,6 +342,7 @@ class SetupPresets extends Factory {
 														'ps_order' => 200,
 													)
 												);
+					/*
 					$this->createPayStubAccount(
 													array(
 														'company_id' => $this->getCompany(),
@@ -344,6 +352,7 @@ class SetupPresets extends Factory {
 														'ps_order' => 201,
 													)
 												);
+					*/
 					$this->createPayStubAccount(
 													array(
 														'company_id' => $this->getCompany(),
@@ -372,10 +381,10 @@ class SetupPresets extends Factory {
 
 		//United States
 		if ( $country == 'us' AND $province != '' ) {
-			if ( in_array( $province, array('al','az','ar','ca','co','ct','de','dc','ga','hi','id','il',
-											'in','ia','ks','ky','la','me','md','ma','mi','mn','ms','mo',
-											'mt','ne','nj','nm','ny','nc','nd','oh','ok','or','pa','ri',
-											'sc','ut','vt','va','wi','wv') ) ) {
+			if ( in_array( $province, array('al', 'az', 'ar', 'ca', 'co', 'ct', 'de', 'dc', 'ga', 'hi', 'id', 'il',
+											'in', 'ia', 'ks', 'ky', 'la', 'me', 'md', 'ma', 'mi', 'mn', 'ms', 'mo',
+											'mt', 'ne', 'nj', 'nm', 'ny', 'nc', 'nd', 'oh', 'ok', 'or', 'pa', 'ri',
+											'sc', 'ut', 'vt', 'va', 'wi', 'wv') ) ) {
 				$this->createPayStubAccount(
 												array(
 													'company_id' => $this->getCompany(),
@@ -385,6 +394,7 @@ class SetupPresets extends Factory {
 													'ps_order' => 204,
 												)
 											);
+				/*
 				$this->createPayStubAccount(
 												array(
 													'company_id' => $this->getCompany(),
@@ -394,12 +404,13 @@ class SetupPresets extends Factory {
 													'ps_order' => 205,
 												)
 											);
+				*/
 			}
 
 			//District/Local, income tax.
-			if ( in_array( $province, array('al','ar','co','dc','de',
-											'ia','in','ky','md','mi',
-											'mo','ny','oh','or','pa') ) ) {
+			if ( in_array( $province, array('al', 'ar', 'co', 'dc', 'de',
+											'ia', 'in', 'ky', 'md', 'mi',
+											'mo', 'ny', 'oh', 'or', 'pa') ) ) {
 				$this->createPayStubAccount(
 												array(
 													'company_id' => $this->getCompany(),
@@ -412,7 +423,7 @@ class SetupPresets extends Factory {
 			}
 
 			//State Unemployement Insurace, deducted from employee
-			if ( in_array( $province, array('ak','nj','pa') ) ) {
+			if ( in_array( $province, array('ak', 'nj', 'pa') ) ) {
 				$this->createPayStubAccount(
 												array(
 													'company_id' => $this->getCompany(),
@@ -424,11 +435,11 @@ class SetupPresets extends Factory {
 											);
 			}
 			//State Unemployement Insurance, deducted from employer
-			if ( in_array( $province, array('ak','al','ar','az','ca','co','ct','dc','de','fl','ga','hi',
-											'ia','id','il','in','ks','ky','la','ma','md','me','mi','mn',
-											'mo','ms','mt','nc','nd','ne','nh','nj','nm','nv','ny','oh',
-											'ok','or','pa','sc','sd','tn','tx','ut','va','vt','wa','wi',
-											'wv','wy') ) ) {
+			if ( in_array( $province, array('ak', 'al', 'ar', 'az', 'ca', 'co', 'ct', 'dc', 'de', 'fl', 'ga', 'hi',
+											'ia', 'id', 'il', 'in', 'ks', 'ky', 'la', 'ma', 'md', 'me', 'mi', 'mn',
+											'mo', 'ms', 'mt', 'nc', 'nd', 'ne', 'nh', 'nj', 'nm', 'nv', 'ny', 'oh',
+											'ok', 'or', 'pa', 'sc', 'sd', 'tn', 'tx', 'ut', 'va', 'vt', 'wa', 'wi',
+											'wv', 'wy') ) ) {
 				$this->createPayStubAccount(
 												array(
 													'company_id' => $this->getCompany(),
@@ -440,7 +451,7 @@ class SetupPresets extends Factory {
 											);
 			}
 
-			Debug::text('Province: '. $province , __FILE__, __LINE__, __METHOD__, 10);
+			Debug::text('Province: '. $province, __FILE__, __LINE__, __METHOD__, 10);
 			switch ($province) {
 				//US
 				case 'al': //alabama
@@ -1214,6 +1225,24 @@ class SetupPresets extends Factory {
 												'ps_order' => 142,
 											)
 										);
+			$this->createPayStubAccount(
+											array(
+												'company_id' => $this->getCompany(),
+												'status_id' => 10,
+												'type_id' => 10,
+												'name' => 'Bereavement',
+												'ps_order' => 145,
+											)
+										);
+			$this->createPayStubAccount(
+											array(
+												'company_id' => $this->getCompany(),
+												'status_id' => 10,
+												'type_id' => 10,
+												'name' => 'Jury Duty',
+												'ps_order' => 146,
+											)
+										);
 
 			$this->createPayStubAccount(
 											array(
@@ -1271,8 +1300,6 @@ class SetupPresets extends Factory {
 										);
 
 
-
-
 			$this->createPayStubAccount(
 											array(
 												'company_id' => $this->getCompany(),
@@ -1289,6 +1316,33 @@ class SetupPresets extends Factory {
 												'type_id' => 20,
 												'name' => 'Dental Benefits Plan',
 												'ps_order' => 255,
+											)
+										);
+			$this->createPayStubAccount(
+											array(
+												'company_id' => $this->getCompany(),
+												'status_id' => 10,
+												'type_id' => 20,
+												'name' => 'Life Insurance',
+												'ps_order' => 256,
+											)
+										);
+			$this->createPayStubAccount(
+											array(
+												'company_id' => $this->getCompany(),
+												'status_id' => 10,
+												'type_id' => 20,
+												'name' => 'Long Term Disability',
+												'ps_order' => 257,
+											)
+										);
+			$this->createPayStubAccount(
+											array(
+												'company_id' => $this->getCompany(),
+												'status_id' => 10,
+												'type_id' => 20,
+												'name' => 'Accidental Death & Dismemberment',
+												'ps_order' => 258,
 											)
 										);
 
@@ -1327,7 +1381,7 @@ class SetupPresets extends Factory {
 												'status_id' => 10,
 												'type_id' => 30,
 												'name' => 'Health Benefits Plan',
-												'ps_order' => 350,
+												'ps_order' => 340,
 											)
 										);
 			$this->createPayStubAccount(
@@ -1336,9 +1390,37 @@ class SetupPresets extends Factory {
 												'status_id' => 10,
 												'type_id' => 30,
 												'name' => 'Dental Benefits Plan',
-												'ps_order' => 355,
+												'ps_order' => 341,
 											)
 										);
+			$this->createPayStubAccount(
+											array(
+												'company_id' => $this->getCompany(),
+												'status_id' => 10,
+												'type_id' => 30,
+												'name' => 'Life Insurance',
+												'ps_order' => 346,
+											)
+										);
+			$this->createPayStubAccount(
+											array(
+												'company_id' => $this->getCompany(),
+												'status_id' => 10,
+												'type_id' => 30,
+												'name' => 'Long Term Disability',
+												'ps_order' => 347,
+											)
+										);
+			$this->createPayStubAccount(
+											array(
+												'company_id' => $this->getCompany(),
+												'status_id' => 10,
+												'type_id' => 30,
+												'name' => 'Accidental Death & Dismemberment',
+												'ps_order' => 348,
+											)
+										);
+
 
 			//Loan
 			$loan_accrual_psea_id = $this->createPayStubAccount(
@@ -1429,7 +1511,7 @@ class SetupPresets extends Factory {
 												'name' => 'Employer Total Contributions',
 												'ps_order' => 399,
 												'debit_account' => ( DEMO_MODE == TRUE ) ? '5450' : '',
-												'credit_account' =>  ( DEMO_MODE == TRUE ) ? '1060' : '',																																				
+												'credit_account' => ( DEMO_MODE == TRUE ) ? '1060' : '',
 											)
 										);
 			if ( $employer_deductions_psea_id > 0 ) {
@@ -1454,7 +1536,7 @@ class SetupPresets extends Factory {
 			$cdf = TTnew( 'CompanyDeductionFactory' );
 
 			$data['id'] = $cdf->getNextInsertId();
-			Debug::Arr($data, 'zzCompany Deduction Data: ', __FILE__, __LINE__, __METHOD__, 10);
+			//Debug::Arr($data, 'zzzCompany Deduction Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 			$cdf->setObjectFromArray( $data );
 			if ( $cdf->isValid() ) {
@@ -1482,10 +1564,10 @@ class SetupPresets extends Factory {
 		//Get PayStub Link accounts
 		$pseallf = TTnew( 'PayStubEntryAccountLinkListFactory' );
 		$pseallf->getByCompanyId( $this->getCompany() );
-		if  ( $pseallf->getRecordCount() > 0 ) {
+		if	( $pseallf->getRecordCount() > 0 ) {
 			$psea_obj = $pseallf->getCurrent();
 		} else {
-			Debug::text('Company ID: '. $this->getCompany() , __FILE__, __LINE__, __METHOD__, 10);
+			Debug::text('Company ID: '. $this->getCompany(), __FILE__, __LINE__, __METHOD__, 10);
 			return FALSE;
 		}
 
@@ -1496,7 +1578,7 @@ class SetupPresets extends Factory {
 		$cdf = TTnew( 'CompanyDeductionFactory' );
 		$cdf->StartTransaction();
 
-		Debug::text('Country: '. $country , __FILE__, __LINE__, __METHOD__, 10);
+		Debug::text('Country: '. $country, __FILE__, __LINE__, __METHOD__, 10);
 		if ( $country != '' AND $province == '' ) {
 			switch ($country) {
 				case 'ca':
@@ -1532,7 +1614,7 @@ class SetupPresets extends Factory {
 														'name' => 'CA - Addl. Income Tax',
 														'calculation_id' => 20,
 														'calculation_order' => 105,
-														'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 20, 'CA - Addl. Income Tax' ),
+														'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 20, 'CA - Federal Income Tax' ),
 														'user_value1' => 0,
 													)
 												);
@@ -1606,10 +1688,10 @@ class SetupPresets extends Factory {
 														'company_id' => $this->getCompany(),
 														'status_id' => 10, //Enabled
 														'type_id' => 10, //Tax
-														'name' => 'WCB - Employer',
+														'name' => 'Workers Compensation - Employer',
 														'calculation_id' => 15,
 														'calculation_order' => 96,
-														'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 30, 'WCB - Employer' ),
+														'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 30, 'Workers Compensation - Employer' ),
 														'include_pay_stub_entry_account' => array( $psea_obj->getTotalGross() ),
 														'exclude_pay_stub_entry_account' => array(
 																									$this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Loan' ),
@@ -1651,7 +1733,7 @@ class SetupPresets extends Factory {
 														'name' => 'US - Addl. Income Tax',
 														'calculation_id' => 20,
 														'calculation_order' => 105,
-														'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 20, 'US - Federal Addl. Income Tax' ),
+														'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 20, 'US - Federal Income Tax' ),
 														'user_value1' => 0,
 													)
 												);
@@ -1731,7 +1813,7 @@ class SetupPresets extends Factory {
 														'calculation_order' => 90,
 														'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 20, 'Medicare' ),
 														//'user_value1' => $pd_obj->getMedicareRate(),
-														'user_value1' => 10,  //Single
+														'user_value1' => 10, //Single
 														'include_pay_stub_entry_account' => array( $psea_obj->getTotalGross() ),
 														'exclude_pay_stub_entry_account' => array(
 																									$this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Loan' ),
@@ -1750,13 +1832,33 @@ class SetupPresets extends Factory {
 														'calculation_order' => 91,
 														'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 30, 'Medicare' ),
 														//'user_value1' => $pd_obj->getMedicareRate(),
-														//'user_value1' => 10,  //Single
+														//'user_value1' => 10, //Single
 														'include_pay_stub_entry_account' => array( $psea_obj->getTotalGross() ),
 														'exclude_pay_stub_entry_account' => array(
 																									$this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Loan' ),
 																									$this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Expense Reimbursement' ),
 																									$this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 20, '401(k)' ),
 																								),
+													)
+												);
+
+					$this->createCompanyDeduction(
+													array(
+														'company_id' => $this->getCompany(),
+														'status_id' => 10, //Enabled
+														'type_id' => 10, //Tax
+														'name' => 'Workers Compensation - Employer',
+														'calculation_id' => 15,
+														'calculation_order' => 96,
+														'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 30, 'Workers Compensation - Employer' ),
+														'include_pay_stub_entry_account' => array( $psea_obj->getTotalGross() ),
+														'exclude_pay_stub_entry_account' => array(
+																									$this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Loan' ),
+																									$this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Expense Reimbursement' ),
+																								),
+														'user_value1' => 0.00,
+														'user_value2' => 0, //Annual Wage Base
+														'user_value3' => 0,
 													)
 												);
 					break;
@@ -1768,12 +1870,12 @@ class SetupPresets extends Factory {
 		//Canada
 		if ( $country == 'ca' AND $province != '' ) {
 			$vacation_data = array(
-								   'primary_percent' => 0,
-								   'secondary_percent' => 0,
-								   'secondary_length_of_service' => 0
-								   );
+									'primary_percent' => 0,
+									'secondary_percent' => 0,
+									'secondary_length_of_service' => 0
+									);
 
-			Debug::text('Province: '. $province , __FILE__, __LINE__, __METHOD__, 10);
+			Debug::text('Province: '. $province, __FILE__, __LINE__, __METHOD__, 10);
 			switch ($province) {
 				//CA
 				case 'bc':
@@ -1783,62 +1885,63 @@ class SetupPresets extends Factory {
 				case 'nu':
 				case 'nt':
 					$vacation_data = array(
-										   'primary_percent' => 4,
-										   'secondary_percent' => 6,
-										   'secondary_length_of_service' => 6, //After 5th year
-										   );
+											'primary_percent' => 4,
+											'secondary_percent' => 6,
+											'secondary_length_of_service' => 6, //After 5th year
+											);
 					break;
 				case 'nb':
 				case 'ns':
 				case 'pe':
 					$vacation_data = array(
-										   'primary_percent' => 4,
-										   'secondary_percent' => 6,
-										   'secondary_length_of_service' => 9, //After 8th year
-										   );
+											'primary_percent' => 4,
+											'secondary_percent' => 6,
+											'secondary_length_of_service' => 9, //After 8th year
+											);
 					break;
 				case 'on':
 				case 'yt':
 					$vacation_data = array(
-										   'primary_percent' => 4,
-										   'secondary_percent' => 0,
-										   'secondary_length_of_service' => 0,
-										   );
+											'primary_percent' => 4,
+											'secondary_percent' => 0,
+											'secondary_length_of_service' => 0,
+											);
 					break;
 				case 'sk':
 					$vacation_data = array(
-										   'primary_percent' => 4,
-										   'secondary_percent' => 8,
-										   'secondary_length_of_service' => 11, //After 10th year
-										   );
+											'primary_percent' => 4,
+											'secondary_percent' => 8,
+											'secondary_length_of_service' => 11, //After 10th year
+											);
 					break;
 				case 'nl':
 					$vacation_data = array(
-										   'primary_percent' => 4,
-										   'secondary_percent' => 6,
-										   'secondary_length_of_service' => 16, //After 15th year
-										   );
+											'primary_percent' => 4,
+											'secondary_percent' => 6,
+											'secondary_length_of_service' => 16, //After 15th year
+											);
 					break;
 			}
 
-			if ( !in_array( $province, array('on','yt') ) ) {
+			if ( !in_array( $province, array('on', 'yt') ) ) {
 				$this->createCompanyDeduction(
 												array(
 													'company_id' => $this->getCompany(),
 													'status_id' => 10, //Enabled
 													'type_id' => 20, //Deduction
-													'name' => strtoupper($province) .' - Vacation Accrual - 0-'. ($vacation_data['secondary_length_of_service']-1) .' Years',
+													'name' => strtoupper($province) .' - Vacation Accrual - 0-'. ($vacation_data['secondary_length_of_service'] - 1) .' Years',
 													'calculation_id' => 10,
 													'calculation_order' => 50,
 													'minimum_length_of_service_unit_id' => 40, //Years
-													'minimum_length_of_service' =>  0,
+													'minimum_length_of_service' => 0,
 													'maximum_length_of_service_unit_id' => 40, //Years
-													'maximum_length_of_service' => $vacation_data['secondary_length_of_service']-0.003,
+													'maximum_length_of_service' => ($vacation_data['secondary_length_of_service'] - 0.001),
 													'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 50, 'Vacation Accrual' ),
 													'include_pay_stub_entry_account' => array( $psea_obj->getTotalGross() ),
 													'exclude_pay_stub_entry_account' => array(
 																								$this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Vacation - Accrual Release' ),
 																								$this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Vacation - No Accrual' ),
+																								$this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Severance' ),
 																								$this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Loan' ),
 																								$this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Expense Reimbursement' ),
 																								$this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Tips' ),
@@ -1852,18 +1955,19 @@ class SetupPresets extends Factory {
 												'company_id' => $this->getCompany(),
 												'status_id' => 10, //Enabled
 												'type_id' => 20, //Deduction
-												'name' => strtoupper($province) .' - Vacation Accrual - '.($vacation_data['secondary_length_of_service']-0).'+ Years',
+												'name' => strtoupper($province) .' - Vacation Accrual - '.($vacation_data['secondary_length_of_service'] - 0).'+ Years',
 												'calculation_id' => 10,
 												'calculation_order' => 51,
 												'minimum_length_of_service_unit_id' => 40, //Years
-												'minimum_length_of_service' =>  $vacation_data['secondary_length_of_service'],
+												'minimum_length_of_service' => $vacation_data['secondary_length_of_service'],
 												'maximum_length_of_service_unit_id' => 40, //Years
-												'maximum_length_of_service' =>  0,
+												'maximum_length_of_service' => 0,
 												'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 50, 'Vacation Accrual' ),
 												'include_pay_stub_entry_account' => array( $psea_obj->getTotalGross() ),
 												'exclude_pay_stub_entry_account' => array(
 																							$this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Vacation - Accrual Release' ),
 																							$this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Vacation - No Accrual' ),
+																							$this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Severance' ),
 																							$this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Loan' ),
 																							$this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Expense Reimbursement' ),
 																							$this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Tips' ),
@@ -1871,24 +1975,25 @@ class SetupPresets extends Factory {
 												'user_value1' => $vacation_data['secondary_percent'],
 											)
 										);
-			if ( !in_array( $province, array('on','yt') ) ) {
+			if ( !in_array( $province, array('on', 'yt') ) ) {
 				$this->createCompanyDeduction(
 												array(
 													'company_id' => $this->getCompany(),
 													'status_id' => 10, //Enabled
 													'type_id' => 20, //Deduction
-													'name' => strtoupper($province) .' - Vacation No Accrual - 0-'. ($vacation_data['secondary_length_of_service']-1) .' Years',
+													'name' => strtoupper($province) .' - Vacation No Accrual - 0-'. ($vacation_data['secondary_length_of_service'] - 1) .' Years',
 													'calculation_id' => 10,
 													'calculation_order' => 50,
 													'minimum_length_of_service_unit_id' => 40, //Years
-													'minimum_length_of_service' =>  0,
+													'minimum_length_of_service' => 0,
 													'maximum_length_of_service_unit_id' => 40, //Years
-													'maximum_length_of_service' =>  $vacation_data['secondary_length_of_service']-0.003,
+													'maximum_length_of_service' => ($vacation_data['secondary_length_of_service'] - 0.001),
 													'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Vacation - No Accrual' ),
 													'include_pay_stub_entry_account' => array( $psea_obj->getTotalGross() ),
 													'exclude_pay_stub_entry_account' => array(
 																								$this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Vacation - Accrual Release' ),
 																								$this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Vacation - No Accrual' ),
+																								$this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Severance' ),
 																								$this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Loan' ),
 																								$this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Expense Reimbursement' ),
 																								$this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Tips' ),
@@ -1902,18 +2007,19 @@ class SetupPresets extends Factory {
 												'company_id' => $this->getCompany(),
 												'status_id' => 10, //Enabled
 												'type_id' => 20, //Deduction
-												'name' => strtoupper($province) .' - Vacation No Accrual - '.($vacation_data['secondary_length_of_service']-0).'+ Years',
+												'name' => strtoupper($province) .' - Vacation No Accrual - '.($vacation_data['secondary_length_of_service'] - 0).'+ Years',
 												'calculation_id' => 10,
 												'calculation_order' => 51,
 												'minimum_length_of_service_unit_id' => 40, //Years
-												'minimum_length_of_service' =>  $vacation_data['secondary_length_of_service'],
+												'minimum_length_of_service' => $vacation_data['secondary_length_of_service'],
 												'maximum_length_of_service_unit_id' => 40, //Years
-												'maximum_length_of_service' =>  0,
+												'maximum_length_of_service' => 0,
 												'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Vacation - No Accrual' ),
 												'include_pay_stub_entry_account' => array( $psea_obj->getTotalGross() ),
 												'exclude_pay_stub_entry_account' => array(
 																							$this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Vacation - Accrual Release' ),
 																							$this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Vacation - No Accrual' ),
+																							$this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Severance' ),
 																							$this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Loan' ),
 																							$this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Expense Reimbursement' ),
 																							$this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Tips' ),
@@ -1946,10 +2052,10 @@ class SetupPresets extends Factory {
 		}
 
 		if ( $country == 'us' AND $province != '' ) {
-			if ( in_array( $province, array('al','az','ar','ca','co','ct','de','dc','ga','hi','id','il',
-											'in','ia','ks','ky','la','me','md','ma','mi','mn','ms','mo',
-											'mt','ne','nj','nm','ny','nc','nd','oh','ok','or','pa','ri',
-											'sc','ut','vt','va','wi','wv') ) ) {
+			if ( in_array( $province, array('al', 'az', 'ar', 'ca', 'co', 'ct', 'de', 'dc', 'ga', 'hi', 'id', 'il',
+											'in', 'ia', 'ks', 'ky', 'la', 'me', 'md', 'ma', 'mi', 'mn', 'ms', 'mo',
+											'mt', 'ne', 'nj', 'nm', 'ny', 'nc', 'nd', 'oh', 'ok', 'or', 'pa', 'ri',
+											'sc', 'ut', 'vt', 'va', 'wi', 'wv') ) ) {
 				//State Income Tax
 				$this->createCompanyDeduction(
 												array(
@@ -1980,7 +2086,7 @@ class SetupPresets extends Factory {
 													'name' => strtoupper($province) .' - State Addl. Income Tax',
 													'calculation_id' => 20,
 													'calculation_order' => 205,
-													'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 20, strtoupper($province) .' - State Addl. Income Tax' ),
+													'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 20, strtoupper($province) .' - State Income Tax' ),
 													'user_value1' => 0,
 												)
 											);
@@ -1992,7 +2098,7 @@ class SetupPresets extends Factory {
 			$state_unemployment_rate = 0;
 			$state_unemployment_wage_base = 0;
 
-			Debug::text('Province: '. $province , __FILE__, __LINE__, __METHOD__, 10);
+			Debug::text('Province: '. $province, __FILE__, __LINE__, __METHOD__, 10);
 			switch ($province) {
 				//US
 				case 'al': //alabama
@@ -2024,7 +2130,7 @@ class SetupPresets extends Factory {
 				case 'ak': //alaska
 					//Unemployment Insurance - Employee
 					//Unemployment Insurance - Employer
-					$company_state_unemployment_wage_base =	$state_unemployment_wage_base = 35800;
+					$company_state_unemployment_wage_base =	$state_unemployment_wage_base = 37400;
 					break;
 				case 'az': //arizona
 					//Unemployment Insurance - Employee
@@ -2040,7 +2146,7 @@ class SetupPresets extends Factory {
 														'calculation_id' => 15,
 														'calculation_order' => 186,
 														'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 30, strtoupper($province).' - Job Training Surcharge' ),
-														'user_value1' => 0.60, //Percent
+														'user_value1' => 0.10, //Percent
 														'user_value2' => $state_unemployment_wage_base, //WageBase
 														'user_value3' => 0,
 														'include_pay_stub_entry_account' => array( $psea_obj->getTotalGross() ),
@@ -2071,8 +2177,8 @@ class SetupPresets extends Factory {
 														'calculation_id' => 15,
 														'calculation_order' => 186,
 														'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 20, strtoupper($province).' - Disability Insurance' ),
-														'user_value1' => 1.0, //Percent
-														'user_value2' => 95585, //WageBase
+														'user_value1' => 0.9, //Percent
+														'user_value2' => 104378, //WageBase
 														'user_value3' => 0,
 														'include_pay_stub_entry_account' => array( $psea_obj->getTotalGross() ),
 														'exclude_pay_stub_entry_account' => array(
@@ -2107,7 +2213,7 @@ class SetupPresets extends Factory {
 					break;
 				case 'co': //colorado
 					//Unemployment Insurance - Employee
-					$state_unemployment_wage_base = 11000;
+					$state_unemployment_wage_base = 11700;
 
 					break;
 				case 'ct': //connecticut
@@ -2116,7 +2222,7 @@ class SetupPresets extends Factory {
 					break;
 				case 'de': //delaware
 					//Unemployment Insurance - Employee
-					$state_unemployment_wage_base = 10500;
+					$state_unemployment_wage_base = 18500;
 					break;
 				case 'dc': //d.c.
 					//Unemployment Insurance - Employee
@@ -2151,7 +2257,7 @@ class SetupPresets extends Factory {
 					break;
 				case 'ga': //georgia
 					//Unemployment Insurance - Employee
-					$state_unemployment_wage_base = 8500;
+					$state_unemployment_wage_base = 9500;
 
 					//Administrative Assessment
 					$this->createCompanyDeduction(
@@ -2177,7 +2283,7 @@ class SetupPresets extends Factory {
 					break;
 				case 'hi': //hawaii
 					//Unemployment Insurance - Employee
-					$state_unemployment_wage_base = 38800;
+					$state_unemployment_wage_base = 40400;
 
 					//E&T Assessment
 					$this->createCompanyDeduction(
@@ -2234,7 +2340,7 @@ class SetupPresets extends Factory {
 														'calculation_order' => 186,
 														'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 20, strtoupper($province).' - Disability Insurance' ),
 														'user_value1' => 0.00, //Percent
-														'user_value2' => 46970.56, //WageBase
+														'user_value2' => 48882.60, //WageBase
 														'user_value3' => 0,
 														'include_pay_stub_entry_account' => array( $psea_obj->getTotalGross() ),
 														'exclude_pay_stub_entry_account' => array(
@@ -2248,7 +2354,7 @@ class SetupPresets extends Factory {
 					break;
 				case 'id': //idaho
 					//Unemployment Insurance - Employee
-					$state_unemployment_wage_base = 34100;
+					$state_unemployment_wage_base = 35200;
 
 					//Administrative Reserve
 					$this->createCompanyDeduction(
@@ -2296,7 +2402,7 @@ class SetupPresets extends Factory {
 					break;
 				case 'il': //illinois
 					//Unemployment Insurance - Employee
-					$state_unemployment_wage_base = 13560;
+					$state_unemployment_wage_base = 12960;
 					break;
 				case 'in': //indiana
 					//Unemployment Insurance - Employee
@@ -2317,7 +2423,7 @@ class SetupPresets extends Factory {
 					break;
 				case 'ia': //iowa
 					//Unemployment Insurance - Employee
-					$state_unemployment_wage_base = 25300;
+					$state_unemployment_wage_base = 26800;
 
 					//Reserve Fund
 					$this->createCompanyDeduction(
@@ -2369,7 +2475,7 @@ class SetupPresets extends Factory {
 					break;
 				case 'ky': //kentucky
 					//Unemployment Insurance - Employee
-					$state_unemployment_wage_base = 9000;
+					$state_unemployment_wage_base = 9600;
 					break;
 				case 'la': //louisiana
 					//Unemployment Insurance - Employee
@@ -2459,7 +2565,7 @@ class SetupPresets extends Factory {
 					break;
 				case 'mn': //minnesota
 					//Unemployment Insurance - Employee
-					$state_unemployment_wage_base = 28000;
+					$state_unemployment_wage_base = 29000;
 
 					//Workforce Enhancement Fee
 					$this->createCompanyDeduction(
@@ -2515,7 +2621,7 @@ class SetupPresets extends Factory {
 					break;
 				case 'mt': //montana
 					//Unemployment Insurance - Employee
-					$state_unemployment_wage_base = 27000;
+					$state_unemployment_wage_base = 29000;
 
 					//Administrative Fund
 					$this->createCompanyDeduction(
@@ -2567,7 +2673,7 @@ class SetupPresets extends Factory {
 					break;
 				case 'nv': //nevada
 					//Unemployment Insurance - Employee
-					$state_unemployment_wage_base = 26400;
+					$state_unemployment_wage_base = 27400;
 
 					//Career Enhancement
 					$this->createCompanyDeduction(
@@ -2617,36 +2723,10 @@ class SetupPresets extends Factory {
 													)
 												);
 					break;
-				case 'nm': //new mexico
-					//Unemployment Insurance - Employee
-					$state_unemployment_wage_base = 22400;
-
-					//State Trust Fund
-					$this->createCompanyDeduction(
-													array(
-														'company_id' => $this->getCompany(),
-														'status_id' => 10, //Enabled
-														'type_id' => 10, //Tax
-														'name' => strtoupper($province) .' - State Trust Fund',
-														'calculation_id' => 15,
-														'calculation_order' => 186,
-														'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 30, strtoupper($province).' - State Trust Fund' ),
-														'user_value1' => 0.00, //Percent
-														'user_value2' => $state_unemployment_wage_base, //WageBase
-														'user_value3' => 0,
-														'include_pay_stub_entry_account' => array( $psea_obj->getTotalGross() ),
-														'exclude_pay_stub_entry_account' => array(
-																									$this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Loan' ),
-																									$this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Expense Reimbursement' ),
-																									$this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 20, '401(k)' ),
-																								),
-													)
-												);
-					break;
 				case 'nj': //new jersey
 					//Unemployment Insurance - Employee
 					//Unemployment Insurance - Employer
-					$state_unemployment_wage_base = 30300;
+					$state_unemployment_wage_base = 31500;
 
 					//Disability Insurance - Employee
 					$this->createCompanyDeduction(
@@ -2658,7 +2738,7 @@ class SetupPresets extends Factory {
 														'calculation_id' => 15,
 														'calculation_order' => 186,
 														'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 20, strtoupper($province).' - Disability Insurance' ),
-														'user_value1' => 0.20, //Percent
+														'user_value1' => 0.38, //Percent
 														'user_value2' => $state_unemployment_wage_base, //WageBase
 														'user_value3' => 0,
 														'include_pay_stub_entry_account' => array( $psea_obj->getTotalGross() ),
@@ -2803,9 +2883,35 @@ class SetupPresets extends Factory {
 												);
 
 					break;
+				case 'nm': //new mexico
+					//Unemployment Insurance - Employee
+					$state_unemployment_wage_base = 23400;
+
+					//State Trust Fund
+					$this->createCompanyDeduction(
+													array(
+														'company_id' => $this->getCompany(),
+														'status_id' => 10, //Enabled
+														'type_id' => 10, //Tax
+														'name' => strtoupper($province) .' - State Trust Fund',
+														'calculation_id' => 15,
+														'calculation_order' => 186,
+														'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 30, strtoupper($province).' - State Trust Fund' ),
+														'user_value1' => 0.00, //Percent
+														'user_value2' => $state_unemployment_wage_base, //WageBase
+														'user_value3' => 0,
+														'include_pay_stub_entry_account' => array( $psea_obj->getTotalGross() ),
+														'exclude_pay_stub_entry_account' => array(
+																									$this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Loan' ),
+																									$this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Expense Reimbursement' ),
+																									$this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 20, '401(k)' ),
+																								),
+													)
+												);
+					break;
 				case 'ny': //new york
 					//Unemployment Insurance - Employee
-					$company_state_unemployment_wage_base = $state_unemployment_wage_base = 8500;
+					$company_state_unemployment_wage_base = $state_unemployment_wage_base = 10300;
 
 					//Reemployment Service Fund
 					$this->createCompanyDeduction(
@@ -2919,11 +3025,11 @@ class SetupPresets extends Factory {
 					break;
 				case 'nc': //north carolina
 					//Unemployment Insurance - Employee
-					$state_unemployment_wage_base = 20400;
+					$state_unemployment_wage_base = 21400;
 					break;
 				case 'nd': //north dakota
 					//Unemployment Insurance - Employee
-					$state_unemployment_wage_base = 27900;
+					$state_unemployment_wage_base = 33600;
 					break;
 				case 'oh': //ohio
 					//Unemployment Insurance - Employee
@@ -2931,11 +3037,11 @@ class SetupPresets extends Factory {
 					break;
 				case 'ok': //oklahoma
 					//Unemployment Insurance - Employee
-					$state_unemployment_wage_base = 19100;
+					$state_unemployment_wage_base = 18700;
 					break;
 				case 'or': //oregon
 					//Unemployment Insurance - Employee
-					$state_unemployment_wage_base = 33000;
+					$state_unemployment_wage_base = 35000;
 
 					//Workers Benefit - Employee
 					$this->createCompanyDeduction(
@@ -2947,7 +3053,7 @@ class SetupPresets extends Factory {
 														'calculation_id' => 15,
 														'calculation_order' => 186,
 														'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 20, strtoupper($province).' - Workers Benefit' ),
-														'user_value1' => 0.014, //Percent
+														'user_value1' => 0.016, //Percent
 														'user_value2' => 0, //WageBase
 														'user_value3' => 0,
 														'include_pay_stub_entry_account' => array( $psea_obj->getTotalGross() ),
@@ -2969,7 +3075,7 @@ class SetupPresets extends Factory {
 														'calculation_id' => 15,
 														'calculation_order' => 186,
 														'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 30, strtoupper($province).' - Workers Benefit' ),
-														'user_value1' => 0.014, //Percent
+														'user_value1' => 0.017, //Percent
 														'user_value2' => 0, //WageBase
 														'user_value3' => 0,
 														'include_pay_stub_entry_account' => array( $psea_obj->getTotalGross() ),
@@ -2991,7 +3097,7 @@ class SetupPresets extends Factory {
 														'calculation_id' => 15,
 														'calculation_order' => 186,
 														'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 30, strtoupper($province).' - Tri-Met Transit District' ),
-														'user_value1' => 0.7018, //Percent
+														'user_value1' => 0.7237, //Percent
 														'user_value2' => 0, //WageBase
 														'user_value3' => 0,
 														'include_pay_stub_entry_account' => array( $psea_obj->getTotalGross() ),
@@ -3013,7 +3119,7 @@ class SetupPresets extends Factory {
 														'calculation_id' => 15,
 														'calculation_order' => 186,
 														'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 30, strtoupper($province).' - Lane Transit District' ),
-														'user_value1' => 0.68, //Percent
+														'user_value1' => 0.70, //Percent
 														'user_value2' => 0, //WageBase
 														'user_value3' => 0,
 														'include_pay_stub_entry_account' => array( $psea_obj->getTotalGross() ),
@@ -3051,7 +3157,7 @@ class SetupPresets extends Factory {
 					//Unemployment Insurance - Employee
 					//Unemployment Insurance - Employer
 					$state_unemployment_wage_base = 0;
-					$company_state_unemployment_wage_base = 8000;
+					$company_state_unemployment_wage_base = 8750;
 					break;
 				case 'ri': //rhode island
 					//Employment Security
@@ -3064,8 +3170,8 @@ class SetupPresets extends Factory {
 														'calculation_id' => 15,
 														'calculation_order' => 186,
 														'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 30, strtoupper($province).' - Employment Security' ),
-														'user_value1' => 0.09, //Percent
-														'user_value2' => 19600, //WageBase
+														'user_value1' => 0.00, //Percent
+														'user_value2' => 20600, //WageBase
 														'user_value3' => 0,
 														'include_pay_stub_entry_account' => array( $psea_obj->getTotalGross() ),
 														'exclude_pay_stub_entry_account' => array(
@@ -3087,7 +3193,7 @@ class SetupPresets extends Factory {
 														'calculation_order' => 186,
 														'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 30, strtoupper($province).' - Job Development Fund' ),
 														'user_value1' => 0.51, //Percent
-														'user_value2' => 19600, //WageBase
+														'user_value2' => 20600, //WageBase
 														'user_value3' => 0,
 														'include_pay_stub_entry_account' => array( $psea_obj->getTotalGross() ),
 														'exclude_pay_stub_entry_account' => array(
@@ -3109,7 +3215,7 @@ class SetupPresets extends Factory {
 														'calculation_order' => 186,
 														'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 20, strtoupper($province).' - Temporary Disability Ins.' ),
 														'user_value1' => 1.20, //Percent
-														'user_value2' => 60000, //WageBase
+														'user_value2' => 62700, //WageBase
 														'user_value3' => 0,
 														'include_pay_stub_entry_account' => array( $psea_obj->getTotalGross() ),
 														'exclude_pay_stub_entry_account' => array(
@@ -3148,7 +3254,7 @@ class SetupPresets extends Factory {
 					break;
 				case 'sd': //south dakota
 					//Unemployment Insurance - Employee
-					$state_unemployment_wage_base = 12000;
+					$state_unemployment_wage_base = 14000;
 
 					//Investment Fee
 					$this->createCompanyDeduction(
@@ -3270,7 +3376,7 @@ class SetupPresets extends Factory {
 					break;
 				case 'ut': //utah
 					//Unemployment Insurance - Employee
-					$state_unemployment_wage_base = 29500;
+					$state_unemployment_wage_base = 30800;
 					break;
 				case 'vt': //vermont
 					//Unemployment Insurance - Employee
@@ -3282,7 +3388,7 @@ class SetupPresets extends Factory {
 					break;
 				case 'wa': //washington
 					//Unemployment Insurance - Employee
-					$state_unemployment_wage_base = 38200;
+					$state_unemployment_wage_base = 41300;
 
 					//Industrial Insurance - Employee
 					$this->createCompanyDeduction(
@@ -3356,11 +3462,11 @@ class SetupPresets extends Factory {
 					break;
 				case 'wi': //wisconsin
 					//Unemployment Insurance - Employee
-					$state_unemployment_wage_base = 13000;
+					$state_unemployment_wage_base = 14000;
 					break;
 				case 'wy': //wyoming
 					//Unemployment Insurance - Employee
-					$state_unemployment_wage_base = 23000;
+					$state_unemployment_wage_base = 24500;
 
 					//Employment Support Fund
 					$this->createCompanyDeduction(
@@ -3388,11 +3494,11 @@ class SetupPresets extends Factory {
 
 			//Unemployment insurance must go below the above state settings so it has the proper rate/wage_base for
 			//State Unemployement Insurace, deducted from employer
-			if ( in_array( $province, array('ak','al','ar','az','ca','co','ct','dc','de','fl','ga','hi',
-											'ia','id','il','in','ks','ky','la','ma','md','me','mi','mn',
-											'mo','ms','mt','nc','nd','ne','nh','nj','nm','nv','ny','oh',
-											'ok','or','pa','sc','sd','tn','tx','ut','va','vt','wa','wi',
-											'wv','wy') ) ) {
+			if ( in_array( $province, array('ak', 'al', 'ar', 'az', 'ca', 'co', 'ct', 'dc', 'de', 'fl', 'ga', 'hi',
+											'ia', 'id', 'il', 'in', 'ks', 'ky', 'la', 'ma', 'md', 'me', 'mi', 'mn',
+											'mo', 'ms', 'mt', 'nc', 'nd', 'ne', 'nh', 'nj', 'nm', 'nv', 'ny', 'oh',
+											'ok', 'or', 'pa', 'sc', 'sd', 'tn', 'tx', 'ut', 'va', 'vt', 'wa', 'wi',
+											'wv', 'wy') ) ) {
 				$this->createCompanyDeduction(
 												array(
 													'company_id' => $this->getCompany(),
@@ -3415,7 +3521,7 @@ class SetupPresets extends Factory {
 											);
 			}
 			//State Unemployement Insurace, deducted from employee
-			if ( in_array( $province, array('ak','nj','pa') ) ) {
+			if ( in_array( $province, array('ak', 'nj', 'pa') ) ) {
 				$this->createCompanyDeduction(
 												array(
 													'company_id' => $this->getCompany(),
@@ -3452,6 +3558,7 @@ class SetupPresets extends Factory {
 												'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 20, 'Loan Repayment' ),
 												'user_value1' => 25, //Fixed amount to repay each pay period.
 												'user_value2' => 0,
+												'include_account_amount_type_id' => 30, //YTD Amount
 												'include_pay_stub_entry_account' => array( $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 50, 'Loan Balance' ) ),
 											)
 										);
@@ -3491,9 +3598,9 @@ class SetupPresets extends Factory {
 
 		return FALSE;
 	}
-	function RecurringHolidays( $country = NULL, $province = NULL , $district = NULL, $industry = NULL ) {
+	function RecurringHolidays( $country = NULL, $province = NULL, $district = NULL, $industry = NULL ) {
 
-		Debug::text('Country: '. $country , __FILE__, __LINE__, __METHOD__, 10);
+		Debug::text('Country: '. $country, __FILE__, __LINE__, __METHOD__, 10);
 		if ( $country != '' AND $province == '' ) {
 			//
 			//http://www.statutoryholidays.com/
@@ -3513,7 +3620,7 @@ class SetupPresets extends Factory {
 														'month_int' => 1,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 					$this->createRecurringHoliday(
 													array(
 														'company_id' => $this->getCompany(),
@@ -3527,7 +3634,7 @@ class SetupPresets extends Factory {
 														//'month_int' => 1,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 					$this->createRecurringHoliday(
 													array(
 														'company_id' => $this->getCompany(),
@@ -3541,7 +3648,7 @@ class SetupPresets extends Factory {
 														'month_int' => 7,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 					$this->createRecurringHoliday(
 													array(
 														'company_id' => $this->getCompany(),
@@ -3555,11 +3662,11 @@ class SetupPresets extends Factory {
 														'month_int' => 9,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 					$this->createRecurringHoliday(
 													array(
 														'company_id' => $this->getCompany(),
-														'name' => strtoupper($country) .' - Christmas',
+														'name' => strtoupper($country) .' - Christmas Day',
 														'type_id' => 10,
 														'special_day' => 0,
 														//'pivot_day_direction_id' => 0,
@@ -3569,7 +3676,7 @@ class SetupPresets extends Factory {
 														'month_int' => 12,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 
 					//Optional holidays or ones observed by many provinces.
 					$this->createRecurringHoliday(
@@ -3585,7 +3692,7 @@ class SetupPresets extends Factory {
 														'month_int' => 12,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 					$this->createRecurringHoliday(
 													array(
 														'company_id' => $this->getCompany(),
@@ -3599,7 +3706,7 @@ class SetupPresets extends Factory {
 														'month_int' => 12,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 					$this->createRecurringHoliday(
 													array(
 														'company_id' => $this->getCompany(),
@@ -3613,7 +3720,7 @@ class SetupPresets extends Factory {
 														'month_int' => 10,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 					$this->createRecurringHoliday(
 													array(
 														'company_id' => $this->getCompany(),
@@ -3627,11 +3734,11 @@ class SetupPresets extends Factory {
 														'month_int' => 5,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 					$this->createRecurringHoliday(
 													array(
 														'company_id' => $this->getCompany(),
-														'name' => strtoupper($country) .' - Rememberance Day',
+														'name' => strtoupper($country) .' - Remembrance Day',
 														'type_id' => 10,
 														'special_day' => 0,
 														//'pivot_day_direction_id' => 0,
@@ -3641,7 +3748,7 @@ class SetupPresets extends Factory {
 														'month_int' => 11,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 					break;
 				case 'us':
 					//Offical federal holidays
@@ -3658,7 +3765,7 @@ class SetupPresets extends Factory {
 														'month_int' => 1,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 					$this->createRecurringHoliday(
 													array(
 														'company_id' => $this->getCompany(),
@@ -3672,7 +3779,7 @@ class SetupPresets extends Factory {
 														'month_int' => 5,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 					$this->createRecurringHoliday(
 													array(
 														'company_id' => $this->getCompany(),
@@ -3686,7 +3793,7 @@ class SetupPresets extends Factory {
 														'month_int' => 7,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 					$this->createRecurringHoliday(
 													array(
 														'company_id' => $this->getCompany(),
@@ -3700,7 +3807,7 @@ class SetupPresets extends Factory {
 														'month_int' => 9,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 					$this->createRecurringHoliday(
 													array(
 														'company_id' => $this->getCompany(),
@@ -3714,7 +3821,7 @@ class SetupPresets extends Factory {
 														'month_int' => 11,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 					$this->createRecurringHoliday(
 													array(
 														'company_id' => $this->getCompany(),
@@ -3728,11 +3835,11 @@ class SetupPresets extends Factory {
 														'month_int' => 11,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 					$this->createRecurringHoliday(
 													array(
 														'company_id' => $this->getCompany(),
-														'name' => strtoupper($country) .' - Christmas',
+														'name' => strtoupper($country) .' - Christmas Day',
 														'type_id' => 10,
 														'special_day' => 0,
 														//'pivot_day_direction_id' => 0,
@@ -3742,7 +3849,7 @@ class SetupPresets extends Factory {
 														'month_int' => 12,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 
 					//Rhode Island doesn't observe this, but all other states do.
 					//Optional days
@@ -3759,7 +3866,7 @@ class SetupPresets extends Factory {
 														'month_int' => 1,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 					$this->createRecurringHoliday(
 													array(
 														'company_id' => $this->getCompany(),
@@ -3773,7 +3880,7 @@ class SetupPresets extends Factory {
 														'month_int' => 2,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 					$this->createRecurringHoliday(
 													array(
 														'company_id' => $this->getCompany(),
@@ -3787,7 +3894,7 @@ class SetupPresets extends Factory {
 														'month_int' => 12,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 					$this->createRecurringHoliday(
 													array(
 														'company_id' => $this->getCompany(),
@@ -3801,7 +3908,7 @@ class SetupPresets extends Factory {
 														'month_int' => 10,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 					break;
 				case 'cr':
 					$this->createRecurringHoliday(
@@ -3817,7 +3924,7 @@ class SetupPresets extends Factory {
 														'month_int' => 1,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 					$this->createRecurringHoliday(
 													array(
 														'company_id' => $this->getCompany(),
@@ -3831,27 +3938,11 @@ class SetupPresets extends Factory {
 														//'month_int' => 1,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
-					/*
+												);
 					$this->createRecurringHoliday(
 													array(
 														'company_id' => $this->getCompany(),
-														'name' => strtoupper($country) .' - '. TTi18n::gettext('Good Thursday'),
-														'type_id' => 20,
-														'special_day' => 2, //Easter
-														//'pivot_day_direction_id' => 0,
-														//'week_interval' => 0,
-														//'day_of_week' => 0,
-														//'day_of_month' => 1,
-														//'month_int' => 1,
-														'always_week_day_id' => 3, //Closest
-													)
-												  );
-					*/
-					$this->createRecurringHoliday(
-													array(
-														'company_id' => $this->getCompany(),
-														'name' => strtoupper($country) .' - '. TTi18n::gettext('Christmas'),
+														'name' => strtoupper($country) .' - '. TTi18n::gettext('Christmas Day'),
 														'type_id' => 10,
 														'special_day' => 0,
 														//'pivot_day_direction_id' => 0,
@@ -3861,7 +3952,7 @@ class SetupPresets extends Factory {
 														'month_int' => 12,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 					$this->createRecurringHoliday(
 													array(
 														'company_id' => $this->getCompany(),
@@ -3875,7 +3966,7 @@ class SetupPresets extends Factory {
 														'month_int' => 4,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 					$this->createRecurringHoliday(
 													array(
 														'company_id' => $this->getCompany(),
@@ -3889,7 +3980,7 @@ class SetupPresets extends Factory {
 														'month_int' => 5,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 					$this->createRecurringHoliday(
 													array(
 														'company_id' => $this->getCompany(),
@@ -3903,7 +3994,7 @@ class SetupPresets extends Factory {
 														'month_int' => 7,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 					$this->createRecurringHoliday(
 													array(
 														'company_id' => $this->getCompany(),
@@ -3917,7 +4008,7 @@ class SetupPresets extends Factory {
 														'month_int' => 8,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 					$this->createRecurringHoliday(
 													array(
 														'company_id' => $this->getCompany(),
@@ -3931,7 +4022,7 @@ class SetupPresets extends Factory {
 														'month_int' => 8,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 					$this->createRecurringHoliday(
 													array(
 														'company_id' => $this->getCompany(),
@@ -3945,7 +4036,7 @@ class SetupPresets extends Factory {
 														'month_int' => 9,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 					$this->createRecurringHoliday(
 													array(
 														'company_id' => $this->getCompany(),
@@ -3959,7 +4050,7 @@ class SetupPresets extends Factory {
 														'month_int' => 10,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 					break;
 				case 'gt':
 					$this->createRecurringHoliday(
@@ -3975,7 +4066,7 @@ class SetupPresets extends Factory {
 														'month_int' => 1,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 					$this->createRecurringHoliday(
 													array(
 														'company_id' => $this->getCompany(),
@@ -3989,37 +4080,7 @@ class SetupPresets extends Factory {
 														//'month_int' => 1,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
-					/*
-					$this->createRecurringHoliday(
-													array(
-														'company_id' => $this->getCompany(),
-														'name' => strtoupper($country) .' - '. TTi18n::gettext('Good Thursday'),
-														'type_id' => 20,
-														'special_day' => 2, //Easter
-														//'pivot_day_direction_id' => 0,
-														//'week_interval' => 0,
-														//'day_of_week' => 0,
-														//'day_of_month' => 1,
-														//'month_int' => 1,
-														'always_week_day_id' => 3, //Closest
-													)
-												  );
-					$this->createRecurringHoliday(
-													array(
-														'company_id' => $this->getCompany(),
-														'name' => strtoupper($country) .' - '. TTi18n::gettext('Good Wednesday'),
-														'type_id' => 20,
-														'special_day' => 3, //Easter
-														//'pivot_day_direction_id' => 0,
-														//'week_interval' => 0,
-														//'day_of_week' => 0,
-														//'day_of_month' => 1,
-														//'month_int' => 1,
-														'always_week_day_id' => 3, //Closest
-													)
-												  );
-					*/
+												);
 					$this->createRecurringHoliday(
 													array(
 														'company_id' => $this->getCompany(),
@@ -4033,7 +4094,7 @@ class SetupPresets extends Factory {
 														'month_int' => 5,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 
 					$this->createRecurringHoliday(
 													array(
@@ -4048,7 +4109,7 @@ class SetupPresets extends Factory {
 														'month_int' => 6,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 
 					$this->createRecurringHoliday(
 													array(
@@ -4063,7 +4124,7 @@ class SetupPresets extends Factory {
 														'month_int' => 8,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 
 					$this->createRecurringHoliday(
 													array(
@@ -4078,7 +4139,7 @@ class SetupPresets extends Factory {
 														'month_int' => 9,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 
 					$this->createRecurringHoliday(
 													array(
@@ -4093,7 +4154,7 @@ class SetupPresets extends Factory {
 														'month_int' => 10,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 
 					$this->createRecurringHoliday(
 													array(
@@ -4108,11 +4169,11 @@ class SetupPresets extends Factory {
 														'month_int' => 11,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 					$this->createRecurringHoliday(
 													array(
 														'company_id' => $this->getCompany(),
-														'name' => strtoupper($country) .' - '. TTi18n::gettext('Christmas'),
+														'name' => strtoupper($country) .' - '. TTi18n::gettext('Christmas Day'),
 														'type_id' => 10,
 														'special_day' => 0,
 														//'pivot_day_direction_id' => 0,
@@ -4122,7 +4183,7 @@ class SetupPresets extends Factory {
 														'month_int' => 12,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 					$this->createRecurringHoliday(
 													array(
 														'company_id' => $this->getCompany(),
@@ -4136,7 +4197,7 @@ class SetupPresets extends Factory {
 														'month_int' => 12,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 					break;
 				case 'hn':
 					$this->createRecurringHoliday(
@@ -4152,7 +4213,7 @@ class SetupPresets extends Factory {
 														'month_int' => 1,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 					$this->createRecurringHoliday(
 													array(
 														'company_id' => $this->getCompany(),
@@ -4166,37 +4227,7 @@ class SetupPresets extends Factory {
 														//'month_int' => 1,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
-					/*
-					$this->createRecurringHoliday(
-													array(
-														'company_id' => $this->getCompany(),
-														'name' => strtoupper($country) .' - '. TTi18n::gettext('Good Thursday'),
-														'type_id' => 20,
-														'special_day' => 2, //Easter
-														//'pivot_day_direction_id' => 0,
-														//'week_interval' => 0,
-														//'day_of_week' => 0,
-														//'day_of_month' => 1,
-														//'month_int' => 1,
-														'always_week_day_id' => 3, //Closest
-													)
-												  );
-					$this->createRecurringHoliday(
-													array(
-														'company_id' => $this->getCompany(),
-														'name' => strtoupper($country) .' - '. TTi18n::gettext('Good Saturday'),
-														'type_id' => 20,
-														'special_day' => 2, //Easter
-														//'pivot_day_direction_id' => 0,
-														//'week_interval' => 0,
-														//'day_of_week' => 0,
-														//'day_of_month' => 1,
-														//'month_int' => 1,
-														'always_week_day_id' => 3, //Closest
-													)
-												  );
-					*/
+												);
 					$this->createRecurringHoliday(
 													array(
 														'company_id' => $this->getCompany(),
@@ -4210,7 +4241,7 @@ class SetupPresets extends Factory {
 														'month_int' => 5,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 					$this->createRecurringHoliday(
 													array(
 														'company_id' => $this->getCompany(),
@@ -4224,11 +4255,11 @@ class SetupPresets extends Factory {
 														'month_int' => 9,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 					$this->createRecurringHoliday(
 													array(
 														'company_id' => $this->getCompany(),
-														'name' => strtoupper($country) .' - '. TTi18n::gettext('Christmas'),
+														'name' => strtoupper($country) .' - '. TTi18n::gettext('Christmas Day'),
 														'type_id' => 10,
 														'special_day' => 0,
 														//'pivot_day_direction_id' => 0,
@@ -4238,7 +4269,7 @@ class SetupPresets extends Factory {
 														'month_int' => 12,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 					$this->createRecurringHoliday(
 													array(
 														'company_id' => $this->getCompany(),
@@ -4252,7 +4283,7 @@ class SetupPresets extends Factory {
 														'month_int' => 10,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 					$this->createRecurringHoliday(
 													array(
 														'company_id' => $this->getCompany(),
@@ -4266,7 +4297,7 @@ class SetupPresets extends Factory {
 														'month_int' => 10,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 					$this->createRecurringHoliday(
 													array(
 														'company_id' => $this->getCompany(),
@@ -4280,14 +4311,14 @@ class SetupPresets extends Factory {
 														'month_int' => 12,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 					break;
 			}
 		}
 
 		//Canada
 		if ( $country == 'ca' AND $province != '' ) {
-			Debug::text('Province: '. $province , __FILE__, __LINE__, __METHOD__, 10);
+			Debug::text('Province: '. $province, __FILE__, __LINE__, __METHOD__, 10);
 			switch ($province) {
 				case 'bc':
 					$this->createRecurringHoliday(
@@ -4303,7 +4334,7 @@ class SetupPresets extends Factory {
 														'month_int' => 8,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 
 					$this->createRecurringHoliday(
 													array(
@@ -4318,7 +4349,7 @@ class SetupPresets extends Factory {
 														'month_int' => 2,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 
 					break;
 				case 'ab':
@@ -4335,7 +4366,7 @@ class SetupPresets extends Factory {
 														'month_int' => 2,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 
 					break;
 				case 'mb':
@@ -4352,9 +4383,37 @@ class SetupPresets extends Factory {
 														'month_int' => 2,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 					break;
 				case 'qc':
+					$this->createRecurringHoliday(
+													array(
+														'company_id' => $this->getCompany(),
+														'name' => strtoupper($province) .' - Easter Monday',
+														'type_id' => 20,
+														'special_day' => 6, //Easter Monday
+														//'pivot_day_direction_id' => 0,
+														//'week_interval' => 0,
+														//'day_of_week' => 0,
+														//'day_of_month' => 1,
+														//'month_int' => 1,
+														'always_week_day_id' => 3, //Closest
+													)
+												);
+					$this->createRecurringHoliday(
+													array(
+														'company_id' => $this->getCompany(),
+														'name' => strtoupper($province) .' - St. Jean Baptiste Day',
+														'type_id' => 10,
+														'special_day' => 0,
+														//'pivot_day_direction_id' => 0,
+														//'week_interval' => 0,
+														//'day_of_week' => 0,
+														'day_of_month' => 24,
+														'month_int' => 6,
+														'always_week_day_id' => 3, //Closest
+													)
+												);
 					break;
 				case 'nu':
 					$this->createRecurringHoliday(
@@ -4370,7 +4429,7 @@ class SetupPresets extends Factory {
 														'month_int' => 8,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 					break;
 				case 'nt':
 					$this->createRecurringHoliday(
@@ -4386,7 +4445,7 @@ class SetupPresets extends Factory {
 														'month_int' => 8,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 					break;
 				case 'nb':
 					$this->createRecurringHoliday(
@@ -4402,9 +4461,23 @@ class SetupPresets extends Factory {
 														'month_int' => 8,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 					break;
 				case 'ns':
+					$this->createRecurringHoliday(
+													array(
+														'company_id' => $this->getCompany(),
+														'name' => strtoupper($province) .' - Heritage Day',
+														'type_id' => 20,
+														'special_day' => 0,
+														//'pivot_day_direction_id' => 0,
+														'week_interval' => 3,
+														'day_of_week' => 1,
+														//'day_of_month' => 1,
+														'month_int' => 2,
+														'always_week_day_id' => 3, //Closest
+													)
+												);
 					break;
 				case 'pe':
 					$this->createRecurringHoliday(
@@ -4420,7 +4493,7 @@ class SetupPresets extends Factory {
 														'month_int' => 2,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 
 					$this->createRecurringHoliday(
 													array(
@@ -4435,7 +4508,7 @@ class SetupPresets extends Factory {
 														'month_int' => 8,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 
 					break;
 				case 'on':
@@ -4452,7 +4525,7 @@ class SetupPresets extends Factory {
 														'month_int' => 2,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 
 					$this->createRecurringHoliday(
 													array(
@@ -4467,7 +4540,7 @@ class SetupPresets extends Factory {
 														'month_int' => 8,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 
 					break;
 				case 'yt':
@@ -4484,7 +4557,7 @@ class SetupPresets extends Factory {
 														'month_int' => 8,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 					break;
 				case 'sk':
 					$this->createRecurringHoliday(
@@ -4500,16 +4573,73 @@ class SetupPresets extends Factory {
 														'month_int' => 2,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
+					$this->createRecurringHoliday(
+													array(
+														'company_id' => $this->getCompany(),
+														'name' => strtoupper($province) .' - Saskatchewan Day',
+														'type_id' => 20,
+														'special_day' => 0,
+														//'pivot_day_direction_id' => 0,
+														'week_interval' => 1,
+														'day_of_week' => 1,
+														//'day_of_month' => 1,
+														'month_int' => 8,
+														'always_week_day_id' => 3, //Closest
+													)
+												);
+
 					break;
 				case 'nl':
+					$this->createRecurringHoliday(
+													array(
+														'company_id' => $this->getCompany(),
+														'name' => strtoupper($province) .' - St. Patrick\'s Day',
+														'type_id' => 10,
+														'special_day' => 0,
+														//'pivot_day_direction_id' => 0,
+														//'week_interval' => 0,
+														//'day_of_week' => 0,
+														'day_of_month' => 17,
+														'month_int' => 3,
+														'always_week_day_id' => 3, //Closest
+													)
+												);
+					$this->createRecurringHoliday(
+													array(
+														'company_id' => $this->getCompany(),
+														'name' => strtoupper($province) .' - St. George\'s Day',
+														'type_id' => 10,
+														'special_day' => 0,
+														//'pivot_day_direction_id' => 0,
+														//'week_interval' => 0,
+														//'day_of_week' => 0,
+														'day_of_month' => 23,
+														'month_int' => 4,
+														'always_week_day_id' => 3, //Closest
+													)
+												);
+					$this->createRecurringHoliday(
+													array(
+														'company_id' => $this->getCompany(),
+														'name' => strtoupper($province) .' - Discovery Day',
+														'type_id' => 10,
+														'special_day' => 0,
+														//'pivot_day_direction_id' => 0,
+														//'week_interval' => 0,
+														//'day_of_week' => 0,
+														'day_of_month' => 24,
+														'month_int' => 6,
+														'always_week_day_id' => 3, //Closest
+													)
+												);
 					break;
 			}
 		}
 
 		//US
 		if ( $country == 'us' AND $province != '' ) {
-			if ( in_array( $province, array('ct','de','fl','hi','in','ky','la','nj','nc','nd','tn','tx') ) ) {
+			if ( in_array( $province, array('ct', 'de', 'fl', 'hi', 'in', 'ky', 'la', 'nj', 'nc', 'nd', 'tn', 'tx') ) ) {
 				$this->createRecurringHoliday(
 												array(
 													'company_id' => $this->getCompany(),
@@ -4523,25 +4653,25 @@ class SetupPresets extends Factory {
 													//'month_int' => 1,
 													'always_week_day_id' => 3, //Closest
 												)
-											  );
+											);
 			}
-			if ( in_array( $province, array('de','fl','ga','in','ia','ky','me','md','mi','mn','ne','nv','nm','ok','pa','tx','wa','wv') ) ) {
+			if ( in_array( $province, array('de', 'fl', 'ga', 'in', 'ia', 'ky', 'me', 'md', 'mi', 'mn', 'ne', 'nv', 'nm', 'ok', 'pa', 'tx', 'wa', 'wv') ) ) {
 					$this->createRecurringHoliday(
 													array(
 														'company_id' => $this->getCompany(),
 														'name' => strtoupper($province) .' - Day After Thanksgiving Day',
-														'type_id' => 20,
+														'type_id' => 30,
 														'special_day' => 0,
-														//'pivot_day_direction_id' => 30,
-														'week_interval' => 4,
+														'pivot_day_direction_id' => 40,
+														//'week_interval' => 4,
 														'day_of_week' => 5,
-														//'day_of_month' => 24,
+														'day_of_month' => 23,
 														'month_int' => 11,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 			}
-			if ( in_array( $province, array('al','nc','tx') ) ) {
+			if ( in_array( $province, array('al', 'nc', 'tx') ) ) {
 					$this->createRecurringHoliday(
 													array(
 														'company_id' => $this->getCompany(),
@@ -4555,10 +4685,10 @@ class SetupPresets extends Factory {
 														'month_int' => 12,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 			}
 
-			if ( in_array( $province, array('al','ky','mi','wv','wi') ) ) {
+			if ( in_array( $province, array('al', 'ky', 'mi', 'wv', 'wi') ) ) {
 					$this->createRecurringHoliday(
 													array(
 														'company_id' => $this->getCompany(),
@@ -4572,10 +4702,10 @@ class SetupPresets extends Factory {
 														'month_int' => 12,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 			}
 
-			if ( in_array( $province, array('ct','il','ia','mo','mt','nj','ny','','','','','','','','','','') ) ) {
+			if ( in_array( $province, array('ct', 'il', 'ia', 'mo', 'mt', 'nj', 'ny', '', '', '', '', '', '', '', '', '', '') ) ) {
 					$this->createRecurringHoliday(
 													array(
 														'company_id' => $this->getCompany(),
@@ -4589,9 +4719,9 @@ class SetupPresets extends Factory {
 														'month_int' => 2,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 			}
-			if ( in_array( $province, array('ca','oh') ) ) {
+			if ( in_array( $province, array('ca', 'oh') ) ) {
 					$this->createRecurringHoliday(
 													array(
 														'company_id' => $this->getCompany(),
@@ -4605,9 +4735,9 @@ class SetupPresets extends Factory {
 														'month_int' => 2,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 			}
-			if ( in_array( $province, array('fl','wi') ) ) {
+			if ( in_array( $province, array('fl', 'wi') ) ) {
 					$this->createRecurringHoliday(
 													array(
 														'company_id' => $this->getCompany(),
@@ -4621,7 +4751,7 @@ class SetupPresets extends Factory {
 														'month_int' => 2,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 			}
 			if ( in_array( $province, array('ca') ) ) {
 					$this->createRecurringHoliday(
@@ -4637,7 +4767,7 @@ class SetupPresets extends Factory {
 														'month_int' => 3,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 			}
 
 			if ( in_array( $province, array('dc') ) ) {
@@ -4654,10 +4784,10 @@ class SetupPresets extends Factory {
 														'month_int' => 4,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 			}
 
-			if ( in_array( $province, array('me','ma') ) ) {
+			if ( in_array( $province, array('me', 'ma') ) ) {
 					$this->createRecurringHoliday(
 													array(
 														'company_id' => $this->getCompany(),
@@ -4671,9 +4801,54 @@ class SetupPresets extends Factory {
 														'month_int' => 4,
 														'always_week_day_id' => 3, //Closest
 													)
-												  );
+												);
 			}
 		}
+		return TRUE;
+	}
+
+	function getRegularTimePolicyByCompanyIDAndName( $name ) {
+		$filter_data = array(
+								'name' => $name
+							);
+		$rtplf = TTnew( 'RegularTimePolicyListFactory' );
+		$rtplf->getAPISearchByCompanyIdAndArrayCriteria( $this->getCompany(), $filter_data );
+		if ( $rtplf->getRecordCount() > 0 ) {
+			$retarr = array();
+			foreach( $rtplf as $rtp_obj ) {
+				$retarr[] = $rtp_obj->getCurrent()->getId();
+			}
+
+			return $retarr;
+		}
+
+		return FALSE;
+	}
+	function createRegularTimePolicy( $data ) {
+		if ( is_array($data) ) {
+			$rtpf = TTnew( 'RegularTimePolicyFactory' );
+			$rtpf->setObjectFromArray( $data );
+			if ( $rtpf->isValid() ) {
+				return $rtpf->Save();
+			}
+		}
+
+		return FALSE;
+	}
+	function RegularTimePolicy( $country = NULL, $province = NULL, $district = NULL, $industry = NULL ) {
+		Debug::text('Country: '. $country, __FILE__, __LINE__, __METHOD__, 10);
+		if ( $country != '' AND $province == '' ) {
+			$this->createRegularTimePolicy(
+											array(
+												'company_id' => $this->getCompany(),
+												'name' => 'Regular Time',
+												'calculation_order' => 9999,
+												'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time' ),
+												'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'Regular Time' ) ),
+											)
+										);
+		}
+
 		return TRUE;
 	}
 
@@ -4706,8 +4881,8 @@ class SetupPresets extends Factory {
 
 		return FALSE;
 	}
-	function OverTimePolicy( $country = NULL, $province = NULL , $district = NULL, $industry = NULL ) {
-		Debug::text('Country: '. $country , __FILE__, __LINE__, __METHOD__, 10);
+	function OverTimePolicy( $country = NULL, $province = NULL, $district = NULL, $industry = NULL ) {
+		Debug::text('Country: '. $country, __FILE__, __LINE__, __METHOD__, 10);
 		if ( $country != '' AND $province == '' ) {
 			switch ($country) {
 				case 'ca':
@@ -4720,12 +4895,10 @@ class SetupPresets extends Factory {
 														'name' => strtoupper($country) .' - Holiday',
 														'type_id' => 180, //Holiday
 														'trigger_time' => 0, //0hrs
-														'rate' => 1.50,
-														'wage_group_id' => 0,
-														'accrual_rate' => 0.00,
-														'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Over Time 1' )
+														'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + Meal + Break' ),
+														'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'OverTime (1.5x)' ) ),
 													)
-												  );
+												);
 					break;
 				default:
 					//Default policies for other countries.
@@ -4734,57 +4907,49 @@ class SetupPresets extends Factory {
 														'company_id' => $this->getCompany(),
 														'name' => strtoupper($country) .' - Daily >8hrs',
 														'type_id' => 10, //Daily
-														'trigger_time' => 8*3600, //8hrs
-														'rate' => 1.50,
-														'wage_group_id' => 0,
-														'accrual_rate' => 0.00,
-														'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Over Time 1' )
+														'trigger_time' => (8 * 3600), //8hrs
+														'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + Meal + Break' ),
+														'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'OverTime (1.5x)' ) ),
 													)
-												  );
+												);
 					$this->createOverTimePolicy(
 													array(
 														'company_id' => $this->getCompany(),
 														'name' => strtoupper($country) .' - Weekly >40hrs',
 														'type_id' => 20, //Weekly
-														'trigger_time' => 40*3600, //40hrs
-														'rate' => 1.50,
-														'wage_group_id' => 0,
-														'accrual_rate' => 0.00,
-														'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Over Time 1' )
+														'trigger_time' => ( 40 * 3600 ), //40hrs
+														'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + Meal + Break' ),
+														'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'OverTime (1.5x)' ) ),
 													)
-												  );
+												);
 					$this->createOverTimePolicy(
 													array(
 														'company_id' => $this->getCompany(),
 														'name' => strtoupper($country) .' - Holiday',
 														'type_id' => 180, //Holiday
 														'trigger_time' => 0, //0hrs
-														'rate' => 1.50,
-														'wage_group_id' => 0,
-														'accrual_rate' => 0.00,
-														'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Over Time 1' )
+														'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + Meal + Break' ),
+														'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'OverTime (1.5x)' ) ),
 													)
-												  );
+												);
 					break;
 			}
 		}
 
 		//Canada
 		if ( $country == 'ca' AND $province != '' ) {
-			Debug::text('Province: '. $province , __FILE__, __LINE__, __METHOD__, 10);
-			if ( in_array( $province, array('bc','ab','sk','mb','yt','nt','nu') ) ) {
+			Debug::text('Province: '. $province, __FILE__, __LINE__, __METHOD__, 10);
+			if ( in_array( $province, array('bc', 'ab', 'sk', 'mb', 'yt', 'nt', 'nu') ) ) {
 				$this->createOverTimePolicy(
 												array(
 													'company_id' => $this->getCompany(),
 													'name' => strtoupper($province) .' - Daily >8hrs',
 													'type_id' => 10, //Daily
-													'trigger_time' => 8*3600, //8hrs
-													'rate' => 1.50,
-													'wage_group_id' => 0,
-													'accrual_rate' => 0.00,
-													'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Over Time 1' )
+													'trigger_time' => ( 8 * 3600 ), //8hrs
+													'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + Meal + Break' ),
+													'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'OverTime (1.5x)' ) ),
 												)
-											  );
+											);
 			}
 			if ( in_array( $province, array('bc') ) ) {
 				$this->createOverTimePolicy(
@@ -4792,42 +4957,36 @@ class SetupPresets extends Factory {
 													'company_id' => $this->getCompany(),
 													'name' => strtoupper($province) .' - Daily >12hrs',
 													'type_id' => 10, //Daily
-													'trigger_time' => 12*3600, //8hrs
-													'rate' => 2.00,
-													'wage_group_id' => 0,
-													'accrual_rate' => 0.00,
-													'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Over Time 2' )
+													'trigger_time' => ( 12 * 3600 ), //8hrs
+													'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + Meal + Break' ),
+													'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'OverTime (2.0x)' ) ),
 												)
-											  );
+											);
 			}
 
-			if ( in_array( $province, array('bc','sk','mb','qc','nl','yt','nt','nu') ) ) {
+			if ( in_array( $province, array('bc', 'sk', 'mb', 'qc', 'nl', 'yt', 'nt', 'nu') ) ) {
 				$this->createOverTimePolicy(
 												array(
 													'company_id' => $this->getCompany(),
 													'name' => strtoupper($province) .' - Weekly >40hrs',
 													'type_id' => 20, //Weekly
-													'trigger_time' => 40*3600, //40hrs
-													'rate' => 1.50,
-													'wage_group_id' => 0,
-													'accrual_rate' => 0.00,
-													'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Over Time 1' )
+													'trigger_time' => ( 40 * 3600 ), //40hrs
+													'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + Meal + Break' ),
+													'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'OverTime (1.5x)' ) ),
 												)
-											  );
+											);
 			}
-			if ( in_array( $province, array('ab', 'on','nb') ) ) {
+			if ( in_array( $province, array('ab', 'on', 'nb') ) ) {
 				$this->createOverTimePolicy(
 												array(
 													'company_id' => $this->getCompany(),
 													'name' => strtoupper($province) .' - Weekly >44hrs',
 													'type_id' => 20, //Weekly
-													'trigger_time' => 44*3600, //44hrs
-													'rate' => 1.50,
-													'wage_group_id' => 0,
-													'accrual_rate' => 0.00,
-													'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Over Time 1' )
+													'trigger_time' => ( 44 * 3600 ), //44hrs
+													'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + Meal + Break' ),
+													'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'OverTime (1.5x)' ) ),
 												)
-											  );
+											);
 			}
 			if ( in_array( $province, array('ns') ) ) {
 				$this->createOverTimePolicy(
@@ -4835,33 +4994,69 @@ class SetupPresets extends Factory {
 													'company_id' => $this->getCompany(),
 													'name' => strtoupper($province) .' - Weekly >48hrs',
 													'type_id' => 20, //Weekly
-													'trigger_time' => 48*3600, //48hrs
-													'rate' => 1.50,
-													'wage_group_id' => 0,
-													'accrual_rate' => 0.00,
-													'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Over Time 1' )
+													'trigger_time' => ( 48 * 3600 ), //48hrs
+													'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + Meal + Break' ),
+													'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'OverTime (1.5x)' ) ),
 												)
-											  );
+											);
 			}
 		}
 
 		//US
 		if ( $country == 'us' AND $province != '' ) {
-			Debug::text('Province: '. $province , __FILE__, __LINE__, __METHOD__, 10);
-			if ( in_array( $province, array('ca') ) ) {
+			Debug::text('Province: '. $province, __FILE__, __LINE__, __METHOD__, 10);
+			if ( in_array( $province, array('ca', 'ak', 'nv' ) ) ) {
+				$this->createOverTimePolicy(
+												array(
+													'company_id' => $this->getCompany(),
+													'name' => strtoupper($province) .' - Daily >8hrs',
+													'type_id' => 10, //Daily
+													'trigger_time' => ( 8 * 3600 ), //8hrs
+													'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + Meal + Break' ),
+													'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'OverTime (1.5x)' ) ),
+												)
+											);
+			}
+
+			if ( in_array( $province, array('ca', 'co' ) ) ) {
 				$this->createOverTimePolicy(
 												array(
 													'company_id' => $this->getCompany(),
 													'name' => strtoupper($province) .' - Daily >12hrs',
 													'type_id' => 10, //Daily
-													'trigger_time' => 12*3600, //8hrs
-													'rate' => 2.00,
-													'wage_group_id' => 0,
-													'accrual_rate' => 0.00,
-													'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Over Time 2' )
+													'trigger_time' => ( 12 * 3600 ), //12hrs
+													'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + Meal + Break' ),
+													'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'OverTime (2.0x)' ) ),
 												)
-											  );
+											);
 			}
+
+			if ( in_array( $province, array('ca', 'ky' ) ) ) {
+				$this->createOverTimePolicy(
+												array(
+													'company_id' => $this->getCompany(),
+													'name' => strtoupper($province) .' - 7th Consecutive Day',
+													'type_id' => 155, //Daily
+													'trigger_time' => ( 0 * 3600 ), //0hrs
+													'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + Meal + Break' ),
+													'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'OverTime (1.5x)' ) ),
+												)
+											);
+			}
+
+			if ( in_array( $province, array('ca') ) ) {
+				$this->createOverTimePolicy(
+												array(
+													'company_id' => $this->getCompany(),
+													'name' => strtoupper($province) .' - 7th Consecutive Day >8hrs',
+													'type_id' => 155, //Daily
+													'trigger_time' => ( 8 * 3600 ), //0hrs
+													'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + Meal + Break' ),
+													'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'OverTime (2.0x)' ) ),
+												)
+											);
+			}
+
 
 			if ( in_array( $province, array('mn') ) ) {
 				$this->createOverTimePolicy(
@@ -4869,26 +5064,22 @@ class SetupPresets extends Factory {
 													'company_id' => $this->getCompany(),
 													'name' => strtoupper($province) .' - Weekly >48hrs',
 													'type_id' => 20, //Weekly
-													'trigger_time' => 48*3600, //40hrs
-													'rate' => 1.50,
-													'wage_group_id' => 0,
-													'accrual_rate' => 0.00,
-													'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Over Time 1' )
+													'trigger_time' => ( 48 * 3600 ), //40hrs
+													'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + Meal + Break' ),
+													'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'OverTime (1.5x)' ) ),
 												)
-											  );
+											);
 			} elseif ( in_array( $province, array('ks') ) ) {
 				$this->createOverTimePolicy(
 												array(
 													'company_id' => $this->getCompany(),
 													'name' => strtoupper($province) .' - Weekly >46hrs',
 													'type_id' => 20, //Weekly
-													'trigger_time' => 46*3600, //40hrs
-													'rate' => 1.50,
-													'wage_group_id' => 0,
-													'accrual_rate' => 0.00,
-													'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Over Time 1' )
+													'trigger_time' => ( 46 * 3600 ), //40hrs
+													'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + Meal + Break' ),
+													'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'OverTime (1.5x)' ) ),
 												)
-											  );
+											);
 			} else {
 				//Always have a weekly OT policy for reference at least, many companies probably implement it on their own anyways?
 				$this->createOverTimePolicy(
@@ -4896,13 +5087,11 @@ class SetupPresets extends Factory {
 													'company_id' => $this->getCompany(),
 													'name' => strtoupper($province) .' - Weekly >40hrs',
 													'type_id' => 20, //Weekly
-													'trigger_time' => 40*3600, //40hrs
-													'rate' => 1.50,
-													'wage_group_id' => 0,
-													'accrual_rate' => 0.00,
-													'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Over Time 1' )
+													'trigger_time' => ( 40 * 3600 ), //40hrs
+													'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + Meal + Break' ),
+													'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'OverTime (1.5x)' ) ),
 												)
-											  );
+											);
 			}
 		}
 
@@ -4951,8 +5140,8 @@ class SetupPresets extends Factory {
 
 		return FALSE;
 	}
-	function ExceptionPolicy( $country = NULL, $province = NULL , $district = NULL, $industry = NULL ) {
-		Debug::text('Country: '. $country , __FILE__, __LINE__, __METHOD__, 10);
+	function ExceptionPolicy( $country = NULL, $province = NULL, $district = NULL, $industry = NULL ) {
+		Debug::text('Country: '. $country, __FILE__, __LINE__, __METHOD__, 10);
 		if ( $country != '' AND $province == '' ) {
 			switch ($country) {
 				default:
@@ -4962,7 +5151,7 @@ class SetupPresets extends Factory {
 														'company_id' => $this->getCompany(),
 														'name' => 'Default',
 													)
-												  );
+												);
 					break;
 			}
 		}
@@ -4985,6 +5174,7 @@ class SetupPresets extends Factory {
 	function createMealPolicy( $data ) {
 		if ( is_array($data) ) {
 			$mpf = TTnew( 'MealPolicyFactory' );
+			Debug::Arr($data, 'zzzCountry: ', __FILE__, __LINE__, __METHOD__, 10);
 			$mpf->setObjectFromArray( $data );
 			if ( $mpf->isValid() ) {
 				return $mpf->Save();
@@ -4993,8 +5183,8 @@ class SetupPresets extends Factory {
 
 		return FALSE;
 	}
-	function MealPolicy( $country = NULL, $province = NULL , $district = NULL, $industry = NULL ) {
-		Debug::text('Country: '. $country , __FILE__, __LINE__, __METHOD__, 10);
+	function MealPolicy( $country = NULL, $province = NULL, $district = NULL, $industry = NULL ) {
+		Debug::text('Country: '. $country, __FILE__, __LINE__, __METHOD__, 10);
 		if ( $country != '' AND $province == '' ) {
 			switch ($country) {
 				default:
@@ -5004,12 +5194,13 @@ class SetupPresets extends Factory {
 													'company_id' => $this->getCompany(),
 													'name' => '30min Lunch',
 													'type_id' => 20, //Normal
-													'trigger_time' => 5*3600, //5hrs
+													'trigger_time' => ( 5 * 3600 ), //5hrs
 													'amount' => 1800, //30min
 													'auto_detect_type_id' => 20, //Punch Type
-													'minimum_punch_time' => 20*60, //20min
-													'maximum_punch_time' => 40*60, //40min
+													'minimum_punch_time' => ( 20 * 60 ), //20min
+													'maximum_punch_time' => ( 40 * 60 ), //40min
 													'include_lunch_punch_time' => FALSE,
+													'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'Lunch Time' ) ),
 												)
 											);
 					$this->createMealPolicy(
@@ -5017,12 +5208,13 @@ class SetupPresets extends Factory {
 													'company_id' => $this->getCompany(),
 													'name' => '60min Lunch',
 													'type_id' => 20, //Normal
-													'trigger_time' => 7*3600, //7hrs
+													'trigger_time' => ( 7 * 3600 ), //7hrs
 													'amount' => 3600, //60min
 													'auto_detect_type_id' => 20, //Punch Type
-													'minimum_punch_time' => 45*60, //20min
-													'maximum_punch_time' => 75*60, //40min
+													'minimum_punch_time' => ( 45 * 60 ), //20min
+													'maximum_punch_time' => ( 75 * 60 ), //40min
 													'include_lunch_punch_time' => FALSE,
+													'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'Lunch Time' ) ),
 												)
 											);
 
@@ -5056,8 +5248,8 @@ class SetupPresets extends Factory {
 
 		return FALSE;
 	}
-	function BreakPolicy( $country = NULL, $province = NULL , $district = NULL, $industry = NULL ) {
-		Debug::text('Country: '. $country , __FILE__, __LINE__, __METHOD__, 10);
+	function BreakPolicy( $country = NULL, $province = NULL, $district = NULL, $industry = NULL ) {
+		Debug::text('Country: '. $country, __FILE__, __LINE__, __METHOD__, 10);
 		if ( $country != '' AND $province == '' ) {
 			switch ($country) {
 				default:
@@ -5067,12 +5259,13 @@ class SetupPresets extends Factory {
 													'company_id' => $this->getCompany(),
 													'name' => 'Break1',
 													'type_id' => 20, //Normal
-													'trigger_time' => 2*3600, //2hrs
-													'amount' => 15*60, //15min
+													'trigger_time' => ( 2 * 3600 ), //2hrs
+													'amount' => ( 15 * 60 ), //15min
 													'auto_detect_type_id' => 20, //Punch Type
-													'minimum_punch_time' => 5*60, //5min
-													'maximum_punch_time' => 19*60, //19min
+													'minimum_punch_time' => ( 5 * 60 ), //5min
+													'maximum_punch_time' => ( 19 * 60 ), //19min
 													'include_break_punch_time' => FALSE,
+													'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'Break Time' ) ),
 												)
 											);
 					$this->createBreakPolicy(
@@ -5080,12 +5273,13 @@ class SetupPresets extends Factory {
 													'company_id' => $this->getCompany(),
 													'name' => 'Break2',
 													'type_id' => 20, //Normal
-													'trigger_time' => 5*3600, //5hrs
-													'amount' => 15*60, //15min
+													'trigger_time' => ( 5 * 3600 ), //5hrs
+													'amount' => ( 15 * 60 ), //15min
 													'auto_detect_type_id' => 20, //Punch Type
-													'minimum_punch_time' => 5*60, //5min
-													'maximum_punch_time' => 19*60, //19min
+													'minimum_punch_time' => ( 5 * 60 ), //5min
+													'maximum_punch_time' => ( 19 * 60 ), //19min
 													'include_break_punch_time' => FALSE,
+													'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'Break Time' ) ),
 												)
 											);
 
@@ -5107,8 +5301,8 @@ class SetupPresets extends Factory {
 
 		return FALSE;
 	}
-	function SchedulePolicy( $country = NULL, $province = NULL , $district = NULL, $industry = NULL ) {
-		Debug::text('Country: '. $country , __FILE__, __LINE__, __METHOD__, 10);
+	function SchedulePolicy( $country = NULL, $province = NULL, $district = NULL, $industry = NULL ) {
+		Debug::text('Country: '. $country, __FILE__, __LINE__, __METHOD__, 10);
 		if ( $country != '' AND $province == '' ) {
 			switch ($country) {
 				default:
@@ -5118,7 +5312,7 @@ class SetupPresets extends Factory {
 													'company_id' => $this->getCompany(),
 													'name' => 'No Lunch',
 													'meal_policy_id' => FALSE,
-													'start_stop_window' => (3600*2), //1 hr
+													'start_stop_window' => (3600 * 2), //1 hr
 												)
 											);
 					$this->createSchedulePolicy(
@@ -5127,7 +5321,7 @@ class SetupPresets extends Factory {
 													'name' => '30min Lunch',
 													'meal_policy_id' => $this->getMealPolicyByCompanyIDAndName( '30min Lunch' ),
 													//'break_policy_id' => FALSE
-													'start_stop_window' => (3600*2), //1 hr
+													'start_stop_window' => (3600 * 2), //1 hr
 												)
 											);
 					$this->createSchedulePolicy(
@@ -5136,7 +5330,7 @@ class SetupPresets extends Factory {
 													'name' => '60min Lunch',
 													'meal_policy_id' => $this->getMealPolicyByCompanyIDAndName( '60min Lunch' ),
 													//'break_policy_id' => FALSE
-													'start_stop_window' => (3600*2), //1 hr
+													'start_stop_window' => (3600 * 2), //1 hr
 												)
 											);
 					break;
@@ -5146,6 +5340,30 @@ class SetupPresets extends Factory {
 		return TRUE;
 	}
 
+
+	function getAccrualPolicyAccountByCompanyIDAndName( $name ) {
+		$filter_data = array(
+								'name' => $name
+							);
+		$apalf = TTnew( 'AccrualPolicyAccountListFactory' );
+		$apalf->getAPISearchByCompanyIdAndArrayCriteria( $this->getCompany(), $filter_data );
+		if ( $apalf->getRecordCount() > 0 ) {
+			return $apalf->getCurrent()->getId();
+		}
+
+		return FALSE;
+	}
+	function createAccrualPolicyAccount( $data ) {
+		if ( is_array($data) ) {
+			$apaf = TTnew( 'AccrualPolicyAccountFactory' );
+			$apaf->setObjectFromArray( $data );
+			if ( $apaf->isValid() ) {
+				return $apaf->Save();
+			}
+		}
+
+		return FALSE;
+	}
 
 	function getAccrualPolicyByCompanyIDAndTypeAndName( $type_id, $name ) {
 		$filter_data = array(
@@ -5160,7 +5378,6 @@ class SetupPresets extends Factory {
 
 		return FALSE;
 	}
-
 	function createAccrualPolicy( $data ) {
 		if ( is_array($data) ) {
 			$apf = TTnew( 'AccrualPolicyFactory' );
@@ -5183,20 +5400,138 @@ class SetupPresets extends Factory {
 
 		return FALSE;
 	}
-	function AccrualPolicy( $country = NULL, $province = NULL , $district = NULL, $industry = NULL ) {
-		Debug::text('Country: '. $country , __FILE__, __LINE__, __METHOD__, 10);
+	function AccrualPolicy( $country = NULL, $province = NULL, $district = NULL, $industry = NULL ) {
+		Debug::text('Country: '. $country, __FILE__, __LINE__, __METHOD__, 10);
 		if ( $country != '' AND $province == '' ) {
+			//Time Bank
+			$this->createAccrualPolicyAccount(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Time Bank',
+											'enable_pay_stub_balance_display' => TRUE,
+										)
+									);
+
 			switch ($country) {
 				case 'ca':
-				case 'us':
 					break;
-				default:
+				case 'us':
+					//Vacation
+					$accrual_policy_account_id = $this->createAccrualPolicyAccount(
+												array(
+													'company_id' => $this->getCompany(),
+													'name' => 'Paid Time Off (PTO)',
+													'enable_pay_stub_balance_display' => TRUE,
+												)
+											);
+					if ( $accrual_policy_account_id == FALSE ) {
+						$accrual_policy_account_id = $this->getAccrualPolicyAccountByCompanyIDAndName( 'Paid Time Off (PTO)' );
+					}
+
 					$accrual_policy_id = $this->createAccrualPolicy(
 												array(
 													'company_id' => $this->getCompany(),
-													'name' => strtoupper($province) .' - Vacation',
+													'accrual_policy_account_id' => $accrual_policy_account_id,
+													'name' => 'Paid Time Off (PTO)',
 													'type_id' => 20, //Calendar
+													'apply_frequency_id' => 10, //Each pay period.
+													'milestone_rollover_hire_date' => TRUE,
+													'minimum_employed_days' => 0,
+												)
+											);
+
+					if ( $accrual_policy_id > 0 ) {
+						$this->createAccrualPolicyMilestone(
+													array(
+														'accrual_policy_id' => $accrual_policy_id,
+														'length_of_service' => 0,
+														'length_of_service_unit_id' => 40, //Years
+														'accrual_rate' => ( 0 * 3600 ),
+														'maximum_time' => ( 0 * 3600 ),
+														'rollover_time' => ( 9999 * 3600 ),
+													)
+												);
+						$this->createAccrualPolicyMilestone(
+													array(
+														'accrual_policy_id' => $accrual_policy_id,
+														'length_of_service' => 5,
+														'length_of_service_unit_id' => 40, //Years
+														'accrual_rate' => ( 0 * 3600 ),
+														'maximum_time' => ( 0 * 3600 ),
+														'rollover_time' => ( 9999 * 3600 ),
+													)
+												);
+					}
+					unset($accrual_policy_account_id, $accrual_policy_id);
+					
+					break;
+				default:
+					//Vacation
+					$accrual_policy_account_id = $this->createAccrualPolicyAccount(
+												array(
+													'company_id' => $this->getCompany(),
+													'name' => 'Vacation',
 													'enable_pay_stub_balance_display' => TRUE,
+												)
+											);
+					if ( $accrual_policy_account_id == FALSE ) {
+						$accrual_policy_account_id = $this->getAccrualPolicyAccountByCompanyIDAndName( 'Vacation' );
+					}
+
+					$accrual_policy_id = $this->createAccrualPolicy(
+												array(
+													'company_id' => $this->getCompany(),
+													'accrual_policy_account_id' => $accrual_policy_account_id,
+													'name' => 'Vacation',
+													'type_id' => 20, //Calendar
+													'apply_frequency_id' => 10, //Each pay period.
+													'milestone_rollover_hire_date' => TRUE,
+													'minimum_employed_days' => 0,
+												)
+											);
+
+					if ( $accrual_policy_id > 0 ) {
+						$this->createAccrualPolicyMilestone(
+													array(
+														'accrual_policy_id' => $accrual_policy_id,
+														'length_of_service' => 0,
+														'length_of_service_unit_id' => 40, //Years
+														'accrual_rate' => ( 0 * 3600 ),
+														'maximum_time' => ( 0 * 3600 ),
+														'rollover_time' => ( 9999 * 3600 ),
+													)
+												);
+						$this->createAccrualPolicyMilestone(
+													array(
+														'accrual_policy_id' => $accrual_policy_id,
+														'length_of_service' => 5,
+														'length_of_service_unit_id' => 40, //Years
+														'accrual_rate' => ( 0 * 3600 ),
+														'maximum_time' => ( 0 * 3600 ),
+														'rollover_time' => ( 9999 * 3600 ),
+													)
+												);
+					}
+					unset($accrual_policy_account_id, $accrual_policy_id);
+
+					//Sick
+					$accrual_policy_account_id = $this->createAccrualPolicyAccount(
+												array(
+													'company_id' => $this->getCompany(),
+													'name' => 'Sick',
+													'enable_pay_stub_balance_display' => TRUE,
+												)
+											);
+					if ( $accrual_policy_account_id == FALSE ) {
+						$accrual_policy_account_id = $this->getAccrualPolicyAccountByCompanyIDAndName( 'Sick' );
+					}
+
+					$accrual_policy_id = $this->createAccrualPolicy(
+												array(
+													'company_id' => $this->getCompany(),
+													'accrual_policy_account_id' => $accrual_policy_account_id,
+													'name' => 'Sick',
+													'type_id' => 20, //Calendar
 													'apply_frequency_id' => 10, //Each pay period.
 													'milestone_rollover_hire_date' => TRUE,
 													'minimum_employed_days' => 0,
@@ -5208,9 +5543,9 @@ class SetupPresets extends Factory {
 														'accrual_policy_id' => $accrual_policy_id,
 														'length_of_service' => 0,
 														'length_of_service_unit_id' => 40, //Years
-														'accrual_rate' => 0*3600,
-														'maximum_time' => 0*3600,
-														'rollover_time' => 9999*3600,
+														'accrual_rate' => ( 0 * 3600 ),
+														'maximum_time' => ( 0 * 3600 ),
+														'rollover_time' => ( 9999 * 3600 ),
 													)
 												);
 						$this->createAccrualPolicyMilestone(
@@ -5218,13 +5553,13 @@ class SetupPresets extends Factory {
 														'accrual_policy_id' => $accrual_policy_id,
 														'length_of_service' => 5,
 														'length_of_service_unit_id' => 40, //Years
-														'accrual_rate' => 0*3600,
-														'maximum_time' => 0*3600,
-														'rollover_time' => 9999*3600,
+														'accrual_rate' => ( 0 * 3600 ),
+														'maximum_time' => ( 0 * 3600 ),
+														'rollover_time' => ( 9999 * 3600 ),
 													)
 												);
 					}
-					unset($accrual_policy_id);
+					unset($accrual_policy_account_id, $accrual_policy_id);
 
 					break;
 			}
@@ -5232,28 +5567,41 @@ class SetupPresets extends Factory {
 
 		//Canada
 		if ( $country == 'ca' AND $province != '' ) {
-			Debug::text('Province: '. $province , __FILE__, __LINE__, __METHOD__, 10);
-			if ( in_array( $province, array('bc','ab','mb','ns','qc','nt','nu') ) ) {
-				$accrual_policy_id = $this->createAccrualPolicy(
-											array(
-												'company_id' => $this->getCompany(),
-												'name' => strtoupper($province) .' - Vacation',
-												'type_id' => 20, //Calendar
-												'enable_pay_stub_balance_display' => TRUE,
-												'apply_frequency_id' => 10, //Each pay period.
-												'milestone_rollover_hire_date' => TRUE,
-												'minimum_employed_days' => 0,
-											)
-										);
+			Debug::text('Province: '. $province, __FILE__, __LINE__, __METHOD__, 10);
+
+			$accrual_policy_account_id = $this->createAccrualPolicyAccount(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Vacation',
+											'enable_pay_stub_balance_display' => TRUE,
+										)
+									);
+			if ( $accrual_policy_account_id == FALSE ) {
+				$accrual_policy_account_id = $this->getAccrualPolicyAccountByCompanyIDAndName( 'Vacation' );
+			}
+
+			$accrual_policy_id = $this->createAccrualPolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'accrual_policy_account_id' => $accrual_policy_account_id,
+											'name' => strtoupper($province) .' - Vacation',
+											'type_id' => 20, //Calendar
+											'apply_frequency_id' => 10, //Each pay period.
+											'milestone_rollover_hire_date' => TRUE,
+											'minimum_employed_days' => 0,
+										)
+									);
+
+			if ( in_array( $province, array('bc', 'ab', 'mb', 'qc', 'nt', 'nu') ) ) {
 				if ( $accrual_policy_id > 0 ) {
 					$this->createAccrualPolicyMilestone(
 												array(
 													'accrual_policy_id' => $accrual_policy_id,
 													'length_of_service' => 0,
 													'length_of_service_unit_id' => 40, //Years
-													'accrual_rate' => 80*3600,
-													'maximum_time' => 80*3600,
-													'rollover_time' => 9999*3600,
+													'accrual_rate' => ( 80 * 3600 ),
+													'maximum_time' => ( 80 * 3600 ),
+													'rollover_time' => ( 9999 * 3600 ),
 												)
 											);
 					$this->createAccrualPolicyMilestone(
@@ -5261,9 +5609,9 @@ class SetupPresets extends Factory {
 													'accrual_policy_id' => $accrual_policy_id,
 													'length_of_service' => 5,
 													'length_of_service_unit_id' => 40, //Years
-													'accrual_rate' => 120*3600,
-													'maximum_time' => 120*3600,
-													'rollover_time' => 9999*3600,
+													'accrual_rate' => ( 120 * 3600 ),
+													'maximum_time' => ( 120 * 3600 ),
+													'rollover_time' => ( 9999 * 3600 ),
 												)
 											);
 				}
@@ -5271,26 +5619,15 @@ class SetupPresets extends Factory {
 			}
 
 			if ( in_array( $province, array('sk') ) ) {
-				$accrual_policy_id = $this->createAccrualPolicy(
-											array(
-												'company_id' => $this->getCompany(),
-												'name' => strtoupper($province) .' - Vacation',
-												'type_id' => 20, //Calendar
-												'enable_pay_stub_balance_display' => TRUE,
-												'apply_frequency_id' => 10, //Each pay period.
-												'milestone_rollover_hire_date' => TRUE,
-												'minimum_employed_days' => 0,
-											)
-										);
 				if ( $accrual_policy_id > 0 ) {
 					$this->createAccrualPolicyMilestone(
 												array(
 													'accrual_policy_id' => $accrual_policy_id,
 													'length_of_service' => 0,
 													'length_of_service_unit_id' => 40, //Years
-													'accrual_rate' => 120*3600,
-													'maximum_time' => 120*3600,
-													'rollover_time' => 9999*3600,
+													'accrual_rate' => ( 120 * 3600 ),
+													'maximum_time' => ( 120 * 3600 ),
+													'rollover_time' => ( 9999 * 3600 ),
 												)
 											);
 					$this->createAccrualPolicyMilestone(
@@ -5298,63 +5635,41 @@ class SetupPresets extends Factory {
 													'accrual_policy_id' => $accrual_policy_id,
 													'length_of_service' => 10,
 													'length_of_service_unit_id' => 40, //Years
-													'accrual_rate' => 160*3600,
-													'maximum_time' => 160*3600,
-													'rollover_time' => 9999*3600,
+													'accrual_rate' => ( 160 * 3600 ),
+													'maximum_time' => ( 160 * 3600 ),
+													'rollover_time' => ( 9999 * 3600 ),
 												)
 											);
 				}
 				unset($accrual_policy_id);
 			}
 
-			if ( in_array( $province, array('on','yt') ) ) {
-				$accrual_policy_id = $this->createAccrualPolicy(
-											array(
-												'company_id' => $this->getCompany(),
-												'name' => strtoupper($province) .' - Vacation',
-												'type_id' => 20, //Calendar
-												'enable_pay_stub_balance_display' => TRUE,
-												'apply_frequency_id' => 10, //Each pay period.
-												'milestone_rollover_hire_date' => TRUE,
-												'minimum_employed_days' => 0,
-											)
-										);
+			if ( in_array( $province, array('on', 'yt') ) ) {
 				if ( $accrual_policy_id > 0 ) {
 					$this->createAccrualPolicyMilestone(
 												array(
 													'accrual_policy_id' => $accrual_policy_id,
 													'length_of_service' => 0,
 													'length_of_service_unit_id' => 40, //Years
-													'accrual_rate' => 80*3600,
-													'maximum_time' => 80*3600,
-													'rollover_time' => 9999*3600,
+													'accrual_rate' => ( 80 * 3600 ),
+													'maximum_time' => ( 80 * 3600 ),
+													'rollover_time' => ( 9999 * 3600 ),
 												)
 											);
 				}
 				unset($accrual_policy_id);
 			}
 
-			if ( in_array( $province, array('nb','ns','pe') ) ) {
-				$accrual_policy_id = $this->createAccrualPolicy(
-											array(
-												'company_id' => $this->getCompany(),
-												'name' => strtoupper($province) .' - Vacation',
-												'type_id' => 20, //Calendar
-												'enable_pay_stub_balance_display' => TRUE,
-												'apply_frequency_id' => 10, //Each pay period.
-												'milestone_rollover_hire_date' => TRUE,
-												'minimum_employed_days' => 0,
-											)
-										);
+			if ( in_array( $province, array('nb', 'ns', 'pe') ) ) {
 				if ( $accrual_policy_id > 0 ) {
 					$this->createAccrualPolicyMilestone(
 												array(
 													'accrual_policy_id' => $accrual_policy_id,
 													'length_of_service' => 0,
 													'length_of_service_unit_id' => 40, //Years
-													'accrual_rate' => 80*3600,
-													'maximum_time' => 80*3600,
-													'rollover_time' => 9999*3600,
+													'accrual_rate' => ( 80 * 3600 ),
+													'maximum_time' => ( 80 * 3600 ),
+													'rollover_time' => ( 9999 * 3600 ),
 												)
 											);
 					$this->createAccrualPolicyMilestone(
@@ -5362,9 +5677,9 @@ class SetupPresets extends Factory {
 													'accrual_policy_id' => $accrual_policy_id,
 													'length_of_service' => 8,
 													'length_of_service_unit_id' => 40, //Years
-													'accrual_rate' => 120*3600,
-													'maximum_time' => 120*3600,
-													'rollover_time' => 9999*3600,
+													'accrual_rate' => ( 120 * 3600 ),
+													'maximum_time' => ( 120 * 3600 ),
+													'rollover_time' => ( 9999 * 3600 ),
 												)
 											);
 
@@ -5373,26 +5688,15 @@ class SetupPresets extends Factory {
 			}
 
 			if ( in_array( $province, array('nl') ) ) {
-				$accrual_policy_id = $this->createAccrualPolicy(
-											array(
-												'company_id' => $this->getCompany(),
-												'name' => strtoupper($province) .' - Vacation',
-												'type_id' => 20, //Calendar
-												'enable_pay_stub_balance_display' => TRUE,
-												'apply_frequency_id' => 10, //Each pay period.
-												'milestone_rollover_hire_date' => TRUE,
-												'minimum_employed_days' => 0,
-											)
-										);
 				if ( $accrual_policy_id > 0 ) {
 					$this->createAccrualPolicyMilestone(
 												array(
 													'accrual_policy_id' => $accrual_policy_id,
 													'length_of_service' => 0,
 													'length_of_service_unit_id' => 40, //Years
-													'accrual_rate' => 80*3600,
-													'maximum_time' => 80*3600,
-													'rollover_time' => 9999*3600,
+													'accrual_rate' => ( 80 * 3600 ),
+													'maximum_time' => ( 80 * 3600 ),
+													'rollover_time' => ( 9999 * 3600 ),
 												)
 											);
 					$this->createAccrualPolicyMilestone(
@@ -5400,17 +5704,66 @@ class SetupPresets extends Factory {
 													'accrual_policy_id' => $accrual_policy_id,
 													'length_of_service' => 15,
 													'length_of_service_unit_id' => 40, //Years
-													'accrual_rate' => 120*3600,
-													'maximum_time' => 120*3600,
-													'rollover_time' => 9999*3600,
+													'accrual_rate' => ( 120 * 3600 ),
+													'maximum_time' => ( 120 * 3600 ),
+													'rollover_time' => ( 9999 * 3600 ),
 												)
 											);
 
 				}
-				unset($accrual_policy_id);
+				unset($accrual_policy_account_id, $accrual_policy_id);
+			}
+			unset($accrual_policy_account_id);
+
+
+			//Sick
+			$accrual_policy_account_id = $this->createAccrualPolicyAccount(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Sick',
+											'enable_pay_stub_balance_display' => TRUE,
+										)
+									);
+			if ( $accrual_policy_account_id == FALSE ) {
+				$accrual_policy_account_id = $this->getAccrualPolicyAccountByCompanyIDAndName( 'Sick' );
 			}
 
+			$accrual_policy_id = $this->createAccrualPolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'accrual_policy_account_id' => $accrual_policy_account_id,
+											'name' => 'Sick',
+											'type_id' => 20, //Calendar
+											'apply_frequency_id' => 10, //Each pay period.
+											'milestone_rollover_hire_date' => TRUE,
+											'minimum_employed_days' => 0,
+										)
+									);
+			if ( $accrual_policy_id > 0 ) {
+				$this->createAccrualPolicyMilestone(
+											array(
+												'accrual_policy_id' => $accrual_policy_id,
+												'length_of_service' => 0,
+												'length_of_service_unit_id' => 40, //Years
+												'accrual_rate' => ( 0 * 3600 ),
+												'maximum_time' => ( 0 * 3600 ),
+												'rollover_time' => ( 9999 * 3600 ),
+											)
+										);
+				$this->createAccrualPolicyMilestone(
+											array(
+												'accrual_policy_id' => $accrual_policy_id,
+												'length_of_service' => 5,
+												'length_of_service_unit_id' => 40, //Years
+												'accrual_rate' => ( 0 * 3600 ),
+												'maximum_time' => ( 0 * 3600 ),
+												'rollover_time' => ( 9999 * 3600 ),
+											)
+										);
+			}
+			unset($accrual_policy_account_id, $accrual_policy_id);
 		}
+		
 		return TRUE;
 	}
 
@@ -5445,262 +5798,746 @@ class SetupPresets extends Factory {
 
 		return FALSE;
 	}
-	function AbsencePolicy( $country = NULL, $province = NULL , $district = NULL, $industry = NULL ) {
-		Debug::text('Country: '. $country , __FILE__, __LINE__, __METHOD__, 10);
+	function AbsencePolicy( $country = NULL, $province = NULL, $district = NULL, $industry = NULL ) {
+		Debug::text('Country: '. $country, __FILE__, __LINE__, __METHOD__, 10);
 		if ( $country != '' AND $province == '' ) {
-			switch ($country) {
-				case 'ca':
-					$this->createAbsencePolicy(
-												array(
-													'company_id' => $this->getCompany(),
-													'name' => 'Vacation (UNPAID)',
-													'type_id' => 20, //Paid, 20=UnPaid
-													'rate' => 1.00,
-													'wage_group_id' => 0,
-													'accrual_rate' => 1.00,
-													'accrual_policy_id' => 0,
-													'pay_stub_entry_account_id' => 0,
-												)
-											);
-
-					$this->createAbsencePolicy(
-												array(
-													'company_id' => $this->getCompany(),
-													'name' => 'Sick (PAID)',
-													'type_id' => 10, //Paid, 20=UnPaid
-													'rate' => 1.00,
-													'wage_group_id' => 0,
-													'accrual_rate' => 1.00,
-													'accrual_policy_id' => 0,
-													'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Sick' ),
-												)
-											);
-					$this->createAbsencePolicy(
-												array(
-													'company_id' => $this->getCompany(),
-													'name' => 'Sick (UNPAID)',
-													'type_id' => 20, //Paid, 20=UnPaid
-													'rate' => 1.00,
-													'wage_group_id' => 0,
-													'accrual_rate' => 1.00,
-													'accrual_policy_id' => 0,
-													'pay_stub_entry_account_id' => 0,
-												)
-											);
-
-					$this->createAbsencePolicy(
-												array(
-													'company_id' => $this->getCompany(),
-													'name' => 'Jury Duty',
-													'type_id' => 20, //Paid, 20=UnPaid
-													'rate' => 1.00,
-													'wage_group_id' => 0,
-													'accrual_rate' => 1.00,
-													'accrual_policy_id' => 0,
-													'pay_stub_entry_account_id' => 0,
-												)
-											);
-					$this->createAbsencePolicy(
-												array(
-													'company_id' => $this->getCompany(),
-													'name' => 'Bereavement',
-													'type_id' => 20, //Paid, 20=UnPaid
-													'rate' => 1.00,
-													'wage_group_id' => 0,
-													'accrual_rate' => 1.00,
-													'accrual_policy_id' => 0,
-													'pay_stub_entry_account_id' => 0,
-												)
-											);
-					break;
-				case 'us':
-					$this->createAbsencePolicy(
-												array(
-													'company_id' => $this->getCompany(),
-													'name' => 'Vacation (PAID)',
-													'type_id' => 10, //Paid, 20=UnPaid
-													'rate' => 1.00,
-													'wage_group_id' => 0,
-													'accrual_rate' => 1.00,
-													'accrual_policy_id' => 0,
-													'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Vacation' ),
-												)
-											);
-					$this->createAbsencePolicy(
-												array(
-													'company_id' => $this->getCompany(),
-													'name' => 'Vacation (UNPAID)',
-													'type_id' => 20, //Paid, 20=UnPaid
-													'rate' => 1.00,
-													'wage_group_id' => 0,
-													'accrual_rate' => 1.00,
-													'accrual_policy_id' => 0,
-													'pay_stub_entry_account_id' => 0,
-												)
-											);
-
-					$this->createAbsencePolicy(
-												array(
-													'company_id' => $this->getCompany(),
-													'name' => 'Sick (PAID)',
-													'type_id' => 10, //Paid, 20=UnPaid
-													'rate' => 1.00,
-													'wage_group_id' => 0,
-													'accrual_rate' => 1.00,
-													'accrual_policy_id' => 0,
-													'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Sick' ),
-												)
-											);
-					$this->createAbsencePolicy(
-												array(
-													'company_id' => $this->getCompany(),
-													'name' => 'Sick (UNPAID)',
-													'type_id' => 20, //Paid, 20=UnPaid
-													'rate' => 1.00,
-													'wage_group_id' => 0,
-													'accrual_rate' => 1.00,
-													'accrual_policy_id' => 0,
-													'pay_stub_entry_account_id' => 0,
-												)
-											);
-
-					$this->createAbsencePolicy(
-												array(
-													'company_id' => $this->getCompany(),
-													'name' => 'Statutory Holiday',
-													'type_id' => 10, //Paid, 20=UnPaid
-													'rate' => 1.00,
-													'wage_group_id' => 0,
-													'accrual_rate' => 1.00,
-													'accrual_policy_id' => 0,
-													'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Statutory Holiday' ),
-												)
-											);
-
-					$this->createAbsencePolicy(
-												array(
-													'company_id' => $this->getCompany(),
-													'name' => 'Jury Duty',
-													'type_id' => 20, //Paid, 20=UnPaid
-													'rate' => 1.00,
-													'wage_group_id' => 0,
-													'accrual_rate' => 1.00,
-													'accrual_policy_id' => 0,
-													'pay_stub_entry_account_id' => 0,
-												)
-											);
-					$this->createAbsencePolicy(
-												array(
-													'company_id' => $this->getCompany(),
-													'name' => 'Bereavement',
-													'type_id' => 20, //Paid, 20=UnPaid
-													'rate' => 1.00,
-													'wage_group_id' => 0,
-													'accrual_rate' => 1.00,
-													'accrual_policy_id' => 0,
-													'pay_stub_entry_account_id' => 0,
-												)
-											);
-					break;
-				default:
-					//Default policies for other countries.
-					$this->createAbsencePolicy(
-												array(
-													'company_id' => $this->getCompany(),
-													'name' => 'Vacation (PAID)',
-													'type_id' => 10, //Paid, 20=UnPaid
-													'rate' => 1.00,
-													'wage_group_id' => 0,
-													'accrual_rate' => 1.00,
-													'accrual_policy_id' => 0,
-													'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Vacation' ),
-												)
-											);
-					$this->createAbsencePolicy(
-												array(
-													'company_id' => $this->getCompany(),
-													'name' => 'Vacation (UNPAID)',
-													'type_id' => 20, //Paid, 20=UnPaid
-													'rate' => 1.00,
-													'wage_group_id' => 0,
-													'accrual_rate' => 1.00,
-													'accrual_policy_id' => 0,
-													'pay_stub_entry_account_id' => 0,
-												)
-											);
-
-					$this->createAbsencePolicy(
-												array(
-													'company_id' => $this->getCompany(),
-													'name' => 'Sick (PAID)',
-													'type_id' => 10, //Paid, 20=UnPaid
-													'rate' => 1.00,
-													'wage_group_id' => 0,
-													'accrual_rate' => 1.00,
-													'accrual_policy_id' => 0,
-													'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Sick' ),
-												)
-											);
-					$this->createAbsencePolicy(
-												array(
-													'company_id' => $this->getCompany(),
-													'name' => 'Sick (UNPAID)',
-													'type_id' => 20, //Paid, 20=UnPaid
-													'rate' => 1.00,
-													'wage_group_id' => 0,
-													'accrual_rate' => 1.00,
-													'accrual_policy_id' => 0,
-													'pay_stub_entry_account_id' => 0,
-												)
-											);
-
-					$this->createAbsencePolicy(
-												array(
-													'company_id' => $this->getCompany(),
-													'name' => 'Statutory Holiday',
-													'type_id' => 10, //Paid, 20=UnPaid
-													'rate' => 1.00,
-													'wage_group_id' => 0,
-													'accrual_rate' => 1.00,
-													'accrual_policy_id' => 0,
-													'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Statutory Holiday' ),
-												)
-											);
-					break;
-			}
-		}
-
-		if ( $country == 'ca' AND $province != '' ) {
-			Debug::text('Province: '. $province , __FILE__, __LINE__, __METHOD__, 10);
 			$this->createAbsencePolicy(
-							array(
-								'company_id' => $this->getCompany(),
-								'name' => strtoupper($province) .' - Vacation (PAID)',
-								'type_id' => 10, //Paid, 20=UnPaid
-								'rate' => 1.00,
-								'wage_group_id' => 0,
-								'accrual_rate' => 1.00,
-								'accrual_policy_id' => $this->getAccrualPolicyByCompanyIDAndTypeAndName( 20, strtoupper($province) .' - Vacation' ),
-								'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Vacation - Accrual Release' ),
-							)
-						);
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Vacation (PAID)',
+											'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'Vacation' ) )
+										)
+									);
 
 			$this->createAbsencePolicy(
 										array(
 											'company_id' => $this->getCompany(),
-											'name' => strtoupper($province) .' - Statutory Holiday',
-											'type_id' => 10, //Paid, 20=UnPaid
+											'name' => 'Vacation (UNPAID)',
+											'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'Vacation (UNPAID)' ) ),
+										)
+									);
+
+			$this->createAbsencePolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Sick (PAID)',
+											'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'Sick' ) ),
+										)
+									);
+			$this->createAbsencePolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Sick (UNPAID)',
+											'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'Sick (UNPAID)' ) ),
+										)
+									);
+
+			$this->createAbsencePolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Jury Duty',
+											'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'Jury Duty' ) ),
+										)
+									);
+			$this->createAbsencePolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Bereavement',
+											'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'Bereavement' ) ),
+										)
+									);
+
+			$this->createAbsencePolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Statutory Holiday',
+											'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'Statutory Holiday' ) )
+										)
+									);
+			$this->createAbsencePolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Time Bank (Withdrawal)',
+											'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'Time Bank' ) )
+										)
+									);
+
+		}
+		
+		return TRUE;
+	}
+
+
+
+
+	function getPayFormulaPolicyByCompanyIDAndName( $name ) {
+		$filter_data = array(
+								'name' => $name
+							);
+		$lf = TTnew( 'PayFormulaPolicyListFactory' );
+		$lf->getAPISearchByCompanyIdAndArrayCriteria( $this->getCompany(), $filter_data );
+		if ( $lf->getRecordCount() > 0 ) {
+			foreach( $lf as $obj ) {
+				return $obj->getCurrent()->getId();
+			}
+		}
+
+		return FALSE;
+	}
+
+	function createPayFormulaPolicy( $data ) {
+		if ( is_array($data) ) {
+			$f = TTnew( 'PayFormulaPolicyFactory' );
+			$f->setObjectFromArray( $data );
+			if ( $f->isValid() ) {
+				return $f->Save();
+			}
+		}
+
+		return FALSE;
+	}
+	function PayFormulaPolicy( $country = NULL, $province = NULL, $district = NULL, $industry = NULL ) {
+		Debug::text('Country: '. $country, __FILE__, __LINE__, __METHOD__, 10);
+
+		if ( $country != '' AND $province == '' ) {
+			//Common for all countries.
+			$this->createPayFormulaPolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'None ($0)',
+											'pay_type_id' => 10, //Pay Multiplied By Factor
+											'rate' => 0.00,
+											'wage_group_id' => 0,
+											'accrual_rate' => 0.00,
+											'accrual_policy_id' => 0,
+										)
+									);
+			$this->createPayFormulaPolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Regular',
+											'pay_type_id' => 10, //Pay Multiplied By Factor
+											'rate' => 1.00,
+											'wage_group_id' => 0,
+											'accrual_rate' => 0.00,
+											'accrual_policy_id' => 0,
+										)
+									);
+			$this->createPayFormulaPolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'OverTime (1.5x)',
+											'pay_type_id' => 10, //Pay Multiplied By Factor
+											'rate' => 1.50,
+											'wage_group_id' => 0,
+											'accrual_rate' => 0.00,
+											'accrual_policy_id' => 0,
+										)
+									);
+			$this->createPayFormulaPolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'OverTime (2.0x)',
+											'pay_type_id' => 10, //Pay Multiplied By Factor
+											'rate' => 2.00,
+											'wage_group_id' => 0,
+											'accrual_rate' => 0.00,
+											'accrual_policy_id' => 0,
+										)
+									);
+			$this->createPayFormulaPolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Premium 1',
+											'pay_type_id' => 20, //Premium Only
+											'rate' => 0.50,
+											'wage_group_id' => 0,
+											'accrual_rate' => 0.00,
+											'accrual_policy_id' => 0,
+										)
+									);
+			$this->createPayFormulaPolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Premium 2',
+											'pay_type_id' => 20, //Premium Only
+											'rate' => 0.75,
+											'wage_group_id' => 0,
+											'accrual_rate' => 0.00,
+											'accrual_policy_id' => 0,
+										)
+									);
+
+			$this->createPayFormulaPolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Sick',
+											'pay_type_id' => 10, //Pay Multiplied By Factor
 											'rate' => 1.00,
 											'wage_group_id' => 0,
 											'accrual_rate' => 1.00,
-											'accrual_policy_id' => 0,
+											'accrual_policy_account_id' => $this->getAccrualPolicyAccountByCompanyIDAndName( 'Sick' ),
+										)
+									);
+			$this->createPayFormulaPolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Time Bank',
+											'pay_type_id' => 10, //Pay Multiplied By Factor
+											'rate' => 0.00,
+											'wage_group_id' => 0,
+											'accrual_rate' => 1.00,
+											'accrual_policy_account_id' => $this->getAccrualPolicyAccountByCompanyIDAndName( 'Time Bank' ),
+										)
+									);
+
+			$this->createPayFormulaPolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Vacation',
+											'pay_type_id' => 10, //Pay Multiplied By Factor
+											'rate' => 1.00,
+											'wage_group_id' => 0,
+											'accrual_rate' => 1.00,
+											'accrual_policy_account_id' => $this->getAccrualPolicyAccountByCompanyIDAndName( 'Vacation' ),
+										)
+									);
+
+		}
+		
+		return TRUE;
+	}
+
+
+	function getPayCodeByCompanyIDAndName( $name ) {
+		$filter_data = array(
+								'name' => $name
+							);
+		$lf = TTnew( 'PayCodeListFactory' );
+		$lf->getAPISearchByCompanyIdAndArrayCriteria( $this->getCompany(), $filter_data );
+		if ( $lf->getRecordCount() > 0 ) {
+			$retarr = array();
+			foreach( $lf as $obj ) {
+				$retarr[] = $obj->getCurrent()->getId();
+				//return $obj->getCurrent()->getId();
+			}
+
+			return $retarr;
+		}
+
+		return FALSE;
+	}
+
+	function createPayCode( $data ) {
+		if ( is_array($data) ) {
+			$f = TTnew( 'PayCodeFactory' );
+			$f->setObjectFromArray( $data );
+			if ( $f->isValid() ) {
+				return $f->Save();
+			}
+		}
+
+		return FALSE;
+	}
+	function PayCode( $country = NULL, $province = NULL, $district = NULL, $industry = NULL ) {
+		Debug::text('Country: '. $country, __FILE__, __LINE__, __METHOD__, 10);
+
+		if ( $country != '' AND $province == '' ) {
+			//Common for all countries.
+			$this->createPayCode(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'UnPaid',
+											'code' => 'UNPAID',
+											'type_id' => 20, //UNPAID
+											'pay_stub_entry_account_id' => 0,
+											'pay_formula_policy_id' => $this->getPayFormulaPolicyByCompanyIDAndName( 'None ($0)' ),
+										)
+									);
+
+			$this->createPayCode(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Regular Time',
+											'code' => 'REG',
+											'type_id' => 10, //PAID
+											'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Regular Time' ),
+											'pay_formula_policy_id' => $this->getPayFormulaPolicyByCompanyIDAndName( 'Regular' ),
+										)
+									);
+			$this->createPayCode(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Lunch Time',
+											'code' => 'LNH',
+											'type_id' => 10, //PAID
+											'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Regular Time' ),
+											'pay_formula_policy_id' => $this->getPayFormulaPolicyByCompanyIDAndName( 'Regular' ),
+										)
+									);
+			$this->createPayCode(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Break Time',
+											'code' => 'BRK',
+											'type_id' => 10, //PAID
+											'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Regular Time' ),
+											'pay_formula_policy_id' => $this->getPayFormulaPolicyByCompanyIDAndName( 'Regular' ),
+										)
+									);
+
+			$this->createPayCode(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'OverTime (1.5x)',
+											'code' => 'OT1',
+											'type_id' => 10, //PAID
+											'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Over Time 1' ),
+											'pay_formula_policy_id' => $this->getPayFormulaPolicyByCompanyIDAndName( 'OverTime (1.5x)' ),
+										)
+									);
+			$this->createPayCode(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'OverTime (2.0x)',
+											'code' => 'OT1',
+											'type_id' => 10, //PAID
+											'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Over Time 2' ),
+											'pay_formula_policy_id' => $this->getPayFormulaPolicyByCompanyIDAndName( 'OverTime (2.0x)' ),
+										)
+									);
+
+			$this->createPayCode(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Premium 1',
+											'code' => 'PRE1',
+											'type_id' => 10, //PAID
+											'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Premium 1' ),
+											'pay_formula_policy_id' => $this->getPayFormulaPolicyByCompanyIDAndName( 'Premium 1' ),
+										)
+									);
+			$this->createPayCode(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Premium 2',
+											'code' => 'PRE2',
+											'type_id' => 10, //PAID
+											'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Premium 2' ),
+											'pay_formula_policy_id' => $this->getPayFormulaPolicyByCompanyIDAndName( 'Premium 2' ),
+										)
+									);
+
+			$this->createPayCode(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Sick',
+											'code' => 'SICK',
+											'type_id' => 10, //PAID
+											'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Sick' ),
+											'pay_formula_policy_id' => $this->getPayFormulaPolicyByCompanyIDAndName( 'Sick' ),
+										)
+									);
+			$this->createPayCode(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Sick (UNPAID)',
+											'code' => 'USICK',
+											'type_id' => 20, //UnPAID
+											'pay_stub_entry_account_id' => 0,
+											'pay_formula_policy_id' => $this->getPayFormulaPolicyByCompanyIDAndName( 'None ($0)' ),
+										)
+									);
+
+			$this->createPayCode(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Time Bank',
+											'code' => 'BANK',
+											'type_id' => 20, //UNPAID
+											'pay_stub_entry_account_id' => 0,
+											'pay_formula_policy_id' => $this->getPayFormulaPolicyByCompanyIDAndName( 'Time Bank' ),
+										)
+									);
+			$this->createPayCode(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Statutory Holiday',
+											'code' => 'STAT',
+											'type_id' => 10, //PAID
 											'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Statutory Holiday' ),
+											'pay_formula_policy_id' => $this->getPayFormulaPolicyByCompanyIDAndName( 'Regular' ),
+										)
+									);
+
+			$this->createPayCode(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Vacation (UNPAID)',
+											'code' => 'UVAC',
+											'type_id' => 20, //UnPAID
+											'pay_stub_entry_account_id' => 0,
+											'pay_formula_policy_id' => $this->getPayFormulaPolicyByCompanyIDAndName( 'None ($0)' ),
+										)
+									);
+
+			$this->createPayCode(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Jury Duty',
+											'code' => 'JURY',
+											'type_id' => 20, //UnPAID
+											'pay_stub_entry_account_id' => 0,
+											'pay_formula_policy_id' => $this->getPayFormulaPolicyByCompanyIDAndName( 'None ($0)' ),
+										)
+									);
+
+			$this->createPayCode(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Bereavement',
+											'code' => 'BEREAV',
+											'type_id' => 20, //UnPAID
+											'pay_stub_entry_account_id' => 0,
+											'pay_formula_policy_id' => $this->getPayFormulaPolicyByCompanyIDAndName( 'None ($0)' ),
+										)
+									);
+
+			if ( $country == 'ca' ) {
+				$this->createPayCode(
+											array(
+												'company_id' => $this->getCompany(),
+												'name' => 'Vacation',
+												'code' => 'VAC',
+												'type_id' => 10, //PAID
+												'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Vacation Accrual Release' ),
+												'pay_formula_policy_id' => $this->getPayFormulaPolicyByCompanyIDAndName( 'Vacation' ),
+											)
+										);
+			} else {
+				$this->createPayCode(
+											array(
+												'company_id' => $this->getCompany(),
+												'name' => 'Vacation',
+												'code' => 'VAC',
+												'type_id' => 10, //PAID
+												'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Vacation' ),
+												'pay_formula_policy_id' => $this->getPayFormulaPolicyByCompanyIDAndName( 'Vacation' ),
+											)
+										);
+			}
+		}
+		
+		return TRUE;
+	}
+
+	function getContributingPayCodePolicyByCompanyIDAndName( $name ) {
+		$filter_data = array(
+								'name' => $name
+							);
+		$lf = TTnew( 'ContributingPayCodePolicyListFactory' );
+		$lf->getAPISearchByCompanyIdAndArrayCriteria( $this->getCompany(), $filter_data );
+		if ( $lf->getRecordCount() > 0 ) {
+			$retarr = array();
+			foreach( $lf as $obj ) {
+				//$retarr[] = $obj->getCurrent()->getId();
+				return $obj->getCurrent()->getId();
+			}
+
+			return $retarr;
+		}
+
+		return FALSE;
+	}
+
+	function createContributingPayCodePolicy( $data ) {
+		if ( is_array($data) ) {
+			$f = TTnew( 'ContributingPayCodePolicyFactory' );
+			$data['id'] = $f->getNextInsertId();
+
+			$f->setObjectFromArray( $data );
+			if ( $f->isValid() ) {
+				return $f->Save( TRUE, TRUE );
+			}
+		}
+
+		return FALSE;
+	}
+	function ContributingPayCodePolicy( $country = NULL, $province = NULL, $district = NULL, $industry = NULL ) {
+		Debug::text('Country: '. $country, __FILE__, __LINE__, __METHOD__, 10);
+
+		if ( $country != '' AND $province == '' ) {
+			//Common for all countries.
+			$this->createContributingPayCodePolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Regular Time',
+											'pay_code' => array_merge(
+																	$this->getPayCodeByCompanyIDAndName( 'Regular Time' )
+																	),
+										)
+									);
+			$this->createContributingPayCodePolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Regular Time + Meal',
+											'pay_code' => array_merge(
+																	$this->getPayCodeByCompanyIDAndName( 'Regular Time' ),
+																	$this->getPayCodeByCompanyIDAndName( 'Lunch Time' )
+																	),
+										)
+									);
+			$this->createContributingPayCodePolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Regular Time + Break',
+											'pay_code' => array_merge(
+																	$this->getPayCodeByCompanyIDAndName( 'Regular Time' ),
+																	$this->getPayCodeByCompanyIDAndName( 'Break Time' )
+																	),
+										)
+									);
+			$this->createContributingPayCodePolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Regular Time + Meal + Break',
+											'pay_code' => array_merge(
+																	$this->getPayCodeByCompanyIDAndName( 'Regular Time' ),
+																	$this->getPayCodeByCompanyIDAndName( 'Lunch Time' ),
+																	$this->getPayCodeByCompanyIDAndName( 'Break Time' )
+																	),
+										)
+									);
+
+			$this->createContributingPayCodePolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Regular Time + OT',
+											'pay_code' => array_merge(
+																	$this->getPayCodeByCompanyIDAndName( 'Regular Time' ),
+																	$this->getPayCodeByCompanyIDAndName( 'OverTime (1.5x)' ),
+																	$this->getPayCodeByCompanyIDAndName( 'OverTime (2.0x)' )
+																	),
+										)
+									);
+			$this->createContributingPayCodePolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Regular Time + Paid Absence',
+											'pay_code' => array_merge(
+																	$this->getPayCodeByCompanyIDAndName( 'Regular Time' ),
+																	$this->getPayCodeByCompanyIDAndName( '"Sick"' ),
+																	$this->getPayCodeByCompanyIDAndName( '%Vacation' )
+																	),
+										)
+									);
+			$this->createContributingPayCodePolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Regular Time + Paid Absence + Meal + Break',
+											'pay_code' => array_merge(
+																	$this->getPayCodeByCompanyIDAndName( 'Regular Time' ),
+																	$this->getPayCodeByCompanyIDAndName( 'Lunch Time' ),
+																	$this->getPayCodeByCompanyIDAndName( 'Break Time' ),
+																	$this->getPayCodeByCompanyIDAndName( '"Sick"' ),
+																	$this->getPayCodeByCompanyIDAndName( '%Vacation' )
+																	),
+										)
+									);
+
+
+
+			$this->createContributingPayCodePolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Regular Time + OT + Meal',
+											'pay_code' => array_merge(
+																	$this->getPayCodeByCompanyIDAndName( 'Regular Time' ),
+																	$this->getPayCodeByCompanyIDAndName( 'OverTime (1.5x)' ),
+																	$this->getPayCodeByCompanyIDAndName( 'OverTime (2.0x)' ),
+																	$this->getPayCodeByCompanyIDAndName( 'Lunch Time' )
+																	),
+										)
+									);
+			$this->createContributingPayCodePolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Regular Time + OT + Break',
+											'pay_code' => array_merge(
+																	$this->getPayCodeByCompanyIDAndName( 'Regular Time' ),
+																	$this->getPayCodeByCompanyIDAndName( 'OverTime (1.5x)' ),
+																	$this->getPayCodeByCompanyIDAndName( 'OverTime (2.0x)' ),
+																	$this->getPayCodeByCompanyIDAndName( 'Break Time' )
+																	),
+										)
+									);
+			$this->createContributingPayCodePolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Regular Time + OT + Meal + Break',
+											'pay_code' => array_merge(
+																	$this->getPayCodeByCompanyIDAndName( 'Regular Time' ),
+																	$this->getPayCodeByCompanyIDAndName( 'OverTime (1.5x)' ),
+																	$this->getPayCodeByCompanyIDAndName( 'OverTime (2.0x)' ),
+																	$this->getPayCodeByCompanyIDAndName( 'Lunch Time' ),
+																	$this->getPayCodeByCompanyIDAndName( 'Break Time' )
+																	),
+										)
+									);
+			$this->createContributingPayCodePolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Regular Time + OT + Paid Absence',
+											'pay_code' => array_merge(
+																	$this->getPayCodeByCompanyIDAndName( 'Regular Time' ),
+																	$this->getPayCodeByCompanyIDAndName( 'OverTime (1.5x)' ),
+																	$this->getPayCodeByCompanyIDAndName( 'OverTime (2.0x)' ),
+																	$this->getPayCodeByCompanyIDAndName( '"Sick"' ),
+																	$this->getPayCodeByCompanyIDAndName( '%Vacation' )
+																	),
+										)
+									);
+			$this->createContributingPayCodePolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Regular Time + OT + Paid Absence + Meal + Break',
+											'pay_code' => array_merge(
+																	$this->getPayCodeByCompanyIDAndName( 'Regular Time' ),
+																	$this->getPayCodeByCompanyIDAndName( 'Lunch Time' ),
+																	$this->getPayCodeByCompanyIDAndName( 'Break Time' ),
+																	$this->getPayCodeByCompanyIDAndName( 'OverTime (1.5x)' ),
+																	$this->getPayCodeByCompanyIDAndName( 'OverTime (2.0x)' ),
+																	$this->getPayCodeByCompanyIDAndName( '"Sick"' ),
+																	$this->getPayCodeByCompanyIDAndName( '%Vacation' )
+																	),
+										)
+									);
+		}
+		
+		return TRUE;
+	}
+
+
+	function getContributingShiftPolicyByCompanyIDAndName( $name ) {
+		$filter_data = array(
+								'name' => $name
+							);
+		$lf = TTnew( 'ContributingShiftPolicyListFactory' );
+		$lf->getAPISearchByCompanyIdAndArrayCriteria( $this->getCompany(), $filter_data );
+		if ( $lf->getRecordCount() > 0 ) {
+			$retarr = array();
+			foreach( $lf as $obj ) {
+				//$retarr[] = $obj->getCurrent()->getId();
+				return $obj->getCurrent()->getId();
+			}
+
+			return $retarr;
+		}
+
+		return FALSE;
+	}
+
+	function createContributingShiftPolicy( $data ) {
+		if ( is_array($data) ) {
+			$f = TTnew( 'ContributingShiftPolicyFactory' );
+			$data['id'] = $f->getNextInsertId();
+
+			$f->setObjectFromArray( $data );
+			if ( $f->isValid() ) {
+				return $f->Save( TRUE, TRUE );
+			}
+		}
+
+		return FALSE;
+	}
+	function ContributingShiftPolicy( $country = NULL, $province = NULL, $district = NULL, $industry = NULL ) {
+		Debug::text('Country: '. $country, __FILE__, __LINE__, __METHOD__, 10);
+
+		if ( $country != '' AND $province == '' ) {
+			//Common for all countries.
+			$this->createContributingShiftPolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Regular Time',
+											'contributing_pay_code_policy_id' => $this->getContributingPayCodePolicyByCompanyIDAndName( 'Regular Time' ),
+										)
+									);
+			$this->createContributingShiftPolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Regular Time + Break',
+											'contributing_pay_code_policy_id' => $this->getContributingPayCodePolicyByCompanyIDAndName( 'Regular Time + Break' ),
+										)
+									);
+			$this->createContributingShiftPolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Regular Time + Meal',
+											'contributing_pay_code_policy_id' => $this->getContributingPayCodePolicyByCompanyIDAndName( 'Regular Time + Meal' ),
+										)
+									);
+			$this->createContributingShiftPolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Regular Time + Meal + Break',
+											'contributing_pay_code_policy_id' => $this->getContributingPayCodePolicyByCompanyIDAndName( 'Regular Time + Meal + Break' ),
+										)
+									);
+			$this->createContributingShiftPolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Regular Time + Paid Absence',
+											'contributing_pay_code_policy_id' => $this->getContributingPayCodePolicyByCompanyIDAndName( 'Regular Time + Paid Absence' ),
+										)
+									);
+			$this->createContributingShiftPolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Regular Time + Paid Absence + Meal + Break',
+											'contributing_pay_code_policy_id' => $this->getContributingPayCodePolicyByCompanyIDAndName( 'Regular Time + Paid Absence + Meal + Break' ),
+										)
+									);
+
+			$this->createContributingShiftPolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Regular Time + OT',
+											'contributing_pay_code_policy_id' => $this->getContributingPayCodePolicyByCompanyIDAndName( 'Regular Time + OT' ),
+										)
+									);
+			$this->createContributingShiftPolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Regular Time + OT + Meal',
+											'contributing_pay_code_policy_id' => $this->getContributingPayCodePolicyByCompanyIDAndName( 'Regular Time + OT + Meal' ),
+										)
+									);
+			$this->createContributingShiftPolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Regular Time + OT + Meal + Break',
+											'contributing_pay_code_policy_id' => $this->getContributingPayCodePolicyByCompanyIDAndName( 'Regular Time + OT + Meal + Break' ),
+										)
+									);
+			$this->createContributingShiftPolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Regular Time + OT + Paid Absence',
+											'contributing_pay_code_policy_id' => $this->getContributingPayCodePolicyByCompanyIDAndName( 'Regular Time + OT + Paid Absence' ),
+										)
+									);
+			$this->createContributingShiftPolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Regular Time + OT + Paid Absence + Meal + Break',
+											'contributing_pay_code_policy_id' => $this->getContributingPayCodePolicyByCompanyIDAndName( 'Regular Time + OT + Paid Absence + Meal + Break' ),
 										)
 									);
 		}
 
 		return TRUE;
 	}
+
 
 	function getHolidayPolicyByCompanyIDAndName( $name ) {
 		$filter_data = array(
@@ -5731,8 +6568,8 @@ class SetupPresets extends Factory {
 
 		return FALSE;
 	}
-	function HolidayPolicy( $country = NULL, $province = NULL , $district = NULL, $industry = NULL ) {
-		Debug::text('Country: '. $country , __FILE__, __LINE__, __METHOD__, 10);
+	function HolidayPolicy( $country = NULL, $province = NULL, $district = NULL, $industry = NULL ) {
+		Debug::text('Country: '. $country, __FILE__, __LINE__, __METHOD__, 10);
 		if ( $country != '' AND $province == '' ) {
 			switch ($country) {
 				case 'ca':
@@ -5745,14 +6582,16 @@ class SetupPresets extends Factory {
 										'company_id' => $this->getCompany(),
 										'name' => strtoupper($country) .' - Statutory Holiday',
 										'type_id' => 10, //Standard
-										'default_schedule_status_id' => 20,  //Absent
+										'default_schedule_status_id' => 20, //Absent
 										'minimum_employed_days' => 30,
 
-										'minimum_time' => (8*3600), //8hrs
+										'minimum_time' => (8 * 3600), //8hrs
 
 										//'absence_policy_id' => $this->getAbsencePolicyByCompanyIDAndTypeAndName( 10, strtoupper($province) .' - Statutory Holiday' ),
 										'absence_policy_id' => $this->getAbsencePolicyByCompanyIDAndTypeAndName( 10, 'Statutory Holiday' ),
 										'recurring_holiday_id' => (array)$this->getRecurringHolidayByCompanyIDAndName( $country.'%' ),
+										'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Meal + Break' ),
+										'eligible_contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT' ),
 									)
 								);
 
@@ -5761,14 +6600,14 @@ class SetupPresets extends Factory {
 		}
 
 		if ( $country == 'ca' AND $province != '' ) {
-			Debug::text('Province: '. $province , __FILE__, __LINE__, __METHOD__, 10);
+			Debug::text('Province: '. $province, __FILE__, __LINE__, __METHOD__, 10);
 			if ( in_array( $province, array('bc') ) ) {
 				$this->createHolidayPolicy(
 								array(
 									'company_id' => $this->getCompany(),
 									'name' => strtoupper($province) .' - Statutory Holiday',
 									'type_id' => 30, //Advanced: Average
-									'default_schedule_status_id' => 20,  //Absent
+									'default_schedule_status_id' => 20, //Absent
 									'minimum_employed_days' => 30,
 
 									//Prior to the holiday
@@ -5791,7 +6630,20 @@ class SetupPresets extends Factory {
 
 									'include_paid_absence_time' => TRUE,
 									'absence_policy_id' => $this->getAbsencePolicyByCompanyIDAndTypeAndName( 10, strtoupper($province) .' - Statutory Holiday' ),
-									'recurring_holiday_id' => array_merge( (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).'%' ), (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($province).'%' ) ),
+									'recurring_holiday_id' => array_merge(
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - New Year%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Good Friday%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Victoria%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Canada%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Labour%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Thanksgiving%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Remembrance%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Christmas Day%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($province).'%' )
+																		),
+
+									'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Paid Absence + Meal + Break' ),
+									'eligible_contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT' ),
 								)
 							);
 			}
@@ -5801,7 +6653,7 @@ class SetupPresets extends Factory {
 									'company_id' => $this->getCompany(),
 									'name' => strtoupper($province) .' - Statutory Holiday',
 									'type_id' => 30, //Advanced: Average
-									'default_schedule_status_id' => 20,  //Absent
+									'default_schedule_status_id' => 20, //Absent
 									'minimum_employed_days' => 0,
 
 									//Prior to the holiday
@@ -5824,7 +6676,20 @@ class SetupPresets extends Factory {
 
 									'include_paid_absence_time' => FALSE,
 									'absence_policy_id' => $this->getAbsencePolicyByCompanyIDAndTypeAndName( 10, strtoupper($province) .' - Statutory Holiday' ),
-									'recurring_holiday_id' => array_merge( (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).'%' ), (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($province).'%' ) ),
+									'recurring_holiday_id' => array_merge(
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - New Year%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Good Friday%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Victoria%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Canada%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Labour%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Thanksgiving%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Remembrance%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Christmas Day%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($province).'%' )
+																		),
+
+									'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Paid Absence + Meal + Break' ),
+									'eligible_contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT' ),
 								)
 							);
 			}
@@ -5857,12 +6722,25 @@ class SetupPresets extends Factory {
 
 									'include_paid_absence_time' => TRUE,
 									'absence_policy_id' => $this->getAbsencePolicyByCompanyIDAndTypeAndName( 10, strtoupper($province) .' - Statutory Holiday' ),
-									'recurring_holiday_id' => array_merge( (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).'%' ), (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($province).'%' ) ),
+									'recurring_holiday_id' => array_merge(
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - New Year%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Good Friday%' ),
+																		  //(array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Victoria%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Canada%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Labour%' ),
+																		  //(array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Thanksgiving%' ),
+																		  //(array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Remembrance%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Christmas Day%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($province).'%' )
+																		),
+
+									'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Paid Absence + Meal + Break' ),
+									'eligible_contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT' ),
 								)
 							);
 			}
 
-			if ( in_array( $province, array('mb', 'on') ) ) {
+			if ( in_array( $province, array('mb') ) ) {
 				$this->createHolidayPolicy(
 								array(
 									'company_id' => $this->getCompany(),
@@ -5891,7 +6769,68 @@ class SetupPresets extends Factory {
 
 									'include_paid_absence_time' => TRUE,
 									'absence_policy_id' => $this->getAbsencePolicyByCompanyIDAndTypeAndName( 10, strtoupper($province) .' - Statutory Holiday' ),
-									'recurring_holiday_id' => array_merge( (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).'%' ), (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($province).'%' ) ),
+									'recurring_holiday_id' => array_merge(
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - New Year%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Good Friday%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Victoria%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Canada%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Labour%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Thanksgiving%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Remembrance%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Christmas Day%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($province).'%' )
+																		),
+
+									'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Paid Absence + Meal + Break' ),
+									'eligible_contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT' ),
+								)
+							);
+			}
+
+			if ( in_array( $province, array('on') ) ) {
+				$this->createHolidayPolicy(
+								array(
+									'company_id' => $this->getCompany(),
+									'name' => strtoupper($province) .' - Statutory Holiday',
+									'type_id' => 30, //Advanced: Average
+									'default_schedule_status_id' => 20, //Absent
+									'minimum_employed_days' => 0,
+
+									//Prior to the holiday
+									'minimum_worked_days' => 1, //Employee must work at least
+									'minimum_worked_period_days' => 1, //Of the last X days
+									'worked_scheduled_days' => 1, //Holiday week days
+
+									//After the holiday
+									'minimum_worked_after_period_days' => 1,
+									'minimum_worked_after_days' => 1,
+									'worked_after_scheduled_days' => 1,
+
+									//Averaging
+									'average_time_days' => 28, //Days to average time over
+									'average_time_worked_days' => FALSE, //Only days worked
+									'average_days' => 20, //Divsor for average formula.
+
+									'minimum_time' => 0,
+									'maximum_time' => 0,
+
+									'include_paid_absence_time' => TRUE,
+									'absence_policy_id' => $this->getAbsencePolicyByCompanyIDAndTypeAndName( 10, strtoupper($province) .' - Statutory Holiday' ),
+									'recurring_holiday_id' => array_merge(
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - New Year%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Good Friday%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Victoria%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Canada%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Labour%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Thanksgiving%' ),
+																		  //(array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Remembrance%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Christmas Day%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Boxing Day%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($province).'%' )
+																		),
+
+									'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Paid Absence + Meal + Break' ),
+									'eligible_contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT' ),
 								)
 							);
 			}
@@ -5925,7 +6864,20 @@ class SetupPresets extends Factory {
 
 									'include_paid_absence_time' => TRUE,
 									'absence_policy_id' => $this->getAbsencePolicyByCompanyIDAndTypeAndName( 10, strtoupper($province) .' - Statutory Holiday' ),
-									'recurring_holiday_id' => array_merge( (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).'%' ), (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($province).'%' ) ),
+									'recurring_holiday_id' => array_merge(
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - New Year%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Good Friday%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Victoria%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Canada%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Labour%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Thanksgiving%' ),
+																		  //(array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Remembrance%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Christmas Day%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($province).'%' )
+																		),
+
+									'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Paid Absence + Meal + Break' ),
+									'eligible_contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT' ),
 								)
 							);
 			}
@@ -5959,7 +6911,20 @@ class SetupPresets extends Factory {
 
 									'include_paid_absence_time' => TRUE,
 									'absence_policy_id' => $this->getAbsencePolicyByCompanyIDAndTypeAndName( 10, strtoupper($province) .' - Statutory Holiday' ),
-									'recurring_holiday_id' => array_merge( (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).'%' ), (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($province).'%' ) ),
+									'recurring_holiday_id' => array_merge(
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - New Year%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Good Friday%' ),
+																		  //(array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Victoria%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Canada%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Labour%' ),
+																		  //(array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Thanksgiving%' ),
+																		  //(array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Remembrance%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Christmas Day%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($province).'%' )
+																		),
+
+									'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Paid Absence + Meal + Break' ),
+									'eligible_contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT' ),
 								)
 							);
 			}
@@ -5994,7 +6959,20 @@ class SetupPresets extends Factory {
 
 									'include_paid_absence_time' => TRUE,
 									'absence_policy_id' => $this->getAbsencePolicyByCompanyIDAndTypeAndName( 10, strtoupper($province) .' - Statutory Holiday' ),
-									'recurring_holiday_id' => array_merge( (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).'%' ), (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($province).'%' ) ),
+									'recurring_holiday_id' => array_merge(
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - New Year%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Good Friday%' ),
+																		  //(array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Victoria%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Canada%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Labour%' ),
+																		  //(array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Thanksgiving%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Remembrance%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Christmas Day%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($province).'%' )
+																		),
+
+									'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Paid Absence + Meal + Break' ),
+									'eligible_contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT' ),
 								)
 							);
 			}
@@ -6028,7 +7006,20 @@ class SetupPresets extends Factory {
 
 									'include_paid_absence_time' => TRUE,
 									'absence_policy_id' => $this->getAbsencePolicyByCompanyIDAndTypeAndName( 10, strtoupper($province) .' - Statutory Holiday' ),
-									'recurring_holiday_id' => array_merge( (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).'%' ), (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($province).'%' ) ),
+									'recurring_holiday_id' => array_merge(
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - New Year%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Good Friday%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Victoria%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Canada%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Labour%' ),
+																		  //(array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Thanksgiving%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Remembrance%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Christmas Day%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($province).'%' )
+																		),
+
+									'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Paid Absence + Meal + Break' ),
+									'eligible_contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT' ),
 								)
 							);
 			}
@@ -6062,7 +7053,20 @@ class SetupPresets extends Factory {
 
 									'include_paid_absence_time' => TRUE,
 									'absence_policy_id' => $this->getAbsencePolicyByCompanyIDAndTypeAndName( 10, strtoupper($province) .' - Statutory Holiday' ),
-									'recurring_holiday_id' => array_merge( (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).'%' ), (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($province).'%' ) ),
+									'recurring_holiday_id' => array_merge(
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - New Year%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Good Friday%' ),
+																		  //(array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Victoria%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Canada%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Labour%' ),
+																		  //(array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Thanksgiving%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Remembrance%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Christmas Day%' )
+																		  //(array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($province).'%' )
+																		),
+
+									'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Paid Absence + Meal + Break' ),
+									'eligible_contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT' ),
 								)
 							);
 			}
@@ -6096,7 +7100,20 @@ class SetupPresets extends Factory {
 
 									'include_paid_absence_time' => FALSE,
 									'absence_policy_id' => $this->getAbsencePolicyByCompanyIDAndTypeAndName( 10, strtoupper($province) .' - Statutory Holiday' ),
-									'recurring_holiday_id' => array_merge( (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).'%' ), (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($province).'%' ) ),
+									'recurring_holiday_id' => array_merge(
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - New Year%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Good Friday%' ),
+																		  //(array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Victoria%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Canada%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Labour%' ),
+																		  //(array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Thanksgiving%' ),
+																		  //(array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Remembrance%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Christmas Day%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($province).'%' )
+																		),
+
+									'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Meal + Break' ),
+									'eligible_contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT' ),
 								)
 							);
 			}
@@ -6130,7 +7147,20 @@ class SetupPresets extends Factory {
 
 									'include_paid_absence_time' => FALSE,
 									'absence_policy_id' => $this->getAbsencePolicyByCompanyIDAndTypeAndName( 10, strtoupper($province) .' - Statutory Holiday' ),
-									'recurring_holiday_id' => array_merge( (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).'%' ), (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($province).'%' ) ),
+									'recurring_holiday_id' => array_merge(
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - New Year%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Good Friday%' ),
+																		  //(array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Victoria%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Canada%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Labour%' ),
+																		  //(array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Thanksgiving%' ),
+																		  //(array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Remembrance%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($country).' - Christmas Day%' ),
+																		  (array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($province).'%' )
+																		),
+
+									'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Meal + Break' ),
+									'eligible_contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT' ),
 								)
 							);
 			}
@@ -6152,8 +7182,8 @@ class SetupPresets extends Factory {
 		return FALSE;
 	}
 
-	function PolicyGroup( $country = NULL, $province = NULL , $district = NULL, $industry = NULL ) {
-		Debug::text('Country: '. $country , __FILE__, __LINE__, __METHOD__, 10);
+	function PolicyGroup( $country = NULL, $province = NULL, $district = NULL, $industry = NULL ) {
+		Debug::text('Country: '. $country, __FILE__, __LINE__, __METHOD__, 10);
 		if ( $country != '' AND $province == '' ) {
 			switch ($country) {
 				case 'ca':
@@ -6171,7 +7201,7 @@ class SetupPresets extends Factory {
 										'accrual_policy' => $this->getAccrualPolicyByCompanyIDAndTypeAndName( 20, strtoupper($province).'%' ),
 										'holiday_policy' => $this->getHolidayPolicyByCompanyIDAndName( strtoupper($province).'%' ),
 										'exception_policy_control_id' => $this->getExceptionPolicyByCompanyIDAndName( 'Default' ),
-										'absence_policy' => $this->getAbsencePolicyByCompanyIDAndTypeAndName( array(10,20), '%' ),
+										'absence_policy' => $this->getAbsencePolicyByCompanyIDAndTypeAndName( array(10, 20), '%' ),
 									)
 								);
 					break;
@@ -6179,7 +7209,7 @@ class SetupPresets extends Factory {
 		}
 
 		if ( $country == 'us' AND $province != '' ) {
-			Debug::text('Province: '. $province , __FILE__, __LINE__, __METHOD__, 10);
+			Debug::text('Province: '. $province, __FILE__, __LINE__, __METHOD__, 10);
 			$this->createPolicyGroup(
 							array(
 								'company_id' => $this->getCompany(),
@@ -6189,7 +7219,7 @@ class SetupPresets extends Factory {
 								'accrual_policy' => $this->getAccrualPolicyByCompanyIDAndTypeAndName( 20, strtoupper($province).'%' ),
 								'holiday_policy' => $this->getHolidayPolicyByCompanyIDAndName( strtoupper($province).'%' ),
 								'exception_policy_control_id' => $this->getExceptionPolicyByCompanyIDAndName( 'Default' ),
-								'absence_policy' => $this->getAbsencePolicyByCompanyIDAndTypeAndName( array(10,20), '%' ),
+								'absence_policy' => $this->getAbsencePolicyByCompanyIDAndTypeAndName( array(10, 20), '%' ),
 							)
 						);
 
@@ -6202,12 +7232,12 @@ class SetupPresets extends Factory {
 								'accrual_policy' => $this->getAccrualPolicyByCompanyIDAndTypeAndName( 20, strtoupper($province).'%' ),
 								'holiday_policy' => $this->getHolidayPolicyByCompanyIDAndName( strtoupper($province).'%' ),
 								'exception_policy_control_id' => $this->getExceptionPolicyByCompanyIDAndName( 'Default' ),
-								'absence_policy' => $this->getAbsencePolicyByCompanyIDAndTypeAndName( array(10,20), '%' ),
+								'absence_policy' => $this->getAbsencePolicyByCompanyIDAndTypeAndName( array(10, 20), '%' ),
 							)
 						);
 		}
 		if ( $country == 'ca' AND $province != '' ) {
-			Debug::text('Province: '. $province , __FILE__, __LINE__, __METHOD__, 10);
+			Debug::text('Province: '. $province, __FILE__, __LINE__, __METHOD__, 10);
 			$this->createPolicyGroup(
 							array(
 								'company_id' => $this->getCompany(),
@@ -6217,7 +7247,7 @@ class SetupPresets extends Factory {
 								'accrual_policy' => $this->getAccrualPolicyByCompanyIDAndTypeAndName( 20, strtoupper($province).'%' ),
 								'holiday_policy' => $this->getHolidayPolicyByCompanyIDAndName( strtoupper($province).'%' ),
 								'exception_policy_control_id' => $this->getExceptionPolicyByCompanyIDAndName( 'Default' ),
-								'absence_policy' => $this->getAbsencePolicyByCompanyIDAndTypeAndName( array(10,20), '%' )
+								'absence_policy' => $this->getAbsencePolicyByCompanyIDAndTypeAndName( array(10, 20), '%' )
 							)
 						);
 
@@ -6230,7 +7260,7 @@ class SetupPresets extends Factory {
 								'accrual_policy' => $this->getAccrualPolicyByCompanyIDAndTypeAndName( 20, strtoupper($province).'%' ),
 								'holiday_policy' => $this->getHolidayPolicyByCompanyIDAndName( strtoupper($province).'%' ),
 								'exception_policy_control_id' => $this->getExceptionPolicyByCompanyIDAndName( 'Default' ),
-								'absence_policy' => $this->getAbsencePolicyByCompanyIDAndTypeAndName( array(10,20), '%' )
+								'absence_policy' => $this->getAbsencePolicyByCompanyIDAndTypeAndName( array(10, 20), '%' )
 							)
 						);
 		}
@@ -6241,7 +7271,7 @@ class SetupPresets extends Factory {
 	function Permissions() {
 		//Always assume that Administrator permission group already exists.
 		//This must be called before UserDefaults.
-		Debug::text('Adding Preset Permission Groups', __FILE__, __LINE__, __METHOD__,9);
+		Debug::text('Adding Preset Permission Groups', __FILE__, __LINE__, __METHOD__, 9);
 
 		$pf = TTnew( 'PermissionFactory' );
 		$pf->StartTransaction();
@@ -6326,14 +7356,15 @@ class SetupPresets extends Factory {
 
 			$upf = TTnew( 'UserPreferenceFactory' );
 			$udf->setTimeZone( $upf->getLocationTimeZone( $this->getCompanyObject()->getCountry(), $this->getCompanyObject()->getProvince(), $this->getCompanyObject()->getWorkPhone() ) );
-			Debug::text('Time Zone: '. $udf->getTimeZone(), __FILE__, __LINE__, __METHOD__,9);
+			Debug::text('Time Zone: '. $udf->getTimeZone(), __FILE__, __LINE__, __METHOD__, 9);
 
 			$udf->setEnableEmailNotificationException( TRUE );
 			$udf->setEnableEmailNotificationMessage( TRUE );
+			$udf->setEnableEmailNotificationPayStub( TRUE );
 			$udf->setEnableEmailNotificationHome( TRUE );
 
 			if ( $udf->isValid() ) {
-				Debug::text('Adding User Default settings...', __FILE__, __LINE__, __METHOD__,9);
+				Debug::text('Adding User Default settings...', __FILE__, __LINE__, __METHOD__, 9);
 
 				return $udf->Save();
 			}
@@ -6349,6 +7380,8 @@ class SetupPresets extends Factory {
 
 		//Policies: ( In Order )
 		// Accrual
+		// PayFormula
+		// PayCode
 		// Absence
 		// Overtime
 		// Meal
@@ -6365,8 +7398,14 @@ class SetupPresets extends Factory {
 			$this->RecurringHolidays();
 
 			$this->AccrualPolicy();
+			$this->PayFormulaPolicy();
+			$this->PayCode();
+			$this->ContributingPayCodePolicy();
+			$this->ContributingShiftPolicy();
+			
 			$this->AbsencePolicy();
 			$this->HolidayPolicy();
+			$this->RegularTimePolicy();
 			$this->OverTimePolicy();
 			$this->MealPolicy();
 			$this->BreakPolicy();
@@ -6380,8 +7419,14 @@ class SetupPresets extends Factory {
 			$this->RecurringHolidays( $country );
 
 			$this->AccrualPolicy( $country );
+			$this->PayFormulaPolicy( $country );
+			$this->PayCode( $country );
+			$this->ContributingPayCodePolicy( $country );
+			$this->ContributingShiftPolicy( $country );
+
 			$this->AbsencePolicy( $country );
 			$this->HolidayPolicy( $country );
+			$this->RegularTimePolicy( $country );
 			$this->OverTimePolicy( $country );
 			$this->MealPolicy( $country );
 			$this->BreakPolicy( $country );
@@ -6394,16 +7439,22 @@ class SetupPresets extends Factory {
 			$this->CompanyDeductions( $country, $province );
 			$this->RecurringHolidays( $country, $province );
 
-			$this->AccrualPolicy( $country, $province  );
-			$this->AbsencePolicy( $country, $province  );
-			$this->HolidayPolicy( $country, $province  );
-			$this->OverTimePolicy( $country, $province  );
-			$this->MealPolicy( $country, $province  );
-			$this->BreakPolicy( $country, $province  );
-			$this->SchedulePolicy( $country, $province  );
-			$this->ExceptionPolicy( $country, $province  );
+			$this->AccrualPolicy( $country, $province );
+			$this->PayFormulaPolicy( $country, $province );
+			$this->PayCode( $country, $province );
+			$this->ContributingPayCodePolicy( $country, $province );
+			$this->ContributingShiftPolicy(  $country, $province );
 
-			$this->PolicyGroup( $country, $province  );
+			$this->AbsencePolicy( $country, $province );
+			$this->HolidayPolicy( $country, $province );
+			$this->RegularTimePolicy( $country, $province );
+			$this->OverTimePolicy( $country, $province);
+			$this->MealPolicy( $country, $province );
+			$this->BreakPolicy( $country, $province );
+			$this->SchedulePolicy( $country, $province);
+			$this->ExceptionPolicy( $country, $province );
+
+			$this->PolicyGroup( $country, $province );
 		}
 
 		return TRUE;

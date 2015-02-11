@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 8371 $
- * $Id: PremiumPolicyBranchFactory.class.php 8371 2012-11-22 21:18:57Z ipso $
- * $Date: 2012-11-22 13:18:57 -0800 (Thu, 22 Nov 2012) $
- */
+
 
 /**
  * @package Modules\Policy
@@ -65,7 +61,7 @@ class PremiumPolicyBranchFactory extends Factory {
 
 	function getPremiumPolicy() {
 		if ( isset($this->data['premium_policy_id']) ) {
-			return $this->data['premium_policy_id'];
+			return (int)$this->data['premium_policy_id'];
 		}
 	}
 	function setPremiumPolicy($id) {
@@ -96,7 +92,7 @@ class PremiumPolicyBranchFactory extends Factory {
 
 	function getBranch() {
 		if ( isset($this->data['branch_id']) ) {
-			return $this->data['branch_id'];
+			return (int)$this->data['branch_id'];
 		}
 
 		return FALSE;
@@ -118,6 +114,11 @@ class PremiumPolicyBranchFactory extends Factory {
 		return FALSE;
 	}
 
+	function postSave() {
+		$this->removeCache( 'premium_policy-'. $this->getPremiumPolicy() );
+		return TRUE;
+	}
+	
 	//This table doesn't have any of these columns, so overload the functions.
 	function getDeleted() {
 		return FALSE;
@@ -168,7 +169,7 @@ class PremiumPolicyBranchFactory extends Factory {
 	function addLog( $log_action ) {
 		$obj = $this->getBranchObject();
 		if ( is_object($obj) ) {
-			return TTLog::addEntry( $this->getPremiumPolicy(), $log_action,  TTi18n::getText('Branch').': '. $obj->getName(), NULL, $this->getTable() );
+			return TTLog::addEntry( $this->getPremiumPolicy(), $log_action, TTi18n::getText('Branch').': '. $obj->getName(), NULL, $this->getTable() );
 		}
 	}
 }

@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 8371 $
- * $Id: MA.class.php 8371 2012-11-22 21:18:57Z ipso $
- * $Date: 2012-11-22 13:18:57 -0800 (Thu, 22 Nov 2012) $
- */
+
 
 /**
  * @package PayrollDeduction\US
@@ -53,6 +49,18 @@ class PayrollDeduction_US_MA extends PayrollDeduction_US {
 */
 
 	var $state_options = array(
+								1420099200 => array( //01-Jan-14
+													'rate' => 5.15,
+													'allowance' => array( 4400, 1000 ), //1 = Base amount, 2 = Per Allowance multiplier
+													'federal_tax_maximum' => 2000,
+													'minimum_income' => 8000,
+													),
+								1388563200 => array( //01-Jan-14
+													'rate' => 5.20,
+													'allowance' => array( 3400, 1000 ), //1 = Base amount, 2 = Per Allowance multiplier
+													'federal_tax_maximum' => 2000,
+													'minimum_income' => 8000,
+													),
 								1325404800 => array( //01-Jan-12
 													'rate' => 5.25,
 													'allowance' => array( 3400, 1000 ), //1 = Base amount, 2 = Per Allowance multiplier
@@ -60,13 +68,13 @@ class PayrollDeduction_US_MA extends PayrollDeduction_US {
 													'minimum_income' => 8000,
 													),
 								1230796800 => array( //01-Jan-09
-													'rate' => 5.3,
+													'rate' => 5.30,
 													'allowance' => array( 3400, 1000 ), //1 = Base amount, 2 = Per Allowance multiplier
 													'federal_tax_maximum' => 2000,
 													'minimum_income' => 8000,
 													),
 								1136102400 => array( //01-Jan-06
-													'rate' => 5.3,
+													'rate' => 5.30,
 													'standard_deduction' => array(
 																			10 => 0,
 																			20 => 2100,

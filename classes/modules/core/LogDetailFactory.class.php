@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 3106 $
- * $Id: LogFactory.class.php 3106 2009-11-20 20:01:46Z ipso $
- * $Date: 2009-11-20 12:01:46 -0800 (Fri, 20 Nov 2009) $
- */
+
 
 /**
  * @package Core
@@ -47,7 +43,7 @@ class LogDetailFactory extends Factory {
 	protected $pk_sequence_name = 'system_log_detail_id_seq'; //PK Sequence name
 
 	function getSystemLog() {
-		return $this->data['system_log_id'];
+		return (int)$this->data['system_log_id'];
 	}
 	function setSystemLog($id) {
 		$id = trim($id);
@@ -167,11 +163,11 @@ class LogDetailFactory extends Factory {
 	function addLogDetail( $action_id, $system_log_id, $object ) {
 		$start_time = microtime(TRUE);
 
-		//Only log detail records on add,edit,delete,undelete
+		//Only log detail records on add, edit, delete, undelete
 		//Logging data on Add/Delete/UnDelete, or anything but Edit will greatly bloat the database, on the order of tens of thousands of entries
 		//per day. The issue though is its nice to know exactly what data was originally added, then what was edited, and what was finally deleted.
 		//We may need to remove logging for added data, but leave it for edit/delete, so we know exactly what data was deleted.
-		if ( !in_array($action_id, array(10,20,30,31,40) ) ) {
+		if ( !in_array($action_id, array(10, 20, 30, 31, 40) ) ) {
 			Debug::text('Invalid Action ID: '. $action_id, __FILE__, __LINE__, __METHOD__, 10);
 			return FALSE;
 		}
@@ -195,24 +191,6 @@ class LogDetailFactory extends Factory {
 					$tmp_class = new $class;
 					$tmp_class->setObjectFromArray( $object->old_data );
 					$old_data = $tmp_class->data;
-
-					//If user_date_id changed, we need to display the differences for it. (user/date)
-					//For example: if a schedule shift is assigned to a new user, just the user_date_id is modified
-					if ( ( isset($new_data['user_date_id']) AND isset($old_data['user_date_id']) AND $new_data['user_date_id'] != $old_data['user_date_id'] )
-							OR ( isset($new_data['user_date_id']) AND !isset($old_data['user_date_id']) )
-							OR ( !isset($new_data['user_date_id']) AND isset($old_data['user_date_id']) ) ) {
-						Debug::Text('User Date ID changed...', __FILE__, __LINE__, __METHOD__, 10);
-						if ( method_exists( $object, 'getUserDateObject' ) AND is_object( $object->getUserDateObject() ) ) {
-							$new_data['user_id'] = $object->getUserDateObject()->getUser();
-							$new_data['pay_period_id'] = $object->getUserDateObject()->getPayPeriod();
-							$new_data['date_stamp'] = $object->getUserDateObject()->getDateStamp();
-						}
-						if ( method_exists( $tmp_class, 'getUserDateObject' ) AND is_object( $tmp_class->getUserDateObject() ) ) {
-							$old_data['user_id'] = $tmp_class->getUserDateObject()->getUser();
-							$old_data['pay_period_id'] = $tmp_class->getUserDateObject()->getPayPeriod();
-							$old_data['date_stamp'] = $tmp_class->getUserDateObject()->getDateStamp();
-						}
-					}
 					unset($tmp_class);
 				} else {
 					$old_data = $object->old_data;
@@ -345,12 +323,12 @@ class LogDetailFactory extends Factory {
 							$diff_arr['password_reset_date']
 							);
 					break;
-                case 'UserReviewFactory':
-                case 'UserReviewListFactory':
-                    unset(
-                            $diff_arr['user_review_control_id']
-                            );
-                    break;
+				case 'UserReviewFactory':
+				case 'UserReviewListFactory':
+					unset(
+							$diff_arr['user_review_control_id']
+							);
+					break;
 				case 'ClientPaymentFactory':
 				case 'ClientPaymentListFactory':
 					if ( getTTProductEdition() >= TT_PRODUCT_CORPORATE ) {
@@ -371,16 +349,16 @@ class LogDetailFactory extends Factory {
 						}
 					}
 					break;
-                case 'JobApplicantFactory':
-                case 'JobApplicantListFactory':
-                    unset(
+				case 'JobApplicantFactory':
+				case 'JobApplicantListFactory':
+					unset(
 							$diff_arr['password'],
 							$diff_arr['password_reset_key'],
 							$diff_arr['password_reset_date'],
 							$diff_arr['first_name_metaphone'],
 							$diff_arr['last_name_metaphone']
-                            //$diff_arr['longitude'],
-                            //$diff_arr['latitude']
+							//$diff_arr['longitude'],
+							//$diff_arr['latitude']
 							);
 					break;
 			}
@@ -438,23 +416,23 @@ class LogDetailFactory extends Factory {
 						$ph[] = $field;
 						$ph[] = $new_value;
 						$ph[] = $old_value;
-						$data[] = '(?,?,?,?)';
+						$data[] = '(?, ?, ?, ?)';
 					}
 				}
 				if ( isset($data) ) {
 					//Save data in a single SQL query.
-					$query = 'INSERT INTO '. $this->getTable() .'(SYSTEM_LOG_ID,FIELD,NEW_VALUE,OLD_VALUE) VALUES'. implode(',', $data );
+					$query = 'INSERT INTO '. $this->getTable() .'(SYSTEM_LOG_ID, FIELD, NEW_VALUE, OLD_VALUE) VALUES'. implode(',', $data );
 					//Debug::Text('Query: '. $query, __FILE__, __LINE__, __METHOD__, 10);
 					$this->db->Execute($query, $ph);
 
-					Debug::Text('Logged detail records in: '. (microtime(TRUE)-$start_time), __FILE__, __LINE__, __METHOD__, 10);
+					Debug::Text('Logged detail records in: '. (microtime(TRUE) - $start_time), __FILE__, __LINE__, __METHOD__, 10);
 
 					return TRUE;
 				}
 			}
 		}
 
-		Debug::Text('Not logging detail records, likely no data changed in: '. (microtime(TRUE)-$start_time) .'s', __FILE__, __LINE__, __METHOD__, 10);
+		Debug::Text('Not logging detail records, likely no data changed in: '. (microtime(TRUE) - $start_time) .'s', __FILE__, __LINE__, __METHOD__, 10);
 		return FALSE;
 	}
 

@@ -1,0 +1,68 @@
+.switch-button-div{
+    float: left;
+    margin-right: 10px;
+}
+
+.switch-button-div .daily{
+    background-image: url("../ribbon/icons/show_daily_totals-18x18.png");
+    background-position: 50% center, 50% center;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    height: 18px;
+    width: 18px;
+    padding: 3px;
+    border-radius: 3px;
+}
+
+.switch-button-div .daily:hover{
+    background-color: #63a7e7;
+}
+
+.switch-button-div .weekly{
+    background-image: url("../ribbon/icons/show_weekly_totals-18x18.png");
+    background-position: 50% center, 50% center;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    height: 18px;
+    width: 18px;
+    padding: 3px;
+    border-radius: 3px;
+}
+
+.switch-button-div .weekly:hover{
+    background-color: #63a7e7;
+}
+
+.switch-button-div .all-employee{
+    background-image: url("../ribbon/icons/show_all_employees-18x18.png");
+    background-position: 50% center, 50% center;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    height: 18px;
+    width: 18px;
+    padding: 3px;
+    border-radius: 3px;
+}
+
+.switch-button-div .all-employee:hover{
+    background-color: #63a7e7;
+}
+
+.switch-button-div .strict-range{
+    background-image: url("../ribbon/icons/strict_date_range-18x18.png");
+    background-position: 50% center, 50% center;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    height: 18px;
+    width: 18px;
+    padding: 3px;
+    border-radius: 3px;
+}
+
+.switch-button-div .strict-range:hover{
+    background-color: #63a7e7;
+}
+
+.switch-button-div .selected{
+    background-color: #63a7e7;
+}

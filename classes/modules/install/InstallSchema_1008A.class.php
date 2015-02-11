@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 8371 $
- * $Id: InstallSchema_1008A.class.php 8371 2012-11-22 21:18:57Z ipso $
- * $Date: 2012-11-22 13:18:57 -0800 (Thu, 22 Nov 2012) $
- */
+
 
 /**
  * @package Modules\Install
@@ -45,14 +41,14 @@
 class InstallSchema_1008A extends InstallSchema_Base {
 
 	function preInstall() {
-		Debug::text('preInstall: '. $this->getVersion() , __FILE__, __LINE__, __METHOD__,9);
+		Debug::text('preInstall: '. $this->getVersion(), __FILE__, __LINE__, __METHOD__, 9);
 
 		return TRUE;
 	}
 
 
 	function postInstall() {
-		Debug::text('postInstall: '. $this->getVersion(), __FILE__, __LINE__, __METHOD__,9);
+		Debug::text('postInstall: '. $this->getVersion(), __FILE__, __LINE__, __METHOD__, 9);
 
 		$clf = TTnew( 'CompanyListFactory' );
 		$clf->StartTransaction();
@@ -64,7 +60,7 @@ class InstallSchema_1008A extends InstallSchema_Base {
 
 					$ulf->getHighestEmployeeNumberByCompanyId( $c_obj->getId() );
 					if ( $ulf->getRecordCount() > 0 ) {
-						$next_available_employee_number = $ulf->getCurrent()->getEmployeeNumber()+1;
+						$next_available_employee_number = ( $ulf->getCurrent()->getEmployeeNumber() + 1 );
 					} else {
 						$next_available_employee_number = 1;
 					}
@@ -73,7 +69,7 @@ class InstallSchema_1008A extends InstallSchema_Base {
 					if ( $ulf->getRecordCount() > 0 ) {
 						foreach( $ulf as $u_obj ) {
 							if ( $u_obj->getEmployeeNumber() == '' ) {
-								Debug::text('Setting Employee Number to: '. $next_available_employee_number .' for '. $u_obj->getUserName(), __FILE__, __LINE__, __METHOD__,9);
+								Debug::text('Setting Employee Number to: '. $next_available_employee_number .' for '. $u_obj->getUserName(), __FILE__, __LINE__, __METHOD__, 9);
 
 								$u_obj->setEmployeeNumber( $next_available_employee_number );
 								if ( $u_obj->isValid() ) {
@@ -81,7 +77,7 @@ class InstallSchema_1008A extends InstallSchema_Base {
 									$next_available_employee_number++;
 								}
 							} else {
-								Debug::text('NOT Setting Employee Number for '. $u_obj->getUserName() .' already set to: '. $u_obj->getEmployeeNumber(), __FILE__, __LINE__, __METHOD__,9);
+								Debug::text('NOT Setting Employee Number for '. $u_obj->getUserName() .' already set to: '. $u_obj->getEmployeeNumber(), __FILE__, __LINE__, __METHOD__, 9);
 							}
 						}
 					}

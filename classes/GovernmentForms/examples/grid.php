@@ -9,7 +9,7 @@ $gf->fpdi_dir = '../fpdi';
 $grid_obj = $gf->getFormObject( 'grid' );
 $grid_obj->setDebug(FALSE);
 $grid_obj->setShowBackground(TRUE);
-$grid_obj->setTemplate( '../country/ca/templates/t4a-sum-11b.pdf');
+$grid_obj->setTemplate('../country/ca/templates/t4a-sum-11b.pdf');
 $grid_obj->setTemplatePages(2);
 
 $gf->addForm( $grid_obj );

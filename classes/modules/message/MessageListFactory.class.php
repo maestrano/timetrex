@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 8371 $
- * $Id: MessageListFactory.class.php 8371 2012-11-22 21:18:57Z ipso $
- * $Date: 2012-11-22 13:18:57 -0800 (Thu, 22 Nov 2012) $
- */
+
 
 /**
  * @package Modules\Message
@@ -46,7 +42,7 @@ class MessageListFactory extends MessageFactory implements IteratorAggregate {
 
 	function getAll($limit = NULL, $page = NULL, $where = NULL, $order = NULL) {
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					WHERE deleted = 0';
 		$query .= $this->getWhereSQL( $where );
@@ -67,7 +63,7 @@ class MessageListFactory extends MessageFactory implements IteratorAggregate {
 					);
 
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					where	id = ?
 					AND deleted = 0';
@@ -134,7 +130,7 @@ class MessageListFactory extends MessageFactory implements IteratorAggregate {
 					FROM '. $this->getTable() .' as a
 						LEFT JOIN '. $uf->getTable() .' as b ON a.created_by = b.id
 					WHERE
-							a.object_type_id in (5,50)
+							a.object_type_id in (5, 50)
 							AND a.id = ?
 							AND a.created_by = ?
 							AND b.company_id = ?
@@ -165,7 +161,7 @@ class MessageListFactory extends MessageFactory implements IteratorAggregate {
 					SELECT a.*
 					FROM '. $this->getTable() .' as a
 					WHERE
-							a.object_type_id in (5,50)
+							a.object_type_id in (5, 50)
 							AND ( a.id = ?
 									OR a.parent_id = ( select z.parent_id from '. $this->getTable() .' as z where z.id = ? AND z.parent_id != 0 )
 									OR a.id = ( select z.parent_id from '. $this->getTable() .' as z where z.id = ? )
@@ -183,7 +179,6 @@ class MessageListFactory extends MessageFactory implements IteratorAggregate {
 		}
 
 		$rf = new RequestFactory();
-		$udf = new UserDateFactory();
 		$uf = new UserFactory();
 		$pptsvf = new PayPeriodTimeSheetVerifyFactory();
 
@@ -206,15 +201,14 @@ class MessageListFactory extends MessageFactory implements IteratorAggregate {
 							LEFT JOIN '. $uf->getTable() .' as d ON a.object_type_id = 5 AND a.object_id = d.id
 							LEFT JOIN '. $uf->getTable() .' as f ON a.created_by = f.id
 							LEFT JOIN '. $rf->getTable() .' as b ON a.object_type_id = 50 AND a.object_id = b.id
-							LEFT JOIN '. $udf->getTable() .' as c ON b.user_date_id = c.id
 							LEFT JOIN '. $pptsvf->getTable() .' as e ON a.object_type_id = 90 AND a.object_id = e.id
 						WHERE
-								a.object_type_id in (5,50,90)
+								a.object_type_id in (5, 50, 90)
 								AND a.status_id = 10
 								AND
 								(
 									(
-										c.user_id = ?
+										b.user_id = ?
 										OR d.id = ?
 										OR e.user_id = ?
 										OR a.parent_id in ( select parent_id FROM '. $this->getTable() .' WHERE created_by = ? AND parent_id != 0 )
@@ -225,16 +219,15 @@ class MessageListFactory extends MessageFactory implements IteratorAggregate {
 
 							AND ( a.deleted = 0 AND f.deleted = 0
 								AND ( b.id IS NULL OR ( b.id IS NOT NULL AND b.deleted = 0 ) )
-								AND ( c.id IS NULL OR ( c.id IS NOT NULL AND c.deleted = 0 ) )
 								AND ( d.id IS NULL OR ( d.id IS NOT NULL AND d.deleted = 0 ) )
 								AND ( e.id IS NULL OR ( e.id IS NOT NULL AND e.deleted = 0 ) )
-								AND NOT ( b.id IS NULL AND c.id IS NULL AND d.id IS NULL AND e.id IS NULL )
+								AND NOT ( b.id IS NULL AND d.id IS NULL AND e.id IS NULL )
 							)
 
 						';
 			$unread_messages = (int)$this->db->GetOne($query, $ph);
 
-			$this->saveCache($unread_messages,$user_id);
+			$this->saveCache($unread_messages, $user_id);
 		}
 		return $unread_messages;
 	}
@@ -258,7 +251,6 @@ class MessageListFactory extends MessageFactory implements IteratorAggregate {
 
 		$rf = new RequestFactory();
 		$uf = new UserFactory();
-		$udf = new UserDateFactory();
 		$pptsvf = new PayPeriodTimeSheetVerifyFactory();
 
 		$ph = array(
@@ -295,21 +287,20 @@ class MessageListFactory extends MessageFactory implements IteratorAggregate {
 		//Need to include all threads that user has posted to.
 		$query = '
 					SELECT a.*,
-							CASE WHEN a.object_type_id = 5 THEN d.id WHEN a.object_type_id = 50 THEN c.user_id WHEN a.object_type_id = 90 THEN e.user_id END as sent_to_user_id
+							CASE WHEN a.object_type_id = 5 THEN d.id WHEN a.object_type_id = 50 THEN b.user_id WHEN a.object_type_id = 90 THEN e.user_id END as sent_to_user_id
 					FROM '. $this->getTable() .' as a
 						LEFT JOIN '. $uf->getTable() .' as d ON a.object_type_id = 5 AND a.object_id = d.id
 						LEFT JOIN '. $uf->getTable() .' as f ON a.created_by = f.id
 						LEFT JOIN '. $rf->getTable() .' as b ON a.object_type_id = 50 AND a.object_id = b.id
-						LEFT JOIN '. $udf->getTable() .' as c ON b.user_date_id = c.id
 						LEFT JOIN '. $pptsvf->getTable() .' as e ON a.object_type_id = 90 AND a.object_id = e.id
 					WHERE
-							a.object_type_id in (5,50,90)
+							a.object_type_id in (5, 50, 90)
 							AND
 							(
 
 								(
 									(
-										c.user_id = ?
+										b.user_id = ?
 										'. $folder_sent_query .'
 										'. $folder_inbox_query_a .'
 										'. $folder_inbox_query_ab .'
@@ -322,17 +313,16 @@ class MessageListFactory extends MessageFactory implements IteratorAggregate {
 
 						AND ( a.deleted = 0 AND f.deleted = 0
 								AND ( b.id IS NULL OR ( b.id IS NOT NULL AND b.deleted = 0 ) )
-								AND ( c.id IS NULL OR ( c.id IS NOT NULL AND c.deleted = 0 ) )
 								AND ( d.id IS NULL OR ( d.id IS NOT NULL AND d.deleted = 0 ) )
 								AND ( e.id IS NULL OR ( e.id IS NOT NULL AND e.deleted = 0 ) )
-								AND NOT ( b.id IS NULL AND c.id IS NULL AND d.id IS NULL AND e.id IS NULL )
+								AND NOT ( b.id IS NULL AND d.id IS NULL AND e.id IS NULL )
 							)
 					';
 
 		$query .= $this->getWhereSQL( $where );
 		$query .= $this->getSortSQL( $order, $strict, array('sent_to_user_id') );
 
-		//Debug::text('Query: '. $query , __FILE__, __LINE__, __METHOD__,9);
+		//Debug::text('Query: '. $query, __FILE__, __LINE__, __METHOD__, 9);
 
 		$this->ExecuteSQL( $query, $ph, $limit, $page );
 
@@ -353,7 +343,7 @@ class MessageListFactory extends MessageFactory implements IteratorAggregate {
 					);
 
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					where	object_type_id = ?
 						AND object_id = ?
@@ -379,7 +369,7 @@ class MessageListFactory extends MessageFactory implements IteratorAggregate {
 					);
 
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					where	object_type_id = ?
 						AND object_id = ?

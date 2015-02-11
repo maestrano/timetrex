@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,44 +33,40 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 5229 $
- * $Id: UserEducationFactory.class.php 5229 2011-09-20 17:52:53Z ipso $
- * $Date: 2011-09-21 01:52:53 +0800 (Wed, 21 Sep 2011) $
- */
+
 
 /**
- * @package
+ * @package Modules\Qualification
  */
 class UserEducationFactory extends Factory {
 	protected $table = 'user_education';
 	protected $pk_sequence_name = 'user_education_id_seq'; //PK Sequence name
-    protected $qualification_obj = NULL;
-    //protected $grade_score_validator_regex = '/^[0-9]{1,250}$/i';
+	protected $qualification_obj = NULL;
+	//protected $grade_score_validator_regex = '/^[0-9]{1,250}$/i';
 	function _getFactoryOptions( $name ) {
 
 		$retval = NULL;
 		switch( $name ) {
 			case 'columns':
 				$retval = array(
-                                        '-1010-first_name' => TTi18n::gettext('First Name'),
+										'-1010-first_name' => TTi18n::gettext('First Name'),
 										'-1020-last_name' => TTi18n::gettext('Last Name'),
 
 										'-2050-qualification' => TTi18n::gettext('Course'),
 
-                                        '-2040-group' => TTi18n::gettext('Group'),
+										'-2040-group' => TTi18n::gettext('Group'),
 
-                                        '-3030-institute' => TTi18n::gettext('Institute'),
-                                        '-3040-major' => TTi18n::gettext('Major/Specialization'),
-                                        '-3050-minor' => TTi18n::gettext('Minor'),
-                                        '-3060-graduate_date' => TTi18n::gettext('Graduation Date'),
-                                        '-3070-grade_score' => TTi18n::gettext('Grade/Score'),
-                                        '-1170-start_date' => TTi18n::gettext('Start Date'),
-                                        '-1180-end_date' => TTi18n::gettext('End Date'),
+										'-3030-institute' => TTi18n::gettext('Institute'),
+										'-3040-major' => TTi18n::gettext('Major/Specialization'),
+										'-3050-minor' => TTi18n::gettext('Minor'),
+										'-3060-graduate_date' => TTi18n::gettext('Graduation Date'),
+										'-3070-grade_score' => TTi18n::gettext('Grade/Score'),
+										'-1170-start_date' => TTi18n::gettext('Start Date'),
+										'-1180-end_date' => TTi18n::gettext('End Date'),
 
-                                        '-1300-tag' => TTi18n::gettext('Tags'),
+										'-1300-tag' => TTi18n::gettext('Tags'),
 
-                                        '-1090-title' => TTi18n::gettext('Title'),
+										'-1090-title' => TTi18n::gettext('Title'),
 										'-1099-user_group' => TTi18n::gettext('Employee Group'),
 										'-1100-default_branch' => TTi18n::gettext('Branch'),
 										'-1110-default_department' => TTi18n::gettext('Department'),
@@ -86,15 +82,15 @@ class UserEducationFactory extends Factory {
 				break;
 			case 'default_display_columns': //Columns that are displayed by default.
 				$retval = array(
-                                'first_name',
+								'first_name',
 								'last_name',
-                                'qualification',
-                                'institute',
+								'qualification',
+								'institute',
 								'major',
 								'minor',
-                                'graduate_date',
-                                'grade_score',
-                                'start_date',
+								'graduate_date',
+								'grade_score',
+								'start_date',
 								'end_date',
 								);
 				break;
@@ -104,26 +100,26 @@ class UserEducationFactory extends Factory {
 		return $retval;
 	}
 
-    function _getVariableToFunctionMap( $data ) {
+	function _getVariableToFunctionMap( $data ) {
 		$variable_function_map = array(
 										'id' => 'ID',
 										'user_id' => 'User',
-                                        'first_name' => FALSE,
+										'first_name' => FALSE,
 										'last_name' => FALSE,
-                                        'qualification_id' => 'Qualification',
-                                        'qualification' => FALSE,
-                                        'group' => FALSE,
-                                        'institute' => 'Institute',
-                                        'major' => 'Major',
-                                        'minor' => 'Minor',
-                                        'graduate_date' => 'GraduateDate',
-                                        'grade_score' => 'GradeScore',
-                                        'start_date' => 'StartDate',
-                                        'end_date' => 'EndDate',
+										'qualification_id' => 'Qualification',
+										'qualification' => FALSE,
+										'group' => FALSE,
+										'institute' => 'Institute',
+										'major' => 'Major',
+										'minor' => 'Minor',
+										'graduate_date' => 'GraduateDate',
+										'grade_score' => 'GradeScore',
+										'start_date' => 'StartDate',
+										'end_date' => 'EndDate',
 
-                                        'tag' => 'Tag',
+										'tag' => 'Tag',
 
-                                        'default_branch' => FALSE,
+										'default_branch' => FALSE,
 										'default_department' => FALSE,
 										'user_group' => FALSE,
 										'title' => FALSE,
@@ -133,16 +129,15 @@ class UserEducationFactory extends Factory {
 		return $variable_function_map;
 	}
 
-    function getQualificationObject() {
-
-        return $this->getGenericObject( 'QualificationListFactory', $this->getQualification(), 'qualification_obj' );
+	function getQualificationObject() {
+		return $this->getGenericObject( 'QualificationListFactory', $this->getQualification(), 'qualification_obj' );
 	}
 
-    function getUser() {
+	function getUser() {
 		if ( isset($this->data['user_id']) ) {
-			return $this->data['user_id'];
+			return (int)$this->data['user_id'];
 		}
-        return FALSE;
+		return FALSE;
 	}
 	function setUser($id) {
 		$id = trim($id);
@@ -161,113 +156,103 @@ class UserEducationFactory extends Factory {
 		return FALSE;
 	}
 
-    function getQualification() {
-        if ( isset( $this->data['qualification_id'] ) ) {
-            return $this->data['qualification_id'];
-        }
-        return FALSE;
-    }
+	function getQualification() {
+		if ( isset( $this->data['qualification_id'] ) ) {
+			return (int)$this->data['qualification_id'];
+		}
+		return FALSE;
+	}
 
-    function setQualification( $id ) {
-        $id = trim( $id );
+	function setQualification( $id ) {
+		$id = trim( $id );
 
-        $qlf = TTnew( 'QualificationListFactory' );
+		$qlf = TTnew( 'QualificationListFactory' );
 
-        if( $this->Validator->isResultSetWithRows( 'qualification_id',
-                                                                    $qlf->getById( $id ),
-                                                                    TTi18n::gettext('Invalid Qualification')
-                                                                     ) ) {
-            $this->data['qualification_id'] = $id;
+		if( $this->Validator->isResultSetWithRows( 'qualification_id',
+																	$qlf->getById( $id ),
+																	TTi18n::gettext('Invalid Qualification')
+																	) ) {
+			$this->data['qualification_id'] = $id;
 
-            return TRUE;
-        }
+			return TRUE;
+		}
 
-        return FALSE;
-    }
+		return FALSE;
+	}
 
+	function getInstitute() {
+		if ( isset($this->data['institute']) ) {
+			return $this->data['institute'];
+		}
+		return FALSE;
+	}
 
+	function setInstitute( $institute ) {
+		$institute = trim($institute);
 
+		if (	$institute == ''
+				OR
+				$this->Validator->isLength( 'institute',
+											$institute,
+											TTi18n::gettext('Institute is invalid'),
+											2, 255 )  ) {
+				$this->data['institute'] = $institute;
+				return	TRUE;
+		}
 
-
-    function getInstitute() {
-        if ( isset($this->data['institute']) ) {
-            return $this->data['institute'];
-        }
-        return FALSE;
-    }
-
-    function setInstitute( $institute ) {
-        $institute = trim($institute);
-
-        if (    $institute == ''
-                OR
-                $this->Validator->isLength( 'institute',
-                                            $institute,
-                                            TTi18n::gettext('Institute is invalid'),
-                                            2,255 )  ) {
-                $this->data['institute'] = $institute;
-                return  TRUE;
-        }
-
-        return FALSE;
-    }
+		return FALSE;
+	}
 
 
 
-    function getMajor() {
-        if ( isset( $this->data['major'] ) ) {
-            return $this->data['major'];
-        }
-        return FALSE;
-    }
+	function getMajor() {
+		if ( isset( $this->data['major'] ) ) {
+			return $this->data['major'];
+		}
+		return FALSE;
+	}
+
+	function setMajor( $major ) {
+		$major = trim($major);
+
+		if (	$major == ''
+				OR
+				$this->Validator->isLength( 'major',
+											$major,
+											TTi18n::gettext('Major/Specialization is invalid'),
+											2, 255 )  ) {
+				$this->data['major'] = $major;
+				return	TRUE;
+		}
+
+		return FALSE;
+	}
+
+	function getMinor() {
+		if ( isset( $this->data['minor'] ) ) {
+			return $this->data['minor'];
+		}
+		return FALSE;
+	}
 
 
-    function setMajor( $major ) {
-        $major = trim($major);
+	function setMinor( $minor ) {
+		$minor = trim($minor);
 
-        if (    $major == ''
-                OR
-                $this->Validator->isLength( 'major',
-                                            $major,
-                                            TTi18n::gettext('Major/Specialization is invalid'),
-                                            2,255 )  ) {
-                $this->data['major'] = $major;
-                return  TRUE;
-        }
+		if (	$minor == ''
+				OR
+				$this->Validator->isLength( 'minor',
+											$minor,
+											TTi18n::gettext('Minor is invalid'),
+											2, 255 )  ) {
+				$this->data['minor'] = $minor;
+				return	TRUE;
+		}
 
-        return FALSE;
-    }
+		return FALSE;
+	}
 
-
-
-
-    function getMinor() {
-        if ( isset( $this->data['minor'] ) ) {
-            return $this->data['minor'];
-        }
-        return FALSE;
-    }
-
-
-    function setMinor( $minor ) {
-        $minor = trim($minor);
-
-        if (    $minor == ''
-                OR
-                $this->Validator->isLength( 'minor',
-                                            $minor,
-                                            TTi18n::gettext('Minor is invalid'),
-                                            2,255 )  ) {
-                $this->data['minor'] = $minor;
-                return  TRUE;
-        }
-
-        return FALSE;
-    }
-
-
-
-    function getGraduateDate( ) {
+	function getGraduateDate( ) {
 		if ( isset($this->data['graduate_date']) ) {
 			return (int)$this->data['graduate_date'];
 		}
@@ -276,19 +261,19 @@ class UserEducationFactory extends Factory {
 	}
 	function setGraduateDate($epoch) {
 		$epoch = trim($epoch);
-        if ( $epoch == '' ) {
+		if ( $epoch == '' ) {
 			$epoch = NULL;
 		}
-		if 	( $epoch == NULL
+		if	( $epoch == NULL
 				OR
-            	$this->Validator->isDate(		'graduate_date',
+				$this->Validator->isDate(		'graduate_date',
 												$epoch,
 												TTi18n::gettext('Incorrect graduation date'))
 			) {
 
-            $this->data['graduate_date'] = $epoch;
+			$this->data['graduate_date'] = $epoch;
 
-            return TRUE;
+			return TRUE;
 
 
 		}
@@ -296,43 +281,40 @@ class UserEducationFactory extends Factory {
 		return FALSE;
 	}
 
-    function getGradeScore() {
-        if ( isset( $this->data['grade_score'] ) ) {
-            return $this->data['grade_score'];
-        }
-        return FALSE;
-    }
+	function getGradeScore() {
+		if ( isset( $this->data['grade_score'] ) ) {
+			return $this->data['grade_score'];
+		}
+		return FALSE;
+	}
 
-
-    function setGradeScore( $grade_score ) {
-        $grade_score = trim($grade_score);
-        // $grade_score = $this->Validator->stripNonFloat( $grade_score );
-        if ( (  $grade_score != ''
-                AND
-                ( $this->Validator->isNumeric(	'grade_score',
+	function setGradeScore( $grade_score ) {
+		$grade_score = trim($grade_score);
+		// $grade_score = $this->Validator->stripNonFloat( $grade_score );
+		if ( (	$grade_score != ''
+				AND
+				( $this->Validator->isNumeric(	'grade_score',
 													$grade_score,
 													TTi18n::gettext('Grade/Score must only be digits')
-                                         )
-                 AND
-                $this->Validator->isLengthAfterDecimal( 'grade_score',
-													   $grade_score,
-													   TTi18n::gettext('Invalid  Grade/Score '),
-                                                        0,
-                                                        2
-                                        ) ) )
-                OR $grade_score == ''
+										)
+				AND
+				$this->Validator->isLengthAfterDecimal( 'grade_score',
+													$grade_score,
+													TTi18n::gettext('Invalid Grade/Score'),
+													0,
+													2
+										) ) )
+				OR $grade_score == ''
 
-            ) {
-                $this->data['grade_score'] = $grade_score;
-                return  TRUE;
-        }
+			) {
+				$this->data['grade_score'] = $grade_score;
+				return	TRUE;
+		}
 
-        return FALSE;
-    }
+		return FALSE;
+	}
 
-
-
-    function getStartDate() {
+	function getStartDate() {
 		if ( isset($this->data['start_date']) ) {
 			return (int)$this->data['start_date'];
 		}
@@ -342,13 +324,13 @@ class UserEducationFactory extends Factory {
 	function setStartDate($epoch) {
 		$epoch = trim($epoch);
 
-        if ( $epoch == '' ) {
+		if ( $epoch == '' ) {
 			$epoch = NULL;
 		}
 
-		if 	( $epoch == NULL
+		if	( $epoch == NULL
 				OR
-            	$this->Validator->isDate(		'start_date',
+				$this->Validator->isDate(		'start_date',
 												$epoch,
 												TTi18n::gettext('Incorrect start date'))
 			) {
@@ -371,11 +353,11 @@ class UserEducationFactory extends Factory {
 	function setEndDate($epoch) {
 		$epoch = trim($epoch);
 
-		if ( $epoch == '' ){
+		if ( $epoch == '' ) {
 			$epoch = NULL;
 		}
 
-		if 	(	$epoch == NULL
+		if	(	$epoch == NULL
 				OR
 				$this->Validator->isDate(		'end_date',
 												$epoch,
@@ -390,7 +372,7 @@ class UserEducationFactory extends Factory {
 		return FALSE;
 	}
 
-    function getTag() {
+	function getTag() {
 		//Check to see if any temporary data is set for the tags, if not, make a call to the database instead.
 		//postSave() needs to get the tmp_data.
 		if ( isset($this->tmp_data['tags']) ) {
@@ -411,20 +393,19 @@ class UserEducationFactory extends Factory {
 	}
 
 	function Validate() {
-		//$this->setProvince( $this->getProvince() ); //Not sure why this was there, but it causes duplicate errors if the province is incorrect.
-
 		return TRUE;
 	}
 
-    function preSave() {
+	function preSave() {
 		return TRUE;
 	}
 
 	function postSave() {
 		$this->removeCache( $this->getId() );
+		$this->removeCache( $this->getUser().$this->getQualification() );
 
-        if ( $this->getDeleted() == FALSE ) {
-            Debug::text('Setting Tags...', __FILE__, __LINE__, __METHOD__, 10);
+		if ( $this->getDeleted() == FALSE ) {
+			Debug::text('Setting Tags...', __FILE__, __LINE__, __METHOD__, 10);
 			CompanyGenericTagMapFactory::setTags( $this->getQualificationObject()->getCompany(), 252, $this->getID(), $this->getTag() );
 		}
 
@@ -440,13 +421,13 @@ class UserEducationFactory extends Factory {
 
 					$function = 'set'.$function;
 					switch( $key ) {
-                        case 'start_date':
-                            $this->setStartDate( TTDate::parseDateTime( $data['start_date'] ) );
-                            break;
+						case 'start_date':
+							$this->setStartDate( TTDate::parseDateTime( $data['start_date'] ) );
+							break;
 						case 'end_date':
-                            $this->setEndDate( TTDate::parseDateTime( $data['end_date'] ) );
-                            break;
-                        case 'graduate_date':
+							$this->setEndDate( TTDate::parseDateTime( $data['end_date'] ) );
+							break;
+						case 'graduate_date':
 							$this->setGraduateDate( TTDate::parseDateTime( $data['graduate_date'] ) );
 							break;
 						default:
@@ -477,22 +458,22 @@ class UserEducationFactory extends Factory {
 
 					switch( $variable ) {
 						case 'qualification':
-                        case 'group':
-                        case 'first_name':
+						case 'group':
+						case 'first_name':
 						case 'last_name':
-                        case 'title':
+						case 'title':
 						case 'user_group':
-                        case 'default_branch':
+						case 'default_branch':
 						case 'default_department':
-                            $data[$variable] = $this->getColumn( $variable );
+							$data[$variable] = $this->getColumn( $variable );
 							break;
-                        case 'start_date':
-                            $data[$variable] = TTDate::getAPIDate( 'DATE', $this->getStartDate() );
-                            break;
+						case 'start_date':
+							$data[$variable] = TTDate::getAPIDate( 'DATE', $this->getStartDate() );
+							break;
 						case 'end_date':
-                            $data['end_date'] = TTDate::getAPIDate( 'DATE', $this->getEndDate() );
-                            break;
-                        case 'graduate_date':
+							$data['end_date'] = TTDate::getAPIDate( 'DATE', $this->getEndDate() );
+							break;
+						case 'graduate_date':
 							$data['graduate_date'] = TTDate::getAPIDate( 'DATE', $this->getGraduateDate() );
 							break;
 						default:
@@ -504,9 +485,9 @@ class UserEducationFactory extends Factory {
 
 				}
 			}
-            
-            $this->getPermissionColumns( $data, $this->getUser(), $this->getCreatedBy(), $permission_children_ids, $include_columns );
-            
+
+			$this->getPermissionColumns( $data, $this->getUser(), $this->getCreatedBy(), $permission_children_ids, $include_columns );
+
 			$this->getCreatedAndUpdatedColumns( $data, $include_columns );
 		}
 
@@ -514,7 +495,7 @@ class UserEducationFactory extends Factory {
 	}
 
 	function addLog( $log_action ) {
-		return TTLog::addEntry( $this->getId(), $log_action, TTi18n::getText('Education') , NULL, $this->getTable(), $this );
+		return TTLog::addEntry( $this->getId(), $log_action, TTi18n::getText('Education'), NULL, $this->getTable(), $this );
 	}
 
 }

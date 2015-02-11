@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2196 $
- * $Id: APIHierarchyLevel.class.php 2196 2008-10-14 16:08:54Z ipso $
- * $Date: 2008-10-14 09:08:54 -0700 (Tue, 14 Oct 2008) $
- */
+
 
 /**
  * @package API\Hierarchy
@@ -58,7 +54,7 @@ class APIHierarchyLevel extends APIFactory {
 	function getHierarchyLevelDefaultData() {
 		$company_obj = $this->getCurrentCompanyObject();
 
-		Debug::Text('Getting hierarchy_level default data...', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Getting hierarchy_level default data...', __FILE__, __LINE__, __METHOD__, 10);
 
 		$data = array(
 						'level' => 1,
@@ -76,9 +72,9 @@ class APIHierarchyLevel extends APIFactory {
 		if ( is_array($object_type_id) AND count($object_type_id) > 0 ) {
 			$hllf = TTnew( 'HierarchyLevelListFactory' );
 			$hierarchy_level_arr = $hllf->getLevelsAndHierarchyControlIDsByUserIdAndObjectTypeID( $this->getCurrentUserObject()->getId(), $object_type_id );
-			//Debug::Arr( $hierarchy_level_arr, 'Hierarchy Levels: ', __FILE__, __LINE__, __METHOD__,10);
-            //Debug::Arr( $object_type_id, 'Object Type ID: ', __FILE__, __LINE__, __METHOD__,10);
-            
+			//Debug::Arr( $hierarchy_level_arr, 'Hierarchy Levels: ', __FILE__, __LINE__, __METHOD__, 10);
+			//Debug::Arr( $object_type_id, 'Object Type ID: ', __FILE__, __LINE__, __METHOD__, 10);
+
 			if ( is_array($hierarchy_level_arr) ) {
 				foreach( $hierarchy_level_arr as $key => $hierarchy_control_data ) {
 					$retarr[$key] = $key;
@@ -93,7 +89,7 @@ class APIHierarchyLevel extends APIFactory {
 			return $this->returnHandler( TRUE );
 		}
 
-		Debug::Text('Returning FALSE...', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Returning FALSE...', __FILE__, __LINE__, __METHOD__, 10);
 
 		return $this->returnHandler( FALSE );
 	}
@@ -104,8 +100,8 @@ class APIHierarchyLevel extends APIFactory {
 	 * @return array
 	 */
 	function getHierarchyLevel( $data = NULL, $disable_paging = FALSE ) {
-		if ( !$this->getPermissionObject()->Check('hierarchy','enabled')
-				OR !( $this->getPermissionObject()->Check('hierarchy','view') OR $this->getPermissionObject()->Check('hierarchy','view_own') OR $this->getPermissionObject()->Check('hierarchy','view_child')  ) ) {
+		if ( !$this->getPermissionObject()->Check('hierarchy', 'enabled')
+				OR !( $this->getPermissionObject()->Check('hierarchy', 'view') OR $this->getPermissionObject()->Check('hierarchy', 'view_own') OR $this->getPermissionObject()->Check('hierarchy', 'view_child')  ) ) {
 			return $this->getPermissionObject()->PermissionDenied();
 		}
 		$data = $this->initializeFilterAndPager( $data, $disable_paging );
@@ -164,9 +160,9 @@ class APIHierarchyLevel extends APIFactory {
 			return $this->returnHandler( FALSE );
 		}
 
-		if ( !$this->getPermissionObject()->Check('hierarchy','enabled')
-				OR !( $this->getPermissionObject()->Check('hierarchy','edit') OR $this->getPermissionObject()->Check('hierarchy','edit_own') OR $this->getPermissionObject()->Check('hierarchy','edit_child') OR $this->getPermissionObject()->Check('hierarchy','add') ) ) {
-			return  $this->getPermissionObject()->PermissionDenied();
+		if ( !$this->getPermissionObject()->Check('hierarchy', 'enabled')
+				OR !( $this->getPermissionObject()->Check('hierarchy', 'edit') OR $this->getPermissionObject()->Check('hierarchy', 'edit_own') OR $this->getPermissionObject()->Check('hierarchy', 'edit_child') OR $this->getPermissionObject()->Check('hierarchy', 'add') ) ) {
+			return	$this->getPermissionObject()->PermissionDenied();
 		}
 
 		if ( $validate_only == TRUE ) {
@@ -192,11 +188,11 @@ class APIHierarchyLevel extends APIFactory {
 					if ( $lf->getRecordCount() == 1 ) {
 						//Object exists, check edit permissions
 						if (
-							  $validate_only == TRUE
-							  OR
+							$validate_only == TRUE
+							OR
 								(
-								$this->getPermissionObject()->Check('hierarchy','edit')
-									OR ( $this->getPermissionObject()->Check('hierarchy','edit_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE )
+								$this->getPermissionObject()->Check('hierarchy', 'edit')
+									OR ( $this->getPermissionObject()->Check('hierarchy', 'edit_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE )
 								) ) {
 
 							Debug::Text('Row Exists, getting current data: ', $row['id'], __FILE__, __LINE__, __METHOD__, 10);
@@ -211,7 +207,7 @@ class APIHierarchyLevel extends APIFactory {
 					}
 				} else {
 					//Adding new object, check ADD permissions.
-					$primary_validator->isTrue( 'permission', $this->getPermissionObject()->Check('hierarchy','add'), TTi18n::gettext('Add permission denied') );
+					$primary_validator->isTrue( 'permission', $this->getPermissionObject()->Check('hierarchy', 'add'), TTi18n::gettext('Add permission denied') );
 				}
 				Debug::Arr($row, 'Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
@@ -286,16 +282,16 @@ class APIHierarchyLevel extends APIFactory {
 			return $this->returnHandler( FALSE );
 		}
 
-		if ( !$this->getPermissionObject()->Check('hierarchy','enabled')
-				OR !( $this->getPermissionObject()->Check('hierarchy','delete') OR $this->getPermissionObject()->Check('hierarchy','delete_own') OR $this->getPermissionObject()->Check('hierarchy','delete_child') ) ) {
-			return  $this->getPermissionObject()->PermissionDenied();
+		if ( !$this->getPermissionObject()->Check('hierarchy', 'enabled')
+				OR !( $this->getPermissionObject()->Check('hierarchy', 'delete') OR $this->getPermissionObject()->Check('hierarchy', 'delete_own') OR $this->getPermissionObject()->Check('hierarchy', 'delete_child') ) ) {
+			return	$this->getPermissionObject()->PermissionDenied();
 		}
 
 		Debug::Text('Received data for: '. count($data) .' HierarchyLevels', __FILE__, __LINE__, __METHOD__, 10);
 		Debug::Arr($data, 'Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		$total_records = count($data);
-        $validator_stats = array('total_records' => $total_records, 'valid_records' => 0 );
+		$validator_stats = array('total_records' => $total_records, 'valid_records' => 0 );
 		if ( is_array($data) ) {
 			$this->getProgressBarObject()->start( $this->getAMFMessageID(), $total_records );
 
@@ -309,8 +305,8 @@ class APIHierarchyLevel extends APIFactory {
 					$lf->getByIdAndCompanyId( $id, $this->getCurrentCompanyObject()->getId() );
 					if ( $lf->getRecordCount() == 1 ) {
 						//Object exists, check edit permissions
-						if ( $this->getPermissionObject()->Check('hierarchy','delete')
-								OR ( $this->getPermissionObject()->Check('hierarchy','delete_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE ) ) {
+						if ( $this->getPermissionObject()->Check('hierarchy', 'delete')
+								OR ( $this->getPermissionObject()->Check('hierarchy', 'delete_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE ) ) {
 							Debug::Text('Record Exists, deleting record: ', $id, __FILE__, __LINE__, __METHOD__, 10);
 							$lf = $lf->getCurrent();
 						} else {
@@ -378,15 +374,15 @@ class APIHierarchyLevel extends APIFactory {
 	 * @return array
 	 */
 	function ReMapHierarchyLevels( $data ) {
-		//Debug::Arr($data, ' aHierarchy Level Data: ', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($data, ' aHierarchy Level Data: ', __FILE__, __LINE__, __METHOD__, 10);
 		$remapped_levels = HierarchyLevelFactory::ReMapHierarchyLevels( $data );
-		//Debug::Arr($remapped_levels, ' ReMapped Levels: ', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($remapped_levels, ' ReMapped Levels: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		foreach( $data as $key => $arr ) {
 			$data[$key]['level'] = $remapped_levels[$arr['level']];
 		}
 
-		Debug::Arr($data, ' ReMapped Hierarchy Level Data: ', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Arr($data, ' ReMapped Hierarchy Level Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		return $this->returnHandler( $data );
 	}

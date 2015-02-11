@@ -1,5 +1,5 @@
 <?php
-// $Id: XML.php 583 2007-03-05 22:13:30Z jeichorn $
+// $Id: XML.php 620 2008-05-07 22:33:32Z jeichorn $
 /**
  * XML Serializer - does NOT need a js serializer, use responseXML property in XmlHttpRequest
  *
@@ -8,7 +8,7 @@
  * @author     Elizabeth Smith <auroraeosrose@gmail.com>
  * @copyright  2005-2006 Elizabeth Smith
  * @license    http://www.opensource.org/licenses/lgpl-license.php  LGPL
- * @version    Release: 0.5.2
+ * @version    Release: 0.5.6
  * @link       http://pear.php.net/package/PackageName
  */
 class HTML_AJAX_Serializer_XML

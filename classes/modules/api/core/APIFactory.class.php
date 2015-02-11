@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 266 $
- * $Id: Factory.class.php 266 2006-10-18 16:39:30Z ipso $
- * $Date: 2006-10-18 09:39:30 -0700 (Wed, 18 Oct 2006) $
- */
+
 
 /**
  * @package API\Core
@@ -72,7 +68,7 @@ abstract class APIFactory {
 
 	function getProtocolVersion() {
 		if ( isset($_GET['v']) AND $_GET['v'] != '' ) {
-			return (int)$_GET['v'];  //1=Initial, 2=Always return detailed
+			return (int)$_GET['v'];	 //1=Initial, 2=Always return detailed
 		}
 
 		return 1;
@@ -121,7 +117,7 @@ abstract class APIFactory {
 	}
 
 	function getProgressBarObject() {
-		if  ( !is_object( $this->progress_bar_obj ) ) {
+		if	( !is_object( $this->progress_bar_obj ) ) {
 			$this->progress_bar_obj = new ProgressBar();
 		}
 
@@ -129,7 +125,7 @@ abstract class APIFactory {
 	}
 
 	function setPagerObject( $lf ) {
-		if  ( is_object( $lf ) ) {
+		if	( is_object( $lf ) ) {
 			$this->pager_obj = new Pager($lf);
 		}
 
@@ -147,7 +143,7 @@ abstract class APIFactory {
 	//Mainly used for the APIReport class.
 	function setMainClassObject( $obj ) {
 		if ( is_object( $obj ) ) {
-			$this->main_class_obj =  $obj;
+			$this->main_class_obj =	$obj;
 			return TRUE;
 		}
 
@@ -168,7 +164,7 @@ abstract class APIFactory {
 		//Preset values for LF search function.
 		$data = Misc::preSetArrayValues( $data, array( 'filter_data', 'filter_columns', 'filter_items_per_page', 'filter_page', 'filter_sort' ), NULL );
 
-		if ( $disable_paging == FALSE AND $data['filter_items_per_page'] === NULL ) {
+		if ( $disable_paging == FALSE AND (int)$data['filter_items_per_page'] <= 0 ) { //Used to check $data['filter_items_per_page'] === NULL
 			$data['filter_items_per_page'] = $this->getCurrentUserPreferenceObject()->getItemsPerPage();
 		}
 
@@ -176,12 +172,12 @@ abstract class APIFactory {
 			$data['filter_items_per_page'] = $data['filter_page'] = FALSE;
 		}
 
-		Debug::Arr($data, 'Getting Data: ', __FILE__, __LINE__, __METHOD__, 10);
+		//Debug::Arr($data, 'Getting Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		return $data;
 	}
 
-	//In cases where data can be displayed in just a list_view (dropdown boxes), ie: branch,department,job,task in In/Out punch view
+	//In cases where data can be displayed in just a list_view (dropdown boxes), ie: branch, department, job, task in In/Out punch view
 	//restrict the dropdown box to just a subset of columns, so not all data is shown.
 	function handlePermissionFilterColumns( $filter_columns, $allowed_columns ) {
 		$allowed_columns['id'] = TRUE; //Always allow ID column to be returned.
@@ -189,6 +185,14 @@ abstract class APIFactory {
 			$retarr = Misc::arrayIntersectByKey( $allowed_columns, $filter_columns );
 		} else {
 			$retarr = $allowed_columns;
+		}
+
+		//If no valid columns are being returned, revert back to allowed columns.
+		//Never return *NULL* or a blank array from here, as that will allow all columns to be displayed.
+		if ( !is_array($retarr) ) {
+			//Return all allowed columns
+			$retarr = $allowed_columns;
+
 		}
 
 		return $retarr;
@@ -239,23 +243,24 @@ abstract class APIFactory {
 
 	//Controls returning information to client in a standard format.
 	//FIXME: Need to return the original request (with any modified values due to restrictions/validation issues)
-	//       Also need to return paging data variables here too, as JSON can't make multiple calls.
-	//       In order to do this we need to always return a special data structure that includes this information.
+	//		 Also need to return paging data variables here too, as JSON can't make multiple calls.
+	//		 In order to do this we need to always return a special data structure that includes this information.
 	//		 static function returnHandler( $retval = TRUE, $args = array( 'code' => FALSE, 'description' => FALSE, 'details' = FALSE, 'validator_stats' => FALSE, 'user_generic_status_batch_id' => FALSE ) ) {
 	//		 The above will require too many changes, just add two more variables at the end, as it will only really be used by API->get*() functions.
+	//FIXME: Use a requestHandler() to handle all input requests, so we can parse out things like validate_only, ignore_warning (for user acknowledgable warnings) and handling all parameter parsing in a central place.
 	//		 static function returnHandler( $retval = TRUE, $code = FALSE, $description = FALSE, $details = FALSE, $validator_stats = FALSE, $user_generic_status_batch_id = FALSE, $request = FALSE, $pager = FALSE ) {
 	function returnHandler( $retval = TRUE, $code = FALSE, $description = FALSE, $details = FALSE, $validator_stats = FALSE, $user_generic_status_batch_id = FALSE, $request_data = FALSE ) {
 		if ( $this->getProtocolVersion() == 1 ) {
 			if ( $retval === FALSE OR ( $retval === TRUE AND $code !== FALSE ) OR ( $user_generic_status_batch_id !== FALSE ) ) {
 				if ( $retval === FALSE ) {
-					if  ( $code == '' ) {
+					if	( $code == '' ) {
 						$code = 'GENERAL';
 					}
 					if ( $description == '' ) {
 						$description = 'Insufficient data to carry out action';
 					}
 				} elseif ( $retval === TRUE ) {
-					if  ( $code == '' ) {
+					if	( $code == '' ) {
 						$code = 'SUCCESS';
 					}
 				}
@@ -270,15 +275,22 @@ abstract class APIFactory {
 												'record_details' => array(
 																		'total' => $validator_stats['total_records'],
 																		'valid' => $validator_stats['valid_records'],
-																		'invalid' => ($validator_stats['total_records']-$validator_stats['valid_records'])
+																		'invalid' => ($validator_stats['total_records'] - $validator_stats['valid_records'])
 																		),
 												'user_generic_status_batch_id' => $user_generic_status_batch_id,
-												'details' =>  $details,
+												'details' => $details,
 												)
 								);
 
 				if ( $retval === FALSE ) {
-					Debug::Arr($retarr, 'returnHandler ERROR: '. (int)$retval, __FILE__, __LINE__, __METHOD__, 10);
+					Debug::Arr($retarr, 'returnHandler v1 ERROR: '. (int)$retval, __FILE__, __LINE__, __METHOD__, 10);
+				}
+
+				//Handle progress bar here, make sure they are stopped and if an error occurs display the error.
+				if ( $retval === FALSE ) {
+					$this->getProgressBarObject()->error( $this->getAMFMessageID(), $description );
+				} else {
+					$this->getProgressBarObject()->stop( $this->getAMFMessageID() );
 				}
 
 				return $retarr;
@@ -288,14 +300,14 @@ abstract class APIFactory {
 			return $retval;
 		} else {
 			if ( $retval === FALSE ) {
-				if  ( $code == '' ) {
+				if	( $code == '' ) {
 					$code = 'GENERAL';
 				}
 				if ( $description == '' ) {
 					$description = 'Insufficient data to carry out action';
 				}
 			} elseif ( $retval === TRUE ) {
-				if  ( $code == '' ) {
+				if	( $code == '' ) {
 					$code = 'SUCCESS';
 				}
 			}
@@ -310,19 +322,26 @@ abstract class APIFactory {
 											'record_details' => array(
 																	'total' => $validator_stats['total_records'],
 																	'valid' => $validator_stats['valid_records'],
-																	'invalid' => ($validator_stats['total_records']-$validator_stats['valid_records'])
+																	'invalid' => ($validator_stats['total_records'] - $validator_stats['valid_records'])
 																	),
 											'user_generic_status_batch_id' => $user_generic_status_batch_id,
 											//Allows the API to modify the original request data to send back to the UI for notifying the user.
-											//We would like to implement validation on none set*() calls as well perhaps?
+											//We would like to implement validation on non-set*() calls as well perhaps?
 											'request' => $request_data,
 											'pager' => $this->getPagerData(),
-											'details' =>  $details,
+											'details' => $details,
 											)
 							);
 
 			if ( $retval === FALSE ) {
-				Debug::Arr($retarr, 'returnHandler ERROR: '. (int)$retval, __FILE__, __LINE__, __METHOD__, 10);
+				Debug::Arr($retarr, 'returnHandler v2 ERROR: '. (int)$retval, __FILE__, __LINE__, __METHOD__, 10);
+			}
+
+			//Handle progress bar here, make sure they are stopped and if an error occurs display the error.
+			if ( $retval === FALSE ) {
+				$this->getProgressBarObject()->start( $this->getAMFMessageID(), 9999, 9999, $description );
+			} else {
+				$this->getProgressBarObject()->stop( $this->getAMFMessageID() );
 			}
 
 			//Debug::Arr($retarr, 'returnHandler: '. (int)$retval, __FILE__, __LINE__, __METHOD__, 10);

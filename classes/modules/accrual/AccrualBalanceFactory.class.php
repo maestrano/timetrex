@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 9521 $
- * $Id: AccrualBalanceFactory.class.php 9521 2013-04-08 23:09:52Z ipso $
- * $Date: 2013-04-08 16:09:52 -0700 (Mon, 08 Apr 2013) $
- */
+
 
 /**
  * @package Modules\Accrual
@@ -55,8 +51,8 @@ class AccrualBalanceFactory extends Factory {
 										'-1010-first_name' => TTi18n::gettext('First Name'),
 										'-1020-last_name' => TTi18n::gettext('Last Name'),
 
-										'-1030-accrual_policy' => TTi18n::gettext('Accrual Policy'),
-										'-1040-accrual_policy_type' => TTi18n::gettext('Accrual Policy Type'),
+										'-1030-accrual_policy_account' => TTi18n::gettext('Accrual Account'),
+										//'-1040-accrual_policy_type' => TTi18n::gettext('Accrual Policy Type'),
 										'-1050-balance' => TTi18n::gettext('Balance'),
 
 										'-1090-title' => TTi18n::gettext('Title'),
@@ -71,14 +67,14 @@ class AccrualBalanceFactory extends Factory {
 							);
 				break;
 			case 'list_columns':
-				$retval = Misc::arrayIntersectByKey( array('accrual_policy','balance'), Misc::trimSortPrefix( $this->getOptions('columns') ) );
+				$retval = Misc::arrayIntersectByKey( array('accrual_policy_account', 'balance'), Misc::trimSortPrefix( $this->getOptions('columns') ) );
 				break;
 			case 'default_display_columns': //Columns that are displayed by default.
 				$retval = array(
 								'first_name',
 								'last_name',
-								'accrual_policy',
-								'accrual_policy_type',
+								'accrual_policy_account',
+								//'accrual_policy_type',
 								'balance'
 								);
 				break;
@@ -94,10 +90,10 @@ class AccrualBalanceFactory extends Factory {
 											'user_id' => 'User',
 											'first_name' => FALSE,
 											'last_name' => FALSE,
-											'accrual_policy_id' => 'AccrualPolicyID',
-											'accrual_policy' => FALSE,
-											'accrual_policy_type_id' => FALSE,
-											'accrual_policy_type' => FALSE,
+											'accrual_policy_account_id' => 'AccrualPolicyAccount',
+											'accrual_policy_account' => FALSE,
+											//'accrual_policy_type_id' => FALSE,
+											//'accrual_policy_type' => FALSE,
 											'default_branch' => FALSE,
 											'default_department' => FALSE,
 											'group' => FALSE,
@@ -109,7 +105,7 @@ class AccrualBalanceFactory extends Factory {
 
 	function getUser() {
 		if ( isset($this->data['user_id']) ) {
-			return $this->data['user_id'];
+			return (int)$this->data['user_id'];
 		}
 	}
 	function setUser($id) {
@@ -129,30 +125,30 @@ class AccrualBalanceFactory extends Factory {
 		return FALSE;
 	}
 
-	function getAccrualPolicyID() {
-		if ( isset($this->data['accrual_policy_id']) ) {
-			return $this->data['accrual_policy_id'];
+	function getAccrualPolicyAccount() {
+		if ( isset($this->data['accrual_policy_account_id']) ) {
+			return (int)$this->data['accrual_policy_account_id'];
 		}
 
 		return FALSE;
 	}
-	function setAccrualPolicyID($id) {
+	function setAccrualPolicyAccount($id) {
 		$id = trim($id);
 
 		if ( $id == '' OR empty($id) ) {
 			$id = NULL;
 		}
 
-		$aplf = TTnew( 'AccrualPolicyListFactory' );
+		$apalf = TTnew( 'AccrualPolicyAccountListFactory' );
 
 		if ( $id == NULL
 				OR
-				$this->Validator->isResultSetWithRows(	'accrual_policy',
-													$aplf->getByID($id),
-													TTi18n::gettext('Accrual Policy is invalid')
+				$this->Validator->isResultSetWithRows(	'accrual_policy_account',
+													$apalf->getByID($id),
+													TTi18n::gettext('Accrual Account is invalid')
 													) ) {
 
-			$this->data['accrual_policy_id'] = $id;
+			$this->data['accrual_policy_account_id'] = $id;
 
 			return TRUE;
 		}
@@ -174,7 +170,7 @@ class AccrualBalanceFactory extends Factory {
 			$int = 0;
 		}
 
-		if 	(	$this->Validator->isNumeric(		'balance',
+		if	(	$this->Validator->isNumeric(		'balance',
 													$int,
 													TTi18n::gettext('Incorrect Balance'))
 				) {
@@ -219,17 +215,17 @@ class AccrualBalanceFactory extends Factory {
 		return FALSE;
 	}
 
-	static function calcBalance( $user_id, $accrual_policy_id = NULL ) {
+	static function calcBalance( $user_id, $accrual_policy_account_id = NULL ) {
 		global $profiler;
 
 		$profiler->startTimer( "AccrualBalanceFactory::calcBalance()");
 
 		$alf = TTnew( 'AccrualListFactory' );
-		$balance = $alf->getSumByUserIdAndAccrualPolicyId($user_id, $accrual_policy_id);
-		Debug::text('Balance for User ID: '. $user_id .' Accrual Policy ID: '. $accrual_policy_id .' Balance: '. $balance, __FILE__, __LINE__, __METHOD__, 10);
+		$balance = $alf->getSumByUserIdAndAccrualPolicyAccount($user_id, $accrual_policy_account_id);
+		Debug::text('Balance for User ID: '. $user_id .' Accrual Account ID: '. $accrual_policy_account_id .' Balance: '. $balance, __FILE__, __LINE__, __METHOD__, 10);
 
 		$ablf = TTnew( 'AccrualBalanceListFactory' );
-		$ablf->getByUserIdAndAccrualPolicyId( $user_id, $accrual_policy_id);
+		$ablf->getByUserIdAndAccrualPolicyAccount( $user_id, $accrual_policy_account_id);
 		Debug::text('Found balance records to delete: '. $ablf->getRecordCount(), __FILE__, __LINE__, __METHOD__, 10);
 		if ( $ablf->getRecordCount() > 0) {
 			foreach($ablf as $ab_obj) {
@@ -240,7 +236,7 @@ class AccrualBalanceFactory extends Factory {
 		Debug::text('Setting new balance to: '. $balance, __FILE__, __LINE__, __METHOD__, 10);
 		$ab = TTnew( 'AccrualBalanceFactory' );
 		$ab->setUser( $user_id );
-		$ab->setAccrualPolicyId( $accrual_policy_id );
+		$ab->setAccrualPolicyAccount( $accrual_policy_account_id );
 		$ab->setBalance( $balance );
 
 		$profiler->stopTimer( "AccrualBalanceFactory::calcBalance()");
@@ -275,8 +271,8 @@ class AccrualBalanceFactory extends Factory {
 
 					$function = 'get'.$function_stub;
 					switch( $variable ) {
-						case 'accrual_policy':
-						case 'accrual_policy_type_id':
+						case 'accrual_policy_account':
+						//case 'accrual_policy_type_id':
 						case 'first_name':
 						case 'last_name':
 						case 'title':
@@ -285,9 +281,9 @@ class AccrualBalanceFactory extends Factory {
 						case 'default_department':
 							$data[$variable] = $this->getColumn( $variable );
 							break;
-						case 'accrual_policy_type':
-							$data[$variable] = Option::getByKey( $this->getColumn( 'accrual_policy_type_id' ), $apf->getOptions( 'type' ) );
-							break;
+						//case 'accrual_policy_type':
+						//	$data[$variable] = Option::getByKey( $this->getColumn( 'accrual_policy_type_id' ), $apf->getOptions( 'type' ) );
+						//	break;
 						default:
 							if ( method_exists( $this, $function ) ) {
 								$data[$variable] = $this->$function();

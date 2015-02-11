@@ -1,19 +1,19 @@
 CREATE TABLE user_report_data (
-    id serial NOT NULL,
-    company_id integer NOT NULL,
-    user_id integer,
-    script character varying NOT NULL,
-    name character varying NOT NULL,
-    is_default smallint DEFAULT 0 NOT NULL,
-    description text,
-    data text,
-    created_date integer,
-    created_by integer,
-    updated_date integer,
-    updated_by integer,
-    deleted_date integer,
-    deleted_by integer,
-    deleted smallint DEFAULT 0 NOT NULL
+	id serial NOT NULL,
+	company_id integer NOT NULL,
+	user_id integer,
+	script character varying NOT NULL,
+	name character varying NOT NULL,
+	is_default smallint DEFAULT 0 NOT NULL,
+	description text,
+	data text,
+	created_date integer,
+	created_by integer,
+	updated_date integer,
+	updated_by integer,
+	deleted_date integer,
+	deleted_by integer,
+	deleted smallint DEFAULT 0 NOT NULL
 );
 CREATE UNIQUE INDEX user_report_data_id ON user_generic_data USING btree (id);
 CREATE INDEX user_report_data_company_id ON user_generic_data USING btree (company_id);

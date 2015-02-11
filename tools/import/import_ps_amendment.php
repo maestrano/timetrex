@@ -1,9 +1,5 @@
 <?php
-/*
- * $Revision: 1 $
- * $Id: import_pay_stub.php 1 2007-08-31 00:00:44Z ipso $
- * $Date: 2007-08-31 17:00:44 -0700 (Fri, 31 Aug 2007) $
- */
+
 require_once( dirname(__FILE__) . DIRECTORY_SEPARATOR .'..'. DIRECTORY_SEPARATOR .'..'. DIRECTORY_SEPARATOR .'includes'. DIRECTORY_SEPARATOR .'global.inc.php');
 require_once( dirname(__FILE__) . DIRECTORY_SEPARATOR .'..'. DIRECTORY_SEPARATOR .'..'. DIRECTORY_SEPARATOR .'includes'. DIRECTORY_SEPARATOR .'CLI.inc.php');
 //

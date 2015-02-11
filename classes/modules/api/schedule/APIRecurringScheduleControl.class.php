@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2196 $
- * $Id: APIRecurringScheduleControl.class.php 2196 2008-10-14 16:08:54Z ipso $
- * $Date: 2008-10-14 09:08:54 -0700 (Tue, 14 Oct 2008) $
- */
+
 
 /**
  * @package API\Schedule
@@ -58,13 +54,14 @@ class APIRecurringScheduleControl extends APIFactory {
 	function getRecurringScheduleControlDefaultData() {
 		$company_obj = $this->getCurrentCompanyObject();
 
-		Debug::Text('Getting recurring_schedule_control default data...', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Getting recurring_schedule_control default data...', __FILE__, __LINE__, __METHOD__, 10);
 
 		$data = array(
 						'company_id' => $company_obj->getId(),
 						'start_week' => 1,
-						'start_date' =>  TTDate::getAPIDate( 'DATE', TTDate::getBeginWeekEpoch( TTDate::getTime() ) ),
-						'end_date' => NULL
+						'start_date' =>	TTDate::getAPIDate( 'DATE', TTDate::getBeginWeekEpoch( TTDate::getTime() ) ),
+						'end_date' => NULL,
+						'user' => -1, //None
 					);
 
 		return $this->returnHandler( $data );
@@ -76,8 +73,8 @@ class APIRecurringScheduleControl extends APIFactory {
 	 * @return array
 	 */
 	function getRecurringScheduleControl( $data = NULL, $disable_paging = FALSE, $expanded_mode = TRUE ) {
-		if ( !$this->getPermissionObject()->Check('recurring_schedule','enabled')
-				OR !( $this->getPermissionObject()->Check('recurring_schedule','view') OR $this->getPermissionObject()->Check('recurring_schedule','view_own') OR $this->getPermissionObject()->Check('recurring_schedule','view_child')  ) ) {
+		if ( !$this->getPermissionObject()->Check('recurring_schedule', 'enabled')
+				OR !( $this->getPermissionObject()->Check('recurring_schedule', 'view') OR $this->getPermissionObject()->Check('recurring_schedule', 'view_own') OR $this->getPermissionObject()->Check('recurring_schedule', 'view_child')	 ) ) {
 			return $this->getPermissionObject()->PermissionDenied();
 		}
 		$data = $this->initializeFilterAndPager( $data, $disable_paging );
@@ -141,9 +138,9 @@ class APIRecurringScheduleControl extends APIFactory {
 			return $this->returnHandler( FALSE );
 		}
 
-		if ( !$this->getPermissionObject()->Check('recurring_schedule','enabled')
-				OR !( $this->getPermissionObject()->Check('recurring_schedule','edit') OR $this->getPermissionObject()->Check('recurring_schedule','edit_own') OR $this->getPermissionObject()->Check('recurring_schedule','edit_child') OR $this->getPermissionObject()->Check('recurring_schedule','add') ) ) {
-			return  $this->getPermissionObject()->PermissionDenied();
+		if ( !$this->getPermissionObject()->Check('recurring_schedule', 'enabled')
+				OR !( $this->getPermissionObject()->Check('recurring_schedule', 'edit') OR $this->getPermissionObject()->Check('recurring_schedule', 'edit_own') OR $this->getPermissionObject()->Check('recurring_schedule', 'edit_child') OR $this->getPermissionObject()->Check('recurring_schedule', 'add') ) ) {
+			return	$this->getPermissionObject()->PermissionDenied();
 		}
 
 		if ( $validate_only == TRUE ) {
@@ -173,12 +170,12 @@ class APIRecurringScheduleControl extends APIFactory {
 					if ( $lf->getRecordCount() == 1 ) {
 						//Object exists, check edit permissions
 						if (
-							  $validate_only == TRUE
-							  OR
+							$validate_only == TRUE
+							OR
 								(
-								$this->getPermissionObject()->Check('recurring_schedule','edit')
-									OR ( $this->getPermissionObject()->Check('recurring_schedule','edit_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE )
-									OR ( $this->getPermissionObject()->Check('recurring_schedule','edit_child') AND $this->getPermissionObject()->isChild( $lf->getCurrent()->getUser(), $permission_children_ids ) === TRUE )
+								$this->getPermissionObject()->Check('recurring_schedule', 'edit')
+									OR ( $this->getPermissionObject()->Check('recurring_schedule', 'edit_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE )
+									OR ( $this->getPermissionObject()->Check('recurring_schedule', 'edit_child') AND $this->getPermissionObject()->isChild( $lf->getCurrent()->getUser(), $permission_children_ids ) === TRUE )
 								) ) {
 
 							Debug::Text('Row Exists, getting current data: ', $row['id'], __FILE__, __LINE__, __METHOD__, 10);
@@ -193,7 +190,7 @@ class APIRecurringScheduleControl extends APIFactory {
 					}
 				} else {
 					//Adding new object, check ADD permissions.
-					$primary_validator->isTrue( 'permission', $this->getPermissionObject()->Check('recurring_schedule','add'), TTi18n::gettext('Add permission denied') );
+					$primary_validator->isTrue( 'permission', $this->getPermissionObject()->Check('recurring_schedule', 'add'), TTi18n::gettext('Add permission denied') );
 
 					//Because this class has sub-classes that depend on it, when adding a new record we need to make sure the ID is set first,
 					//so the sub-classes can depend on it. We also need to call Save( TRUE, TRUE ) to force a lookup on isNew()
@@ -205,10 +202,10 @@ class APIRecurringScheduleControl extends APIFactory {
 				if ( $is_valid == TRUE ) { //Check to see if all permission checks passed before trying to save data.
 					Debug::Text('Setting object data...', __FILE__, __LINE__, __METHOD__, 10);
 
-					$lf->setObjectFromArray( $row );
-
 					//Force Company ID to current company.
-					$lf->setCompany( $this->getCurrentCompanyObject()->getId() );
+					$row['company_id'] = $this->getCurrentCompanyObject()->getId();
+
+					$lf->setObjectFromArray( $row );
 
 					$is_valid = $lf->isValid();
 					if ( $is_valid == TRUE ) {
@@ -272,9 +269,9 @@ class APIRecurringScheduleControl extends APIFactory {
 			return $this->returnHandler( FALSE );
 		}
 
-		if ( !$this->getPermissionObject()->Check('recurring_schedule','enabled')
-				OR !( $this->getPermissionObject()->Check('recurring_schedule','delete') OR $this->getPermissionObject()->Check('recurring_schedule','delete_own') OR $this->getPermissionObject()->Check('recurring_schedule','delete_child') ) ) {
-			return  $this->getPermissionObject()->PermissionDenied();
+		if ( !$this->getPermissionObject()->Check('recurring_schedule', 'enabled')
+				OR !( $this->getPermissionObject()->Check('recurring_schedule', 'delete') OR $this->getPermissionObject()->Check('recurring_schedule', 'delete_own') OR $this->getPermissionObject()->Check('recurring_schedule', 'delete_child') ) ) {
+			return	$this->getPermissionObject()->PermissionDenied();
 		}
 
 		//Get Permission Hierarchy Children first, as this can be used for viewing, or editing.
@@ -284,7 +281,7 @@ class APIRecurringScheduleControl extends APIFactory {
 		Debug::Arr($data, 'Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		$total_records = count($data);
-        $validator_stats = array('total_records' => $total_records, 'valid_records' => 0 );
+		$validator_stats = array('total_records' => $total_records, 'valid_records' => 0 );
 		if ( is_array($data) ) {
 			$this->getProgressBarObject()->start( $this->getAMFMessageID(), $total_records );
 
@@ -309,11 +306,11 @@ class APIRecurringScheduleControl extends APIFactory {
 					$lf->getByIdAndCompanyId( $id, $this->getCurrentCompanyObject()->getId() );
 					if ( $lf->getRecordCount() == 1 ) {
 						//Object exists, check edit permissions
-						if ( $this->getPermissionObject()->Check('recurring_schedule','delete')
-								OR ( $this->getPermissionObject()->Check('recurring_schedule','delete_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE )
-								OR ( $this->getPermissionObject()->Check('recurring_schedule','delete_child') AND $this->getPermissionObject()->isChild( $user_id, $permission_children_ids ) === TRUE )) {
-						//if ( $this->getPermissionObject()->Check('recurring_schedule','delete')
-						//		OR ( $this->getPermissionObject()->Check('recurring_schedule','delete_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE ) ) {
+						if ( $this->getPermissionObject()->Check('recurring_schedule', 'delete')
+								OR ( $this->getPermissionObject()->Check('recurring_schedule', 'delete_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE )
+								OR ( $this->getPermissionObject()->Check('recurring_schedule', 'delete_child') AND $this->getPermissionObject()->isChild( $user_id, $permission_children_ids ) === TRUE )) {
+						//if ( $this->getPermissionObject()->Check('recurring_schedule', 'delete')
+						//		OR ( $this->getPermissionObject()->Check('recurring_schedule', 'delete_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE ) ) {
 							Debug::Text('Record Exists, deleting record: ', $id, __FILE__, __LINE__, __METHOD__, 10);
 							$lf = $lf->getCurrent();
 						} else {

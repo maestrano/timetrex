@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 11018 $
- * $Id: PremiumPolicyFactory.class.php 11018 2013-09-24 23:39:40Z ipso $
- * $Date: 2013-09-24 16:39:40 -0700 (Tue, 24 Sep 2013) $
- */
+
 
 /**
  * @package Modules\Policy
@@ -47,6 +43,15 @@ class PremiumPolicyFactory extends Factory {
 	protected $pk_sequence_name = 'premium_policy_id_seq'; //PK Sequence name
 
 	protected $company_obj = NULL;
+	protected $contributing_shift_policy_obj = NULL;
+	protected $pay_code_obj = NULL;
+
+	protected $branch_map = NULL;
+	protected $department_map = NULL;
+	protected $job_group_map = NULL;
+	protected $job_map = NULL;
+	protected $job_item_group_map = NULL;
+	protected $job_item_map = NULL;
 
 	function _getFactoryOptions( $name ) {
 
@@ -129,10 +134,13 @@ class PremiumPolicyFactory extends Factory {
 				$retval = array(
 										'-1010-type' => TTi18n::gettext('Type'),
 										'-1030-name' => TTi18n::gettext('Name'),
+										'-1035-description' => TTi18n::gettext('Description'),
 
 										'-1040-pay_type' => TTi18n::gettext('Pay Type'),
 										'-1040-rate' => TTi18n::gettext('Rate'),
 										'-1050-accrual_rate' => TTi18n::gettext('Accrual Rate'),
+
+										'-1900-in_use' => TTi18n::gettext('In Use'),
 
 										'-2000-created_by' => TTi18n::gettext('Created By'),
 										'-2010-created_date' => TTi18n::gettext('Created Date'),
@@ -146,6 +154,7 @@ class PremiumPolicyFactory extends Factory {
 			case 'default_display_columns': //Columns that are displayed by default.
 				$retval = array(
 								'name',
+								'description',
 								'type',
 								'updated_date',
 								'updated_by',
@@ -174,8 +183,11 @@ class PremiumPolicyFactory extends Factory {
 										'type_id' => 'Type',
 										'type' => FALSE,
 										'name' => 'Name',
+										'description' => 'Description',
+										
 										'pay_type_id' => 'PayType',
 										'pay_type' => FALSE,
+
 										'start_date' => 'StartDate',
 										'end_date' => 'EndDate',
 										'start_time' => 'StartTime',
@@ -202,12 +214,21 @@ class PremiumPolicyFactory extends Factory {
 										'maximum_time' => 'MaximumTime',
 										'include_meal_policy' => 'IncludeMealPolicy',
 										'include_break_policy' => 'IncludeBreakPolicy',
+
+										'contributing_shift_policy_id' => 'ContributingShiftPolicy',
+										'contributing_shift_policy' => FALSE,
+										'pay_code_id' => 'PayCode',
+										'pay_code' => FALSE,
+										'pay_formula_policy_id' => 'PayFormulaPolicy',
+										'pay_formula_policy' => FALSE,
+
 										'wage_group_id' => 'WageGroup',
 										'rate' => 'Rate',
 										'accrual_rate' => 'AccrualRate',
 										'accrual_policy_id' => 'AccrualPolicyID',
 										'pay_stub_entry_account_id' => 'PayStubEntryAccountId',
 										'pay_stub_entry_account' => FALSE,
+										
 										'branch' => 'Branch',
 										'branch_selection_type_id' => 'BranchSelectionType',
 										'branch_selection_type' => FALSE,
@@ -228,6 +249,7 @@ class PremiumPolicyFactory extends Factory {
 										'job_item' => 'JobItem',
 										'job_item_selection_type_id' => 'JobItemSelectionType',
 										'job_item_selection_type' => FALSE,
+										'in_use' => FALSE,
 										'deleted' => 'Deleted',
 										);
 		return $variable_function_map;
@@ -237,9 +259,17 @@ class PremiumPolicyFactory extends Factory {
 		return $this->getGenericObject( 'CompanyListFactory', $this->getCompany(), 'company_obj' );
 	}
 
+	function getContributingShiftPolicyObject() {
+		return $this->getGenericObject( 'ContributingShiftPolicyListFactory', $this->getContributingShiftPolicy(), 'contributing_shift_policy_obj' );
+	}
+
+	function getPayCodeObject() {
+		return $this->getGenericObject( 'PayCodeListFactory', $this->getPayCode(), 'pay_code_obj' );
+	}
+
 	function getCompany() {
 		if ( isset($this->data['company_id']) ) {
-			return $this->data['company_id'];
+			return (int)$this->data['company_id'];
 		}
 
 		return FALSE;
@@ -247,7 +277,7 @@ class PremiumPolicyFactory extends Factory {
 	function setCompany($id) {
 		$id = trim($id);
 
-		Debug::Text('Company ID: '. $id, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Company ID: '. $id, __FILE__, __LINE__, __METHOD__, 10);
 		$clf = TTnew( 'CompanyListFactory' );
 
 		if ( $this->Validator->isResultSetWithRows(	'company',
@@ -265,7 +295,7 @@ class PremiumPolicyFactory extends Factory {
 
 	function getType() {
 		if ( isset($this->data['type_id']) ) {
-			return $this->data['type_id'];
+			return (int)$this->data['type_id'];
 		}
 
 		return FALSE;
@@ -299,7 +329,7 @@ class PremiumPolicyFactory extends Factory {
 
 		$query = 'select id from '. $this->getTable() .' where company_id = ? AND lower(name) = ? AND deleted=0';
 		$id = $this->db->GetOne($query, $ph);
-		Debug::Arr($id,'Unique: '. $name, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Arr($id, 'Unique: '. $name, __FILE__, __LINE__, __METHOD__, 10);
 
 		if ( $id === FALSE ) {
 			return TRUE;
@@ -323,7 +353,7 @@ class PremiumPolicyFactory extends Factory {
 		if (	$this->Validator->isLength(	'name',
 											$name,
 											TTi18n::gettext('Name is too short or too long'),
-											2,50)
+											2, 50)
 				AND
 				$this->Validator->isTrue(	'name',
 											$this->isUniqueName($name),
@@ -338,9 +368,59 @@ class PremiumPolicyFactory extends Factory {
 		return FALSE;
 	}
 
+	function getDescription() {
+		if ( isset($this->data['description']) ) {
+			return $this->data['description'];
+		}
+
+		return FALSE;
+	}
+	function setDescription($description) {
+		$description = trim($description);
+
+		if (	$description == ''
+				OR $this->Validator->isLength(	'description',
+												$description,
+												TTi18n::gettext('Description is invalid'),
+												1, 250) ) {
+
+			$this->data['description'] = $description;
+
+			return TRUE;
+		}
+
+		return FALSE;
+	}
+
+	function getContributingShiftPolicy() {
+		if ( isset($this->data['contributing_shift_policy_id']) ) {
+			return (int)$this->data['contributing_shift_policy_id'];
+		}
+
+		return FALSE;
+	}
+	function setContributingShiftPolicy($id) {
+		$id = trim($id);
+
+		$csplf = TTnew( 'ContributingShiftPolicyListFactory' );
+
+		if (
+				$this->Validator->isResultSetWithRows(	'contributing_shift_policy_id',
+													$csplf->getByID($id),
+													TTi18n::gettext('Contributing Shift Policy is invalid')
+													) ) {
+
+			$this->data['contributing_shift_policy_id'] = $id;
+
+			return TRUE;
+		}
+
+		return FALSE;
+	}
+
 	function getPayType() {
 		if ( isset($this->data['pay_type_id']) ) {
-			return $this->data['pay_type_id'];
+			return (int)$this->data['pay_type_id'];
 		}
 
 		return FALSE;
@@ -380,11 +460,11 @@ class PremiumPolicyFactory extends Factory {
 	function setStartDate($epoch) {
 		$epoch = trim($epoch);
 
-		if ( $epoch == '' ){
+		if ( $epoch == '' ) {
 			$epoch = NULL;
 		}
 
-		if 	(
+		if	(
 				$epoch == NULL
 				OR
 				$this->Validator->isDate(		'start_date',
@@ -414,11 +494,11 @@ class PremiumPolicyFactory extends Factory {
 	function setEndDate($epoch) {
 		$epoch = trim($epoch);
 
-		if ( $epoch == '' ){
+		if ( $epoch == '' ) {
 			$epoch = NULL;
 		}
 
-		if 	(	$epoch == NULL
+		if	(	$epoch == NULL
 				OR
 				$this->Validator->isDate(		'end_date',
 												$epoch,
@@ -447,7 +527,7 @@ class PremiumPolicyFactory extends Factory {
 	function setStartTime($epoch) {
 		$epoch = trim($epoch);
 
-		if 	(	$epoch == ''
+		if	(	$epoch == ''
 				OR
 				$this->Validator->isDate(		'start_time',
 												$epoch,
@@ -476,7 +556,7 @@ class PremiumPolicyFactory extends Factory {
 	function setEndTime($epoch) {
 		$epoch = trim($epoch);
 
-		if 	(	$epoch == ''
+		if	(	$epoch == ''
 				OR
 				$this->Validator->isDate(		'end_time',
 												$epoch,
@@ -501,11 +581,11 @@ class PremiumPolicyFactory extends Factory {
 	function setDailyTriggerTime($int) {
 		$int = trim($int);
 
-		if  ( empty($int) ){
+		if	( empty($int) ) {
 			$int = 0;
 		}
 
-		if 	(	$this->Validator->isNumeric(		'daily_trigger_time',
+		if	(	$this->Validator->isNumeric(		'daily_trigger_time',
 													$int,
 													TTi18n::gettext('Incorrect daily trigger time')) ) {
 			$this->data['daily_trigger_time'] = $int;
@@ -526,11 +606,11 @@ class PremiumPolicyFactory extends Factory {
 	function setWeeklyTriggerTime($int) {
 		$int = trim($int);
 
-		if  ( empty($int) ){
+		if	( empty($int) ) {
 			$int = 0;
 		}
 
-		if 	(	$this->Validator->isNumeric(		'weekly_trigger_time',
+		if	(	$this->Validator->isNumeric(		'weekly_trigger_time',
 													$int,
 													TTi18n::gettext('Incorrect weekly trigger time')) ) {
 			$this->data['weekly_trigger_time'] = $int;
@@ -551,11 +631,11 @@ class PremiumPolicyFactory extends Factory {
 	function setMaximumDailyTriggerTime($int) {
 		$int = trim($int);
 
-		if  ( empty($int) ){
+		if	( empty($int) ) {
 			$int = 0;
 		}
 
-		if 	(	$this->Validator->isNumeric(		'daily_trigger_time',
+		if	(	$this->Validator->isNumeric(		'daily_trigger_time',
 													$int,
 													TTi18n::gettext('Incorrect maximum daily trigger time')) ) {
 			$this->data['maximum_daily_trigger_time'] = $int;
@@ -576,11 +656,11 @@ class PremiumPolicyFactory extends Factory {
 	function setMaximumWeeklyTriggerTime($int) {
 		$int = trim($int);
 
-		if  ( empty($int) ){
+		if	( empty($int) ) {
 			$int = 0;
 		}
 
-		if 	(	$this->Validator->isNumeric(		'weekly_trigger_time',
+		if	(	$this->Validator->isNumeric(		'weekly_trigger_time',
 													$int,
 													TTi18n::gettext('Incorrect maximum weekly trigger time')) ) {
 			$this->data['maximum_weekly_trigger_time'] = $int;
@@ -701,11 +781,11 @@ class PremiumPolicyFactory extends Factory {
 	function setMaximumNoBreakTime($int) {
 		$int = trim($int);
 
-		if  ( empty($int) ){
+		if	( empty($int) ) {
 			$int = 0;
 		}
 
-		if 	( $int == 0
+		if	( $int == 0
 				OR $this->Validator->isNumeric(		'maximum_no_break_time',
 													$int,
 													TTi18n::gettext('Incorrect Maximum Time Without Break')) ) {
@@ -727,11 +807,11 @@ class PremiumPolicyFactory extends Factory {
 	function setMinimumBreakTime($int) {
 		$int = trim($int);
 
-		if  ( empty($int) ){
+		if	( empty($int) ) {
 			$int = 0;
 		}
 
-		if 	(	$int == 0
+		if	(	$int == 0
 				OR $this->Validator->isNumeric(		'minimum_break_time',
 													$int,
 													TTi18n::gettext('Incorrect Minimum Break Time')) ) {
@@ -753,11 +833,11 @@ class PremiumPolicyFactory extends Factory {
 	function setMinimumTimeBetweenShift($int) {
 		$int = trim($int);
 
-		if  ( empty($int) ){
+		if	( empty($int) ) {
 			$int = 0;
 		}
 
-		if 	( $int == 0
+		if	( $int == 0
 				OR $this->Validator->isNumeric(		'minimum_time_between_shift',
 													$int,
 													TTi18n::gettext('Incorrect Minimum Time Between Shifts')) ) {
@@ -779,11 +859,11 @@ class PremiumPolicyFactory extends Factory {
 	function setMinimumFirstShiftTime($int) {
 		$int = trim($int);
 
-		if  ( empty($int) ){
+		if	( empty($int) ) {
 			$int = 0;
 		}
 
-		if 	(	$int == 0
+		if	(	$int == 0
 				OR $this->Validator->isNumeric(		'minimum_first_shift_time',
 													$int,
 													TTi18n::gettext('Incorrect Minimum First Shift Time')) ) {
@@ -805,11 +885,11 @@ class PremiumPolicyFactory extends Factory {
 	function setMinimumShiftTime($int) {
 		$int = trim($int);
 
-		if  ( empty($int) ){
+		if	( empty($int) ) {
 			$int = 0;
 		}
 
-		if 	(	$int == 0
+		if	(	$int == 0
 				OR $this->Validator->isNumeric(		'minimum_shift_time',
 													$int,
 													TTi18n::gettext('Incorrect Minimum Shift Time')) ) {
@@ -832,11 +912,11 @@ class PremiumPolicyFactory extends Factory {
 	function setMinimumTime($int) {
 		$int = trim($int);
 
-		if  ( empty($int) ){
+		if	( empty($int) ) {
 			$int = 0;
 		}
 
-		if 	(	$this->Validator->isNumeric(		'minimum_time',
+		if	(	$this->Validator->isNumeric(		'minimum_time',
 													$int,
 													TTi18n::gettext('Incorrect Minimum Time')) ) {
 			$this->data['minimum_time'] = $int;
@@ -857,11 +937,11 @@ class PremiumPolicyFactory extends Factory {
 	function setMaximumTime($int) {
 		$int = trim($int);
 
-		if  ( empty($int) ){
+		if	( empty($int) ) {
 			$int = 0;
 		}
 
-		if 	(	$this->Validator->isNumeric(		'maximum_time',
+		if	(	$this->Validator->isNumeric(		'maximum_time',
 													$int,
 													TTi18n::gettext('Incorrect Maximum Time')) ) {
 			$this->data['maximum_time'] = $int;
@@ -900,7 +980,7 @@ class PremiumPolicyFactory extends Factory {
 
 	function getIncludeHolidayType() {
 		if ( isset($this->data['include_holiday_type_id']) ) {
-			return $this->data['include_holiday_type_id'];
+			return (int)$this->data['include_holiday_type_id'];
 		}
 
 		return FALSE;
@@ -921,9 +1001,70 @@ class PremiumPolicyFactory extends Factory {
 		return FALSE;
 	}
 
+	function getPayCode() {
+		if ( isset($this->data['pay_code_id']) ) {
+			return (int)$this->data['pay_code_id'];
+		}
+
+		return FALSE;
+	}
+	function setPayCode($id) {
+		$id = trim($id);
+
+		if ( $id == '' OR empty($id) ) {
+			$id = 0;
+		}
+
+		$pclf = TTnew( 'PayCodeListFactory' );
+
+		if (	$id == 0
+				OR
+				$this->Validator->isResultSetWithRows(	'pay_code_id',
+														$pclf->getById($id),
+														TTi18n::gettext('Invalid Pay Code')
+														) ) {
+			$this->data['pay_code_id'] = $id;
+
+			return TRUE;
+		}
+
+		return FALSE;
+	}
+
+	function getPayFormulaPolicy() {
+		if ( isset($this->data['pay_formula_policy_id']) ) {
+			return (int)$this->data['pay_formula_policy_id'];
+		}
+
+		return FALSE;
+	}
+	function setPayFormulaPolicy($id) {
+		$id = trim($id);
+
+		if ( $id == '' OR empty($id) ) {
+			$id = 0;
+		}
+
+		$pfplf = TTnew( 'PayFormulaPolicyListFactory' );
+
+		if ( $id == 0
+				OR
+				$this->Validator->isResultSetWithRows(	'pay_formula_policy_id',
+													$pfplf->getByID($id),
+													TTi18n::gettext('Pay Formula Policy is invalid')
+													) ) {
+
+			$this->data['pay_formula_policy_id'] = $id;
+
+			return TRUE;
+		}
+
+		return FALSE;
+	}
+
 	function getWageGroup() {
 		if ( isset($this->data['wage_group_id']) ) {
-			return $this->data['wage_group_id'];
+			return (int)$this->data['wage_group_id'];
 		}
 
 		return FALSE;
@@ -958,11 +1099,11 @@ class PremiumPolicyFactory extends Factory {
 	function setRate($int) {
 		$int = trim($int);
 
-		if  ( empty($int) ){
+		if	( empty($int) ) {
 			$int = 0;
 		}
 
-		if 	(	$this->Validator->isFloat(		'rate',
+		if	(	$this->Validator->isFloat(		'rate',
 												$int,
 												TTi18n::gettext('Incorrect Rate')) ) {
 			$this->data['rate'] = $int;
@@ -983,11 +1124,11 @@ class PremiumPolicyFactory extends Factory {
 	function setAccrualRate($int) {
 		$int = trim($int);
 
-		if  ( empty($int) ){
+		if	( empty($int) ) {
 			$int = 0;
 		}
 
-		if 	(	$this->Validator->isFloat(		'accrual_rate',
+		if	(	$this->Validator->isFloat(		'accrual_rate',
 												$int,
 												TTi18n::gettext('Incorrect Accrual Rate')) ) {
 			$this->data['accrual_rate'] = $int;
@@ -1000,7 +1141,7 @@ class PremiumPolicyFactory extends Factory {
 
 	function getAccrualPolicyID() {
 		if ( isset($this->data['accrual_policy_id']) ) {
-			return $this->data['accrual_policy_id'];
+			return (int)$this->data['accrual_policy_id'];
 		}
 
 		return FALSE;
@@ -1031,7 +1172,7 @@ class PremiumPolicyFactory extends Factory {
 
 	function getPayStubEntryAccountId() {
 		if ( isset($this->data['pay_stub_entry_account_id']) ) {
-			return $this->data['pay_stub_entry_account_id'];
+			return (int)$this->data['pay_stub_entry_account_id'];
 		}
 
 		return FALSE;
@@ -1039,7 +1180,7 @@ class PremiumPolicyFactory extends Factory {
 	function setPayStubEntryAccountId($id) {
 		$id = trim($id);
 
-		Debug::text('Entry Account ID: '. $id , __FILE__, __LINE__, __METHOD__,10);
+		Debug::text('Entry Account ID: '. $id, __FILE__, __LINE__, __METHOD__, 10);
 
 		if ( $id == '' OR empty($id) ) {
 			$id = NULL;
@@ -1074,7 +1215,7 @@ class PremiumPolicyFactory extends Factory {
 				break;
 			case 30: //Flat Hourly Rate (Relative)
 				//Get the difference between the employees current wage and the premium wage.
-				$rate = $this->getRate() - $original_hourly_rate;
+				$rate = ( $this->getRate() - $original_hourly_rate );
 				break;
 			case 32: //Flat Hourly Rate (NON relative)
 				//This should be original_hourly_rate, which is typically related to the users wage/wage group, so they can pay whatever is defined there.
@@ -1083,7 +1224,7 @@ class PremiumPolicyFactory extends Factory {
 				break;
 			case 40: //Minimum/Prevailing wage
 				if ( $this->getRate() > $original_hourly_rate ) {
-					$rate = $this->getRate() - $original_hourly_rate;
+					$rate = ( $this->getRate() - $original_hourly_rate );
 				} else {
 					$rate = 0;
 				}
@@ -1109,12 +1250,12 @@ class PremiumPolicyFactory extends Factory {
 
 	/*
 
-	 Branch/Department/Job/Task differential functions
+	Branch/Department/Job/Task differential functions
 
 	*/
 	function getBranchSelectionType() {
 		if ( isset($this->data['branch_selection_type_id']) ) {
-			return $this->data['branch_selection_type_id'];
+			return (int)$this->data['branch_selection_type_id'];
 		}
 
 		return FALSE;
@@ -1150,21 +1291,26 @@ class PremiumPolicyFactory extends Factory {
 	}
 
 	function getBranch() {
-		$lf = TTnew( 'PremiumPolicyBranchListFactory' );
-		$lf->getByPremiumPolicyId( $this->getId() );
-		foreach ($lf as $obj) {
-			$list[] = $obj->getBranch();
-		}
+		if ( $this->getId() > 0 AND isset($this->branch_map[$this->getId()]) ) {
+			return $this->branch_map[$this->getId()];
+		} else {
+			$lf = TTnew( 'PremiumPolicyBranchListFactory' );
+			$lf->getByPremiumPolicyId( $this->getId() );
+			foreach ($lf as $obj) {
+				$list[] = $obj->getBranch();
+			}
 
-		if ( isset($list) ) {
-			return $list;
+			if ( isset($list) ) {
+				$this->branch_map[$this->getId()] = $list;
+				return $this->branch_map[$this->getId()];
+			}
 		}
 
 		return FALSE;
 	}
 	function setBranch($ids) {
 		Debug::text('Setting IDs...', __FILE__, __LINE__, __METHOD__, 10);
-		Debug::Arr($ids, 'Setting Branch IDs...', __FILE__, __LINE__, __METHOD__, 10);
+		//Debug::Arr($ids, 'Setting Branch IDs...', __FILE__, __LINE__, __METHOD__, 10);
 		if ( is_array($ids) ) {
 			$tmp_ids = array();
 
@@ -1218,7 +1364,7 @@ class PremiumPolicyFactory extends Factory {
 
 	function getDepartmentSelectionType() {
 		if ( isset($this->data['department_selection_type_id']) ) {
-			return $this->data['department_selection_type_id'];
+			return (int)$this->data['department_selection_type_id'];
 		}
 
 		return FALSE;
@@ -1254,16 +1400,20 @@ class PremiumPolicyFactory extends Factory {
 	}
 
 	function getDepartment() {
-		$lf = TTnew( 'PremiumPolicyDepartmentListFactory' );
-		$lf->getByPremiumPolicyId( $this->getId() );
-		foreach ($lf as $obj) {
-			$list[] = $obj->getDepartment();
-		}
+		if ( $this->getId() > 0 AND isset($this->department_map[$this->getId()]) ) {
+			return $this->department_map[$this->getId()];
+		} else {
+			$lf = TTnew( 'PremiumPolicyDepartmentListFactory' );
+			$lf->getByPremiumPolicyId( $this->getId() );
+			foreach ($lf as $obj) {
+				$list[] = $obj->getDepartment();
+			}
 
-		if ( isset($list) ) {
-			return $list;
+			if ( isset($list) ) {
+				$this->department_map[$this->getId()] = $list;
+				return $this->department_map[$this->getId()];
+			}
 		}
-
 		return FALSE;
 	}
 	function setDepartment($ids) {
@@ -1319,12 +1469,9 @@ class PremiumPolicyFactory extends Factory {
 		return FALSE;
 	}
 
-
-
-
 	function getJobGroupSelectionType() {
 		if ( isset($this->data['job_group_selection_type_id']) ) {
-			return $this->data['job_group_selection_type_id'];
+			return (int)$this->data['job_group_selection_type_id'];
 		}
 
 		return FALSE;
@@ -1351,14 +1498,19 @@ class PremiumPolicyFactory extends Factory {
 			return FALSE;
 		}
 
-		$lf = TTnew( 'PremiumPolicyJobGroupListFactory' );
-		$lf->getByPremiumPolicyId( $this->getId() );
-		foreach ($lf as $obj) {
-			$list[] = $obj->getJobGroup();
-		}
+		if ( $this->getId() > 0 AND isset($this->job_group_map[$this->getId()]) ) {
+			return $this->job_group_map[$this->getId()];
+		} else {
+			$lf = TTnew( 'PremiumPolicyJobGroupListFactory' );
+			$lf->getByPremiumPolicyId( $this->getId() );
+			foreach ($lf as $obj) {
+				$list[] = $obj->getJobGroup();
+			}
 
-		if ( isset($list) ) {
-			return $list;
+			if ( isset($list) ) {
+				$this->job_group_map[$this->getId()] = $list;
+				return $this->job_group_map[$this->getId()];
+			}
 		}
 
 		return FALSE;
@@ -1422,7 +1574,7 @@ class PremiumPolicyFactory extends Factory {
 
 	function getJobSelectionType() {
 		if ( isset($this->data['job_selection_type_id']) ) {
-			return $this->data['job_selection_type_id'];
+			return (int)$this->data['job_selection_type_id'];
 		}
 
 		return FALSE;
@@ -1444,19 +1596,37 @@ class PremiumPolicyFactory extends Factory {
 		return FALSE;
 	}
 
+	function getExcludeDefaultJob() {
+		if ( isset($this->data['exclude_default_job']) ) {
+			return $this->fromBool( $this->data['exclude_default_job'] );
+		}
+
+		return FALSE;
+	}
+	function setExcludeDefaultJob($bool) {
+		$this->data['exclude_default_job'] = $this->toBool($bool);
+
+		return TRUE;
+	}
+
 	function getJob() {
 		if ( getTTProductEdition() < TT_PRODUCT_CORPORATE ) {
 			return FALSE;
 		}
 
-		$lf = TTnew( 'PremiumPolicyJobListFactory' );
-		$lf->getByPremiumPolicyId( $this->getId() );
-		foreach ($lf as $obj) {
-			$list[] = $obj->getjob();
-		}
+		if ( $this->getId() > 0 AND isset($this->job_map[$this->getId()]) ) {
+			return $this->job_map[$this->getId()];
+		} else {
+			$lf = TTnew( 'PremiumPolicyJobListFactory' );
+			$lf->getByPremiumPolicyId( $this->getId() );
+			foreach ($lf as $obj) {
+				$list[] = $obj->getjob();
+			}
 
-		if ( isset($list) ) {
-			return $list;
+			if ( isset($list) ) {
+				$this->job_map[$this->getId()] = $list;
+				return $this->job_map[$this->getId()];
+			}
 		}
 
 		return FALSE;
@@ -1520,7 +1690,7 @@ class PremiumPolicyFactory extends Factory {
 
 	function getJobItemGroupSelectionType() {
 		if ( isset($this->data['job_item_group_selection_type_id']) ) {
-			return $this->data['job_item_group_selection_type_id'];
+			return (int)$this->data['job_item_group_selection_type_id'];
 		}
 
 		return FALSE;
@@ -1542,19 +1712,37 @@ class PremiumPolicyFactory extends Factory {
 		return FALSE;
 	}
 
+	function getExcludeDefaultJobItem() {
+		if ( isset($this->data['exclude_default_job_item']) ) {
+			return $this->fromBool( $this->data['exclude_default_job_item'] );
+		}
+
+		return FALSE;
+	}
+	function setExcludeDefaultJobItem($bool) {
+		$this->data['exclude_default_job_item'] = $this->toBool($bool);
+
+		return TRUE;
+	}
+
 	function getJobItemGroup() {
 		if ( getTTProductEdition() < TT_PRODUCT_CORPORATE ) {
 			return FALSE;
 		}
 
-		$lf = TTnew( 'PremiumPolicyJobItemGroupListFactory' );
-		$lf->getByPremiumPolicyId( $this->getId() );
-		foreach ($lf as $obj) {
-			$list[] = $obj->getJobItemGroup();
-		}
+		if ( $this->getId() > 0 AND isset($this->job_item_group_map[$this->getId()]) ) {
+			return $this->job_item_group_map[$this->getId()];
+		} else {
+			$lf = TTnew( 'PremiumPolicyJobItemGroupListFactory' );
+			$lf->getByPremiumPolicyId( $this->getId() );
+			foreach ($lf as $obj) {
+				$list[] = $obj->getJobItemGroup();
+			}
 
-		if ( isset($list) ) {
-			return $list;
+			if ( isset($list) ) {
+				$this->job_item_group_map[$this->getId()] = $list;
+				return $this->job_item_group_map[$this->getId()];
+			}
 		}
 
 		return FALSE;
@@ -1618,7 +1806,7 @@ class PremiumPolicyFactory extends Factory {
 
 	function getJobItemSelectionType() {
 		if ( isset($this->data['job_item_selection_type_id']) ) {
-			return $this->data['job_item_selection_type_id'];
+			return (int)$this->data['job_item_selection_type_id'];
 		}
 
 		return FALSE;
@@ -1645,14 +1833,19 @@ class PremiumPolicyFactory extends Factory {
 			return FALSE;
 		}
 
-		$lf = TTnew( 'PremiumPolicyJobItemListFactory' );
-		$lf->getByPremiumPolicyId( $this->getId() );
-		foreach ($lf as $obj) {
-			$list[] = $obj->getJobItem();
-		}
+		if ( $this->getId() > 0 AND isset($this->job_item_map[$this->getId()]) ) {
+			return $this->job_item_map[$this->getId()];
+		} else {
+			$lf = TTnew( 'PremiumPolicyJobItemListFactory' );
+			$lf->getByPremiumPolicyId( $this->getId() );
+			foreach ($lf as $obj) {
+				$list[] = $obj->getJobItem();
+			}
 
-		if ( isset($list) ) {
-			return $list;
+			if ( isset($list) ) {
+				$this->job_item_map[$this->getId()] = $list;
+				return $this->job_item_map[$this->getId()];
+			}
 		}
 
 		return FALSE;
@@ -1714,20 +1907,20 @@ class PremiumPolicyFactory extends Factory {
 		return FALSE;
 	}
 
-	function isActive( $in_epoch, $out_epoch = NULL, $user_id = NULL ) {
+	function isActive( $in_epoch, $out_epoch = NULL, $calculate_policy_obj = NULL ) {
 		if ( $out_epoch == '' ) {
 			$out_epoch = $in_epoch;
 		}
 
 		//Debug::text(' In: '. TTDate::getDate('DATE+TIME', $in_epoch) .' Out: '. TTDate::getDate('DATE+TIME', $out_epoch), __FILE__, __LINE__, __METHOD__, 10);
-		//for( $i=$in_epoch; $i <= $out_epoch; $i+=86400 ) {
-		$i=$in_epoch;
+		$i = $in_epoch;
 		$last_iteration = 0;
 		//Make sure we loop on the in_epoch, out_epoch and every day inbetween. $last_iteration allows us to always hit the out_epoch.
 		while( $i <= $out_epoch AND $last_iteration <= 1 ) {
 			//Debug::text(' I: '. TTDate::getDate('DATE+TIME', $i), __FILE__, __LINE__, __METHOD__, 10);
-			if ( $this->getIncludeHolidayType() > 10 ) {
-				$is_holiday = $this->isHoliday( $i, $user_id );
+			if ( $this->getIncludeHolidayType() > 10 AND is_object( $calculate_policy_obj ) ) {
+				//$is_holiday = $this->isHoliday( $i, $user_id );
+				$is_holiday = ( $calculate_policy_obj->filterHoliday( $i ) !== FALSE ) ? TRUE : FALSE;
 			} else {
 				$is_holiday = FALSE;
 			}
@@ -1742,8 +1935,8 @@ class PremiumPolicyFactory extends Factory {
 			}
 
 			//If there is more than one day between $i and $out_epoch, add one day to $i.
-			if ( $i < ( $out_epoch-86400 ) ) {
-				$i+=86400;
+			if ( $i < ( $out_epoch - 86400 ) ) {
+				$i += 86400;
 			} else {
 				//When less than one day untl $out_epoch, skip to $out_epoch and loop once more.
 				$i = $out_epoch;
@@ -1762,7 +1955,7 @@ class PremiumPolicyFactory extends Factory {
 		//If time restrictions account for over 23.5 hours, then we assume
 		//that this policy is not time restricted at all.
 		$time_diff = abs( $this->getEndTime() - $this->getStartTime() );
-		if ( $time_diff > 0 AND $time_diff < (23.5*3600) ) {
+		if ( $time_diff > 0 AND $time_diff < (23.5 * 3600) ) {
 			return TRUE;
 		}
 
@@ -1777,42 +1970,68 @@ class PremiumPolicyFactory extends Factory {
 		return FALSE;
 	}
 
-	function getPartialPunchTotalTime( $in_epoch, $out_epoch, $total_time, $user_id ) {
+	function isDayOfWeekRestricted() {
+		if ( $this->getSun() == FALSE OR $this->getMon() == FALSE OR $this->getTue() == FALSE OR $this->getWed() == FALSE OR $this->getThu() == FALSE OR $this->getFri() == FALSE OR $this->getSat() == FALSE ) {
+			return TRUE;
+		}
+
+		return FALSE;
+	}
+
+	function getPartialPunchTotalTime( $in_epoch, $out_epoch, $total_time, $calculate_policy_obj = NULL ) {
 		$retval = $total_time;
 
-		if ( $this->isActiveTime( $in_epoch, $out_epoch, $user_id )
+		//If a premium policy only activates on say Sat, but the Start/End times are blank/0,
+		//it won't calculate just the time on Sat if an employee works from Fri 8:00PM to Sat 3:00AM.
+		//So check for StartTime/EndTime > 0 OR isDayOfWeekRestricted()
+		//Then if no StartTime/EndTime is set, force it to cover the entire 24hr period.
+		if ( $this->isActiveTime( $in_epoch, $out_epoch, $calculate_policy_obj )
 				AND $this->getIncludePartialPunch() == TRUE
-				AND ( $this->getStartTime() > 0 OR $this->getEndTime() > 0 ) ) {
+				AND (
+						( $this->getStartTime() > 0 OR $this->getEndTime() > 0 )
+						OR $this->isDayOfWeekRestricted() == TRUE
+					)
+				) {
+			if ( $this->getStartTime() == '' ) {
+				$this->setStartTime( strtotime( '12:00 AM' ) );
+			}
+			if ( $this->getEndTime() == '' ) {
+				$this->setEndTime( strtotime( '11:59 PM' ) );
+			}
+
 			Debug::text(' Checking for Active Time with: In: '. TTDate::getDate('DATE+TIME', $in_epoch) .' Out: '. TTDate::getDate('DATE+TIME', $out_epoch), __FILE__, __LINE__, __METHOD__, 10);
 
-			Debug::text(' Raw Start TimeStamp('.$this->getStartTime(TRUE).'): '. TTDate::getDate('DATE+TIME', $this->getStartTime() ) .' Raw End TimeStamp('.$this->getEndTime(TRUE).'): '. TTDate::getDate('DATE+TIME', $this->getEndTime() )  , __FILE__, __LINE__, __METHOD__, 10);
+			Debug::text(' Raw Start TimeStamp('.$this->getStartTime(TRUE).'): '. TTDate::getDate('DATE+TIME', $this->getStartTime() ) .' Raw End TimeStamp('.$this->getEndTime(TRUE).'): '. TTDate::getDate('DATE+TIME', $this->getEndTime() ), __FILE__, __LINE__, __METHOD__, 10);
 			$start_time_stamp = TTDate::getTimeLockedDate( $this->getStartTime(), $in_epoch);
 			$end_time_stamp = TTDate::getTimeLockedDate( $this->getEndTime(), $in_epoch);
 
 			//Check if end timestamp is before start, if it is, move end timestamp to next day.
 			if ( $end_time_stamp < $start_time_stamp ) {
 				Debug::text(' Moving End TimeStamp to next day.', __FILE__, __LINE__, __METHOD__, 10);
-				$end_time_stamp = TTDate::getTimeLockedDate( $this->getEndTime(), $end_time_stamp + 86400);
+				$end_time_stamp = TTDate::getTimeLockedDate( $this->getEndTime(), ( TTDate::getMiddleDayEpoch($end_time_stamp) + 86400 ) ); //Due to DST, jump ahead 1.5 days, then jump back to the time locked date.
 			}
 
 			//Handle the last second of the day, so punches that span midnight like 11:00PM to 6:00AM get a full 1 hour for the time before midnight, rather than 59mins and 59secs.
 			if ( TTDate::getHour( $end_time_stamp ) == 23 AND TTDate::getMinute( $end_time_stamp ) == 59 ) {
-				$end_time_stamp = TTDate::getEndDayEpoch( $end_time_stamp ) + 1;
+				$end_time_stamp = ( TTDate::getEndDayEpoch( $end_time_stamp ) + 1 );
 				Debug::text(' End time stamp is within the last minute of day, make sure we include the last second of the day as well.', __FILE__, __LINE__, __METHOD__, 10);
 			}
 
 			$retval = 0;
-			for( $i=($start_time_stamp-86400); $i <= ($end_time_stamp+86400); $i+=86400 ) {
+			for( $i = (TTDate::getMiddleDayEpoch($start_time_stamp) - 86400); $i <= (TTDate::getMiddleDayEpoch($end_time_stamp) + 86400); $i += 86400 ) {
 				//Due to DST, we need to make sure we always lock time of day so its the exact same. Without this it can walk by one hour either way.
 				$tmp_start_time_stamp = TTDate::getTimeLockedDate( $this->getStartTime(), $i);
-				$tmp_end_time_stamp = TTDate::getTimeLockedDate( $end_time_stamp, $tmp_start_time_stamp + ($end_time_stamp - $start_time_stamp) ); //Use $end_time_stamp as it can be modified above due to being near midnight
-				if ( $this->isActiveTime( $tmp_start_time_stamp, $tmp_end_time_stamp, $user_id ) == TRUE ) {
+				$next_i = ( $tmp_start_time_stamp + ($end_time_stamp - $start_time_stamp) ); //Get next date to base the end_time_stamp on, and to calculate if we need to adjust for DST.
+				$tmp_end_time_stamp = TTDate::getTimeLockedDate( $end_time_stamp, ( $next_i + ( TTDate::getDSTOffset( $tmp_start_time_stamp, $next_i ) * -1 ) ) ); //Use $end_time_stamp as it can be modified above due to being near midnight. Also adjust for DST by reversing it.
+				if ( $this->isActiveTime( $tmp_start_time_stamp, $tmp_end_time_stamp, $calculate_policy_obj ) == TRUE ) {
 					$retval += TTDate::getTimeOverLapDifference( $tmp_start_time_stamp, $tmp_end_time_stamp, $in_epoch, $out_epoch );
-					Debug::text(' Calculating partial time against Start TimeStamp: '. TTDate::getDate('DATE+TIME', $tmp_start_time_stamp) .' End TimeStamp: '. TTDate::getDate('DATE+TIME', $tmp_end_time_stamp) .' Total: '. $retval  , __FILE__, __LINE__, __METHOD__, 10);
+					Debug::text(' Calculating partial time against Start TimeStamp: '. TTDate::getDate('DATE+TIME', $tmp_start_time_stamp) .' End TimeStamp: '. TTDate::getDate('DATE+TIME', $tmp_end_time_stamp) .' Total: '. $retval, __FILE__, __LINE__, __METHOD__, 10);
 				} else {
 					Debug::text(' Not Active on this day: '. TTDate::getDate('DATE+TIME', $i), __FILE__, __LINE__, __METHOD__, 10);
 				}
 			}
+		} else {
+			Debug::text('   Not calculating partial punch, just using total time...', __FILE__, __LINE__, __METHOD__, 10);
 		}
 
 		Debug::text(' Partial Punch Total Time: '. $retval, __FILE__, __LINE__, __METHOD__, 10);
@@ -1820,20 +2039,20 @@ class PremiumPolicyFactory extends Factory {
 	}
 
 	//Check if this time is within the start/end time.
-	function isActiveTime( $in_epoch, $out_epoch, $user_id ) {
+	function isActiveTime( $in_epoch, $out_epoch, $calculate_policy_obj = NULL ) {
 		Debug::text(' Checking for Active Time with: In: '. TTDate::getDate('DATE+TIME', $in_epoch) .' Out: '. TTDate::getDate('DATE+TIME', $out_epoch), __FILE__, __LINE__, __METHOD__, 10);
 
-		Debug::text(' Raw Start TimeStamp('.$this->getStartTime(TRUE).'): '. TTDate::getDate('DATE+TIME', $this->getStartTime() ) .' Raw End TimeStamp: '. TTDate::getDate('DATE+TIME', $this->getEndTime() )  , __FILE__, __LINE__, __METHOD__, 10);
+		Debug::text(' PP Raw Start TimeStamp('.$this->getStartTime(TRUE).'): '. TTDate::getDate('DATE+TIME', $this->getStartTime() ) .' Raw End TimeStamp: '. TTDate::getDate('DATE+TIME', $this->getEndTime() ), __FILE__, __LINE__, __METHOD__, 10);
 		$start_time_stamp = TTDate::getTimeLockedDate( $this->getStartTime(), $in_epoch); //Base the end time on day of the in_epoch.
 		$end_time_stamp = TTDate::getTimeLockedDate( $this->getEndTime(), $in_epoch); //Base the end time on day of the in_epoch.
 
 		//Check if end timestamp is before start, if it is, move end timestamp to next day.
 		if ( $end_time_stamp < $start_time_stamp ) {
 			Debug::text(' Moving End TimeStamp to next day.', __FILE__, __LINE__, __METHOD__, 10);
-			$end_time_stamp = TTDate::getTimeLockedDate( $this->getEndTime(), $end_time_stamp + 86400);
+			$end_time_stamp = TTDate::getTimeLockedDate( $this->getEndTime(), ( TTDate::getMiddleDayEpoch($end_time_stamp) + 86400 ) ); //Due to DST, jump ahead 1.5 days, then jump back to the time locked date.
 		}
 
-		Debug::text(' Start TimeStamp: '. TTDate::getDate('DATE+TIME', $start_time_stamp) .' End TimeStamp: '. TTDate::getDate('DATE+TIME', $end_time_stamp)  , __FILE__, __LINE__, __METHOD__, 10);
+		Debug::text(' Start TimeStamp: '. TTDate::getDate('DATE+TIME', $start_time_stamp) .' End TimeStamp: '. TTDate::getDate('DATE+TIME', $end_time_stamp), __FILE__, __LINE__, __METHOD__, 10);
 		//Check to see if start/end time stamps are not set or are equal, we always return TRUE if they are.
 		if ( $this->getIncludeHolidayType() == 10
 				AND ( $start_time_stamp == '' OR $end_time_stamp == '' OR $start_time_stamp == $end_time_stamp ) ) {
@@ -1842,11 +2061,11 @@ class PremiumPolicyFactory extends Factory {
 		} else {
 			//If the premium policy start/end time spans midnight, there could be multiple windows to check
 			//where the premium policy applies, make sure we check all windows.
-			for( $i=($start_time_stamp-86400); $i <= ($end_time_stamp+86400); $i+=86400 ) {
+			for( $i = (TTDate::getMiddleDayEpoch($start_time_stamp) - 86400); $i <= (TTDate::getMiddleDayEpoch($end_time_stamp) + 86400); $i += 86400 ) {
 				$tmp_start_time_stamp = TTDate::getTimeLockedDate( $this->getStartTime(), $i);
-				$tmp_end_time_stamp = TTDate::getTimeLockedDate( $this->getEndTime(), $tmp_start_time_stamp + ($end_time_stamp - $start_time_stamp) );
-
-				if ( $this->isActive( $tmp_start_time_stamp, $tmp_end_time_stamp, $user_id ) == TRUE ) {
+				$next_i = ( $tmp_start_time_stamp + ($end_time_stamp - $start_time_stamp) ); //Get next date to base the end_time_stamp on, and to calculate if we need to adjust for DST.
+				$tmp_end_time_stamp = TTDate::getTimeLockedDate( $end_time_stamp, ( $next_i + ( TTDate::getDSTOffset( $tmp_start_time_stamp, $next_i ) * -1 ) ) ); //Use $end_time_stamp as it can be modified above due to being near midnight. Also adjust for DST by reversing it.
+				if ( $this->isActive( $tmp_start_time_stamp, $tmp_end_time_stamp, $calculate_policy_obj ) == TRUE ) {
 					Debug::text(' Checking against Start TimeStamp: '. TTDate::getDate('DATE+TIME', $tmp_start_time_stamp) .'('.$tmp_start_time_stamp.') End TimeStamp: '. TTDate::getDate('DATE+TIME', $tmp_end_time_stamp) .'('.$tmp_end_time_stamp.')', __FILE__, __LINE__, __METHOD__, 10);
 					if ( $this->getIncludePartialPunch() == TRUE AND TTDate::isTimeOverLap( $in_epoch, $out_epoch, $tmp_start_time_stamp, $tmp_end_time_stamp) == TRUE ) {
 						//When dealing with partial punches, any overlap whatsoever activates the policy.
@@ -1860,10 +2079,11 @@ class PremiumPolicyFactory extends Factory {
 						//When IncludeHolidayType != 10 this trigger here.
 						Debug::text(' No Start/End Date/Time!', __FILE__, __LINE__, __METHOD__, 10);
 						return TRUE;
+					} else {
+						Debug::text(' No match...', __FILE__, __LINE__, __METHOD__, 10);
 					}
-
 				} else {
-					Debug::text(' Not Active on this day: '. TTDate::getDate('DATE+TIME', $i), __FILE__, __LINE__, __METHOD__, 10);
+					Debug::text(' Not Active on this day: Start: '. TTDate::getDate('DATE+TIME', $tmp_start_time_stamp) .' End: '. TTDate::getDate('DATE+TIME', $tmp_end_time_stamp), __FILE__, __LINE__, __METHOD__, 10);
 				}
 			}
 		}
@@ -1872,7 +2092,7 @@ class PremiumPolicyFactory extends Factory {
 
 		return FALSE;
 	}
-
+/*
 	function isHoliday( $epoch, $user_id ) {
 		if ( $epoch == '' OR $user_id == '' ) {
 			return FALSE;
@@ -1882,7 +2102,7 @@ class PremiumPolicyFactory extends Factory {
 		$hlf->getByPolicyGroupUserIdAndDate( $user_id, $epoch );
 		if ( $hlf->getRecordCount() > 0 ) {
 			$holiday_obj = $hlf->getCurrent();
-			Debug::text(' Found Holiday: '. $holiday_obj->getName(), __FILE__, __LINE__, __METHOD__,10);
+			Debug::text(' Found Holiday: '. $holiday_obj->getName(), __FILE__, __LINE__, __METHOD__, 10);
 
 			if ( $holiday_obj->getHolidayPolicyObject()->getForceOverTimePolicy() == TRUE
 					OR $holiday_obj->isEligible( $user_id ) ) {
@@ -1901,18 +2121,19 @@ class PremiumPolicyFactory extends Factory {
 
 		return FALSE;
 	}
-
+*/
 	//Check if this date is within the effective date range
-	function isActiveDate( $epoch ) {
-		//Debug::text(' Checking for Active Date: '. TTDate::getDate('DATE+TIME', $epoch), __FILE__, __LINE__, __METHOD__, 10);
+	//Need to take into account shifts that span midnight too.
+	function isActiveDate( $epoch, $maximum_shift_time = 0 ) {
+		//Debug::text(' Checking for Active Date: '. TTDate::getDate('DATE+TIME', $epoch) .' PP Start Date: '. TTDate::getDate('DATE+TIME', $this->getStartDate()) .' Maximum Shift Time: '. $maximum_shift_time, __FILE__, __LINE__, __METHOD__, 10);
 		$epoch = TTDate::getBeginDayEpoch( $epoch );
 
 		if ( $this->getStartDate() == '' AND $this->getEndDate() == '') {
 			return TRUE;
 		}
 
-		if ( $epoch >= (int)$this->getStartDate()
-				AND ( $epoch <= (int)$this->getEndDate() OR $this->getEndDate() == '' ) ) {
+		if ( $epoch >= ( TTDate::getBeginDayEpoch( (int)$this->getStartDate() ) - (int)$maximum_shift_time )
+				AND ( $epoch <= ( TTDate::getEndDayEpoch( (int)$this->getEndDate() ) + (int)$maximum_shift_time ) OR $this->getEndDate() == '' ) ) {
 			return TRUE;
 		}
 
@@ -1966,14 +2187,18 @@ class PremiumPolicyFactory extends Factory {
 	}
 
 	function Validate() {
-		if ( $this->getDeleted() == TRUE ) {
-			//Check to make sure there are no hours using this premium policy.
-			$udtlf = TTnew( 'UserDateTotalListFactory' );
-			$udtlf->getByPremiumTimePolicyId( $this->getId() );
-			if ( $udtlf->getRecordCount() > 0 ) {
-				$this->Validator->isTRUE(	'in_use',
+		if ( $this->getDeleted() != TRUE AND $this->validate_only == FALSE ) { //Don't check the below when mass editing.
+			if ( $this->getPayCode() == 0 ) {
+				$this->Validator->isTRUE(	'pay_code_id',
 											FALSE,
-											TTi18n::gettext('This premium policy is in use'));
+											TTi18n::gettext('Please choose a Pay Code') );
+			}
+
+			//Make sure Pay Formula Policy is defined somewhere.
+			if ( $this->getPayFormulaPolicy() == 0 AND $this->getPayCode() > 0 AND ( !is_object( $this->getPayCodeObject() ) OR ( is_object( $this->getPayCodeObject() ) AND $this->getPayCodeObject()->getPayFormulaPolicy() == 0 ) ) ) {
+					$this->Validator->isTRUE(	'pay_formula_policy_id',
+												FALSE,
+												TTi18n::gettext('Selected Pay Code does not have a Pay Formula Policy defined'));
 			}
 		}
 
@@ -2000,8 +2225,18 @@ class PremiumPolicyFactory extends Factory {
 			$this->setJobItemSelectionType(10); //All
 		}
 
+		if ( $this->getPayType() === FALSE ) {
+			$this->setPayType( 10 );
+		}
+
 		if ( $this->getWageGroup() === FALSE ) {
 			$this->setWageGroup( 0 );
+		}
+		if ( $this->getRate() === FALSE ) {
+			$this->setRate( 0 );
+		}
+		if ( $this->getAccrualRate() === FALSE ) {
+			$this->setAccrualRate( 0 );
 		}
 
 		return TRUE;
@@ -2054,6 +2289,9 @@ class PremiumPolicyFactory extends Factory {
 
 					$function = 'get'.$function_stub;
 					switch( $variable ) {
+						case 'in_use':
+							$data[$variable] = $this->getColumn( $variable );
+							break;
 						case 'type':
 						case 'pay_type':
 						case 'branch_selection_type':
@@ -2062,7 +2300,7 @@ class PremiumPolicyFactory extends Factory {
 						case 'job_selection_type':
 						case 'job_item_group_selection_type':
 						case 'job_item_selection_type':
-							$function = 'get'. str_replace('_','', $variable);
+							$function = 'get'. str_replace('_', '', $variable);
 							if ( method_exists( $this, $function ) ) {
 								$data[$variable] = Option::getByKey( $this->$function(), $this->getOptions( $variable ) );
 							}
@@ -2095,7 +2333,7 @@ class PremiumPolicyFactory extends Factory {
 	}
 
 	function addLog( $log_action ) {
-		return TTLog::addEntry( $this->getId(), $log_action,  TTi18n::getText('Premium Policy'), NULL, $this->getTable(), $this );
+		return TTLog::addEntry( $this->getId(), $log_action, TTi18n::getText('Premium Policy'), NULL, $this->getTable(), $this );
 	}
 }
 ?>

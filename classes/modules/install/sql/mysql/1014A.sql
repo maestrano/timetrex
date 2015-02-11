@@ -1,20 +1,20 @@
 CREATE TABLE permission_control (
-    id serial NOT NULL,
+	id serial NOT NULL,
 	company_id integer NOT NULL,
-    name varchar(250) NOT NULL,
+	name varchar(250) NOT NULL,
 	description varchar(250) NOT NULL,
-    created_date integer,
-    created_by integer,
-    updated_date integer,
-    updated_by integer,
-    deleted_date integer,
-    deleted_by integer,
-    deleted smallint DEFAULT 0 NOT NULL,
+	created_date integer,
+	created_by integer,
+	updated_date integer,
+	updated_by integer,
+	deleted_date integer,
+	deleted_by integer,
+	deleted smallint DEFAULT 0 NOT NULL,
 	PRIMARY KEY(id)
 ) Engine=InnoDB;
 
 CREATE TABLE permission_user (
-    id serial NOT NULL,
+	id serial NOT NULL,
 	permission_control_id integer NOT NULL,
 	user_id integer NOT NULL,
 	PRIMARY KEY(id)
@@ -23,18 +23,18 @@ CREATE TABLE permission_user (
 alter table permission rename to permission_old;
 
 CREATE TABLE permission (
-    id serial NOT NULL,
-    permission_control_id integer NOT NULL,
-    section varchar(250),
-    name varchar(250),
-    value varchar(250),
-    created_date integer,
-    created_by integer,
-    updated_date integer,
-    updated_by integer,
-    deleted_date integer,
-    deleted_by integer,
-    deleted smallint DEFAULT 0 NOT NULL,
+	id serial NOT NULL,
+	permission_control_id integer NOT NULL,
+	section varchar(250),
+	name varchar(250),
+	value varchar(250),
+	created_date integer,
+	created_by integer,
+	updated_date integer,
+	updated_by integer,
+	deleted_date integer,
+	deleted_by integer,
+	deleted smallint DEFAULT 0 NOT NULL,
 	PRIMARY KEY(id)
 ) Engine=InnoDB;
 CREATE INDEX permission_permission_control_id ON permission(permission_control_id);
@@ -77,20 +77,20 @@ update premium_policy set job_item_group_selection_type_id = 10;
 update premium_policy set job_item_selection_type_id = 10;
 
 CREATE TABLE premium_policy_branch (
-    id serial NOT NULL,
+	id serial NOT NULL,
 	premium_policy_id integer NOT NULL,
 	branch_id integer NOT NULL,
 	PRIMARY KEY(id)
 ) Engine=InnoDB;
 
 CREATE TABLE premium_policy_department (
-    id serial NOT NULL,
+	id serial NOT NULL,
 	premium_policy_id integer NOT NULL,
 	department_id integer NOT NULL,
 	PRIMARY KEY(id)
 ) Engine=InnoDB;
 
-alter table premium_policy change rate rate decimal(9,4);
+alter table premium_policy change rate rate numeric(9,4);
 alter table premium_policy change accrual_rate accrual_rate numeric(9,4);
 alter table over_time_policy change rate rate numeric(9,4);
 alter table over_time_policy change accrual_rate accrual_rate numeric(9,4);

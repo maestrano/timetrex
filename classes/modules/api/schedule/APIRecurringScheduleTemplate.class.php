@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2196 $
- * $Id: APIRecurringScheduleTemplate.class.php 2196 2008-10-14 16:08:54Z ipso $
- * $Date: 2008-10-14 09:08:54 -0700 (Tue, 14 Oct 2008) $
- */
+
 
 /**
  * @package API\Schedule
@@ -58,7 +54,7 @@ class APIRecurringScheduleTemplate extends APIFactory {
 	function getRecurringScheduleTemplateDefaultData() {
 		$company_obj = $this->getCurrentCompanyObject();
 
-		Debug::Text('Getting recurring_schedule_template default data...', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Getting recurring_schedule_template default data...', __FILE__, __LINE__, __METHOD__, 10);
 
 		$data = array(
 							'id' => -1,
@@ -70,7 +66,7 @@ class APIRecurringScheduleTemplate extends APIFactory {
 							'fri' => TRUE,
 							'start_time' => TTDate::getAPIDate( 'TIME', strtotime('08:00') ),
 							'end_time' => TTDate::getAPIDate( 'TIME', strtotime('17:00') ),
-							'total_time' => (9*3600),
+							'total_time' => (9 * 3600),
 							'branch_id' => -1,
 							'department_id' => -1,
 							'schedule_policy_id' => 0,
@@ -87,8 +83,8 @@ class APIRecurringScheduleTemplate extends APIFactory {
 	 * @return array
 	 */
 	function getRecurringScheduleTemplate( $data = NULL, $disable_paging = FALSE ) {
-		if ( !$this->getPermissionObject()->Check('recurring_schedule_template','enabled')
-				OR !( $this->getPermissionObject()->Check('recurring_schedule_template','view') OR $this->getPermissionObject()->Check('recurring_schedule_template','view_own') OR $this->getPermissionObject()->Check('recurring_schedule_template','view_child')  ) ) {
+		if ( !$this->getPermissionObject()->Check('recurring_schedule_template', 'enabled')
+				OR !( $this->getPermissionObject()->Check('recurring_schedule_template', 'view') OR $this->getPermissionObject()->Check('recurring_schedule_template', 'view_own') OR $this->getPermissionObject()->Check('recurring_schedule_template', 'view_child')	) ) {
 			return $this->getPermissionObject()->PermissionDenied();
 		}
 		$data = $this->initializeFilterAndPager( $data, $disable_paging );
@@ -147,9 +143,9 @@ class APIRecurringScheduleTemplate extends APIFactory {
 			return $this->returnHandler( FALSE );
 		}
 
-		if ( !$this->getPermissionObject()->Check('recurring_schedule_template','enabled')
-				OR !( $this->getPermissionObject()->Check('recurring_schedule_template','edit') OR $this->getPermissionObject()->Check('recurring_schedule_template','edit_own') OR $this->getPermissionObject()->Check('recurring_schedule_template','edit_child') OR $this->getPermissionObject()->Check('recurring_schedule_template','add') ) ) {
-			return  $this->getPermissionObject()->PermissionDenied();
+		if ( !$this->getPermissionObject()->Check('recurring_schedule_template', 'enabled')
+				OR !( $this->getPermissionObject()->Check('recurring_schedule_template', 'edit') OR $this->getPermissionObject()->Check('recurring_schedule_template', 'edit_own') OR $this->getPermissionObject()->Check('recurring_schedule_template', 'edit_child') OR $this->getPermissionObject()->Check('recurring_schedule_template', 'add') ) ) {
+			return	$this->getPermissionObject()->PermissionDenied();
 		}
 
 		if ( $validate_only == TRUE ) {
@@ -175,11 +171,11 @@ class APIRecurringScheduleTemplate extends APIFactory {
 					if ( $lf->getRecordCount() == 1 ) {
 						//Object exists, check edit permissions
 						if (
-							  $validate_only == TRUE
-							  OR
+							$validate_only == TRUE
+							OR
 								(
-								$this->getPermissionObject()->Check('recurring_schedule_template','edit')
-									OR ( $this->getPermissionObject()->Check('recurring_schedule_template','edit_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE )
+								$this->getPermissionObject()->Check('recurring_schedule_template', 'edit')
+									OR ( $this->getPermissionObject()->Check('recurring_schedule_template', 'edit_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE )
 								) ) {
 
 							Debug::Text('Row Exists, getting current data: ', $row['id'], __FILE__, __LINE__, __METHOD__, 10);
@@ -194,13 +190,13 @@ class APIRecurringScheduleTemplate extends APIFactory {
 					}
 				} else {
 					//Adding new object, check ADD permissions.
-					$primary_validator->isTrue( 'permission', $this->getPermissionObject()->Check('recurring_schedule_template','add'), TTi18n::gettext('Add permission denied') );
+					$primary_validator->isTrue( 'permission', $this->getPermissionObject()->Check('recurring_schedule_template', 'add'), TTi18n::gettext('Add permission denied') );
 				}
 				Debug::Arr($row, 'Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 				//Prefix the current date to the template, this avoids issues with parsing 24hr clock only, ie: 0600
 				$date_epoch = time();
-				$row['start_time'] =  TTDate::parseDateTime( TTDate::getDate('DATE', $date_epoch ) .' '. $row['start_time'] );
+				$row['start_time'] = TTDate::parseDateTime( TTDate::getDate('DATE', $date_epoch ) .' '. $row['start_time'] );
 				$row['end_time'] = TTDate::parseDateTime( TTDate::getDate('DATE', $date_epoch ) .' '. $row['end_time'] );
 				unset($date_epoch);
 
@@ -275,16 +271,16 @@ class APIRecurringScheduleTemplate extends APIFactory {
 			return $this->returnHandler( FALSE );
 		}
 
-		if ( !$this->getPermissionObject()->Check('recurring_schedule_template','enabled')
-				OR !( $this->getPermissionObject()->Check('recurring_schedule_template','delete') OR $this->getPermissionObject()->Check('recurring_schedule_template','delete_own') OR $this->getPermissionObject()->Check('recurring_schedule_template','delete_child') ) ) {
-			return  $this->getPermissionObject()->PermissionDenied();
+		if ( !$this->getPermissionObject()->Check('recurring_schedule_template', 'enabled')
+				OR !( $this->getPermissionObject()->Check('recurring_schedule_template', 'delete') OR $this->getPermissionObject()->Check('recurring_schedule_template', 'delete_own') OR $this->getPermissionObject()->Check('recurring_schedule_template', 'delete_child') ) ) {
+			return	$this->getPermissionObject()->PermissionDenied();
 		}
 
 		Debug::Text('Received data for: '. count($data) .' RecurringScheduleTemplates', __FILE__, __LINE__, __METHOD__, 10);
 		Debug::Arr($data, 'Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		$total_records = count($data);
-        $validator_stats = array('total_records' => $total_records, 'valid_records' => 0 );
+		$validator_stats = array('total_records' => $total_records, 'valid_records' => 0 );
 		if ( is_array($data) ) {
 			$this->getProgressBarObject()->start( $this->getAMFMessageID(), $total_records );
 
@@ -298,8 +294,8 @@ class APIRecurringScheduleTemplate extends APIFactory {
 					$lf->getByIdAndCompanyId( $id, $this->getCurrentCompanyObject()->getId() );
 					if ( $lf->getRecordCount() == 1 ) {
 						//Object exists, check edit permissions
-						if ( $this->getPermissionObject()->Check('recurring_schedule_template','delete')
-								OR ( $this->getPermissionObject()->Check('recurring_schedule_template','delete_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE ) ) {
+						if ( $this->getPermissionObject()->Check('recurring_schedule_template', 'delete')
+								OR ( $this->getPermissionObject()->Check('recurring_schedule_template', 'delete_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE ) ) {
 							Debug::Text('Record Exists, deleting record: ', $id, __FILE__, __LINE__, __METHOD__, 10);
 							$lf = $lf->getCurrent();
 						} else {

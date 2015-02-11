@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 9521 $
- * $Id: UserGroupFactory.class.php 9521 2013-04-08 23:09:52Z ipso $
- * $Date: 2013-04-08 16:09:52 -0700 (Mon, 08 Apr 2013) $
- */
+
 
 /**
  * @package Modules\Users
@@ -93,7 +89,7 @@ class UserGroupFactory extends Factory {
 										'parent_id' => 'Parent',
 										'name' => 'Name',
 										'deleted' => 'Deleted',
- 										);
+										);
 		return $variable_function_map;
 	}
 
@@ -111,7 +107,7 @@ class UserGroupFactory extends Factory {
 
 	function getCompany() {
 		if ( isset($this->data['company_id']) ) {
-			return $this->data['company_id'];
+			return (int)$this->data['company_id'];
 		}
 
 		return FALSE;
@@ -119,7 +115,7 @@ class UserGroupFactory extends Factory {
 	function setCompany($id) {
 		$id = trim($id);
 
-		Debug::Text('Company ID: '. $id, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Company ID: '. $id, __FILE__, __LINE__, __METHOD__, 10);
 		$clf = TTnew( 'CompanyListFactory' );
 
 		if ( $this->Validator->isResultSetWithRows(	'company',
@@ -160,7 +156,7 @@ class UserGroupFactory extends Factory {
 	}
 	function setParent($id) {
 
-		$this->tmp_data['parent_id'] = $id;
+		$this->tmp_data['parent_id'] = (int)$id;
 
 		return TRUE;
 	}
@@ -173,7 +169,7 @@ class UserGroupFactory extends Factory {
 		if (	$this->Validator->isLength(	'name',
 											$name,
 											TTi18n::gettext('Name is invalid'),
-											2,50)
+											2, 50)
 						) {
 
 			$this->data['name'] = $name;
@@ -203,7 +199,7 @@ class UserGroupFactory extends Factory {
 				}
 
 				if ( is_array($children_ids) AND in_array( $this->getParent(), $children_ids) == TRUE ) {
-					Debug::Text(' Objects cant be re-parented to their own children...' , __FILE__, __LINE__, __METHOD__,10);
+					Debug::Text(' Objects cant be re-parented to their own children...', __FILE__, __LINE__, __METHOD__, 10);
 					$this->Validator->isTrue(	'parent',
 												FALSE,
 												TTi18n::gettext('Unable to change parent to a child of itself')
@@ -217,10 +213,10 @@ class UserGroupFactory extends Factory {
 
 	function preSave() {
 		if ( $this->isNew() ) {
-			Debug::Text(' Setting Insert Tree TRUE ', __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text(' Setting Insert Tree TRUE ', __FILE__, __LINE__, __METHOD__, 10);
 			$this->insert_tree = TRUE;
 		} else {
-			Debug::Text(' Setting Insert Tree FALSE ', __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text(' Setting Insert Tree FALSE ', __FILE__, __LINE__, __METHOD__, 10);
 			$this->insert_tree = FALSE;
 		}
 
@@ -244,7 +240,7 @@ class UserGroupFactory extends Factory {
 			$ulf->getByCompanyIdAndGroupId( $this->getCompany(), $this->getId() );
 			if ( $ulf->getRecordCount() > 0 ) {
 				foreach( $ulf as $obj ) {
-					Debug::Text(' Re-Grouping Item: '. $obj->getId(), __FILE__, __LINE__, __METHOD__,10);
+					Debug::Text(' Re-Grouping Item: '. $obj->getId(), __FILE__, __LINE__, __METHOD__, 10);
 					$obj->setGroup($parent_id);
 					$obj->Save();
 				}
@@ -276,14 +272,14 @@ class UserGroupFactory extends Factory {
 			$retval = TRUE;
 			//if ( $this->getId() === FALSE ) {
 			if ( $this->insert_tree === TRUE ) {
-				Debug::Text(' Adding Node ', __FILE__, __LINE__, __METHOD__,10);
+				Debug::Text(' Adding Node ', __FILE__, __LINE__, __METHOD__, 10);
 
-				//echo "Current ID: ".  $this->getID() ."<br>\n";
+				//echo "Current ID: ".	$this->getID() ."<br>\n";
 				//echo "Parent ID: ".  $this->getParent() ."<br>\n";
 
 				//Add node to tree
 				if ( $this->getFastTreeObject()->add( $this->getID(), $this->getParent() ) === FALSE ) {
-					Debug::Text(' Failed adding Node ', __FILE__, __LINE__, __METHOD__,10);
+					Debug::Text(' Failed adding Node ', __FILE__, __LINE__, __METHOD__, 10);
 
 					$this->Validator->isTrue(	'name',
 												FALSE,
@@ -292,10 +288,10 @@ class UserGroupFactory extends Factory {
 					$retval = FALSE;
 				}
 			} else {
-				Debug::Text(' Editing Node ', __FILE__, __LINE__, __METHOD__,10);
+				Debug::Text(' Editing Node ', __FILE__, __LINE__, __METHOD__, 10);
 
 				//Edit node.
-				$retval = $this->getFastTreeObject()->move( $this->getID() , $this->getParent() );
+				$retval = $this->getFastTreeObject()->move( $this->getID(), $this->getParent() );
 			}
 
 			if ( $retval === TRUE ) {
@@ -308,7 +304,7 @@ class UserGroupFactory extends Factory {
 		}
 	}
 
-	//Support setting created_by,updated_by especially for importing data.
+	//Support setting created_by, updated_by especially for importing data.
 	//Make sure data is set based on the getVariableToFunctionMap order.
 	function setObjectFromArray( $data ) {
 		if ( is_array( $data ) ) {

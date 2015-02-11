@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,19 +33,15 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 5229 $
- * $Id: UserMembershipFactory.class.php 5229 2011-09-20 17:52:53Z ipso $
- * $Date: 2011-09-21 01:52:53 +0800 (Wed, 21 Sep 2011) $
- */
+
 
 /**
- * @package
+ * @package Modules\Qualification
  */
 class UserMembershipFactory extends Factory {
 	protected $table = 'user_membership';
 	protected $pk_sequence_name = 'user_membership_id_seq'; //PK Sequence name
-    protected $qualification_obj = NULL;
+	protected $qualification_obj = NULL;
 	function _getFactoryOptions( $name ) {
 
 		$retval = NULL;
@@ -58,18 +54,18 @@ class UserMembershipFactory extends Factory {
 				break;
 			case 'columns':
 				$retval = array(
-                                        '-1010-first_name' => TTi18n::gettext('First Name'),
+										'-1010-first_name' => TTi18n::gettext('First Name'),
 										'-1020-last_name' => TTi18n::gettext('Last Name'),
 										'-2050-qualification' => TTi18n::gettext('Membership'),
-                                        '-2040-group' => TTi18n::gettext('Group'),
-                                        '-4030-ownership' => TTi18n::gettext('Ownership'),
-                                        '-1060-amount' => TTi18n::gettext('Amount'),
-                                        '-2500-currency' => TTi18n::gettext('Currency'),
-                                        '-1080-start_date' => TTi18n::gettext('Start Date'),
-                                        '-4040-renewal_date' => TTi18n::gettext('Renewal Date'),
-                                        '-1300-tag' => TTi18n::gettext('Tags'),
+										'-2040-group' => TTi18n::gettext('Group'),
+										'-4030-ownership' => TTi18n::gettext('Ownership'),
+										'-1060-amount' => TTi18n::gettext('Amount'),
+										'-2500-currency' => TTi18n::gettext('Currency'),
+										'-1080-start_date' => TTi18n::gettext('Start Date'),
+										'-4040-renewal_date' => TTi18n::gettext('Renewal Date'),
+										'-1300-tag' => TTi18n::gettext('Tags'),
 
-                                        '-1090-title' => TTi18n::gettext('Title'),
+										'-1090-title' => TTi18n::gettext('Title'),
 										'-1099-user_group' => TTi18n::gettext('Employee Group'),
 										'-1100-default_branch' => TTi18n::gettext('Branch'),
 										'-1110-default_department' => TTi18n::gettext('Department'),
@@ -85,14 +81,14 @@ class UserMembershipFactory extends Factory {
 				break;
 			case 'default_display_columns': //Columns that are displayed by default.
 				$retval = array(
-                                'first_name',
+								'first_name',
 								'last_name',
-                                'qualification',
-                                'ownership',
+								'qualification',
+								'ownership',
 								'amount',
-                                'currency',
-                                'start_date',
-                                'renewal_date',
+								'currency',
+								'start_date',
+								'renewal_date',
 								);
 				break;
 
@@ -101,27 +97,27 @@ class UserMembershipFactory extends Factory {
 		return $retval;
 	}
 
-    function _getVariableToFunctionMap( $data ) {
+	function _getVariableToFunctionMap( $data ) {
 		$variable_function_map = array(
 										'id' => 'ID',
 										'user_id' => 'User',
-                                        'first_name' => FALSE,
+										'first_name' => FALSE,
 										'last_name' => FALSE,
-                                        'qualification_id' => 'Qualification',
-                                        'qualification' => FALSE,
-                                        'group' => false,
-                                        'ownership_id' => 'Ownership',
-                                        'ownership' => FALSE,
-                                        'amount' => 'Amount',
-                                        'currency_id' => 'Currency',
-                                        'currency' => FALSE,
+										'qualification_id' => 'Qualification',
+										'qualification' => FALSE,
+										'group' => FALSE,
+										'ownership_id' => 'Ownership',
+										'ownership' => FALSE,
+										'amount' => 'Amount',
+										'currency_id' => 'Currency',
+										'currency' => FALSE,
 
-                                        'start_date' => 'StartDate',
+										'start_date' => 'StartDate',
 
-                                        'renewal_date' => 'RenewalDate',
+										'renewal_date' => 'RenewalDate',
 
-                                        'tag' => 'Tag',
-                                        'default_branch' => FALSE,
+										'tag' => 'Tag',
+										'default_branch' => FALSE,
 										'default_department' => FALSE,
 										'user_group' => FALSE,
 										'title' => FALSE,
@@ -130,16 +126,16 @@ class UserMembershipFactory extends Factory {
 		return $variable_function_map;
 	}
 
-    function getQualificationObject() {
+	function getQualificationObject() {
 
-        return $this->getGenericObject( 'QualificationListFactory', $this->getQualification(), 'qualification_obj' );
+		return $this->getGenericObject( 'QualificationListFactory', $this->getQualification(), 'qualification_obj' );
 	}
 
-    function getUser() {
+	function getUser() {
 		if ( isset($this->data['user_id']) ) {
-			return $this->data['user_id'];
+			return (int)$this->data['user_id'];
 		}
-        return FALSE;
+		return FALSE;
 	}
 	function setUser($id) {
 		$id = trim($id);
@@ -158,59 +154,59 @@ class UserMembershipFactory extends Factory {
 		return FALSE;
 	}
 
-    function getQualification() {
-        if ( isset( $this->data['qualification_id'] ) ) {
-            return $this->data['qualification_id'];
-        }
-        return FALSE;
-    }
+	function getQualification() {
+		if ( isset( $this->data['qualification_id'] ) ) {
+			return (int)$this->data['qualification_id'];
+		}
+		return FALSE;
+	}
 
-    function setQualification( $id ) {
-        $id = trim( $id );
+	function setQualification( $id ) {
+		$id = trim( $id );
 
-        $qlf = TTnew( 'QualificationListFactory' );
+		$qlf = TTnew( 'QualificationListFactory' );
 
-        if( $this->Validator->isResultSetWithRows( 'qualification_id',
-                                                                    $qlf->getById( $id ),
-                                                                    TTi18n::gettext('Invalid Qualification')
-                                                                     ) ) {
-            $this->data['qualification_id'] = $id;
+		if( $this->Validator->isResultSetWithRows( 'qualification_id',
+																	$qlf->getById( $id ),
+																	TTi18n::gettext('Invalid Qualification')
+																	) ) {
+			$this->data['qualification_id'] = $id;
 
-            return TRUE;
-        }
+			return TRUE;
+		}
 
-        return FALSE;
-    }
-
-
-
-    function getOwnership() {
-        if ( isset( $this->data['ownership_id'] ) ) {
-            return $this->data['ownership_id'];
-        }
-        return FALSE;
-    }
-
-    function setOwnership ( $ownership_id ) {
-        $ownership_id = trim( $ownership_id );
-
-        if( $this->Validator->inArrayKey( 'ownership_id',
-                                          $ownership_id,
-                                          TTi18n::gettext( 'Ownership is invalid' ),
-                                          $this->getOptions( 'ownership' ) ) ) {
-            $this->data['ownership_id'] = $ownership_id;
-
-            return TRUE;
-        }
-
-        return FALSE;
-    }
+		return FALSE;
+	}
 
 
 
-    function getCurrency() {
+	function getOwnership() {
+		if ( isset( $this->data['ownership_id'] ) ) {
+			return (int)$this->data['ownership_id'];
+		}
+		return FALSE;
+	}
+
+	function setOwnership ( $ownership_id ) {
+		$ownership_id = trim( $ownership_id );
+
+		if( $this->Validator->inArrayKey( 'ownership_id',
+										$ownership_id,
+										TTi18n::gettext( 'Ownership is invalid' ),
+										$this->getOptions( 'ownership' ) ) ) {
+			$this->data['ownership_id'] = $ownership_id;
+
+			return TRUE;
+		}
+
+		return FALSE;
+	}
+
+
+
+	function getCurrency() {
 		if ( isset($this->data['currency_id']) ) {
-			return $this->data['currency_id'];
+			return (int)$this->data['currency_id'];
 		}
 
 		return FALSE;
@@ -218,7 +214,7 @@ class UserMembershipFactory extends Factory {
 	function setCurrency($id) {
 		$id = trim($id);
 
-		Debug::Text('Currency ID: '. $id, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Currency ID: '. $id, __FILE__, __LINE__, __METHOD__, 10);
 		$culf = TTnew( 'CurrencyListFactory' );
 
 		if (
@@ -235,8 +231,8 @@ class UserMembershipFactory extends Factory {
 		return FALSE;
 	}
 
-    /*
-    function getAmount() {
+	/*
+	function getAmount() {
 		if ( isset($this->data['amount']) ) {
 			return $this->data['amount'];
 		}
@@ -247,11 +243,11 @@ class UserMembershipFactory extends Factory {
 	function setAmount($int) {
 		$int = trim($int);
 
-		if  ( empty($int) ){
+		if	( empty($int) ) {
 			$int = 0;
 		}
 
-		if 	(	$this->Validator->isNumeric(		'amount',
+		if	(	$this->Validator->isNumeric(		'amount',
 													$int,
 													TTi18n::gettext('Incorrect Amount'))
 				) {
@@ -263,9 +259,9 @@ class UserMembershipFactory extends Factory {
 
 		return FALSE;
 	}
-    */
+	*/
 
-    function getAmount() {
+	function getAmount() {
 		if ( isset($this->data['amount']) ) {
 			return Misc::MoneyFormat( $this->data['amount'], FALSE );
 		}
@@ -292,62 +288,62 @@ class UserMembershipFactory extends Factory {
 	}
 
 
-    function getStartDate() {
-        if ( isset( $this->data['start_date'] ) ) {
-            return $this->data['start_date'];
-        }
+	function getStartDate() {
+		if ( isset( $this->data['start_date'] ) ) {
+			return $this->data['start_date'];
+		}
 
-        return FALSE;
-    }
+		return FALSE;
+	}
 
-    function setStartDate($epoch) {
-        $epoch = trim($epoch);
+	function setStartDate($epoch) {
+		$epoch = trim($epoch);
 
 		if ( $epoch == '' ) {
 			$epoch = NULL;
 		}
-        if (  ( $epoch !=  NULL )
-                OR
-                $this->Validator->isDate(  'start_date',
-                                            $epoch,
-                                            TTi18n::gettext('Start date is invalid') ) ) {
-                  //$this->data['start_date']  = TTDate::getBeginDayEpoch( $epoch );
-                  $this->data['start_date']  = $epoch;
-                return  TRUE;
-        }
+		if (  ( $epoch != NULL )
+				OR
+				$this->Validator->isDate(  'start_date',
+											$epoch,
+											TTi18n::gettext('Start date is invalid') ) ) {
+				//$this->data['start_date']  = TTDate::getBeginDayEpoch( $epoch );
+				$this->data['start_date']	 = $epoch;
+				return	TRUE;
+		}
 
-        return FALSE;
-    }
+		return FALSE;
+	}
 
 
-    function getRenewalDate() {
-        if ( isset( $this->data['renewal_date'] ) ) {
-            return $this->data['renewal_date'];
-        }
+	function getRenewalDate() {
+		if ( isset( $this->data['renewal_date'] ) ) {
+			return $this->data['renewal_date'];
+		}
 
-        return FALSE;
-    }
+		return FALSE;
+	}
 
-    function setRenewalDate($epoch) {
-        $epoch = trim($epoch);
+	function setRenewalDate($epoch) {
+		$epoch = trim($epoch);
 
 		if ( $epoch == '' ) {
 			$epoch = NULL;
 		}
-        if (  ( $epoch != NULL )
-                OR
-                $this->Validator->isDate(  'renewal_date',
-                                            $epoch,
-                                            TTi18n::gettext('Renewal date is invalid') ) ) {
-                  //$this->data['renewal_date']  = TTDate::getBeginDayEpoch( $epoch );
-                  $this->data['renewal_date']  = $epoch;
-                return  TRUE;
-        }
+		if (  ( $epoch != NULL )
+				OR
+				$this->Validator->isDate(  'renewal_date',
+											$epoch,
+											TTi18n::gettext('Renewal date is invalid') ) ) {
+				//$this->data['renewal_date']	 = TTDate::getBeginDayEpoch( $epoch );
+				$this->data['renewal_date']  = $epoch;
+				return	TRUE;
+		}
 
-        return FALSE;
-    }
+		return FALSE;
+	}
 
-    function getTag() {
+	function getTag() {
 		//Check to see if any temporary data is set for the tags, if not, make a call to the database instead.
 		//postSave() needs to get the tmp_data.
 		if ( isset($this->tmp_data['tags']) ) {
@@ -373,14 +369,16 @@ class UserMembershipFactory extends Factory {
 		return TRUE;
 	}
 
-    function preSave() {
+	function preSave() {
 		return TRUE;
 	}
 
 	function postSave() {
 		$this->removeCache( $this->getId() );
-        if ( $this->getDeleted() == FALSE ) {
-            Debug::text('Setting Tags...', __FILE__, __LINE__, __METHOD__, 10);
+		$this->removeCache( $this->getUser().$this->getQualification() );
+		
+		if ( $this->getDeleted() == FALSE ) {
+			Debug::text('Setting Tags...', __FILE__, __LINE__, __METHOD__, 10);
 			CompanyGenericTagMapFactory::setTags( $this->getQualificationObject()->getCompany(), 255, $this->getID(), $this->getTag() );
 		}
 		return TRUE;
@@ -395,12 +393,12 @@ class UserMembershipFactory extends Factory {
 
 					$function = 'set'.$function;
 					switch( $key ) {
-					    case 'start_date':
-                            $this->setStartDate( TTDate::parseDateTime( $data['start_date'] ) );
-                            break;
-                        case 'renewal_date':
-                            $this->setRenewalDate( TTDate::parseDateTime( $data['renewal_date'] ) );
-                            break;
+						case 'start_date':
+							$this->setStartDate( TTDate::parseDateTime( $data['start_date'] ) );
+							break;
+						case 'renewal_date':
+							$this->setRenewalDate( TTDate::parseDateTime( $data['renewal_date'] ) );
+							break;
 						default:
 							if ( method_exists( $this, $function ) ) {
 								$this->$function( $data[$key] );
@@ -427,16 +425,16 @@ class UserMembershipFactory extends Factory {
 					$function = 'get'.$function_stub;
 
 					switch( $variable ) {
-					    case 'qualification':
-                        case 'group':
-                        case 'currency':
-                        case 'first_name':
+						case 'qualification':
+						case 'group':
+						case 'currency':
+						case 'first_name':
 						case 'last_name':
-                        case 'title':
+						case 'title':
 						case 'user_group':
-                        case 'default_branch':
+						case 'default_branch':
 						case 'default_department':
-                            $data[$variable] = $this->getColumn( $variable );
+							$data[$variable] = $this->getColumn( $variable );
 							break;
 						case 'ownership':
 							$function = 'get'.$variable;
@@ -444,12 +442,12 @@ class UserMembershipFactory extends Factory {
 								$data[$variable] = Option::getByKey( $this->$function(), $this->getOptions( $variable ) );
 							}
 							break;
-                        case 'start_date':
-                            $data[$variable] = TTDate::getAPIDate( 'DATE', $this->getStartDate() );
-                            break;
-                        case 'renewal_date':
-                            $data['renewal_date'] = TTDate::getAPIDate( 'DATE', $this->getRenewalDate() );
-                            break;
+						case 'start_date':
+							$data[$variable] = TTDate::getAPIDate( 'DATE', $this->getStartDate() );
+							break;
+						case 'renewal_date':
+							$data['renewal_date'] = TTDate::getAPIDate( 'DATE', $this->getRenewalDate() );
+							break;
 						default:
 							if ( method_exists( $this, $function ) ) {
 								$data[$variable] = $this->$function();
@@ -459,8 +457,8 @@ class UserMembershipFactory extends Factory {
 
 				}
 			}
-            $this->getPermissionColumns( $data, $this->getUser(), $this->getCreatedBy(), $permission_children_ids, $include_columns );
-            
+			$this->getPermissionColumns( $data, $this->getUser(), $this->getCreatedBy(), $permission_children_ids, $include_columns );
+
 			$this->getCreatedAndUpdatedColumns( $data, $include_columns );
 		}
 
@@ -468,7 +466,7 @@ class UserMembershipFactory extends Factory {
 	}
 
 	function addLog( $log_action ) {
-		return TTLog::addEntry( $this->getId(), $log_action, TTi18n::getText('Membership') , NULL, $this->getTable(), $this );
+		return TTLog::addEntry( $this->getId(), $log_action, TTi18n::getText('Membership'), NULL, $this->getTable(), $this );
 	}
 
 }

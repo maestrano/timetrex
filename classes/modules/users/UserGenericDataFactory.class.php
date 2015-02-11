@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 9521 $
- * $Id: UserGenericDataFactory.class.php 9521 2013-04-08 23:09:52Z ipso $
- * $Date: 2013-04-08 16:09:52 -0700 (Mon, 08 Apr 2013) $
- */
+
 
 /**
  * @package Modules\Users
@@ -62,7 +58,7 @@ class UserGenericDataFactory extends Factory {
 
 	function getCompany() {
 		if ( isset($this->data['company_id']) ) {
-			return $this->data['company_id'];
+			return (int)$this->data['company_id'];
 		}
 
 		return FALSE;
@@ -86,7 +82,7 @@ class UserGenericDataFactory extends Factory {
 
 	function getUser() {
 		if ( isset($this->data['user_id']) ) {
-			return $this->data['user_id'];
+			return (int)$this->data['user_id'];
 		}
 
 		return FALSE;
@@ -123,7 +119,7 @@ class UserGenericDataFactory extends Factory {
 		if (	$this->Validator->isLength(	'script',
 											$value,
 											TTi18n::gettext('Invalid script'),
-											1,250)
+											1, 250)
 						) {
 
 			$this->data['script'] = $value;
@@ -169,7 +165,7 @@ class UserGenericDataFactory extends Factory {
 
 		$query .= ' AND deleted = 0';
 		$name_id = $this->db->GetOne($query, $ph);
-		Debug::Arr($name_id,'Unique Name: '. $name , __FILE__, __LINE__, __METHOD__,10);
+		Debug::Arr($name_id, 'Unique Name: '. $name, __FILE__, __LINE__, __METHOD__, 10);
 
 		if ( $name_id === FALSE ) {
 			return TRUE;
@@ -190,11 +186,12 @@ class UserGenericDataFactory extends Factory {
 		return FALSE;
 	}
 	function setName($name) {
-		$name = trim($name);
+		$name = trim( $this->Validator->escapeHTML($name) );
+
 		if (	$this->Validator->isLength(	'name',
 											$name,
 											TTi18n::gettext('Invalid name'),
-											1,100)
+											1, 100)
 				AND
 				$this->Validator->isTrue(		'name',
 												$this->isUniqueName($name),
@@ -224,12 +221,12 @@ class UserGenericDataFactory extends Factory {
 	}
 
 	function getData() {
-		$retval = unserialize( $this->data['data'] );
+		$retval = @unserialize( $this->data['data'] ); //If the data is corrupted, stop any PHP warning.
 		if ( $retval !== FALSE ) {
 			return $retval;
 		}
 
-		Debug::Text('Failed to unserialize data: "'. $this->data['data'] .'"', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Failed to unserialize data: "'. $this->data['data'] .'"', __FILE__, __LINE__, __METHOD__, 10);
 		return FALSE;
 	}
 	function setData($value) {
@@ -264,7 +261,7 @@ class UserGenericDataFactory extends Factory {
 			}
 			if ( $ugdlf->getRecordCount() > 0 ) {
 				foreach( $ugdlf as $ugd_obj ) {
-					Debug::Text('Removing Default Flag From: '. $ugd_obj->getId(), __FILE__, __LINE__, __METHOD__,10);
+					Debug::Text('Removing Default Flag From: '. $ugd_obj->getId(), __FILE__, __LINE__, __METHOD__, 10);
 					$ugd_obj->setDefault(FALSE);
 					if ( $ugd_obj->isValid() ) {
 						$ugd_obj->Save();
@@ -305,18 +302,18 @@ class UserGenericDataFactory extends Factory {
 
 		if ( $ugdlf->getRecordCount() > 0 ) {
 			$ugd_obj = $ugdlf->getCurrent();
-			Debug::Text('Found Search Criteria for Saved Search ID: '. $ugd_obj->getId() .' Sort Column: '. $sort_column, __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text('Found Search Criteria for Saved Search ID: '. $ugd_obj->getId() .' Sort Column: '. $sort_column, __FILE__, __LINE__, __METHOD__, 10);
 
 			$retarr['saved_search_id'] = $ugd_obj->getId();
 			$retarr['filter_data'] = $ugd_obj->getData();
-			//Debug::Arr($retarr['filter_data'], 'Filter Data: ', __FILE__, __LINE__, __METHOD__,10);
+			//Debug::Arr($retarr['filter_data'], 'Filter Data: ', __FILE__, __LINE__, __METHOD__, 10);
 			unset($ugd_obj);
 
-			Debug::Text('aSort Column: '. $sort_column, __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text('aSort Column: '. $sort_column, __FILE__, __LINE__, __METHOD__, 10);
 			if ( $sort_column == '' AND isset($retarr['filter_data']['sort_column']) AND $retarr['filter_data']['sort_column'] != '') {
 				$retarr['sort_column'] = Misc::trimSortPrefix($retarr['filter_data']['sort_column']);
 				$retarr['sort_order'] = $retarr['filter_data']['sort_order'];
-				Debug::Text('bSort Column: '. $retarr['sort_column'], __FILE__, __LINE__, __METHOD__,10);
+				Debug::Text('bSort Column: '. $retarr['sort_column'], __FILE__, __LINE__, __METHOD__, 10);
 			}
 		}
 
@@ -339,7 +336,7 @@ class UserGenericDataFactory extends Factory {
 		$ugdlf = TTnew( 'UserGenericDataListFactory' );
 		$ugdf = TTnew( 'UserGenericDataFactory' );
 		if ( $action == 'search_form_update' OR $action == 'search_form_save' ) {
-			Debug::Text('Save Report!', __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text('Save Report!', __FILE__, __LINE__, __METHOD__, 10);
 
 			if ( $action == 'search_form_update' AND isset($filter_data['saved_search_id']) AND $filter_data['saved_search_id'] != '' AND $filter_data['saved_search_id'] != 0 ) {
 				$ugdlf->getByUserIdAndId( $current_user->getId(), $filter_data['saved_search_id'] );
@@ -360,7 +357,7 @@ class UserGenericDataFactory extends Factory {
 			$ugdf->setData( $filter_data );
 			$ugdf->setDefault( FALSE );
 		} elseif ( $action == 'search_form_clear' OR $action == 'search_form_search' ) {
-			Debug::Text('Search!', __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text('Search!', __FILE__, __LINE__, __METHOD__, 10);
 
 			//When they click search it saves the criteria as the default, so it always loads from then on.
 			//Unless cleared.
@@ -417,18 +414,18 @@ class UserGenericDataFactory extends Factory {
 
 		if ( $ugdlf->getRecordCount() > 0 ) {
 			$ugd_obj = $ugdlf->getCurrent();
-			Debug::Text('Found Search Criteria for Saved Search ID: '. $ugd_obj->getId(), __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text('Found Search Criteria for Saved Search ID: '. $ugd_obj->getId(), __FILE__, __LINE__, __METHOD__, 10);
 
 			$retarr['saved_search_id'] = $ugd_obj->getId();
 			$retarr['filter_data'] = $ugd_obj->getData();
-			//Debug::Arr($retarr['filter_data'], 'Filter Data: ', __FILE__, __LINE__, __METHOD__,10);
+			//Debug::Arr($retarr['filter_data'], 'Filter Data: ', __FILE__, __LINE__, __METHOD__, 10);
 			unset($ugd_obj);
 		}
 
 		return $retarr;
 	}
 
-	static function reportFormDataHandler( $action, $filter_data, $generic_data,  $redirect_url ) {
+	static function reportFormDataHandler( $action, $filter_data, $generic_data, $redirect_url ) {
 		global $current_company, $current_user;
 
 		if ( $action == '' ) {
@@ -444,7 +441,7 @@ class UserGenericDataFactory extends Factory {
 		$ugdlf = TTnew( 'UserGenericDataListFactory' );
 		$ugdf = TTnew( 'UserGenericDataFactory' );
 		if ( $action == 'save' OR $action == 'update' ) {
-			Debug::Text('Save Report!', __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text('Save Report!', __FILE__, __LINE__, __METHOD__, 10);
 
 			if ( isset($generic_data['id']) AND $generic_data['id'] != '' AND $generic_data['id'] != 0 ) {
 				$ugdlf->getByUserIdAndId( $current_user->getId(), $generic_data['id'] );
@@ -494,7 +491,7 @@ class UserGenericDataFactory extends Factory {
 		return $saved_report_id;
 	}
 
-	//Support setting created_by,updated_by especially for importing data.
+	//Support setting created_by, updated_by especially for importing data.
 	function setObjectFromArray( $data ) {
 		if ( is_array( $data ) ) {
 			$variable_function_map = $this->getVariableToFunctionMap();

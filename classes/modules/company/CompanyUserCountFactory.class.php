@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 8371 $
- * $Id: CompanyUserCountFactory.class.php 8371 2012-11-22 21:18:57Z ipso $
- * $Date: 2012-11-22 13:18:57 -0800 (Thu, 22 Nov 2012) $
- */
+
 
 /**
  * @package Modules\Company
@@ -46,7 +42,7 @@ class CompanyUserCountFactory extends Factory {
 	protected $table = 'company_user_count';
 	protected $pk_sequence_name = 'company_user_count_id_seq'; //PK Sequence name
 	function getCompany() {
-		return $this->data['company_id'];
+		return (int)$this->data['company_id'];
 	}
 	function setCompany($id) {
 		$id = trim($id);
@@ -80,12 +76,12 @@ class CompanyUserCountFactory extends Factory {
 	function setDateStamp($epoch) {
 		$epoch = trim($epoch);
 
-		if 	(	$this->Validator->isDate(		'date_stamp',
+		if	(	$this->Validator->isDate(		'date_stamp',
 												$epoch,
 												TTi18n::gettext('Incorrect date'))
 			) {
 
-			if 	(	$epoch > 0 ) {
+			if	(	$epoch > 0 ) {
 				$this->data['date_stamp'] = $epoch;
 
 				return TRUE;
@@ -111,7 +107,7 @@ class CompanyUserCountFactory extends Factory {
 	function setActiveUsers($value) {
 		$value = (int)trim($value);
 
-		if 	(	$this->Validator->isNumeric(	'active_users',
+		if	(	$this->Validator->isNumeric(	'active_users',
 												$value,
 												TTi18n::gettext('Incorrect value')) ) {
 
@@ -133,7 +129,7 @@ class CompanyUserCountFactory extends Factory {
 	function setInActiveUsers($value) {
 		$value = (int)trim($value);
 
-		if 	(	$this->Validator->isNumeric(	'inactive_users',
+		if	(	$this->Validator->isNumeric(	'inactive_users',
 												$value,
 												TTi18n::gettext('Incorrect value')) ) {
 
@@ -155,7 +151,7 @@ class CompanyUserCountFactory extends Factory {
 	function setDeletedUsers($value) {
 		$value = (int)trim($value);
 
-		if 	(	$this->Validator->isNumeric(	'deleted_users',
+		if	(	$this->Validator->isNumeric(	'deleted_users',
 												$value,
 												TTi18n::gettext('Incorrect value')) ) {
 

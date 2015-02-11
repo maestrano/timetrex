@@ -1,0 +1,144 @@
+<div id="log_view_container" class="view sub-view logView">
+
+	<div class="clear-both-div"></div>
+	<div class="grid-div">
+		<div class="grid-top-border" style="display: block;"></div>
+		<div class="sub-grid-view-div">
+			<div class="ui-jqgrid ui-widget ui-widget-content ui-corner-all" id="gbox_LogView_grid" dir="ltr"
+				 style="width: 857px;">
+				<div id="lui_LogView_grid" class="ui-widget-overlay jqgrid-overlay"></div>
+				<div id="load_LogView_grid" class="loading ui-state-default ui-state-active" style="display: none;">
+					Loading...
+				</div>
+				<div class="ui-jqgrid-view" id="gview_LogView_grid" style="width: 857px;">
+					<div class="ui-jqgrid-titlebar ui-widget-header ui-corner-top ui-helper-clearfix"
+						 style="display: none;"><a href="javascript:void(0)" role="link"
+												   class="ui-jqgrid-titlebar-close HeaderButton"
+												   style="right: 0px;"><span
+							class="ui-icon ui-icon-circle-triangle-n"></span></a><span class="ui-jqgrid-title"></span>
+					</div>
+					<div style="width: 857px;" class="ui-state-default ui-jqgrid-hdiv">
+						<div class="ui-jqgrid-hbox">
+							<table cellspacing="0" cellpadding="0" border="0" aria-labelledby="gbox_LogView_grid"
+								   role="grid" style="width: 839px;" class="ui-jqgrid-htable">
+								<thead>
+								<tr role="rowheader" class="ui-jqgrid-labels">
+									<th class="ui-state-default ui-th-column ui-th-ltr" role="columnheader"
+										id="LogView_grid_cb" style="width: 20px;">
+										<div id="jqgh_LogView_grid_cb"><input type="checkbox" class="cbox"
+																			  id="cb_LogView_grid" role="checkbox"><span
+												style="display:none" class="s-ico"><span
+												class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"
+												sort="asc"></span><span
+												class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"
+												sort="desc"></span></span></div>
+									</th>
+									<th class="ui-state-default ui-th-column ui-th-ltr" role="columnheader"
+										id="LogView_grid_first_name" style="width: 131px;"><span
+											class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+
+										<div id="jqgh_LogView_grid_first_name" class="ui-jqgrid-sortable">First
+											Name<span style="display:none" class="s-ico"><span
+													class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"
+													sort="asc"></span><span
+													class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"
+													sort="desc"></span></span></div>
+									</th>
+									<th class="ui-state-default ui-th-column ui-th-ltr" role="columnheader"
+										id="LogView_grid_last_name" style="width: 131px;"><span
+											class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+
+										<div id="jqgh_LogView_grid_last_name" class="ui-jqgrid-sortable">Last Name<span
+												style="display:none" class="s-ico"><span
+												class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"
+												sort="asc"></span><span
+												class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"
+												sort="desc"></span></span></div>
+									</th>
+									<th class="ui-state-default ui-th-column ui-th-ltr" role="columnheader"
+										id="LogView_grid_date" style="width: 131px;"><span
+											class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+
+										<div id="jqgh_LogView_grid_date" class="ui-jqgrid-sortable">Date<span
+												style="display:none" class="s-ico"><span
+												class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"
+												sort="asc"></span><span
+												class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"
+												sort="desc"></span></span></div>
+									</th>
+									<th class="ui-state-default ui-th-column ui-th-ltr" role="columnheader"
+										id="LogView_grid_object" style="width: 131px;"><span
+											class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+
+										<div id="jqgh_LogView_grid_object" class="ui-jqgrid-sortable">Object<span
+												style="display:none" class="s-ico"><span
+												class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"
+												sort="asc"></span><span
+												class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"
+												sort="desc"></span></span></div>
+									</th>
+									<th class="ui-state-default ui-th-column ui-th-ltr" role="columnheader"
+										id="LogView_grid_action" style="width: 131px;"><span
+											class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+
+										<div id="jqgh_LogView_grid_action" class="ui-jqgrid-sortable">Action<span
+												style="display:none" class="s-ico"><span
+												class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"
+												sort="asc"></span><span
+												class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"
+												sort="desc"></span></span></div>
+									</th>
+									<th class="ui-state-default ui-th-column ui-th-ltr" role="columnheader"
+										id="LogView_grid_description" style="width: 129px;"><span
+											class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+
+										<div id="jqgh_LogView_grid_description" class="ui-jqgrid-sortable">
+											Description<span style="display:none" class="s-ico"><span
+												class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"
+												sort="asc"></span><span
+												class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"
+												sort="desc"></span></span></div>
+									</th>
+								</tr>
+								</thead>
+							</table>
+						</div>
+					</div>
+					<div class="ui-jqgrid-bdiv" style="height: 180px; width: 857px;">
+						<div style="position:relative;">
+							<div></div>
+							<table cellspacing="0" cellpadding="0" border="0" id="LogView_grid" tabindex="1" role="grid"
+								   aria-multiselectable="true" aria-labelledby="gbox_LogView_grid"
+								   class="ui-jqgrid-btable" style="width: 839px;">
+								<tbody>
+								<tr style="height:auto" role="row" class="jqgfirstrow">
+									<td style="height:0px;width:20px;" role="gridcell"></td>
+									<td style="height: 0px; width: 131px;" role="gridcell"></td>
+									<td style="height: 0px; width: 131px;" role="gridcell"></td>
+									<td style="height: 0px; width: 131px;" role="gridcell"></td>
+									<td style="height: 0px; width: 131px;" role="gridcell"></td>
+									<td style="height: 0px; width: 131px;" role="gridcell"></td>
+									<td style="height: 0px; width: 129px;" role="gridcell"></td>
+								</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+				<div id="rs_mLogView_grid" class="ui-jqgrid-resize-mark">&nbsp;</div>
+			</div>
+		</div>
+
+		<div class="grid-bottom-border" style="display: block;"></div>
+		<div class="no-result-div">
+			<span class="message">No Results Found</span>
+
+			<div class="add-div" style="display: none;">
+				<div class="ribbon-button">
+					<img class="icon">
+					<span class="label"></span>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

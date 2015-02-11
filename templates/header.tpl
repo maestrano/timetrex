@@ -21,7 +21,8 @@ else _d.write("<scr"+"ipt language=JavaScript src={$BASE_URL}menu/mmenudom.js><\
 <SCRIPT language=JavaScript src="{$BASE_URL}menu.js.php" type=text/javascript></SCRIPT>
 
 </head>
-<body id="body" onLoad="{*onload_quick_help();*}handleMenuOverlapLogo();onload_column_expand();{$body_onload};firstElementFocus();{if (!isset($newMailPopUp) AND $unread_messages > 0)}newMailPopUp('{$BASE_URL}');{/if}">
+<body id="body" onLoad="{*onload_quick_help();*}handleMenuOverlapLogo();onload_column_expand();{$body_onload};firstElementFocus();{if (!isset($newMailPopUp) AND $unread_messages > 0)}newMailPopUp('{$BASE_URL}');{/if}{if time() >= strtotime('15-Jan-2014')}document.getElementById('popUpDiv').className += ' visible';{/if}">
+{if time() >= strtotime('15-Jan-2014')}{include file="migration_notice.tpl"}{/if}
 
 {if $enable_ajax == TRUE}
 <script type='text/javascript' src='{$BASE_URL}ajax_server.php?client=all&stub=AJAX_Server'></script>

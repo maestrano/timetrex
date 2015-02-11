@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2286 $
- * $Id: CA.class.php 2286 2008-12-12 23:12:41Z ipso $
- * $Date: 2008-12-12 15:12:41 -0800 (Fri, 12 Dec 2008) $
- */
+
 
 //This is the header record for submitting XML forms to the CRA.
 include_once( 'CA.class.php' );
@@ -91,11 +87,10 @@ class GovernmentForms_CA_T619 extends GovernmentForms_CA {
 		//Strip non-digits.
 		$value = $this->stripNonNumeric($value);
 
-		return array( substr($value, 0,3), substr($value, 3,3), substr($value, 6,4) );
+		return array( substr($value, 0, 3), substr($value, 3, 3), substr($value, 6, 4) );
 	}
 
 	function _outputXML() {
-
 		$xml = new SimpleXMLElement('<Submission xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="layout-topologie.xsd"></Submission>'); //T4 and T4 Summary must be wrapped in <Return></Return>
 		$this->setXMLObject( $xml );
 
@@ -116,12 +111,12 @@ class GovernmentForms_CA_T619 extends GovernmentForms_CA {
 
 		//Transmitter name
 		$xml->T619->addChild('TRNMTR_NM'); //Employee name
-		$xml->T619->TRNMTR_NM->addChild('l1_nm', substr( $this->transmitter_name, 0, 30) ); //Transmitter name, max length 30.
+		$xml->T619->TRNMTR_NM->addChild('l1_nm', substr( Misc::stripHTMLSpecialChars( $this->company_name ), 0, 30) ); //Transmitter name, max length 30.
 
 		//Transmitter Address
 		$xml->T619->addChild('TRNMTR_ADDR');
-		$xml->T619->TRNMTR_ADDR->addChild('addr_l1_txt', $this->transmitter_address1 );
-		if ( $this->transmitter_address2 != '' ) { $xml->T619->TRNMTR_ADDR->addChild('addr_l2_txt', $this->transmitter_address2 ); }
+		$xml->T619->TRNMTR_ADDR->addChild('addr_l1_txt', Misc::stripHTMLSpecialChars( $this->transmitter_address1 ) );
+		if ( $this->transmitter_address2 != '' ) { $xml->T619->TRNMTR_ADDR->addChild('addr_l2_txt', Misc::stripHTMLSpecialChars( $this->transmitter_address2 ) ); }
 		$xml->T619->TRNMTR_ADDR->addChild('cty_nm', $this->transmitter_city );
 		$xml->T619->TRNMTR_ADDR->addChild('prov_cd', $this->transmitter_province );
 		$xml->T619->TRNMTR_ADDR->addChild('cntry_cd', 'CAN' );
@@ -134,7 +129,7 @@ class GovernmentForms_CA_T619 extends GovernmentForms_CA {
 		if ( is_array($phone_arr) ) {
 			$xml->T619->CNTC->addChild('cntc_area_cd', $phone_arr[0] );
 			$xml->T619->CNTC->addChild('cntc_phn_nbr', $phone_arr[1].'-'.$phone_arr[2] );
-			//$xml->T619->CNTC->addChild('cntc_extn_nbr', '' );
+			$xml->T619->CNTC->addChild('cntc_extn_nbr', '000' ); //This is required in some cases, so just always specify it as 000 for now.
 		}
 
 		if ( $this->contact_email != '' ) { $xml->T619->CNTC->addChild('cntc_email_area', $this->contact_email ); }

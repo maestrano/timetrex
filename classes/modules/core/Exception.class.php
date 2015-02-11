@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,93 +33,139 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 7017 $
- * $Id: Exception.class.php 7017 2012-06-13 17:06:43Z ipso $
- * $Date: 2012-06-13 10:06:43 -0700 (Wed, 13 Jun 2012) $
- */
+
 
 /**
  * @package Core
  */
 class DBError extends Exception {
-   function __construct($e, $code = 'DBError' ) {
-      global $db, $skip_db_error;
+	function __construct($e, $code = 'DBError' ) {
+		global $db, $skip_db_error;
 
-      if ( isset($skip_db_error_exception) AND $skip_db_error_exception === TRUE ) { //Used by system_check script.
-         return TRUE;
-      }
+		if ( isset($skip_db_error_exception) AND $skip_db_error_exception === TRUE ) { //Used by system_check script.
+			return TRUE;
+		}
 
-      $db->FailTrans();
+		//If we couldn't connect to the database, this method may not exist.
+		if (  isset($db) AND is_object($db) AND method_exists( $db, 'FailTrans' ) ) {
+			$db->FailTrans();
+		}
 
-      //print_r($e);
-      //adodb_pr($e);
+		//print_r($e);
+		//adodb_pr($e);
 
-      Debug::Text('Begin Exception...', __FILE__, __LINE__, __METHOD__,10);
-      Debug::Arr( Debug::backTrace(), ' BackTrace: ', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Begin Exception...', __FILE__, __LINE__, __METHOD__, 10);
+		Debug::Arr( Debug::backTrace(), ' BackTrace: ', __FILE__, __LINE__, __METHOD__, 10);
 
-      //Log database error
-      if ( isset($e->message) ) {
-         if ( stristr( $e->message, 'statement timeout' ) !== FALSE ) {
-            $code = 'DBTimeout';
-         }
-         Debug::Text($e->message, __FILE__, __LINE__, __METHOD__,10);
-      }
+		//Log database error
+		if ( isset($e->message) ) {
+			if ( stristr( $e->message, 'statement timeout' ) !== FALSE ) {
+				$code = 'DBTimeout';
+			}
+			Debug::Text($e->message, __FILE__, __LINE__, __METHOD__, 10);
+		}
 
-      if ( isset($e->trace) ) {
-         $e = strip_tags( adodb_backtrace($e->trace) );
-         Debug::Arr( $e, 'Exception...', __FILE__, __LINE__, __METHOD__,10);
-      }
+		if ( isset($e->trace) ) {
+			$e = strip_tags( adodb_backtrace($e->trace) );
+			Debug::Arr( $e, 'Exception...', __FILE__, __LINE__, __METHOD__, 10);
+		}
 
-      Debug::Text('End Exception...', __FILE__, __LINE__, __METHOD__,10);
-      //Dump debug buffer.
-      Debug::Display();
-      Debug::writeToLog();
-      Debug::emailLog();
+		Debug::Text('End Exception...', __FILE__, __LINE__, __METHOD__, 10);
 
-      Redirect::Page( URLBuilder::getURL( array('exception' => $code ), Environment::getBaseURL().'DownForMaintenance.php') );
+		if ( !defined( 'UNIT_TEST_MODE' ) OR UNIT_TEST_MODE === FALSE ) { //When in unit test mode don't exit/redirect
+			//Dump debug buffer.
+			Debug::Display();
+			Debug::writeToLog();
+			Debug::emailLog();
+			ob_flush();
+			ob_clean();
 
-      ob_flush();
-      ob_clean();
+			if ( defined('TIMETREX_JSON_API') ) {
+				global $obj;
 
-      exit;
-   }
+				if ( DEPLOYMENT_ON_DEMAND == TRUE ) {
+					switch ( strtolower($code) ) {
+						case 'dbtimeout':
+							$description = TTi18n::getText('%1 database query has timed-out, if you were trying to run a report it may be too large, please narrow your search criteria and try again.', array( APPLICATION_NAME ) );
+							break;
+						default:
+							$description = TTi18n::getText('%1 is currently undergoing maintenance. We\'re sorry for any inconvenience this may cause. Please try again in 15 minutes.', array( APPLICATION_NAME ) );
+							break;
+					}
+				} else {
+					switch ( strtolower($code) ) {
+						case 'dbtimeout':
+							$description = TTi18n::getText('%1 database query has timed-out, if you were trying to run a report it may be too large, please narrow your search criteria and try again.', array( APPLICATION_NAME ) );
+							break;
+						case 'dberror':
+							$description = TTi18n::getText('%1 is unable to connect to its database, please make sure that the database service on your own local %1 server has been started and is running. If you are unsure, try rebooting your server.', array( APPLICATION_NAME ));
+							break;
+						case 'dbinitialize':
+							$description = TTi18n::getText('%1 database has not been initialized yet, please run the installer again and follow the on screen instructions. <a href="%2">Click here to run the installer now.</a>', array( APPLICATION_NAME, Environment::getBaseURL().'/install/install.php?external_installer=1' ));
+							break;
+						default:
+							$description = TTi18n::getText('%1 experienced a general error, please contact technical support.', array( APPLICATION_NAME ) );
+							break;
+					}
+				}
+				
+				echo json_encode( $obj->returnHandler( FALSE, 'EXCEPTION', $description ) );
+				exit;
+			} else {
+				Redirect::Page( URLBuilder::getURL( array('exception' => $code ), Environment::getBaseURL().'DownForMaintenance.php') );
+				exit;
+			}
+		}
+	}
 }
-
 
 /**
  * @package Core
  */
 class GeneralError extends Exception {
-   function __construct($message) {
-      global $db;
+	function __construct($message) {
+		global $db;
 
-      //debug_print_backtrace();
-      $db->FailTrans();
+		//debug_print_backtrace();
+		
+		//If we couldn't connect to the database, this method may not exist.
+		if ( isset($db) AND is_object($db) AND method_exists( $db, 'FailTrans' ) ) {
+			$db->FailTrans();
+		}
 
-      echo "======================================================================<br>\n";
-      echo "EXCEPTION!<br>\n";
-      echo "======================================================================<br>\n";
-      echo "<b>Error message: </b>".$message ."<br>\n";
-      echo "<b>Error code: </b>".$this->getCode()."<br>\n";
-      echo "<b>Script Name: </b>".$this->getFile()."<br>\n";
-      echo "<b>Line Number: </b>".$this->getLine()."<br>\n";
-      echo "======================================================================<br>\n";
-      echo "EXCEPTION!<br>\n";
-      echo "======================================================================<br>\n";
+		/*
+		echo "======================================================================<br>\n";
+		echo "EXCEPTION!<br>\n";
+		echo "======================================================================<br>\n";
+		echo "<b>Error message: </b>".$message ."<br>\n";
+		echo "<b>Error code: </b>".$this->getCode()."<br>\n";
+		echo "<b>Script Name: </b>".$this->getFile()."<br>\n";
+		echo "<b>Line Number: </b>".$this->getLine()."<br>\n";
+		echo "======================================================================<br>\n";
+		echo "EXCEPTION!<br>\n";
+		echo "======================================================================<br>\n";
+		*/
 
-      Debug::Arr( Debug::backTrace(), ' BackTrace: ', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('EXCEPTION: Code: '. $this->getCode() .' Message: '. $message .' File: '. $this->getFile() .' Line: '. $this->getLine(), __FILE__, __LINE__, __METHOD__, 10);
+		Debug::Arr( Debug::backTrace(), ' BackTrace: ', __FILE__, __LINE__, __METHOD__, 10);
 
-      //Dump debug buffer.
-      Debug::Display();
-      Debug::writeToLog();
-      Debug::emailLog();
-      ob_flush();
-      ob_clean();
+		if ( !defined( 'UNIT_TEST_MODE' ) OR UNIT_TEST_MODE === FALSE ) { //When in unit test mode don't exit/redirect
+			//Dump debug buffer.
+			Debug::Display();
+			Debug::writeToLog();
+			Debug::emailLog();
+			ob_flush();
+			ob_clean();
 
-      Redirect::Page( URLBuilder::getURL( array('exception' => 'GeneralError'), Environment::getBaseURL().'DownForMaintenance.php') );
-
-      exit;
-   }
+			if ( defined('TIMETREX_JSON_API') ) {
+				global $obj;
+				echo json_encode( $obj->returnHandler( FALSE, 'EXCEPTION', TTi18n::getText('%1 experienced a general error, please contact technical support.', array( APPLICATION_NAME ) ) ) );
+				exit;
+			} else {
+				Redirect::Page( URLBuilder::getURL( array('exception' => 'GeneralError'), Environment::getBaseURL().'DownForMaintenance.php') );
+				exit;
+			}
+		}
+	}
 }
 ?>

@@ -1,0 +1,66 @@
+<script type="text/javascript">
+
+    var time_sheet_view_controller = new TimeSheetViewController();
+
+</script>
+
+<div class="view time-sheet-view" id="timesheet_view_container">
+
+    <div class="clear-both-div"></div>
+
+    <div class="control-bar">
+
+        <div class="control-bar-center">
+            <div class="date-chooser-div">
+            </div>
+            <div class="employee-nav-div">
+                <span class="navigation-label"></span>
+                <img class="left-click"/>
+
+                <div class="navigation-widget-div"></div>
+                <img class="right-click"/>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="clear-both-div"></div>
+    <div class="grid-top-border"></div>
+    <div class="timesheet-grid-div">
+        <table id="grid" class="testetstets"></table>
+        <table id="accumulated_time_grid"></table>
+        <table id="branch_grid"></table>
+        <table id="department_grid"></table>
+        <table id="job_grid"></table>
+        <table id="job_item_grid"></table>
+        <table id="premium_grid"></table>
+        <table id="absence_grid"></table>
+
+        <div class="total_grids_div">
+            <div class="float-left">
+                <div class="accumulated-total-grid-title" style="display: none"><%= accumulated_time %></div>
+                <table id="accumulated_total_grid"></table>
+            </div>
+
+            <div class="float-right verification-grid-div">
+                <div class="verification-grid-title" style="display: none"><%= timesheet_verification %></div>
+                <table id="verification_grid" class="float-right"></table>
+                <div class="verification-action-bar">
+                    <span class="verify-description"></span>
+                    <button class="verify-button t-button" style="display: none"><%= verify %></button>
+                </div>
+            </div>
+
+            <div class="float-right">
+                <table id="punch_note_grid" class="float-right"></table>
+            </div>
+
+
+        </div>
+
+
+    </div>
+    <div class="grid-bottom-border"></div>
+    <div class="bottom-div"></div>
+
+</div>

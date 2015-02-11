@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2196 $
- * $Id: APINotification.class.php 2196 2008-10-14 16:08:54Z ipso $
- * $Date: 2008-10-14 09:08:54 -0700 (Tue, 14 Oct 2008) $
- */
+
 
 /**
  * @package API\Core
@@ -79,79 +75,99 @@ class APINotification extends APIFactory {
 					}
 
 					$license = new TTLicense();
-					$license_validate = $license->validateLicense( $system_settings['license'] );
-					$license_message = $license->getFullErrorMessage( $license_validate , TRUE );
+					$license_validate = $license->validateLicense( $system_settings['license'], NULL );
+					$license_message = $license->getFullErrorMessage( $license_validate, TRUE );
 					if ( $license_message != '' ) {
 						$destination_url = 'http://www.timetrex.com/r.php?id=899';
 
 						if ( $license_validate === TRUE ) {
 							//License likely expires soon.
 							$retarr[] = array(
-												  'delay' => 0, //0= Show until clicked, -1 = Show until next getNotifications call.
-												  'bg_color' => '#FFFF00', //Yellow
-												  'message' => TTi18n::getText('WARNING: %1', $license_message ),
-												  'destination' => $destination_url,
-												  );
+												'delay' => 0, //0= Show until clicked, -1 = Show until next getNotifications call.
+												'bg_color' => '#FFFF00', //Yellow
+												'message' => TTi18n::getText('WARNING: %1', $license_message ),
+												'destination' => $destination_url,
+												);
 						} else {
 							//License error.
 							$retarr[] = array(
-												  'delay' => -1, //0= Show until clicked, -1 = Show until next getNotifications call.
-												  'bg_color' => '#FF0000', //Red
-												  'message' => TTi18n::getText('WARNING: %1', $license_message ),
-												  'destination' => $destination_url,
-												  );
+												'delay' => -1, //0= Show until clicked, -1 = Show until next getNotifications call.
+												'bg_color' => '#FF0000', //Red
+												'message' => TTi18n::getText('WARNING: %1', $license_message ),
+												'destination' => $destination_url,
+												);
 						}
 					}
 					unset($license, $license_validate, $license_message, $destination);
 				}
 
+				//Database schema still in sync.
+				if ( getTTProductEdition() == TT_PRODUCT_COMMUNITY AND isset($system_settings['schema_version_group_B']) ) {
+					$retarr[] = array(
+										'delay' => -1, //0= Show until clicked, -1 = Show until next getNotifications call.
+										'bg_color' => '#FF0000', //Red
+										'message' => TTi18n::getText('WARNING: %1 database schema is out of sync with edition and likely corrupt. Please contact your %1 administrator immediately.', APPLICATION_NAME ),
+										'destination' => NULL,
+										);
+				}
+
 				//System Requirements not being met.
 				if ( isset($system_settings['valid_install_requirements']) AND DEPLOYMENT_ON_DEMAND == FALSE AND (int)$system_settings['valid_install_requirements'] == 0 ) {
 					$retarr[] = array(
-										  'delay' => -1, //0= Show until clicked, -1 = Show until next getNotifications call.
-										  'bg_color' => '#FF0000', //Red
-										  'message' => TTi18n::getText('WARNING: %1 system requirement check has failed! Please contact your %1 administrator immediately to re-run the %1 installer to correct the issue.', APPLICATION_NAME ),
-										  'destination' => NULL,
-										  );
+										'delay' => -1, //0= Show until clicked, -1 = Show until next getNotifications call.
+										'bg_color' => '#FF0000', //Red
+										'message' => TTi18n::getText('WARNING: %1 system requirement check has failed! Please contact your %1 administrator immediately to re-run the %1 installer to correct the issue.', APPLICATION_NAME ),
+										'destination' => NULL,
+										);
+				}
+
+				//AutoUpgrade failed.
+				if ( isset($system_settings['auto_upgrade_failed']) AND DEPLOYMENT_ON_DEMAND == FALSE AND (int)$system_settings['auto_upgrade_failed'] == 1 ) {
+					$retarr[] = array(
+										'delay' => -1, //0= Show until clicked, -1 = Show until next getNotifications call.
+										'bg_color' => '#FF0000', //Red
+										'message' => TTi18n::getText('WARNING: %1 automatic upgrade has failed due to a system error! Please contact your %1 administrator immediately to re-run the %1 installer to correct the issue.', APPLICATION_NAME ),
+										'destination' => NULL,
+										);
 				}
 
 				//Check version mismatch
 				if ( isset($system_settings['system_version']) AND DEPLOYMENT_ON_DEMAND == FALSE AND APPLICATION_VERSION != $system_settings['system_version'] ) {
 					$retarr[] = array(
-										  'delay' => -1, //0= Show until clicked, -1 = Show until next getNotifications call.
-										  'bg_color' => '#FF0000', //Red
-										  'message' => TTi18n::getText('WARNING: %1 application version does not match database version. Please re-run the %1 installer to complete the upgrade process.', APPLICATION_NAME ),
-										  'destination' => NULL,
-										  );
+										'delay' => -1, //0= Show until clicked, -1 = Show until next getNotifications call.
+										'bg_color' => '#FF0000', //Red
+										'message' => TTi18n::getText('WARNING: %1 application version does not match database version. Please re-run the %1 installer to complete the upgrade process.', APPLICATION_NAME ),
+										'destination' => NULL,
+										);
 				}
 
-				//Only display message to the primary company. 
-				if ( ( (time()-(int)APPLICATION_VERSION_DATE) > (86400*475) )
-						AND ( $this->getCurrentCompanyObject()->getId() == 1 OR ( isset($config_vars['other']['primary_company_id']) AND $this->getCurrentCompanyObject()->getId() == $config_vars['other']['primary_company_id'] ) ) ) { //~1yr and 3mths
+				//Only display message to the primary company.
+				if ( ( (time() - (int)APPLICATION_VERSION_DATE) > (86400 * 365) )
+						AND ( $this->getCurrentCompanyObject()->getId() == 1 OR ( isset($config_vars['other']['primary_company_id']) AND $this->getCurrentCompanyObject()->getId() == $config_vars['other']['primary_company_id'] ) ) ) { //~1yr
 					$retarr[] = array(
-										  'delay' => -1,
-										  'bg_color' => '#FF0000', //Red
-										  'message' => TTi18n::getText('WARNING: This %1 version (v%2) is severely out of date and may no longer be supported. Please upgrade to the latest version as soon as possible as invalid calculations may already be occurring.', array( APPLICATION_NAME, APPLICATION_VERSION ) ),
-										  'destination' => NULL,
-										  );
+										'delay' => -1,
+										'bg_color' => '#FF0000', //Red
+										'message' => TTi18n::getText('WARNING: This %1 version (v%2) is severely out of date and may no longer be supported. Please upgrade to the latest version as soon as possible as invalid calculations may already be occurring.', array( APPLICATION_NAME, APPLICATION_VERSION ) ),
+										'destination' => NULL,
+										);
 				}
 
 				//New version available notification.
-				if ( 	DEMO_MODE == FALSE
+				if (	DEMO_MODE == FALSE
 						AND ( isset($system_settings['new_version']) AND $system_settings['new_version'] == 1 )
 						AND ( $this->getCurrentCompanyObject()->getId() == 1 OR ( isset($config_vars['other']['primary_company_id']) AND $this->getCurrentCompanyObject()->getId() == $config_vars['other']['primary_company_id'] ) ) ) {
 
 					//Only display this every two weeks.
 					$new_version_available_notification_arr = UserSettingFactory::getUserSetting( $this->getCurrentUserObject()->getID(), 'new_version_available_notification' );
-					if ( !isset($new_version_available_notification_arr['value']) OR ( isset($new_version_available_notification_arr['value']) AND $new_version_available_notification_arr['value'] <= (time()-(86400*14)) ) ) {
+					if ( !isset($new_version_available_notification_arr['value']) OR ( isset($new_version_available_notification_arr['value']) AND $new_version_available_notification_arr['value'] <= (time() - (86400 * 14)) ) ) {
 						UserSettingFactory::setUserSetting( $this->getCurrentUserObject()->getID(), 'new_version_available_notification', time() );
 
 						$retarr[] = array(
-											  'delay' => -1,
-											  'bg_color' => '#FFFF00', //Yellow
-											  'message' => TTi18n::getText('NOTICE: A new version of %1 available, it is highly recommended that you upgrade as soon as possible. Click here to download the latest version.', array( APPLICATION_NAME ) ),
-											  'destination' => ( getTTProductEdition() == TT_PRODUCT_COMMUNITY ) ? 'http://www.timetrex.com/r.php?id=19' : 'http://www.timetrex.com/r.php?id=9',
-											  );
+											'delay' => -1,
+											'bg_color' => '#FFFF00', //Yellow
+											'message' => TTi18n::getText('NOTICE: A new version of %1 available, it is highly recommended that you upgrade as soon as possible. Click here to download the latest version.', array( APPLICATION_NAME ) ),
+											'destination' => ( getTTProductEdition() == TT_PRODUCT_COMMUNITY ) ? 'http://www.timetrex.com/r.php?id=19' : 'http://www.timetrex.com/r.php?id=9',
+											);
 					}
 					unset($new_version_available_notification);
 				}
@@ -166,22 +182,22 @@ class APINotification extends APIFactory {
 					UserSettingFactory::setUserSetting( $this->getCurrentUserObject()->getID(), 'new_version_notification', APPLICATION_VERSION );
 
 					$retarr[] = array(
-										  'delay' => -1,
-										  'bg_color' => '#FFFF00', //Yellow
-										  'message' => TTi18n::getText('NOTICE: Your instance of %1 has been upgraded to v%2, click here to see whats new.', array( APPLICATION_NAME, APPLICATION_VERSION ) ),
-										  'destination' => 'http://www.timetrex.com/r.php?id=300',
-										  );
+										'delay' => -1,
+										'bg_color' => '#FFFF00', //Yellow
+										'message' => TTi18n::getText('NOTICE: Your instance of %1 has been upgraded to v%2, click here to see whats new.', array( APPLICATION_NAME, APPLICATION_VERSION ) ),
+										'destination' => 'http://www.timetrex.com/r.php?id=300',
+										);
 				}
 				unset($new_version_notification);
 
 				//Check installer enabled.
 				if ( isset($config_vars['other']['installer_enabled']) AND $config_vars['other']['installer_enabled'] == 1 ) {
 					$retarr[] = array(
-										  'delay' => -1,
-										  'bg_color' => '#FF0000', //Red
-										  'message' => TTi18n::getText('WARNING: %1 is currently in INSTALL MODE. Please go to your timetrex.ini.php file and set "installer_enabled" to "FALSE".', APPLICATION_NAME ),
-										  'destination' => NULL,
-										  );
+										'delay' => -1,
+										'bg_color' => '#FF0000', //Red
+										'message' => TTi18n::getText('WARNING: %1 is currently in INSTALL MODE. Please go to your timetrex.ini.php file and set "installer_enabled" to "FALSE".', APPLICATION_NAME ),
+										'destination' => NULL,
+										);
 				}
 
 				//Make sure CronJobs are running correctly.
@@ -193,31 +209,31 @@ class APINotification extends APIFactory {
 
 					if ( PRODUCTION == TRUE
 							AND DEMO_MODE == FALSE
-							AND $cj_obj->getLastRunDate() < ( time()-172800 )
-							AND $cj_obj->getCreatedDate() < ( time()-172800 ) ) {
+							AND $cj_obj->getLastRunDate() < ( time() - 172800 )
+							AND $cj_obj->getCreatedDate() < ( time() - 172800 ) ) {
 						$retarr[] = array(
-											  'delay' => -1,
-											  'bg_color' => '#FF0000', //Red
-											  'message' => TTi18n::getText('WARNING: Critical maintenance jobs have not run in the last 48hours. Please contact your %1 administrator immediately.', APPLICATION_NAME ),
-											  'destination' => NULL,
-											  );
+											'delay' => -1,
+											'bg_color' => '#FF0000', //Red
+											'message' => TTi18n::getText('WARNING: Critical maintenance jobs have not run in the last 48hours. Please contact your %1 administrator immediately.', APPLICATION_NAME ),
+											'destination' => NULL,
+											);
 					}
 				}
 				unset($cjlf, $cj_obj);
 
 				//Check if any pay periods are past their transaction date and not closed.
-				if ( DEMO_MODE == FALSE AND $this->getPermissionObject()->Check('pay_period_schedule','enabled') AND $this->getPermissionObject()->Check('pay_period_schedule','view') ) {
+				if ( DEMO_MODE == FALSE AND $this->getPermissionObject()->Check('pay_period_schedule', 'enabled') AND $this->getPermissionObject()->Check('pay_period_schedule', 'view') ) {
 					$pplf = TTnew('PayPeriodListFactory');
-					$pplf->getByCompanyIdAndStatusAndTransactionDate( $this->getCurrentCompanyObject()->getId(), array(10,30), TTDate::getBeginDayEpoch( time() ) ); //Open or Post Adjustment pay periods.
+					$pplf->getByCompanyIdAndStatusAndTransactionDate( $this->getCurrentCompanyObject()->getId(), array(10, 30), TTDate::getBeginDayEpoch( time() ) ); //Open or Post Adjustment pay periods.
 					if ( $pplf->getRecordCount() > 0 ) {
 						foreach( $pplf as $pp_obj ) {
-							if ( $pp_obj->getCreatedDate() < (time()-(86400*40)) ) { //Ignore pay period schedules newer than 40 days. They are automatically closed after 45 days.
+							if ( $pp_obj->getCreatedDate() < (time() - (86400 * 40)) ) { //Ignore pay period schedules newer than 40 days. They are automatically closed after 45 days.
 								$retarr[] = array(
-													  'delay' => 0,
-													  'bg_color' => '#FF0000', //Red
-													  'message' => TTi18n::getText('WARNING: Pay periods past their transaction date have not been closed yet. It\'s critical that these pay periods are closed to prevent data loss, click here to close them now.'),
-													  'destination' => array('menu_name' => 'Pay Periods'),
-													  );
+													'delay' => 0,
+													'bg_color' => '#FF0000', //Red
+													'message' => TTi18n::getText('WARNING: Pay periods past their transaction date have not been closed yet. It\'s critical that these pay periods are closed to prevent data loss, click here to close them now.'),
+													'destination' => array('menu_name' => 'Pay Periods'),
+													);
 								break;
 							}
 						}
@@ -231,11 +247,11 @@ class APINotification extends APIFactory {
 				Debug::text('UnRead Messages: '. $unread_messages, __FILE__, __LINE__, __METHOD__, 10);
 				if ( $unread_messages > 0 ) {
 					$retarr[] = array(
-										  'delay' => 25,
-										  'bg_color' => '#FFFF00', //Yellow
-										  'message' => TTi18n::getText('NOTICE: You have %1 new message(s) waiting, click here to read them now.', $unread_messages ),
-										  'destination' => array('menu_name' => 'Messages'),
-										  );
+										'delay' => 25,
+										'bg_color' => '#FFFF00', //Yellow
+										'message' => TTi18n::getText('NOTICE: You have %1 new message(s) waiting, click here to read them now.', $unread_messages ),
+										'destination' => array('menu_name' => 'Messages'),
+										);
 				}
 				unset($mclf, $unread_messages);
 
@@ -254,11 +270,11 @@ class APINotification extends APIFactory {
 					if ( isset($display_exception_flag) AND $display_exception_flag !== FALSE ) {
 						Debug::Text('Exception Flag to Display: '. $display_exception_flag, __FILE__, __LINE__, __METHOD__, 10);
 						$retarr[] = array(
-											  'delay' => 30,
-											  'bg_color' => '#FFFF00', //Yellow
-											  'message' => TTi18n::getText('NOTICE: You have critical severity exceptions pending, click here to view them now.'),
-											  'destination' => array('menu_name' => 'Exceptions'),
-											  );
+											'delay' => 30,
+											'bg_color' => '#FFFF00', //Yellow
+											'message' => TTi18n::getText('NOTICE: You have critical severity exceptions pending, click here to view them now.'),
+											'destination' => array('menu_name' => 'Exceptions'),
+											);
 					}
 					unset($elf, $e_obj, $display_exception_flag);
 				}
@@ -267,11 +283,11 @@ class APINotification extends APIFactory {
 						AND $this->getPermissionObject()->getLevel() >= 20 //Payroll Admin
 						AND ( $this->getCurrentUserObject()->getWorkEmail() == '' AND $this->getCurrentUserObject()->getHomeEmail() == '' ) ) {
 					$retarr[] = array(
-										  'delay' => 30,
-										  'bg_color' => '#FF0000', //Red
-										  'message' => TTi18n::getText('WARNING: Please click here and enter an email address for your account, this is required to receive important notices and prevent your account from being locked out.'),
-										  'destination' => array('menu_name' => 'Contact Information'),
-										  );
+										'delay' => 30,
+										'bg_color' => '#FF0000', //Red
+										'message' => TTi18n::getText('WARNING: Please click here and enter an email address for your account, this is required to receive important notices and prevent your account from being locked out.'),
+										'destination' => array('menu_name' => 'Contact Information'),
+										);
 				}
 
 				break;
@@ -283,8 +299,8 @@ class APINotification extends APIFactory {
 		$current_user_prefs = $this->getCurrentUserObject()->getUserPreferenceObject();
 		if ( $current_user_prefs->setDateTimePreferences() == FALSE ) {
 			//Setting timezone failed, alert user to this fact.
-			//WARNING: %1 was unable to set your time zone. Please contact your %1 administrator immediately.{/t} {if $permission->Check('company','enabled') AND $permission->Check('company','edit_own')}<a href="http://forums.timetrex.com/viewtopic.php?t=40">{t}For more information please click here.{/t}</a>{/if}
-			if ( $this->getPermissionObject()->Check('company','enabled') AND $this->getPermissionObject()->Check('company','edit_own') ) {
+			//WARNING: %1 was unable to set your time zone. Please contact your %1 administrator immediately.{/t} {if $permission->Check('company', 'enabled') AND $permission->Check('company', 'edit_own')}<a href="http://forums.timetrex.com/viewtopic.php?t=40">{t}For more information please click here.{/t}</a>{/if}
+			if ( $this->getPermissionObject()->Check('company', 'enabled') AND $this->getPermissionObject()->Check('company', 'edit_own') ) {
 				$destination_url = 'http://www.timetrex.com/r.php?id=1010';
 				$sub_message = TTi18n::getText('For more information please click here.');
 			} else {
@@ -293,11 +309,11 @@ class APINotification extends APIFactory {
 			}
 
 			$retarr[] = array(
-								  'delay' => -1,
-								  'bg_color' => '#FF0000', //Red
-								  'message' => TTi18n::getText('WARNING: %1 was unable to set your time zone. Please contact your %1 administrator immediately.', APPLICATION_NAME ).' '. $sub_message,
-								  'destination' => $destination_url,
-								  );
+								'delay' => -1,
+								'bg_color' => '#FF0000', //Red
+								'message' => TTi18n::getText('WARNING: %1 was unable to set your time zone. Please contact your %1 administrator immediately.', APPLICATION_NAME ).' '. $sub_message,
+								'destination' => $destination_url,
+								);
 			unset($destination_url, $sub_message );
 		}
 

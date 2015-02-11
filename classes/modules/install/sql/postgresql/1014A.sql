@@ -1,40 +1,40 @@
 CREATE TABLE permission_control (
-    id serial NOT NULL,
+	id serial NOT NULL,
 	company_id integer NOT NULL,
-    name character varying NOT NULL,
+	name character varying NOT NULL,
 	description character varying NOT NULL,
-    created_date integer,
-    created_by integer,
-    updated_date integer,
-    updated_by integer,
-    deleted_date integer,
-    deleted_by integer,
-    deleted smallint DEFAULT 0 NOT NULL
+	created_date integer,
+	created_by integer,
+	updated_date integer,
+	updated_by integer,
+	deleted_date integer,
+	deleted_by integer,
+	deleted smallint DEFAULT 0 NOT NULL
 );
 
 CREATE TABLE permission_user (
-    id serial NOT NULL,
+	id serial NOT NULL,
 	permission_control_id integer NOT NULL,
 	user_id integer NOT NULL
 );
 
---Rename current permission table.
+--Rename current permission table;
 alter table "permission" rename to "permission_old";
 
---Create totally new permission table.
+--Create totally new permission table;
 CREATE TABLE permission (
-    id serial NOT NULL,
-    permission_control_id integer NOT NULL,
-    section character varying,
-    name character varying,
-    value character varying,
-    created_date integer,
-    created_by integer,
-    updated_date integer,
-    updated_by integer,
-    deleted_date integer,
-    deleted_by integer,
-    deleted smallint DEFAULT 0 NOT NULL
+	id serial NOT NULL,
+	permission_control_id integer NOT NULL,
+	section character varying,
+	name character varying,
+	value character varying,
+	created_date integer,
+	created_by integer,
+	updated_date integer,
+	updated_by integer,
+	deleted_date integer,
+	deleted_by integer,
+	deleted smallint DEFAULT 0 NOT NULL
 );
 CREATE INDEX permission_permission_control_id ON permission USING btree (permission_control_id);
 
@@ -76,13 +76,13 @@ update premium_policy set job_item_group_selection_type_id = 10;
 update premium_policy set job_item_selection_type_id = 10;
 
 CREATE TABLE premium_policy_branch (
-    id serial NOT NULL,
+	id serial NOT NULL,
 	premium_policy_id integer NOT NULL,
 	branch_id integer NOT NULL
 );
 
 CREATE TABLE premium_policy_department (
-    id serial NOT NULL,
+	id serial NOT NULL,
 	premium_policy_id integer NOT NULL,
 	department_id integer NOT NULL
 );

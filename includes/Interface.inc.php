@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,11 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 8385 $
- * $Id: Interface.inc.php 8385 2012-11-23 23:06:18Z ipso $
- * $Date: 2012-11-23 15:06:18 -0800 (Fri, 23 Nov 2012) $
- */
+
+//Help prevent XSS or frame clickjacking.
+Header('X-XSS-Protection: 1; mode=block');
+Header('X-Frame-Options: SAMEORIGIN');
+
 if ( !isset($disable_cache_control) ) {
 	//Turn caching off.
 	header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
@@ -192,8 +192,8 @@ if ( isset($authenticate) AND $authenticate === FALSE ) {
 
 			if ( PRODUCTION == TRUE
 					AND DEMO_MODE == FALSE
-					AND $cj_obj->getLastRunDate() < ( time()-172800 )
-					AND $cj_obj->getCreatedDate() < ( time()-172800 ) ) {
+					AND $cj_obj->getLastRunDate() < ( time() - 172800 )
+					AND $cj_obj->getCreatedDate() < ( time() - 172800 ) ) {
 				$cron_out_of_date = 1;
 			} else {
 				$cron_out_of_date = 0;
@@ -210,10 +210,12 @@ if ( isset($authenticate) AND $authenticate === FALSE ) {
 		} elseif ( isset($enable_iphone) AND $enable_iphone == TRUE ) {
 			Redirect::Page( URLBuilder::getURL(NULL, Environment::GetBaseURL().'iphone/login/login.php') );
 		} else {
-			if ( isset($config_vars['other']['default_interface']) AND strtolower(trim($config_vars['other']['default_interface'])) == 'flex' ) {
-				Redirect::Page( URLBuilder::getURL(NULL, Environment::GetBaseURL().'flex/') );
+			if ( isset($config_vars['other']['default_interface']) AND strtolower(trim($config_vars['other']['default_interface'])) == 'html' ) {
+				Redirect::Page( URLBuilder::getURL(NULL, Environment::GetBaseURL().'Login_legacy.php') );
+			} elseif ( isset($config_vars['other']['default_interface']) AND strtolower(trim($config_vars['other']['default_interface'])) == 'html5' ) {
+				Redirect::Page( URLBuilder::getURL(NULL, Environment::GetBaseURL().'html5/') );
 			} else {
-				Redirect::Page( URLBuilder::getURL(NULL, Environment::GetBaseURL().'Login.php') );
+				Redirect::Page( URLBuilder::getURL(NULL, Environment::GetBaseURL().'flex/') );
 			}
 		}
 
@@ -259,7 +261,7 @@ if ( isset($system_settings['system_version']) AND DEPLOYMENT_ON_DEMAND == FALSE
 	$smarty->assign('VERSION_MISMATCH', TRUE );
 }
 
-if ( isset($system_settings['tax_data_version']) AND (time()-strtotime($system_settings['tax_data_version'])) > (86400*475) ) { //~1yr and 3mths
+if ( isset($system_settings['tax_data_version']) AND ( time() - strtotime($system_settings['tax_data_version']) ) > (86400 * 475) ) { //~1yr and 3mths
 	$smarty->assign('VERSION_OUT_OF_DATE', TRUE );
 }
 

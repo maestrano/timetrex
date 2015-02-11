@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 1827 $
- * $Id: FastTree.class.php 1827 2008-04-17 16:57:18Z ipso $
- * $Date: 2008-04-17 09:57:18 -0700 (Thu, 17 Apr 2008) $
- */
+
 
 /**
  * @package Core
@@ -69,12 +65,12 @@ class LockFile {
 	}
 
 	function create() {
-		return touch( $this->getFileName() );
+		return @touch( $this->getFileName() );
 	}
 
 	function delete() {
 		if ( file_exists( $this->getFileName() ) ) {
-			return unlink( $this->getFileName() );
+			return @unlink( $this->getFileName() );
 		}
 
 		Debug::text(' Failed deleting lock file: '. $this->file_name, __FILE__, __LINE__, __METHOD__, 10);
@@ -85,7 +81,7 @@ class LockFile {
 	function exists() {
 		//Ignore lock files older than max_lock_file_age, so if the server crashes or is rebooted during an operation, it will start again the next day.
 		clearstatcache();
-		if ( file_exists( $this->getFileName() ) AND filemtime( $this->getFileName() ) >= ( time()-$this->max_lock_file_age ) ) {
+		if ( file_exists( $this->getFileName() ) AND @filemtime( $this->getFileName() ) >= ( time() - $this->max_lock_file_age ) ) {
 			return TRUE;
 		}
 

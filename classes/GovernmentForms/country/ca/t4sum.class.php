@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2286 $
- * $Id: CA.class.php 2286 2008-12-12 23:12:41Z ipso $
- * $Date: 2008-12-12 15:12:41 -0800 (Fri, 12 Dec 2008) $
- */
+
 
 include_once( 'CA.class.php' );
 
@@ -476,18 +472,7 @@ class GovernmentForms_CA_T4Sum extends GovernmentForms_CA {
 		//Strip non-digits.
 		$value = $this->stripNonNumeric($value);
 
-		return array( substr($value, 0,3), substr($value, 3,3), substr($value, 6,4) );
-	}
-
-	function filterCompanyAddress( $value ) {
-		//Combine company address for multicell display.
-		$retarr[] = $this->company_address1;
-		if ( $this->company_address2 != '' ) {
-			$retarr[] = $this->company_address2;
-		}
-		$retarr[] = $this->company_city. ', '.$this->company_province . ' ' . $this->company_postal_code;
-
-		return implode("\n", $retarr );
+		return array( substr($value, 0, 3), substr($value, 3, 3), substr($value, 6, 4) );
 	}
 
 	function calcL80( $value, $schema ) {
@@ -518,17 +503,17 @@ class GovernmentForms_CA_T4Sum extends GovernmentForms_CA {
 
 		$xml->Return->T4->addChild('T4Summary');
 
-		$xml->Return->T4->T4Summary->addChild('bn', $this->payroll_account_number );
+		$xml->Return->T4->T4Summary->addChild('bn', $this->formatPayrollAccountNumber( $this->payroll_account_number ) );
 		$xml->Return->T4->T4Summary->addChild('tx_yr', $this->year );
 		$xml->Return->T4->T4Summary->addChild('slp_cnt', $this->l88 );
 		$xml->Return->T4->T4Summary->addChild('rpt_tcd', 'O' ); //Report Type Code: O = Originals, A = Amendment, C = Cancel
 
 		$xml->Return->T4->T4Summary->addChild('EMPR_NM'); //Employer name
-		$xml->Return->T4->T4Summary->EMPR_NM->addChild('l1_nm', substr( $this->company_name, 0, 30) );
+		$xml->Return->T4->T4Summary->EMPR_NM->addChild('l1_nm', substr( Misc::stripHTMLSpecialChars( $this->company_name ), 0, 30) );
 
 		$xml->Return->T4->T4Summary->addChild('EMPR_ADDR'); //Employer Address
-		$xml->Return->T4->T4Summary->EMPR_ADDR->addChild('addr_l1_txt', $this->company_address1 );
-		if ( $this->company_address2 != '' ) { $xml->Return->T4->T4Summary->EMPR_ADDR->addChild('addr_l2_txt', $this->company_address2 ); }
+		$xml->Return->T4->T4Summary->EMPR_ADDR->addChild('addr_l1_txt', Misc::stripHTMLSpecialChars( $this->company_address1 ) );
+		if ( $this->company_address2 != '' ) { $xml->Return->T4->T4Summary->EMPR_ADDR->addChild('addr_l2_txt', Misc::stripHTMLSpecialChars( $this->company_address2 ) ); }
 		$xml->Return->T4->T4Summary->EMPR_ADDR->addChild('cty_nm', $this->company_city );
 		$xml->Return->T4->T4Summary->EMPR_ADDR->addChild('prov_cd', $this->company_province );
 		$xml->Return->T4->T4Summary->EMPR_ADDR->addChild('cntry_cd', 'CAN' );

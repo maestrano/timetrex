@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 8720 $
- * $Id: Data.class.php 8720 2012-12-29 01:06:58Z ipso $
- * $Date: 2012-12-28 17:06:58 -0800 (Fri, 28 Dec 2012) $
- */
+
 
 /**
  * @package PayrollDeduction\CA
@@ -52,6 +48,38 @@ class PayrollDeduction_CA_Data extends PayrollDeduction_Base {
 		Claim Code Basic Amounts
 	*/
 	var $basic_claim_code_options = array(
+							1420099200 => array( //01-Jan-2015:
+										'CA' => 11327, //Federal
+										'BC' => 9938,
+										'AB' => 18214,
+										'SK' => 15639,
+										'MB' => 9134,
+										'QC' => 0,
+										'ON' => 9863,
+										'NL' => 8767,
+										'NB' => 9633,
+										'NS' => 8481,
+										'PE' => 7708,
+										'NT' => 13900,
+										'YT' => 11327,
+										'NU' => 12781,
+										),
+							1388563200 => array( //01-Jan-2014:
+										'CA' => 11138, //Federal
+										'BC' => 9869,
+										'AB' => 17787,
+										'SK' => 15378,
+										'MB' => 9134,
+										'QC' => 0,
+										'ON' => 9670,
+										'NL' => 8578,
+										'NB' => 9472,
+										'NS' => 8481,
+										'PE' => 7708,
+										'NT' => 13668,
+										'YT' => 11138,
+										'NU' => 12567,
+										),
 							1357027200 => array( //01-Jan-2013:
 										'CA' => 11038, //Federal
 										'BC' => 10276,
@@ -250,6 +278,18 @@ class PayrollDeduction_CA_Data extends PayrollDeduction_Base {
 		CPP settings
 	*/
 	var $cpp_options = array(
+							1420099200 => array( //2015
+										'maximum_pensionable_earnings' => 53600,
+										'basic_exemption' => 3500,
+										'employee_rate' => 0.0495,
+										'employee_maximum_contribution' => 2479.95
+										),
+							1388563200 => array( //2014
+										'maximum_pensionable_earnings' => 52500,
+										'basic_exemption' => 3500,
+										'employee_rate' => 0.0495,
+										'employee_maximum_contribution' => 2425.50
+										),
 							1357027200 => array( //2013
 										'maximum_pensionable_earnings' => 51100,
 										'basic_exemption' => 3500,
@@ -316,6 +356,18 @@ class PayrollDeduction_CA_Data extends PayrollDeduction_Base {
 		EI settings
 	*/
 	var $ei_options = array(
+							1420099200 => array( //2015
+										'maximum_insurable_earnings' => 49500,
+										'employee_rate' => 0.0188,
+										'employee_maximum_contribution' => 930.60,
+										'employer_rate' => 1.4
+										),
+							1388563200 => array( //2014
+										'maximum_insurable_earnings' => 48600,
+										'employee_rate' => 0.0188,
+										'employee_maximum_contribution' => 913.68,
+										'employer_rate' => 1.4
+										),
 							1357027200 => array( //2013
 										'maximum_insurable_earnings' => 47400,
 										'employee_rate' => 0.0188,
@@ -382,6 +434,12 @@ class PayrollDeduction_CA_Data extends PayrollDeduction_Base {
 		Federal employment credit
 	*/
 	var $federal_employment_credit_options = array(
+							1420099200 => array( //2015
+										'credit' => 1146,
+										),
+							1388563200 => array( //2014
+										'credit' => 1127,
+										),
 							1357027200 => array( //2013
 										'credit' => 1117,
 										),
@@ -413,6 +471,18 @@ class PayrollDeduction_CA_Data extends PayrollDeduction_Base {
 	*/
 	var $provincial_tax_reduction_options = array(
 							'BC' => array(
+									1420099200 => array( //2015
+														'income1' => 18327,
+														'income2' => 31202,
+														'amount' => 412,
+														'rate' => 0.032,
+														),
+									1388563200 => array( //2014
+														'income1' => 18200,
+														'income2' => 30981.25,
+														'amount' => 409,
+														'rate' => 0.032,
+														),
 									1357027200 => array( //2013
 														'income1' => 18181,
 														'income2' => 30962.25,
@@ -475,6 +545,12 @@ class PayrollDeduction_CA_Data extends PayrollDeduction_Base {
 												),
 									),
 							'ON' => array(
+									1420099200 => array( //2015
+														'amount' => 228,
+														),
+									1388563200 => array( //2014
+														'amount' => 223,
+														),
 									1357027200 => array( //2013
 														'amount' => 221,
 														),
@@ -507,6 +583,18 @@ class PayrollDeduction_CA_Data extends PayrollDeduction_Base {
 	*/
 	var $provincial_surtax_options = array(
 							'ON' => array(
+									1420099200 => array( //2015
+														'income1' => 4418,
+														'income2' => 5654,
+														'rate1' => 0.20,
+														'rate2' => 0.36,
+														),
+									1388563200 => array( //2014
+														'income1' => 4331,
+														'income2' => 5543,
+														'rate1' => 0.20,
+														'rate2' => 0.36,
+														),
 									1357027200 => array( //2013
 														'income1' => 4289,
 														'income2' => 5489,
@@ -578,8 +666,12 @@ class PayrollDeduction_CA_Data extends PayrollDeduction_Base {
 
 		return FALSE;
 	}
-	function getBasicFederalClaimCodeAmount() {
-		$data = $this->getBasicClaimCodeData( $this->getDate() );
+	function getBasicFederalClaimCodeAmount( $date = FALSE ) {
+		if ( $date == '' ) {
+			$date = $this->getDate();
+		}
+		
+		$data = $this->getBasicClaimCodeData( $date );
 
 		if ( isset($data['CA']) ) {
 			return $data['CA'];
@@ -588,8 +680,12 @@ class PayrollDeduction_CA_Data extends PayrollDeduction_Base {
 		return FALSE;
 	}
 
-	function getBasicProvinceClaimCodeAmount() {
-		$data = $this->getBasicClaimCodeData( $this->getDate() );
+	function getBasicProvinceClaimCodeAmount( $date = FALSE ) {
+		if ( $date == '' ) {
+			$date = $this->getDate();
+		}
+
+		$data = $this->getBasicClaimCodeData( $date );
 
 		if ( isset($data[$this->getProvince()]) ) {
 			return $data[$this->getProvince()];
@@ -817,8 +913,8 @@ class PayrollDeduction_CA_Data extends PayrollDeduction_Base {
 		}
 
 		$prev_value = 0;
-		$total_rates = count($rates) - 1;
-		$i=0;
+		$total_rates = ( count($rates) - 1 );
+		$i = 0;
 		foreach ($rates as $key => $values) {
 			$value = $values['income'];
 			$rate = $values['rate'];

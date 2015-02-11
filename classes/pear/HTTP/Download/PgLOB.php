@@ -11,7 +11,7 @@
  * @author     Michael Wallner <mike@php.net>
  * @copyright  2003-2005 Michael Wallner
  * @license    BSD, revised
- * @version    CVS: $Id: PgLOB.php,v 1.14 2005/11/13 19:18:55 mike Exp $
+ * @version    CVS: $Id: PgLOB.php 304423 2010-10-15 13:36:46Z clockwerx $
  * @link       http://pear.php.net/package/HTTP_Download
  */
 
@@ -28,13 +28,13 @@ stream_register_wrapper('pglob', 'HTTP_Download_PgLOB');
  * $db = &DB::connect('pgsql://user:pass@host/db');
  * // or $db = pg_connect(...);
  * $lo = HTTP_Download_PgLOB::open($db, 12345);
- * $dl = new HTTP_Download;
+ * $dl = &new HTTP_Download;
  * $dl->setResource($lo);
  * $dl->send()
  * </code>
  * 
  * @access  public
- * @version $Revision: 1.14 $
+ * @version $Revision: 304423 $
  */
 class HTTP_Download_PgLOB
 {
@@ -46,7 +46,7 @@ class HTTP_Download_PgLOB
      * @return  bool
      * @param   mixed   $conn
      */
-    static function setConnection($conn)
+    function setConnection($conn)
     {
         if (is_a($conn, 'DB_Common')) {
             $conn = $conn->dbh;
@@ -67,7 +67,7 @@ class HTTP_Download_PgLOB
      * @access  public
      * @return  resource
      */
-    static function getConnection()
+    function getConnection()
     {
         if (is_resource($GLOBALS['_HTTP_Download_PgLOB_Connection'])) {
             return $GLOBALS['_HTTP_Download_PgLOB_Connection'];

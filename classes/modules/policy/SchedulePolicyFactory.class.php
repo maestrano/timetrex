@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 10179 $
- * $Id: SchedulePolicyFactory.class.php 10179 2013-06-11 22:39:40Z ipso $
- * $Date: 2013-06-11 15:39:40 -0700 (Tue, 11 Jun 2013) $
- */
+
 
 /**
  * @package Modules\Policy
@@ -49,6 +45,7 @@ class SchedulePolicyFactory extends Factory {
 	protected $company_obj = NULL;
 	protected $meal_policy_obj = NULL;
 	protected $break_policy_obj = NULL;
+	protected $absence_policy_obj = NULL;
 
 	function _getFactoryOptions( $name ) {
 
@@ -57,9 +54,10 @@ class SchedulePolicyFactory extends Factory {
 			case 'columns':
 				$retval = array(
 										'-1020-name' => TTi18n::gettext('Name'),
-										'-1030-meal_policy' => TTi18n::gettext('Meal Policy'),
-										'-1040-absence_policy' => TTi18n::gettext('Absence Policy'),
-										'-1050-over_time_policy' => TTi18n::gettext('Overtime Policy'),
+										'-1025-description' => TTi18n::gettext('Description'),
+										//'-1030-meal_policy' => TTi18n::gettext('Meal Policy'),
+										'-1040-absence_policy' => TTi18n::gettext('Undertime Absence Policy'),
+										//'-1050-over_time_policy' => TTi18n::gettext('Overtime Policy'),
 										'-1060-start_stop_window' => TTi18n::gettext('Window'),
 
 										'-2000-created_by' => TTi18n::gettext('Created By'),
@@ -74,7 +72,7 @@ class SchedulePolicyFactory extends Factory {
 			case 'default_display_columns': //Columns that are displayed by default.
 				$retval = array(
 								'name',
-								'meal_policy',
+								'description',
 								'start_stop_window',
 								'updated_date',
 								'updated_by',
@@ -99,27 +97,55 @@ class SchedulePolicyFactory extends Factory {
 										'id' => 'ID',
 										'company_id' => 'Company',
 										'name' => 'Name',
-										'meal_policy_id' => 'MealPolicyID',
-										'meal_policy' => FALSE,
-										'over_time_policy_id' => 'OverTimePolicyID',
-										'over_time_policy' => FALSE,
+										'description' => 'Description',
+										
 										'absence_policy_id' => 'AbsencePolicyID',
 										'absence_policy' => FALSE,
-										'break_policy_id' => 'BreakPolicy',
-										'premium_policy_id' => 'PremiumPolicy',
-										//'break_policy' => FALSE,
+
+										'meal_policy' => 'MealPolicy',
+										'break_policy' => 'BreakPolicy',
+
+										'include_regular_time_policy' => 'IncludeRegularTimePolicy',
+										'exclude_regular_time_policy' => 'ExcludeRegularTimePolicy',
+										'include_over_time_policy' => 'IncludeOverTimePolicy',
+										'exclude_over_time_policy' => 'ExcludeOverTimePolicy',
+										'include_premium_policy' => 'IncludePremiumPolicy',
+										'exclude_premium_policy' => 'ExcludePremiumPolicy',
+
 										'start_stop_window' => 'StartStopWindow',
 										'deleted' => 'Deleted',
 										);
 		return $variable_function_map;
-	 }
+	}
 
 	function getCompanyObject() {
 		return $this->getGenericObject( 'CompanyListFactory', $this->getCompany(), 'company_obj' );
 	}
 
-	function getMealPolicyObject() {
-		return $this->getGenericObject( 'MealPolicyListFactory', $this->getMealPolicyID(), 'meal_policy_obj' );
+	function getAbsencePolicyObject() {
+		return $this->getGenericObject( 'AbsencePolicyListFactory', $this->getAbsencePolicyID(), 'absence_policy_obj' );
+	}
+
+	function getMealPolicyObject( $meal_policy_id ) {
+		if ( $meal_policy_id == '' ) {
+			return FALSE;
+		}
+
+		Debug::Text('Meal Policy ID: '. $meal_policy_id .' Schedule Policy ID: '. $this->getId(), __FILE__, __LINE__, __METHOD__, 10);
+
+		if ( isset($this->meal_policy_obj[$meal_policy_id])
+			AND is_object($this->meal_policy_obj[$meal_policy_id]) ) {
+			return $this->meal_policy_obj[$meal_policy_id];
+		} else {
+			$bplf = TTnew( 'MealPolicyListFactory' );
+			$bplf->getById( $meal_policy_id );
+			if ( $bplf->getRecordCount() > 0 ) {
+				$this->meal_policy_obj[$meal_policy_id] = $bplf->getCurrent();
+				return $this->meal_policy_obj[$meal_policy_id];
+			}
+
+			return FALSE;
+		}
 	}
 
 	function getBreakPolicyObject( $break_policy_id ) {
@@ -127,7 +153,7 @@ class SchedulePolicyFactory extends Factory {
 			return FALSE;
 		}
 
-		Debug::Text('Break Policy ID: '. $break_policy_id .' Schedule Policy ID: '. $this->getId(), __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Break Policy ID: '. $break_policy_id .' Schedule Policy ID: '. $this->getId(), __FILE__, __LINE__, __METHOD__, 10);
 
 		if ( isset($this->break_policy_obj[$break_policy_id])
 			AND is_object($this->break_policy_obj[$break_policy_id]) ) {
@@ -146,7 +172,7 @@ class SchedulePolicyFactory extends Factory {
 
 	function getCompany() {
 		if ( isset($this->data['company_id']) ) {
-			return $this->data['company_id'];
+			return (int)$this->data['company_id'];
 		}
 
 		return FALSE;
@@ -154,7 +180,7 @@ class SchedulePolicyFactory extends Factory {
 	function setCompany($id) {
 		$id = trim($id);
 
-		Debug::Text('Company ID: '. $id, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Company ID: '. $id, __FILE__, __LINE__, __METHOD__, 10);
 		$clf = TTnew( 'CompanyListFactory' );
 
 		if ( $this->Validator->isResultSetWithRows(	'company',
@@ -178,7 +204,7 @@ class SchedulePolicyFactory extends Factory {
 
 		$query = 'select id from '. $this->getTable() .' where company_id = ? AND lower(name) = ? AND deleted=0';
 		$id = $this->db->GetOne($query, $ph);
-		Debug::Arr($id,'Unique: '. $name, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Arr($id, 'Unique: '. $name, __FILE__, __LINE__, __METHOD__, 10);
 
 		if ( $id === FALSE ) {
 			return TRUE;
@@ -202,7 +228,7 @@ class SchedulePolicyFactory extends Factory {
 		if (	$this->Validator->isLength(	'name',
 											$name,
 											TTi18n::gettext('Name is too short or too long'),
-											2,50)
+											2, 50)
 				AND
 				$this->Validator->isTrue(	'name',
 											$this->isUniqueName($name),
@@ -217,6 +243,30 @@ class SchedulePolicyFactory extends Factory {
 		return FALSE;
 	}
 
+	function getDescription() {
+		if ( isset($this->data['description']) ) {
+			return $this->data['description'];
+		}
+
+		return FALSE;
+	}
+	function setDescription($description) {
+		$description = trim($description);
+
+		if (	$description == ''
+				OR $this->Validator->isLength(	'description',
+												$description,
+												TTi18n::gettext('Description is invalid'),
+												1, 250) ) {
+
+			$this->data['description'] = $description;
+
+			return TRUE;
+		}
+
+		return FALSE;
+	}
+/*
 	function getMealPolicyID() {
 		if ( isset($this->data['meal_policy_id']) ) {
 			return (int)$this->data['meal_policy_id'];
@@ -247,7 +297,36 @@ class SchedulePolicyFactory extends Factory {
 
 		return FALSE;
 	}
+*/
+	//Checks to see if we need to revert to the meal policies defined in the policy group, or use the ones defined in the schedule policy.
+	function isUsePolicyGroupMealPolicy() {
+		if ( in_array( 0, (array)$this->getMealPolicy() ) ) {
+			return TRUE;
+		}
+		return FALSE;
+	}
+	function getMealPolicy() {
+		return CompanyGenericMapListFactory::getArrayByCompanyIDAndObjectTypeIDAndObjectID( $this->getCompany(), 155, $this->getID() );
+	}
+	function setMealPolicy($ids) {
+		//If NONE(-1) or Use Policy Group (0) are defined, unset all other ids.
+		if ( is_array( $ids ) ) {
+			if ( in_array( 0, $ids )  ) {
+				$ids = array(0);
+			} elseif ( in_array( -1, $ids ) ) {
+				$ids = array(-1);
+			}
+		}
+		return CompanyGenericMapFactory::setMapIDs( $this->getCompany(), 155, $this->getID(), $ids, FALSE, TRUE ); //Use relaxed ID range.
+	}
 
+	//Checks to see if we need to revert to the break policies defined in the policy group, or use the ones defined in the schedule policy.
+	function isUsePolicyGroupBreakPolicy() {
+		if ( in_array( 0, (array)$this->getBreakPolicy() ) ) {
+			return TRUE;
+		}
+		return FALSE;
+	}
 	function getBreakPolicy() {
 		return CompanyGenericMapListFactory::getArrayByCompanyIDAndObjectTypeIDAndObjectID( $this->getCompany(), 165, $this->getID() );
 	}
@@ -263,39 +342,9 @@ class SchedulePolicyFactory extends Factory {
 		return CompanyGenericMapFactory::setMapIDs( $this->getCompany(), 165, $this->getID(), $ids, FALSE, TRUE ); //Use relaxed ID range.
 	}
 
-	function getOverTimePolicyID() {
-		if ( isset($this->data['over_time_policy_id']) ) {
-			return $this->data['over_time_policy_id'];
-		}
-
-		return FALSE;
-	}
-	function setOverTimePolicyID($id) {
-		$id = trim($id);
-
-		if ( $id == '' OR empty($id) ) {
-			$id = NULL;
-		}
-
-		$otplf = TTnew( 'OverTimePolicyListFactory' );
-
-		if (  $id == NULL
-				OR
-				$this->Validator->isResultSetWithRows(	'over_time_policy',
-														$otplf->getByID($id),
-														TTi18n::gettext('Invalid Overtime Policy ID')
-														) ) {
-			$this->data['over_time_policy_id'] = $id;
-
-			return TRUE;
-		}
-
-		return FALSE;
-	}
-
 	function getAbsencePolicyID() {
 		if ( isset($this->data['absence_policy_id']) ) {
-			return $this->data['absence_policy_id'];
+			return (int)$this->data['absence_policy_id'];
 		}
 
 		return FALSE;
@@ -323,13 +372,80 @@ class SchedulePolicyFactory extends Factory {
 
 		return FALSE;
 	}
+/*
+	function getOverTimePolicyID() {
+		if ( isset($this->data['over_time_policy_id']) ) {
+			return (int)$this->data['over_time_policy_id'];
+		}
 
-	function getPremiumPolicy() {
+		return FALSE;
+	}
+	function setOverTimePolicyID($id) {
+		$id = trim($id);
+
+		if ( $id == '' OR empty($id) ) {
+			$id = NULL;
+		}
+
+		$otplf = TTnew( 'OverTimePolicyListFactory' );
+
+		if (  $id == NULL
+				OR
+				$this->Validator->isResultSetWithRows(	'over_time_policy',
+														$otplf->getByID($id),
+														TTi18n::gettext('Invalid Overtime Policy ID')
+														) ) {
+			$this->data['over_time_policy_id'] = $id;
+
+			return TRUE;
+		}
+
+		return FALSE;
+	}
+*/
+	function getIncludeRegularTimePolicy() {
+		return CompanyGenericMapListFactory::getArrayByCompanyIDAndObjectTypeIDAndObjectID( $this->getCompany(), 105, $this->getID() );
+	}
+	function setIncludeRegularTimePolicy($ids) {
+		Debug::text('Setting Include Regular Time Policy IDs : ', __FILE__, __LINE__, __METHOD__, 10);
+		return CompanyGenericMapFactory::setMapIDs( $this->getCompany(), 105, $this->getID(), $ids );
+	}
+	function getExcludeRegularTimePolicy() {
+		return CompanyGenericMapListFactory::getArrayByCompanyIDAndObjectTypeIDAndObjectID( $this->getCompany(), 106, $this->getID() );
+	}
+	function setExcludeRegularTimePolicy($ids) {
+		Debug::text('Setting Exclude Regular Time Policy IDs : ', __FILE__, __LINE__, __METHOD__, 10);
+		return CompanyGenericMapFactory::setMapIDs( $this->getCompany(), 106, $this->getID(), $ids );
+	}
+
+	function getIncludeOverTimePolicy() {
+		return CompanyGenericMapListFactory::getArrayByCompanyIDAndObjectTypeIDAndObjectID( $this->getCompany(), 115, $this->getID() );
+	}
+	function setIncludeOverTimePolicy($ids) {
+		Debug::text('Setting Include Over Time Policy IDs : ', __FILE__, __LINE__, __METHOD__, 10);
+		return CompanyGenericMapFactory::setMapIDs( $this->getCompany(), 115, $this->getID(), $ids );
+	}
+	function getExcludeOverTimePolicy() {
+		return CompanyGenericMapListFactory::getArrayByCompanyIDAndObjectTypeIDAndObjectID( $this->getCompany(), 116, $this->getID() );
+	}
+	function setExcludeOverTimePolicy($ids) {
+		Debug::text('Setting Exclude Over Time Policy IDs : ', __FILE__, __LINE__, __METHOD__, 10);
+		return CompanyGenericMapFactory::setMapIDs( $this->getCompany(), 116, $this->getID(), $ids );
+	}
+
+	function getIncludePremiumPolicy() {
 		return CompanyGenericMapListFactory::getArrayByCompanyIDAndObjectTypeIDAndObjectID( $this->getCompany(), 125, $this->getID() );
 	}
-	function setPremiumPolicy($ids) {
-		Debug::text('Setting Premium Policy IDs : ', __FILE__, __LINE__, __METHOD__, 10);
+	function setIncludePremiumPolicy($ids) {
+		Debug::text('Setting Include Premium Policy IDs : ', __FILE__, __LINE__, __METHOD__, 10);
 		return CompanyGenericMapFactory::setMapIDs( $this->getCompany(), 125, $this->getID(), $ids );
+	}
+	function getExcludePremiumPolicy() {
+		return CompanyGenericMapListFactory::getArrayByCompanyIDAndObjectTypeIDAndObjectID( $this->getCompany(), 126, $this->getID() );
+	}
+	function setExcludePremiumPolicy($ids) {
+		Debug::text('Setting Exclude Premium Policy IDs : ', __FILE__, __LINE__, __METHOD__, 10);
+		return CompanyGenericMapFactory::setMapIDs( $this->getCompany(), 126, $this->getID(), $ids );
 	}
 
 	function getStartStopWindow() {
@@ -341,7 +457,7 @@ class SchedulePolicyFactory extends Factory {
 	function setStartStopWindow($int) {
 		$int = (int)$int;
 
-		if 	(	$this->Validator->isNumeric(		'start_stop_window',
+		if	(	$this->Validator->isNumeric(		'start_stop_window',
 													$int,
 													TTi18n::gettext('Incorrect Start/Stop window')) ) {
 			$this->data['start_stop_window'] = $int;
@@ -362,7 +478,7 @@ class SchedulePolicyFactory extends Factory {
 
 	function postSave() {
 		if ( $this->getDeleted() == TRUE ) {
-			Debug::Text('UnAssign Schedule Policy from Schedule/Recurring Schedules...'. $this->getId(), __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text('UnAssign Schedule Policy from Schedule/Recurring Schedules...'. $this->getId(), __FILE__, __LINE__, __METHOD__, 10);
 			$sf = TTnew( 'ScheduleFactory' );
 			$rstf = TTnew( 'RecurringScheduleTemplateFactory' );
 
@@ -411,7 +527,6 @@ class SchedulePolicyFactory extends Factory {
 
 					$function = 'get'.$function_stub;
 					switch( $variable ) {
-						case 'meal_policy':
 						case 'absence_policy':
 							$data[$variable] = $this->getColumn($variable);
 							break;
@@ -431,7 +546,7 @@ class SchedulePolicyFactory extends Factory {
 	}
 
 	function addLog( $log_action ) {
-		return TTLog::addEntry( $this->getId(), $log_action,  TTi18n::getText('Schedule Policy'), NULL, $this->getTable(), $this );
+		return TTLog::addEntry( $this->getId(), $log_action, TTi18n::getText('Schedule Policy'), NULL, $this->getTable(), $this );
 	}
 }
 ?>

@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 1246 $
- * $Id: Misc.class.php 1246 2007-09-14 23:47:42Z ipso $
- * $Date: 2007-09-14 16:47:42 -0700 (Fri, 14 Sep 2007) $
- */
+
 
 /**
  * @package Core
@@ -58,7 +54,7 @@ class UnitConvert {
 						'oz' => 28.349523125,
 						'lb' => 453.59237,
 						'lbs' => 453.59237,
-						'g'  => 1,
+						'g'	 => 1,
 						'kg' => 1000,
 
 						//1 Unit = X MM
@@ -71,8 +67,8 @@ class UnitConvert {
 
 	//Only units in the same array can be converted to one another.
 	static $valid_unit_groups = array(
-									'g' => array('g','oz','lb','lbs','kg'),
-									'mm' => array('mm','in','cm','ft','m')
+									'g' => array('g', 'oz', 'lb', 'lbs', 'kg'),
+									'mm' => array('mm', 'in', 'cm', 'ft', 'm')
 									);
 
 	static function convert( $src_unit, $dst_unit, $measurement, $exponent = 1 ) {
@@ -103,10 +99,10 @@ class UnitConvert {
 			return FALSE;
 		}
 
-		$base_measurement = pow( self::$units[$src_unit], $exponent) * $measurement;
-		//Debug::Text(' Base Measurement: '. $base_measurement, __FILE__, __LINE__, __METHOD__,10);
+		$base_measurement = ( pow( self::$units[$src_unit], $exponent) * $measurement );
+		//Debug::Text(' Base Measurement: '. $base_measurement, __FILE__, __LINE__, __METHOD__, 10);
 		if ( $base_measurement != 0 ) {
-			$retval = (1 / pow(self::$units[$dst_unit], $exponent) ) * $base_measurement;
+			$retval = ( (1 / pow(self::$units[$dst_unit], $exponent) ) * $base_measurement );
 
 			return $retval;
 		}

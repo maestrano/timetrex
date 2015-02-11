@@ -1,0 +1,34 @@
+.column-editor {
+
+	width: 958px;
+	background: none repeat scroll 0 0 #EAEAEA;
+	border: 1px solid #BDBDBD;
+	border-radius: 5px 5px 5px 5px;
+	padding: 5px;
+	box-shadow: 6px 6px 10px 0 #666666;
+	-moz-box-shadow: 6px 6px 10px 0 #666666;
+	-webkit-box-shadow: 6px 6px 10px 0 #666666;
+	position: absolute;
+	z-index: 100;
+
+}
+
+.column-editor .layout-name-div {
+
+}
+
+.column-editor .column-editor-drop-down-div {
+
+	float: left;
+
+}
+
+.column-editor .rows-per-page-div {
+	float: left;
+	margin-top: 5px;
+}
+
+.column-editor .bottom-action-div {
+	margin-top: 10px;
+
+}

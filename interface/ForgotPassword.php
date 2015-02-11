@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,16 +33,12 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 11018 $
- * $Id: ForgotPassword.php 11018 2013-09-24 23:39:40Z ipso $
- * $Date: 2013-09-24 16:39:40 -0700 (Tue, 24 Sep 2013) $
- */
+
 require_once('../includes/global.inc.php');
 
 //Debug::setVerbosity( 11 );
 
-$authenticate=FALSE;
+$authenticate = FALSE;
 require_once(Environment::getBasePath() .'includes/Interface.inc.php');
 
 $smarty->assign('title', TTi18n::gettext('Password Reset'));
@@ -63,88 +59,113 @@ extract	(FormVariables::GetVariables(
 $validator = new Validator();
 
 $action = Misc::findSubmitButton();
-Debug::Text('Action: '. $action, __FILE__, __LINE__, __METHOD__,10);
+Debug::Text('Action: '. $action, __FILE__, __LINE__, __METHOD__, 10);
 switch ($action) {
 	case 'change_password':
-		Debug::Text('Change Password: '. $key, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Change Password: '. $key, __FILE__, __LINE__, __METHOD__, 10);
 		
 		$ulf = TTnew( 'UserListFactory' );
 		$ulf->getByPasswordResetKey( $key );
 		if ( $ulf->getRecordCount() == 1 ) {
-			Debug::Text('FOUND Password reset key! ', __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text('FOUND Password reset key! ', __FILE__, __LINE__, __METHOD__, 10);
 
 			$user_obj = $ulf->getCurrent();
 			$user_name = $user_obj->getUserName();
 
 			//Make sure passwords match
-			if ( $password == $password2 ) {
+			if ( $password != '' AND trim($password) === trim($password2) ) {
 				//Change password
-				$user_obj->setPassword( $password );
-				$user_obj->setPasswordResetKey('');
-				$user_obj->setPasswordResetDate('');
+				$user_obj->setPassword( $password ); //Password reset key is cleared when password is changed.
 				if ( $user_obj->isValid() ) {
-					$user_obj->Save();
-					Debug::Text('Password Change succesful!', __FILE__, __LINE__, __METHOD__,10);
+					$user_obj->Save(FALSE);
+					Debug::Text('Password Change succesful!', __FILE__, __LINE__, __METHOD__, 10);
+
+					//Logout all sessions for this user when password is successfully reset.
+					$authentication = TTNew('Authentication');
+					$authentication->logoutUser( $user_obj->getId() );
+
+					unset($user_obj);
 
 					Redirect::Page( URLBuilder::getURL( array('password_reset' => 1 ), Environment::getDefaultInterfaceBaseURL() ) );
 				}
 			} else {
-				$validator->isTrue('password',FALSE, TTi18n::getText('Passwords do not match') );
+				$validator->isTrue('password', FALSE, TTi18n::getText('Passwords do not match') );
 			}
-
 		} else {
-			Debug::Text('DID NOT FIND Password reset key! ', __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text('DID NOT FIND Password reset key!', __FILE__, __LINE__, __METHOD__, 10);
 			$action = 'reset_password';
 		}
-
 		break;
 	case 'password_reset':
 		//Debug::setVerbosity( 11 );
-		Debug::Text('Key: '. $key, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Key: '. $key, __FILE__, __LINE__, __METHOD__, 10);
 		$ulf = TTnew( 'UserListFactory' );
 		$ulf->getByPasswordResetKey( $key );
 		if ( $ulf->getRecordCount() == 1 ) {
-			Debug::Text('FOUND Password reset key! ', __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text('FOUND Password reset key!', __FILE__, __LINE__, __METHOD__, 10);
 			$user_obj = $ulf->getCurrent();
 
 			$user_name = $user_obj->getUserName();
-
 		} else {
-			Debug::Text('DID NOT FIND Password reset key! ', __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text('DID NOT FIND Password reset key!', __FILE__, __LINE__, __METHOD__, 10);
 			$action = 'reset_password';
 		}
-
 		break;
 	case 'reset_password':
 		//Debug::setVerbosity( 11 );
-		Debug::Text('Email: '. $email, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Email: '. $email, __FILE__, __LINE__, __METHOD__, 10);
 
-		$ulf = TTnew( 'UserListFactory' );
-		$ulf->getByHomeEmailOrWorkEmail( $email );
-		if ( $ulf->getRecordCount() == 1 ) {
-			$user_obj = $ulf->getCurrent();
+		$rl = TTNew('RateLimit');
+		$rl->setID( 'password_reset_'.$_SERVER['REMOTE_ADDR'] );
+		$rl->setAllowedCalls( 10 );
+		$rl->setTimeFrame( 900 ); //15 minutes
+		if ( $rl->check() == FALSE ) {
+			Debug::Text('Excessive password reset attempts... Preventing resets from: '. $_SERVER['REMOTE_ADDR'] .' for up to 15 minutes...', __FILE__, __LINE__, __METHOD__, 10);
+			sleep(5); //Excessive password attempts, sleep longer.
+			$validator->isTrue('email', FALSE, TTi18n::getText('Email address was not found in our database (z)') );
+		} else {
+			$ulf = TTnew( 'UserListFactory' );
+			$ulf->getByHomeEmailOrWorkEmail( $email );
+			if ( $ulf->getRecordCount() == 1 ) {
+				$user_obj = $ulf->getCurrent();
 
-			if ( $user_obj->getStatus() == 10 ) { //Only allow password resets on active employees.
-				//Check if company is using LDAP authentication, if so deny password reset.
-				if ( $user_obj->getCompanyObject()->getLDAPAuthenticationType() == 0 ) {
-					$user_obj->sendPasswordResetEmail();
-					Debug::Text('Found USER! ', __FILE__, __LINE__, __METHOD__,10);
+				if ( $user_obj->getStatus() == 10 ) { //Only allow password resets on active employees.
+					//Check if company is using LDAP authentication, if so deny password reset.
+					if ( $user_obj->getCompanyObject()->getLDAPAuthenticationType() == 0 ) {
+						$user_obj->sendPasswordResetEmail();
+						Debug::Text('Found USER! ', __FILE__, __LINE__, __METHOD__, 10);
 
-					Redirect::Page( URLBuilder::getURL( array('email_sent' => 1, 'email' => $email ), 'ForgotPassword.php' ) );
+						$rl->delete(); //Clear password reset rate limit upon successful login.
+
+						Redirect::Page( URLBuilder::getURL( array('email_sent' => 1, 'email' => $email ), 'ForgotPassword.php' ) );
+					} else {
+						Debug::Text('LDAP Authentication is enabled, password reset is disabled! ', __FILE__, __LINE__, __METHOD__, 10);
+						$validator->isTrue('email', FALSE, TTi18n::getText('Please contact your administrator for instructions on changing your password.'). ' (LDAP)' );
+					}
 				} else {
-					Debug::Text('LDAP Authentication is enabled, password reset is disabled! ', __FILE__, __LINE__, __METHOD__,10);
-					$validator->isTrue('email', FALSE, TTi18n::getText('Please contact your administrator for instructions on changing your password.'). ' (LDAP)' );
+					$validator->isTrue('email', FALSE, TTi18n::getText('Email address was not found in our database (b)') );
 				}
 			} else {
-				$validator->isTrue('email', FALSE, TTi18n::getText('Email address was not found in our database (b)') );
+				//Error
+				Debug::Text('DID NOT FIND USER! Returned: '. $ulf->getRecordCount(), __FILE__, __LINE__, __METHOD__, 10);
+				$validator->isTrue('email', FALSE, TTi18n::getText('Email address was not found in our database (a)') );
 			}
-		} else {
-			//Error
-			Debug::Text('DID NOT FIND USER! Returned: '. $ulf->getRecordCount(), __FILE__, __LINE__, __METHOD__,10);
-			$validator->isTrue('email', FALSE, TTi18n::getText('Email address was not found in our database (a)') );
+
+			Debug::text('Password Reset Failed! Attempt: '. $rl->getAttempts(), __FILE__, __LINE__, __METHOD__, 10);
+
+			sleep( ($rl->getAttempts() * 0.5) ); //If email is incorrect, sleep for some time to slow down brute force attacks.
 		}
 		break;
 	default:
+		if ( $email_sent == TRUE ) {
+			//Make sure we don't allow malicious users to use some long email address like:
+			//"This is the FBI, you have been fired if you don't..."
+			if ( $validator->isEmail( 'email', $email, TTi18n::getText('Invalid Email address') ) == FALSE ) {
+				$email = NULL;
+				$email_sent = FALSE;
+			}
+		}
+
 		break;
 }
 

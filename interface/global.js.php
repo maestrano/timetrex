@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 10118 $
- * $Id: global.js.php 10118 2013-06-05 17:05:52Z ipso $
- * $Date: 2013-06-05 10:05:52 -0700 (Wed, 05 Jun 2013) $
- */
+
 $disable_cache_control = TRUE;
 require_once('..'. DIRECTORY_SEPARATOR .'includes'. DIRECTORY_SEPARATOR.'global.inc.php');
 
@@ -1759,8 +1755,12 @@ TIMETREX.punch = function() {
 				clearSelect( document.getElementById('job_item_id') );
 				job = document.getElementById('job_id').value;
 
+				user_id = document.getElementById('user_id').value;
+				login_time = document.getElementById('login_time').value;
+				key = document.getElementById('key').value;
+
 				if ( TTProductEdition >= 20 ) {
-					remoteHW.getJobItemOptions( job, include_disabled );
+					remoteHW.getJobItemOptions( job, user_id, login_time, key, include_disabled );
 				}
 			}
 		}

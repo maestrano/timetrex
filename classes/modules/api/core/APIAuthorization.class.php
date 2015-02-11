@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2196 $
- * $Id: APIAuthorization.class.php 2196 2008-10-14 16:08:54Z ipso $
- * $Date: 2008-10-14 09:08:54 -0700 (Tue, 14 Oct 2008) $
- */
+
 
 /**
  * @package API\Core
@@ -58,7 +54,7 @@ class APIAuthorization extends APIFactory {
 	function getAuthorizationDefaultData() {
 		$company_obj = $this->getCurrentCompanyObject();
 
-		Debug::Text('Getting authorization default data...', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Getting authorization default data...', __FILE__, __LINE__, __METHOD__, 10);
 
 		$data = array(
 					);
@@ -76,30 +72,30 @@ class APIAuthorization extends APIFactory {
 
 		//Keep in mind administrators doing authorization often have access to ALL requests, or ALL users, so permission_children won't come into play.
 		//Users should be able to see authorizations for their own requests.
-		if ( isset($data['filter_data']['object_type_id']) AND in_array( $data['filter_data']['object_type_id'], array(1010,1020,1030,1040,1100) ) ) { //Requests
+		if ( isset($data['filter_data']['object_type_id']) AND in_array( $data['filter_data']['object_type_id'], array(1010, 1020, 1030, 1040, 1100) ) ) { //Requests
 			Debug::Text('Request object_type_id: '. $data['filter_data']['object_type_id'], __FILE__, __LINE__, __METHOD__, 10);
 
-			if ( !$this->getPermissionObject()->Check('request','enabled')
-					OR !( $this->getPermissionObject()->Check('request','view') OR $this->getPermissionObject()->Check('request','view_own') OR $this->getPermissionObject()->Check('request','view_child')  ) ) {
-				return  $this->getPermissionObject()->PermissionDenied();
+			if ( !$this->getPermissionObject()->Check('request', 'enabled')
+					OR !( $this->getPermissionObject()->Check('request', 'view') OR $this->getPermissionObject()->Check('request', 'view_own') OR $this->getPermissionObject()->Check('request', 'view_child')	) ) {
+				return	$this->getPermissionObject()->PermissionDenied();
 			}
 
 			$data['filter_data']['permission_children_ids'] = $this->getPermissionObject()->getPermissionChildren( 'request', 'view' );
 		} elseif ( isset($data['filter_data']['object_type_id']) AND in_array( $data['filter_data']['object_type_id'], array(90) ) ) { //Timesheets
 			Debug::Text('TimeSheet object_type_id: '. $data['filter_data']['object_type_id'], __FILE__, __LINE__, __METHOD__, 10);
 
-			if ( !$this->getPermissionObject()->Check('punch','enabled')
-					OR !( $this->getPermissionObject()->Check('punch','view') OR $this->getPermissionObject()->Check('punch','view_own') OR $this->getPermissionObject()->Check('punch','view_child')  ) ) {
-				return  $this->getPermissionObject()->PermissionDenied();
+			if ( !$this->getPermissionObject()->Check('punch', 'enabled')
+					OR !( $this->getPermissionObject()->Check('punch', 'view') OR $this->getPermissionObject()->Check('punch', 'view_own') OR $this->getPermissionObject()->Check('punch', 'view_child')  ) ) {
+				return	$this->getPermissionObject()->PermissionDenied();
 			}
 
 			$data['filter_data']['permission_children_ids'] = $this->getPermissionObject()->getPermissionChildren( 'punch', 'view' );
-		} elseif ( isset($data['filter_data']['object_type_id']) AND in_array( $data['filter_data']['object_type_id'], array(200) ) ){ // Expense
-		    Debug::Text('Expense object_type_id: '. $data['filter_data']['object_type_id'], __FILE__, __LINE__, __METHOD__, 10);
+		} elseif ( isset($data['filter_data']['object_type_id']) AND in_array( $data['filter_data']['object_type_id'], array(200) ) ) { // Expense
+			Debug::Text('Expense object_type_id: '. $data['filter_data']['object_type_id'], __FILE__, __LINE__, __METHOD__, 10);
 
-			if ( !$this->getPermissionObject()->Check('user_expense','enabled')
-					OR !( $this->getPermissionObject()->Check('user_expense','view') OR $this->getPermissionObject()->Check('user_expense','view_own') OR $this->getPermissionObject()->Check('user_expense','view_child')  ) ) {
-				return  $this->getPermissionObject()->PermissionDenied();
+			if ( !$this->getPermissionObject()->Check('user_expense', 'enabled')
+					OR !( $this->getPermissionObject()->Check('user_expense', 'view') OR $this->getPermissionObject()->Check('user_expense', 'view_own') OR $this->getPermissionObject()->Check('user_expense', 'view_child')  ) ) {
+				return	$this->getPermissionObject()->PermissionDenied();
 			}
 
 			$data['filter_data']['permission_children_ids'] = $this->getPermissionObject()->getPermissionChildren( 'user_expense', 'view' );
@@ -109,7 +105,7 @@ class APIAuthorization extends APIFactory {
 			Debug::Text('No valid object_type_id specified...', __FILE__, __LINE__, __METHOD__, 10);
 			return $this->getPermissionObject()->PermissionDenied();
 		}
-		//Debug::Arr($data['filter_data']['permission_children_ids'],  'Permission Children: ', __FILE__, __LINE__, __METHOD__, 10);
+		//Debug::Arr($data['filter_data']['permission_children_ids'], 'Permission Children: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		$data = $this->initializeFilterAndPager( $data, $disable_paging );
 
@@ -122,7 +118,7 @@ class APIAuthorization extends APIFactory {
 			$this->setPagerObject( $blf );
 
 			foreach( $blf as $b_obj ) {
-				$retarr[] = $b_obj->getObjectAsArray( $data['filter_columns'], $data['filter_data']['permission_children_ids']  );
+				$retarr[] = $b_obj->getObjectAsArray( $data['filter_columns'], $data['filter_data']['permission_children_ids']	);
 
 				$this->getProgressBarObject()->set( $this->getAMFMessageID(), $blf->getCurrentRow() );
 			}
@@ -165,8 +161,8 @@ class APIAuthorization extends APIFactory {
 			return $this->returnHandler( FALSE );
 		}
 
-		if ( !( $this->getPermissionObject()->Check('request','authorize') OR $this->getPermissionObject()->Check('punch','authorize') OR $this->getPermissionObject()->Check('user_expense','authorize') ) ) {
-			return  $this->getPermissionObject()->PermissionDenied();
+		if ( !( $this->getPermissionObject()->Check('request', 'authorize') OR $this->getPermissionObject()->Check('punch', 'authorize') OR $this->getPermissionObject()->Check('user_expense', 'authorize') ) ) {
+			return	$this->getPermissionObject()->PermissionDenied();
 		}
 
 		if ( $validate_only == TRUE ) {
@@ -192,14 +188,14 @@ class APIAuthorization extends APIFactory {
 					if ( $lf->getRecordCount() == 1 ) {
 						//Object exists, check edit permissions
 						if (
-							  $validate_only == TRUE
-							  OR
+							$validate_only == TRUE
+							OR
 								(
-								$this->getPermissionObject()->Check('request','authorize')
+								$this->getPermissionObject()->Check('request', 'authorize')
 								OR
-								$this->getPermissionObject()->Check('punch','authorize')
-                                OR
-                                $this->getPermissionObject()->Check('user_expense','authorize')
+								$this->getPermissionObject()->Check('punch', 'authorize')
+								OR
+								$this->getPermissionObject()->Check('user_expense', 'authorize')
 								)
 							) {
 
@@ -213,10 +209,10 @@ class APIAuthorization extends APIFactory {
 						//Object doesn't exist.
 						$primary_validator->isTrue( 'id', FALSE, TTi18n::gettext('Edit permission denied, record does not exist') );
 					}
-				} else {
+				} //else {
 					//Adding new object, check ADD permissions.
-					//$primary_validator->isTrue( 'permission', $this->getPermissionObject()->Check('authorization','add'), TTi18n::gettext('Add permission denied') );
-				}
+					//$primary_validator->isTrue( 'permission', $this->getPermissionObject()->Check('authorization', 'add'), TTi18n::gettext('Add permission denied') );
+				//}
 				Debug::Arr($row, 'Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 				$is_valid = $primary_validator->isValid();
@@ -288,15 +284,15 @@ class APIAuthorization extends APIFactory {
 			return $this->returnHandler( FALSE );
 		}
 
-		if ( !( $this->getPermissionObject()->Check('request','authorize') OR $this->getPermissionObject()->Check('punch','authorize') OR $this->getPermissionObject()->Check('user_expense','authorize') ) ) {
-			return  $this->getPermissionObject()->PermissionDenied();
+		if ( !( $this->getPermissionObject()->Check('request', 'authorize') OR $this->getPermissionObject()->Check('punch', 'authorize') OR $this->getPermissionObject()->Check('user_expense', 'authorize') ) ) {
+			return	$this->getPermissionObject()->PermissionDenied();
 		}
 
 		Debug::Text('Received data for: '. count($data) .' Authorizations', __FILE__, __LINE__, __METHOD__, 10);
 		Debug::Arr($data, 'Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		$total_records = count($data);
-        $validator_stats = array('total_records' => $total_records, 'valid_records' => 0 );
+		$validator_stats = array('total_records' => $total_records, 'valid_records' => 0 );
 		if ( is_array($data) ) {
 			$this->getProgressBarObject()->start( $this->getAMFMessageID(), $total_records );
 
@@ -311,11 +307,11 @@ class APIAuthorization extends APIFactory {
 					if ( $lf->getRecordCount() == 1 ) {
 						//Object exists, check edit permissions
 						if (
-							$this->getPermissionObject()->Check('request','authorize')
+							$this->getPermissionObject()->Check('request', 'authorize')
 							OR
-							$this->getPermissionObject()->Check('punch','authorize')
-                            OR
-                            $this->getPermissionObject()->Check('user_expense','authorize')
+							$this->getPermissionObject()->Check('punch', 'authorize')
+							OR
+							$this->getPermissionObject()->Check('user_expense', 'authorize')
 							) {
 							Debug::Text('Record Exists, deleting record: ', $id, __FILE__, __LINE__, __METHOD__, 10);
 							$lf = $lf->getCurrent();
