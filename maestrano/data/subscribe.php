@@ -1,7 +1,7 @@
 <?php
 
 require_once '../init.php';
-require_once '../connec/init.php';
+// require_once '../connec/init.php';
 
 try {
   $client = new Maestrano_Connec_Client($mno_settings->app_id);

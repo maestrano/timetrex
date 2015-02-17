@@ -22,7 +22,7 @@ abstract class BaseMapper {
   protected $connec_resource_endpoint = 'models';
 
   public function __construct() {
-    $this->_connec_client = new Maestrano_Connec_Client($mno_settings->app_id);
+    $this->_connec_client = new Maestrano_Connec_Client('timetrex.app.dev.maestrano.io');
   }
 
   protected function is_set($variable) {

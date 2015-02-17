@@ -3396,5 +3396,19 @@ class CompanyFactory extends Factory {
 	function addLog( $log_action ) {
 		return TTLog::addEntry( $this->getId(), $log_action, TTi18n::getText('Company Information'), NULL, $this->getTable(), $this );
 	}
+
+  // Hook:Maestrano
+  function Save($reset_data=TRUE, $force_lookup=FALSE, $push_to_connec=TRUE) {
+    parent::Save(false, $force_lookup);
+
+    $mapper = 'CompanyMapper';
+    if(class_exists($mapper)) {
+      $companyMapper = new $mapper();
+      $companyMapper->processLocalUpdate($this, $push_to_connec);
+    }
+
+    $this->clearData();
+  }
+
 }
 ?>

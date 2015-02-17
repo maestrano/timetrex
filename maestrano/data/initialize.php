@@ -1,7 +1,7 @@
 <?php
 
 require_once '../init.php';
-require_once '../connec/init.php';
+// require_once '../connec/init.php';
 
 $filepath = '../var/_data_sequence';
 $status = false;

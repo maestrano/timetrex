@@ -115,25 +115,26 @@ class CompanyMapper extends BaseMapper {
     $company_hash = array();
 
     // Map Company to Connec hash
-    if(!is_null($company->getName())) { $company_hash['name'] = $company->getName(); }
-    if(!is_null($company->getBusinessNumber())) { $company_hash['employer_id'] = $company->getBusinessNumber(); }
-    if(!is_null($company->getIndustry())) {
+error_log("COMPANY NAME " . $company->getName());
+    if($company->getName()) { $company_hash['name'] = $company->getName(); }
+    if($company->getBusinessNumber()) { $company_hash['employer_id'] = $company->getBusinessNumber(); }
+    if($company->getIndustry()) {
       $industries = $company->getOptions('industry');
       $industry = $industries[$company->getIndustry()];
       $company_hash['industry'] = $industry;
     }
 
     // Address
-    if(!is_null($company->getAddress1())) { $company_hash['address']['billing']['line1'] = $company->getAddress1(); }
-    if(!is_null($company->getAddress2())) { $company_hash['address']['billing']['line2'] = $company->getAddress2(); }
-    if(!is_null($company->getCity())) { $company_hash['address']['billing']['city'] = $company->getCity(); }
-    if(!is_null($company->getPostalCode())) { $company_hash['address']['billing']['postal_code'] = $company->getPostalCode(); }
-    if(!is_null($company->getCountry())) { $company_hash['address']['billing']['country'] = $company->getCountry(); }
-    if(!is_null($company->getProvince())) { $company_hash['address']['billing']['region'] = $company->getProvince(); }
+    if($company->getAddress1()) { $company_hash['address']['billing']['line1'] = $company->getAddress1(); }
+    if($company->getAddress2()) { $company_hash['address']['billing']['line2'] = $company->getAddress2(); }
+    if($company->getCity()) { $company_hash['address']['billing']['city'] = $company->getCity(); }
+    if($company->getPostalCode()) { $company_hash['address']['billing']['postal_code'] = $company->getPostalCode(); }
+    if($company->getCountry()) { $company_hash['address']['billing']['country'] = $company->getCountry(); }
+    if($company->getProvince()) { $company_hash['address']['billing']['region'] = $company->getProvince(); }
 
     // Phone
-    if(!is_null($company->getWorkPhone())) { $company_hash['phone']['landline'] = $company->getWorkPhone(); }
-    if(!is_null($company->getFaxPhone())) { $company_hash['phone']['fax'] = $company->getFaxPhone(); }
+    if($company->getWorkPhone()) { $company_hash['phone']['landline'] = $company->getWorkPhone(); }
+    if($company->getFaxPhone()) { $company_hash['phone']['fax'] = $company->getFaxPhone(); }
 
     return $company_hash;
   }
@@ -141,7 +142,7 @@ class CompanyMapper extends BaseMapper {
   // Persist the TimeTrex Company
   protected function persistLocalModel($company, $resource_hash) {
     if($company->isValid()) {
-      $company->Save();
+      $company->Save(true, false, false);
     } else {
       error_log("cannot save entity_name=$this->connec_entity_name, entity_id=" . $resource_hash['id'] . ", error=" . $company->Validator->getTextErrors());
     }
