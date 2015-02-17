@@ -484,6 +484,6 @@ require_once('Database.inc.php');
 
 // Hook:Maestrano
 // Load Maestrano
-require_once Environment::getBasePath() . 'maestrano/app/init/base.php';
+require_once Environment::getBasePath() . 'maestrano/init.php';
 
 ?>

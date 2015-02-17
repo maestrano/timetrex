@@ -1,0 +1,5 @@
+{
+  "require": {
+    "maestrano/maestrano-php": "~0.5"
+  }
+}

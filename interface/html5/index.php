@@ -44,29 +44,18 @@ forceNoCacheHeaders(); //Send headers to disable caching.
 // Hook:Maestrano
 // Load Maestrano
 $authentication = new Authentication();
-$maestrano = MaestranoService::getInstance();
-// Require authentication straight away if intranet
-// mode enabled
-if ($maestrano->isSsoIntranetEnabled()) {
-  if (!isset($_SESSION)) session_start();
-  if (!$maestrano->getSsoSession()->isValid()) {
-    header("Location: " . $maestrano->getSsoInitUrl());
-    exit;
-  }
-}
-
-// Hook:Maestrano
-if ($maestrano->isSsoEnabled()) {
+if(Maestrano::sso()->isSsoEnabled()) {
   if (!isset($_SESSION)) session_start();
   if ($authentication->Check()) {
-    // Check Maestrano session is still valid
-    if (!$maestrano->getSsoSession()->isValid()) {
-      header("Location: " . $maestrano->getSsoInitUrl());
+    $mnoSession = new Maestrano_Sso_Session($_SESSION);
+    // Check session validity and trigger SSO if not
+    if (!$mnoSession->isValid()) {
+      header('Location: ' . Maestrano::sso()->getInitPath());
       exit;
     }
   } else {
     // Redirect to login
-    header("Location: " . $maestrano->getSsoInitUrl());
+    header('Location: ' . Maestrano::sso()->getInitPath());
     exit;
   }
 }

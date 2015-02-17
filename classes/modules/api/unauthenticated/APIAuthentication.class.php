@@ -246,10 +246,10 @@ class APIAuthentication extends APIFactory {
       if ( $authentication->Check( $session_id, $touch_updated_date ) === TRUE ) {
         // Hook: Maestrano
         // Check Maestrano session is still valid
-        $maestrano = MaestranoService::getInstance();
-        if ($maestrano->isSsoEnabled()) {
+        if(Maestrano::sso()->isSsoEnabled()) {
           if (!isset($_SESSION)) session_start();
-          if (!$maestrano->getSsoSession()->isValid()) {
+          $mnoSession = new Maestrano_Sso_Session($_SESSION);
+          if (!$mnoSession->isValid()) {
             setcookie('timetrex_relogin',true, 0,'/');
             return FALSE;
           }
