@@ -20,9 +20,8 @@ class CompanyMapper extends BaseMapper {
     return TTnew('CompanyFactory');
   }
 
-  // Single resource, id does not matter
-  public function getId($employee) {
-    return 0;
+  public function getId($company) {
+    return $company->getId();
   }
 
   // Find by local id
@@ -142,11 +141,9 @@ class CompanyMapper extends BaseMapper {
   // Persist the TimeTrex Company
   protected function persistLocalModel($company, $resource_hash) {
     if($company->isValid()) {
-      $insert_id = $company->Save();
-      return $insert_id;
+      $company->Save();
     } else {
       error_log("cannot save entity_name=$this->connec_entity_name, entity_id=" . $resource_hash['id'] . ", error=" . $company->Validator->getTextErrors());
-      return null;
     }
   }
 }

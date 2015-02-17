@@ -166,10 +166,35 @@ class MnoSsoUser extends Maestrano_Sso_User {
    * @return the ID of the user created, null otherwise
    */
   protected function getRoleIdToAssign() {
-    // TODO: Set $level based on permissions
-    $level = 1; // Basic Employee
-    $level = 25; // Admin
-    
+    // Set permission level based on role
+
+    // Role                             Level
+    // Administrator                    25
+    // Regular Employee (Punch In/Out)  1
+    // Regular Employee (Manual Entry)  2
+    // Supervisor (Subordinates Only)   10
+    // HR Manager                       18
+    // Payroll Administrator            20
+    // Supervisor (All Employees)       5
+
+    switch($this->getGroupRole()) {
+      case 'Member':
+        $level = 2;
+        break;
+      case 'Power User':
+        $level = 18;
+        break;
+      case 'Admin':
+        $level = 20;
+        break;
+      case 'Super Admin':
+        $level = 25;
+        break;
+      default:
+        $level = 1;
+        break;
+    }
+
     $pclf = TTnew('PermissionControlListFactory');
     $pclf->getByCompanyIdAndLevel($this->getCompanyToAssign(), $level, null, null, null, array( 'level' => 'desc' ));
     return $pclf->getCurrent()->getID();

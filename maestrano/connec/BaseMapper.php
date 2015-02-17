@@ -195,7 +195,7 @@ abstract class BaseMapper {
     if($model == null) { $model = $this->matchLocalModel($resource_hash); }
 
     // Create a new Model if none found
-    if($model == null) { $model = new $this->local_entity_name(); }
+    if($model == null) { $model = TTnew($this->local_entity_name() . 'Factory'); }
 
     return $model;
   }
