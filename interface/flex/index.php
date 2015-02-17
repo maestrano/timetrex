@@ -36,7 +36,7 @@
 
 require_once('../../includes/global.inc.php'); //Mainly to force redirect to SSL URL if required...
 
-// Hook:Maestrano
+// Hook: Maestrano
 // Load Maestrano
 $authentication = new Authentication();
 if(Maestrano::sso()->isSsoEnabled()) {

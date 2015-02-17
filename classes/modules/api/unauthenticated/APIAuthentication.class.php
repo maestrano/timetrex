@@ -207,10 +207,9 @@ class APIAuthentication extends APIFactory {
 
 			$result = $authentication->Logout();
       
-      // Hook:Maestrano
+      // Hook: Maestrano
       // Set cookie instructing to redirect
-      $maestrano = MaestranoService::getInstance();
-      if ($result && $maestrano->isSsoEnabled()) {
+      if(Maestrano::sso()->isSsoEnabled()) {
         setcookie('timetrex_logout',true, 0,'/');
       }
       return $result;

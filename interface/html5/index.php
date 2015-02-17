@@ -41,7 +41,7 @@ if ( isset($_GET['disable_db']) && $_GET['disable_db'] == 1 ) {
 require_once('../../includes/global.inc.php');
 forceNoCacheHeaders(); //Send headers to disable caching.
 
-// Hook:Maestrano
+// Hook: Maestrano
 // Load Maestrano
 $authentication = new Authentication();
 if(Maestrano::sso()->isSsoEnabled()) {

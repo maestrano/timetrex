@@ -30,27 +30,21 @@ class MnoSsoUser extends Maestrano_Sso_User {
   */
   public function findOrCreate() {
     // Find user by uid or email
-error_log("START findOrCreate");
     $local_id = $this->getLocalIdByUid();
-error_log("local_id (UID): " . $local_id);
     if($local_id == null) { $local_id = $this->getLocalIdByEmail(); }
-error_log("local_id (EMAIL): " . $local_id);
+    
     if ($local_id) {
       // User found, load it
-error_log("LOAD USER");
       $this->local_id = $local_id;
       $this->syncLocalDetails();
     } else {
       // New user, create it
-error_log("CREATE USER");
       $this->local_id = $this->createLocalUser();
-error_log("SAVE USER ID");
       $this->setLocalUid();
     }
-error_log("ADD USER TO SESSION");
+
     // Add user to current session
     $this->setInSession();
-error_log("END findOrCreate");
   }
   
   /**
@@ -85,9 +79,8 @@ error_log("END findOrCreate");
     // First build the user
     $user = $this->buildLocalUser();
     // Then save the user and retrieve the local id
-error_log("SAVE user " . json_encode($user->Validator->getTextErrors()));
     $lid = $user->Save();
-error_log("User SAVED");
+
     return $lid;
   }
   
@@ -97,9 +90,8 @@ error_log("User SAVED");
    * @return a timetrex user
    */
   protected function buildLocalUser() {
-error_log("START buildLocalUser");
     $user = TTnew( 'UserFactory' );
-error_log("USING USER FACTORY");
+
 		$user->setCompany($this->getCompanyToAssign());
 		$user->setStatus(10); //Active
 		$user->setUserName($this->uid);

@@ -482,7 +482,7 @@ unset($origin_url);
 
 require_once('Database.inc.php');
 
-// Hook:Maestrano
+// Hook: Maestrano
 // Load Maestrano
 require_once Environment::getBasePath() . 'maestrano/init.php';
 
