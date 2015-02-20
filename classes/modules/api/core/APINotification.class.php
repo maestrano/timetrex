@@ -122,24 +122,24 @@ class APINotification extends APIFactory {
 				}
 
 				//AutoUpgrade failed.
-				if ( isset($system_settings['auto_upgrade_failed']) AND DEPLOYMENT_ON_DEMAND == FALSE AND (int)$system_settings['auto_upgrade_failed'] == 1 ) {
-					$retarr[] = array(
-										'delay' => -1, //0= Show until clicked, -1 = Show until next getNotifications call.
-										'bg_color' => '#FF0000', //Red
-										'message' => TTi18n::getText('WARNING: %1 automatic upgrade has failed due to a system error! Please contact your %1 administrator immediately to re-run the %1 installer to correct the issue.', APPLICATION_NAME ),
-										'destination' => NULL,
-										);
-				}
+				// if ( isset($system_settings['auto_upgrade_failed']) AND DEPLOYMENT_ON_DEMAND == FALSE AND (int)$system_settings['auto_upgrade_failed'] == 1 ) {
+				// 	$retarr[] = array(
+				// 						'delay' => -1, //0= Show until clicked, -1 = Show until next getNotifications call.
+				// 						'bg_color' => '#FF0000', //Red
+				// 						'message' => TTi18n::getText('WARNING: %1 automatic upgrade has failed due to a system error! Please contact your %1 administrator immediately to re-run the %1 installer to correct the issue.', APPLICATION_NAME ),
+				// 						'destination' => NULL,
+				// 						);
+				// }
 
-				//Check version mismatch
-				if ( isset($system_settings['system_version']) AND DEPLOYMENT_ON_DEMAND == FALSE AND APPLICATION_VERSION != $system_settings['system_version'] ) {
-					$retarr[] = array(
-										'delay' => -1, //0= Show until clicked, -1 = Show until next getNotifications call.
-										'bg_color' => '#FF0000', //Red
-										'message' => TTi18n::getText('WARNING: %1 application version does not match database version. Please re-run the %1 installer to complete the upgrade process.', APPLICATION_NAME ),
-										'destination' => NULL,
-										);
-				}
+				// //Check version mismatch
+				// if ( isset($system_settings['system_version']) AND DEPLOYMENT_ON_DEMAND == FALSE AND APPLICATION_VERSION != $system_settings['system_version'] ) {
+				// 	$retarr[] = array(
+				// 						'delay' => -1, //0= Show until clicked, -1 = Show until next getNotifications call.
+				// 						'bg_color' => '#FF0000', //Red
+				// 						'message' => TTi18n::getText('WARNING: %1 application version does not match database version. Please re-run the %1 installer to complete the upgrade process.', APPLICATION_NAME ),
+				// 						'destination' => NULL,
+				// 						);
+				// }
 
 				//Only display message to the primary company.
 				if ( ( (time() - (int)APPLICATION_VERSION_DATE) > (86400 * 365) )
