@@ -43,5 +43,14 @@ require_once(Environment::getBasePath() .'includes/Interface.inc.php');
 
 $authentication->Logout();
 
+// Hook:Maestrano
+$maestrano = MaestranoService::getInstance();
+if ($maestrano->isSsoEnabled()) {
+  session_destroy();
+  //header("Location: " . $maestrano->getSsoLogoutUrl());
+  Redirect::Page($maestrano->getSsoLogoutUrl());
+  exit;
+}
+
 Redirect::Page( URLBuilder::getURL(NULL, 'Login.php') );
 ?>
