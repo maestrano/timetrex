@@ -126,53 +126,53 @@ class APINotification extends APIFactory {
 				}
 
 				//Only display message to the primary company. 
-				if ( ( (time()-(int)APPLICATION_VERSION_DATE) > (86400*475) )
-						AND ( $this->getCurrentCompanyObject()->getId() == 1 OR ( isset($config_vars['other']['primary_company_id']) AND $this->getCurrentCompanyObject()->getId() == $config_vars['other']['primary_company_id'] ) ) ) { //~1yr and 3mths
-					$retarr[] = array(
-										  'delay' => -1,
-										  'bg_color' => '#FF0000', //Red
-										  'message' => TTi18n::getText('WARNING: This %1 version (v%2) is severely out of date and may no longer be supported. Please upgrade to the latest version as soon as possible as invalid calculations may already be occurring.', array( APPLICATION_NAME, APPLICATION_VERSION ) ),
-										  'destination' => NULL,
-										  );
-				}
+				// if ( ( (time()-(int)APPLICATION_VERSION_DATE) > (86400*475) )
+				// 		AND ( $this->getCurrentCompanyObject()->getId() == 1 OR ( isset($config_vars['other']['primary_company_id']) AND $this->getCurrentCompanyObject()->getId() == $config_vars['other']['primary_company_id'] ) ) ) { //~1yr and 3mths
+				// 	$retarr[] = array(
+				// 						  'delay' => -1,
+				// 						  'bg_color' => '#FF0000', //Red
+				// 						  'message' => TTi18n::getText('WARNING: This %1 version (v%2) is severely out of date and may no longer be supported. Please upgrade to the latest version as soon as possible as invalid calculations may already be occurring.', array( APPLICATION_NAME, APPLICATION_VERSION ) ),
+				// 						  'destination' => NULL,
+				// 						  );
+				// }
 
 				//New version available notification.
-				if ( 	DEMO_MODE == FALSE
-						AND ( isset($system_settings['new_version']) AND $system_settings['new_version'] == 1 )
-						AND ( $this->getCurrentCompanyObject()->getId() == 1 OR ( isset($config_vars['other']['primary_company_id']) AND $this->getCurrentCompanyObject()->getId() == $config_vars['other']['primary_company_id'] ) ) ) {
+				// if ( 	DEMO_MODE == FALSE
+				// 		AND ( isset($system_settings['new_version']) AND $system_settings['new_version'] == 1 )
+				// 		AND ( $this->getCurrentCompanyObject()->getId() == 1 OR ( isset($config_vars['other']['primary_company_id']) AND $this->getCurrentCompanyObject()->getId() == $config_vars['other']['primary_company_id'] ) ) ) {
 
-					//Only display this every two weeks.
-					$new_version_available_notification_arr = UserSettingFactory::getUserSetting( $this->getCurrentUserObject()->getID(), 'new_version_available_notification' );
-					if ( !isset($new_version_available_notification_arr['value']) OR ( isset($new_version_available_notification_arr['value']) AND $new_version_available_notification_arr['value'] <= (time()-(86400*14)) ) ) {
-						UserSettingFactory::setUserSetting( $this->getCurrentUserObject()->getID(), 'new_version_available_notification', time() );
+				// 	//Only display this every two weeks.
+				// 	$new_version_available_notification_arr = UserSettingFactory::getUserSetting( $this->getCurrentUserObject()->getID(), 'new_version_available_notification' );
+				// 	if ( !isset($new_version_available_notification_arr['value']) OR ( isset($new_version_available_notification_arr['value']) AND $new_version_available_notification_arr['value'] <= (time()-(86400*14)) ) ) {
+				// 		UserSettingFactory::setUserSetting( $this->getCurrentUserObject()->getID(), 'new_version_available_notification', time() );
 
-						$retarr[] = array(
-											  'delay' => -1,
-											  'bg_color' => '#FFFF00', //Yellow
-											  'message' => TTi18n::getText('NOTICE: A new version of %1 available, it is highly recommended that you upgrade as soon as possible. Click here to download the latest version.', array( APPLICATION_NAME ) ),
-											  'destination' => ( getTTProductEdition() == TT_PRODUCT_COMMUNITY ) ? 'http://www.timetrex.com/r.php?id=19' : 'http://www.timetrex.com/r.php?id=9',
-											  );
-					}
-					unset($new_version_available_notification);
-				}
+				// 		$retarr[] = array(
+				// 							  'delay' => -1,
+				// 							  'bg_color' => '#FFFF00', //Yellow
+				// 							  'message' => TTi18n::getText('NOTICE: A new version of %1 available, it is highly recommended that you upgrade as soon as possible. Click here to download the latest version.', array( APPLICATION_NAME ) ),
+				// 							  'destination' => ( getTTProductEdition() == TT_PRODUCT_COMMUNITY ) ? 'http://www.timetrex.com/r.php?id=19' : 'http://www.timetrex.com/r.php?id=9',
+				// 							  );
+				// 	}
+				// 	unset($new_version_available_notification);
+				// }
 
 				//Check for major new version.
-				$new_version_notification_arr = UserSettingFactory::getUserSetting( $this->getCurrentUserObject()->getID(), 'new_version_notification' );
-				if (	DEMO_MODE == FALSE
-						AND ( !isset($config_vars['branding']['application_name']) OR ( $this->getCurrentCompanyObject()->getId() == 1 OR ( isset($config_vars['other']['primary_company_id']) AND $this->getCurrentCompanyObject()->getId() == $config_vars['other']['primary_company_id'] ) ) )
-						AND $this->getPermissionObject()->getLevel() >= 20 //Payroll Admin
-						AND $this->getCurrentUserObject()->getCreatedDate() <= APPLICATION_VERSION_DATE
-						AND ( !isset($new_version_notification_arr['value']) OR ( isset($new_version_notification_arr['value']) AND Misc::MajorVersionCompare( APPLICATION_VERSION, $new_version_notification_arr['value'], '>' ) ) ) ) {
-					UserSettingFactory::setUserSetting( $this->getCurrentUserObject()->getID(), 'new_version_notification', APPLICATION_VERSION );
+				// $new_version_notification_arr = UserSettingFactory::getUserSetting( $this->getCurrentUserObject()->getID(), 'new_version_notification' );
+				// if (	DEMO_MODE == FALSE
+				// 		AND ( !isset($config_vars['branding']['application_name']) OR ( $this->getCurrentCompanyObject()->getId() == 1 OR ( isset($config_vars['other']['primary_company_id']) AND $this->getCurrentCompanyObject()->getId() == $config_vars['other']['primary_company_id'] ) ) )
+				// 		AND $this->getPermissionObject()->getLevel() >= 20 //Payroll Admin
+				// 		AND $this->getCurrentUserObject()->getCreatedDate() <= APPLICATION_VERSION_DATE
+				// 		AND ( !isset($new_version_notification_arr['value']) OR ( isset($new_version_notification_arr['value']) AND Misc::MajorVersionCompare( APPLICATION_VERSION, $new_version_notification_arr['value'], '>' ) ) ) ) {
+				// 	UserSettingFactory::setUserSetting( $this->getCurrentUserObject()->getID(), 'new_version_notification', APPLICATION_VERSION );
 
-					$retarr[] = array(
-										  'delay' => -1,
-										  'bg_color' => '#FFFF00', //Yellow
-										  'message' => TTi18n::getText('NOTICE: Your instance of %1 has been upgraded to v%2, click here to see whats new.', array( APPLICATION_NAME, APPLICATION_VERSION ) ),
-										  'destination' => 'http://www.timetrex.com/r.php?id=300',
-										  );
-				}
-				unset($new_version_notification);
+				// 	$retarr[] = array(
+				// 						  'delay' => -1,
+				// 						  'bg_color' => '#FFFF00', //Yellow
+				// 						  'message' => TTi18n::getText('NOTICE: Your instance of %1 has been upgraded to v%2, click here to see whats new.', array( APPLICATION_NAME, APPLICATION_VERSION ) ),
+				// 						  'destination' => 'http://www.timetrex.com/r.php?id=300',
+				// 						  );
+				// }
+				// unset($new_version_notification);
 
 				//Check installer enabled.
 				if ( isset($config_vars['other']['installer_enabled']) AND $config_vars['other']['installer_enabled'] == 1 ) {
