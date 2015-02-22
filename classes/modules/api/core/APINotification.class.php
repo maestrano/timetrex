@@ -113,43 +113,43 @@ class APINotification extends APIFactory {
 
 				//System Requirements not being met.
 				if ( isset($system_settings['valid_install_requirements']) AND DEPLOYMENT_ON_DEMAND == FALSE AND (int)$system_settings['valid_install_requirements'] == 0 ) {
+					// $retarr[] = array(
+					// 					'delay' => -1, //0= Show until clicked, -1 = Show until next getNotifications call.
+					// 					'bg_color' => '#FF0000', //Red
+					// 					'message' => TTi18n::getText('WARNING: %1 system requirement check has failed! Please contact your %1 administrator immediately to re-run the %1 installer to correct the issue.', APPLICATION_NAME ),
+					// 					'destination' => NULL,
+					// 					);
+				}
+
+				//AutoUpgrade failed.
+				if ( isset($system_settings['auto_upgrade_failed']) AND DEPLOYMENT_ON_DEMAND == FALSE AND (int)$system_settings['auto_upgrade_failed'] == 1 ) {
+					// $retarr[] = array(
+					// 					'delay' => -1, //0= Show until clicked, -1 = Show until next getNotifications call.
+					// 					'bg_color' => '#FF0000', //Red
+					// 					'message' => TTi18n::getText('WARNING: %1 automatic upgrade has failed due to a system error! Please contact your %1 administrator immediately to re-run the %1 installer to correct the issue.', APPLICATION_NAME ),
+					// 					'destination' => NULL,
+					// 					);
+				}
+
+				// //Check version mismatch
+				if ( isset($system_settings['system_version']) AND DEPLOYMENT_ON_DEMAND == FALSE AND APPLICATION_VERSION != $system_settings['system_version'] ) {
 					$retarr[] = array(
 										'delay' => -1, //0= Show until clicked, -1 = Show until next getNotifications call.
 										'bg_color' => '#FF0000', //Red
-										'message' => TTi18n::getText('WARNING: %1 system requirement check has failed! Please contact your %1 administrator immediately to re-run the %1 installer to correct the issue.', APPLICATION_NAME ),
+										'message' => TTi18n::getText('WARNING: %1 application version does not match database version. Please re-run the %1 installer to complete the upgrade process.', APPLICATION_NAME ),
 										'destination' => NULL,
 										);
 				}
 
-				//AutoUpgrade failed.
-				// if ( isset($system_settings['auto_upgrade_failed']) AND DEPLOYMENT_ON_DEMAND == FALSE AND (int)$system_settings['auto_upgrade_failed'] == 1 ) {
-				// 	$retarr[] = array(
-				// 						'delay' => -1, //0= Show until clicked, -1 = Show until next getNotifications call.
-				// 						'bg_color' => '#FF0000', //Red
-				// 						'message' => TTi18n::getText('WARNING: %1 automatic upgrade has failed due to a system error! Please contact your %1 administrator immediately to re-run the %1 installer to correct the issue.', APPLICATION_NAME ),
-				// 						'destination' => NULL,
-				// 						);
-				// }
-
-				// //Check version mismatch
-				// if ( isset($system_settings['system_version']) AND DEPLOYMENT_ON_DEMAND == FALSE AND APPLICATION_VERSION != $system_settings['system_version'] ) {
-				// 	$retarr[] = array(
-				// 						'delay' => -1, //0= Show until clicked, -1 = Show until next getNotifications call.
-				// 						'bg_color' => '#FF0000', //Red
-				// 						'message' => TTi18n::getText('WARNING: %1 application version does not match database version. Please re-run the %1 installer to complete the upgrade process.', APPLICATION_NAME ),
-				// 						'destination' => NULL,
-				// 						);
-				// }
-
 				//Only display message to the primary company.
 				if ( ( (time() - (int)APPLICATION_VERSION_DATE) > (86400 * 365) )
 						AND ( $this->getCurrentCompanyObject()->getId() == 1 OR ( isset($config_vars['other']['primary_company_id']) AND $this->getCurrentCompanyObject()->getId() == $config_vars['other']['primary_company_id'] ) ) ) { //~1yr
-					$retarr[] = array(
-										'delay' => -1,
-										'bg_color' => '#FF0000', //Red
-										'message' => TTi18n::getText('WARNING: This %1 version (v%2) is severely out of date and may no longer be supported. Please upgrade to the latest version as soon as possible as invalid calculations may already be occurring.', array( APPLICATION_NAME, APPLICATION_VERSION ) ),
-										'destination' => NULL,
-										);
+					// $retarr[] = array(
+					// 					'delay' => -1,
+					// 					'bg_color' => '#FF0000', //Red
+					// 					'message' => TTi18n::getText('WARNING: This %1 version (v%2) is severely out of date and may no longer be supported. Please upgrade to the latest version as soon as possible as invalid calculations may already be occurring.', array( APPLICATION_NAME, APPLICATION_VERSION ) ),
+					// 					'destination' => NULL,
+					// 					);
 				}
 
 				//New version available notification.
@@ -162,12 +162,12 @@ class APINotification extends APIFactory {
 					if ( !isset($new_version_available_notification_arr['value']) OR ( isset($new_version_available_notification_arr['value']) AND $new_version_available_notification_arr['value'] <= (time() - (86400 * 14)) ) ) {
 						UserSettingFactory::setUserSetting( $this->getCurrentUserObject()->getID(), 'new_version_available_notification', time() );
 
-						$retarr[] = array(
-											'delay' => -1,
-											'bg_color' => '#FFFF00', //Yellow
-											'message' => TTi18n::getText('NOTICE: A new version of %1 available, it is highly recommended that you upgrade as soon as possible. Click here to download the latest version.', array( APPLICATION_NAME ) ),
-											'destination' => ( getTTProductEdition() == TT_PRODUCT_COMMUNITY ) ? 'http://www.timetrex.com/r.php?id=19' : 'http://www.timetrex.com/r.php?id=9',
-											);
+						// $retarr[] = array(
+						// 					'delay' => -1,
+						// 					'bg_color' => '#FFFF00', //Yellow
+						// 					'message' => TTi18n::getText('NOTICE: A new version of %1 available, it is highly recommended that you upgrade as soon as possible. Click here to download the latest version.', array( APPLICATION_NAME ) ),
+						// 					'destination' => ( getTTProductEdition() == TT_PRODUCT_COMMUNITY ) ? 'http://www.timetrex.com/r.php?id=19' : 'http://www.timetrex.com/r.php?id=9',
+						// 					);
 					}
 					unset($new_version_available_notification);
 				}
