@@ -115,7 +115,6 @@ class CompanyMapper extends BaseMapper {
     $company_hash = array();
 
     // Map Company to Connec hash
-error_log("COMPANY NAME " . $company->getName());
     if($company->getName()) { $company_hash['name'] = $company->getName(); }
     if($company->getBusinessNumber()) { $company_hash['employer_id'] = $company->getBusinessNumber(); }
     if($company->getIndustry()) {
