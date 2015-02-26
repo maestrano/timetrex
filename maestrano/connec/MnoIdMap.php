@@ -11,21 +11,23 @@ class MnoIdMap {
 
   public static function findMnoIdMapByMnoIdAndEntityName($mno_id, $mno_entity_name) {
     global $db;
-    $result = $db->Execute("SELECT * from mno_id_map WHERE mno_entity_guid = '$mno_id' AND mno_entity_name = '".strtoupper($mno_entity_name)."'")->_fetch();
-    return $result;
+    $result = $db->Execute("SELECT * from mno_id_map WHERE mno_entity_guid = '$mno_id' AND mno_entity_name = '".strtoupper($mno_entity_name)."'");
+    if($result) { return $result->fields; }
+    return null;
   }
 
   public static function findMnoIdMapByLocalIdAndEntityName($local_id, $local_entity_name) {
     global $db;
-    $result = $db->Execute("SELECT * from mno_id_map WHERE app_entity_id = ".intval($local_id)." AND app_entity_name = '".strtoupper($local_entity_name)."'")->_fetch();
-    return $result;
+    $result = $db->Execute("SELECT * from mno_id_map WHERE app_entity_id = ".intval($local_id)." AND app_entity_name = '".strtoupper($local_entity_name)."'");
+    return $result->fields;
   }
 
   public static function deleteMnoIdMap($local_id, $local_entity_name) {
     global $db;
     $query = "UPDATE mno_id_map SET deleted_flag = 1 WHERE app_entity_id = ".intval($local_id)." AND app_entity_name = '".strtoupper($local_entity_name)."'";  
     $result = $db->Execute($query);
-    return $result;
+    if($result) { return $result->fields; }
+    return null;
   }
 
 }

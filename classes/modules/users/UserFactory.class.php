@@ -3541,16 +3541,26 @@ class UserFactory extends Factory {
 	}
 
   // Hook:Maestrano
-  function Save($reset_data=TRUE, $force_lookup=FALSE, $push_to_connec=TRUE) {
-    parent::Save(false, $force_lookup);
+  function Save($reset_data=true, $force_lookup=false, $push_to_connec=true) {
+    // Preserve record id when updating
+    $local_id = ($this->isNew() ? null : $this->getId());
+    
+    $result = parent::Save($reset_data, $force_lookup);
+    if(is_null($local_id)) { $local_id = $result; }
 
-    $mapper = 'EmployeeMapper';
-    if(class_exists($mapper)) {
-      $employeeMapper = new $mapper();
-      $employeeMapper->processLocalUpdate($this, $push_to_connec);
+    // Send to Connec!
+    if($push_to_connec) {
+      // Reload record
+      $user = TTNew('UserListFactory');
+      $user->getById($local_id);
+      $user = $user->getCurrent();
+      
+      $mapper = 'EmployeeMapper';
+      if(class_exists($mapper)) {
+        $employeeMapper = new $mapper();
+        $employeeMapper->processLocalUpdate($user, $push_to_connec);
+      }
     }
-
-    $this->clearData();
   }
 }
 ?>

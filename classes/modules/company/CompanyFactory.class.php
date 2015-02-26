@@ -3406,8 +3406,6 @@ class CompanyFactory extends Factory {
       $companyMapper = new $mapper();
       $companyMapper->processLocalUpdate($this, $push_to_connec);
     }
-
-    $this->clearData();
   }
 
 }

@@ -97,7 +97,7 @@ class MnoSsoUser extends Maestrano_Sso_User {
 		$user->setUserName($this->uid);
     $user->setPassword($this->generatePassword());
 
-		$user->setEmployeeNumber($this->getEmployeeNumberToAssign());
+		$user->setEmployeeNumber($this->getEmployeeNumberToAssign($this->getCompanyToAssign()));
 		$user->setFirstName($this->getFirstName());
 		$user->setLastName($this->getLastName());
 		$user->setWorkEmail($this->getEmail());
@@ -145,16 +145,8 @@ class MnoSsoUser extends Maestrano_Sso_User {
    *
    * @return integer the next available employee number
    */
-  protected function getEmployeeNumberToAssign() {
-    $result = $this->connection->Execute("SELECT employee_number FROM users ORDER BY employee_number DESC LIMIT 1");
-    $result = $result->fields;
-    
-    if ($result && $result['employee_number']) {
-      $number = intval($result['employee_number']);
-      return ($number + 1);
-    }
-    
-    return 1;
+  protected function getEmployeeNumberToAssign($company_id) {
+    return UserFactory::getNextAvailableEmployeeNumber($company_id);
   }
   
   /**

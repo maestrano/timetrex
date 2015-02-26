@@ -26,7 +26,7 @@ abstract class BaseMapper {
   }
 
   protected function is_set($variable) {
-    return (isset($variable) && !trim($variable)==='');
+    return (!is_null($variable) && isset($variable) && !(is_string($variable) && trim($variable)===''));
   }
 
   // Overwrite me!
@@ -127,6 +127,9 @@ abstract class BaseMapper {
         $this->findOrCreateIdMap($resource_hash, $model);
       }
 
+      // Clear model
+      $model->clearData();
+
       return $model;
     } catch (Exception $e) {
       error_log("Error when saving Connec resource entity=".$this->connec_entity_name.", error=" . $e->getMessage());
@@ -195,7 +198,7 @@ abstract class BaseMapper {
     if($model == null) { $model = $this->matchLocalModel($resource_hash); }
 
     // Create a new Model if none found
-    if($model == null) { $model = TTnew($this->local_entity_name() . 'Factory'); }
+    if($model == null) { $model = TTnew($this->local_entity_name . 'Factory'); }
 
     return $model;
   }
@@ -208,7 +211,6 @@ abstract class BaseMapper {
     // Find Connec resource id
     $local_id = $this->getId($model);
     $mno_id_map = MnoIdMap::findMnoIdMapByLocalIdAndEntityName($local_id, $this->local_entity_name);
-
     if($mno_id_map) {
       // Update resource
       $url = $this->connec_resource_endpoint . '/' . $mno_id_map['mno_entity_guid'];

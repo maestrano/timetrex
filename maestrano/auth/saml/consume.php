@@ -3,9 +3,11 @@
   require_once '../../init.php';
 
   # Reset session
-  session_unset();
-  session_destroy();
-  session_start();
+  try {
+    session_unset();
+    session_destroy();
+    session_start();
+  } catch (Exception $e) {}
 
   // Build SSO Response using SAMLResponse parameter value sent via
   // POST request
