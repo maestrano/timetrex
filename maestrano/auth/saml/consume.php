@@ -5,7 +5,6 @@
   # Reset session
   try {
     session_unset();
-    session_destroy();
     session_start();
   } catch (Exception $e) {}
 

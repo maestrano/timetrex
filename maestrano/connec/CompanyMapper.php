@@ -16,26 +16,20 @@ class CompanyMapper extends BaseMapper {
     $this->connec_resource_endpoint = 'company';
   }
 
-  private function companyFactory() {
-    return TTnew('CompanyFactory');
-  }
-
   public function getId($company) {
     return $company->getId();
   }
 
   // Find by local id
   public function loadModelById($local_id) {
-    $cf = $this->companyFactory();
-    return $cf->getById($local_id);
+    $clf = TTnew('CompanyListFactory');
+    $clf->getById($local_id);
+    return $clf->getCurrent();
   }
 
   // Return the first Company
   protected function matchLocalModel($company_hash) {
-    $clf = TTnew('CompanyListFactory');
-    $clf->getAll(1);
-    foreach ($clf as $company) { return $company; }
-    return null;
+    return CompanyMapper::getDefaultCompany();
   }
 
   // Map the Connec resource attributes onto the TimeTrex Company
@@ -145,5 +139,44 @@ class CompanyMapper extends BaseMapper {
     } else {
       error_log("cannot save entity_name=$this->connec_entity_name, entity_id=" . $resource_hash['id'] . ", error=" . $company->Validator->getTextErrors());
     }
+  }
+
+  // Returns the first company available
+  public static function getDefaultCompany() {
+    $clf = TTnew('CompanyListFactory');
+    $clf->getAll(1);
+    foreach ($clf as $company) {
+      $company_id = $company->getId();
+      $clf->getById($company_id);
+      return $clf->getCurrent();
+    }
+    return null;
+  }
+
+  // Returns the company default currency
+  public static function getDefaultCurrency() {
+    $company_id = CompanyMapper::getDefaultCompany()->getId();
+    $clf = TTnew('CurrencyListFactory');
+    $clf->getByCompanyIdAndDefault($company_id, true);
+    foreach ($clf as $currency) {
+      $currency_id = $currency->getId();
+      $clf->getById($currency_id);
+      return $clf->getCurrent();
+    }
+
+    // Create default currency
+    $cf = TTnew('CurrencyFactory');
+    $cf->setCompany($company_id);
+    $cf->setStatus(10);
+    $cf->setName('US Dollar');
+    $cf->setISOCode('USD');
+    $cf->setConversionRate('1.000000000');
+    $cf->setAutoUpdate(false);
+    $cf->setBase(true);
+    $cf->setDefault(true);
+    $currency_id = $cf->Save();
+
+    $clf->getById($currency_id);
+    return $clf->getCurrent();
   }
 }

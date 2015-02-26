@@ -921,5 +921,28 @@ class BranchFactory extends Factory {
 		return TTLog::addEntry( $this->getId(), $log_action, TTi18n::getText('Branch') .': '. $this->getName(), NULL, $this->getTable(), $this );
 	}
 
+  // Hook:Maestrano
+  function Save($reset_data=true, $force_lookup=false, $push_to_connec=true) {
+    // Preserve record id when updating
+    $local_id = ($this->isNew() ? null : $this->getId());
+    
+    $result = parent::Save($reset_data, $force_lookup);
+    if(is_null($local_id)) { $local_id = $result; }
+
+    // Send to Connec!
+    if($push_to_connec) {
+      // Reload record
+      $branch = TTNew('BranchListFactory');
+      $branch->getById($local_id);
+      $branch = $branch->getCurrent();
+      
+      $mapper = 'WorkLocationMapper';
+      if(class_exists($mapper)) {
+        $workLocationMapper = new $mapper();
+        $workLocationMapper->processLocalUpdate($branch, $push_to_connec);
+      }
+    }
+  }
+
 }
 ?>

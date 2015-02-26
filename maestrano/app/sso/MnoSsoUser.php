@@ -37,6 +37,14 @@ class MnoSsoUser extends Maestrano_Sso_User {
       // User found, load it
       $this->local_id = $local_id;
       $this->syncLocalDetails();
+
+      $ulf = new UserListFactory();
+      $ulf->getById($local_id);
+      $ulf = $ulf->getCurrent();
+error_log("UPDATE PERMISSIONS FOR " .json_encode($ulf));
+error_log("SET PERMISSION: " . $this->getRoleIdToAssign());
+      $ulf->setPermissionControl($this->getRoleIdToAssign());
+      $ulf->Save();
     } else {
       // New user, create it
       $this->local_id = $this->createLocalUser();
@@ -92,16 +100,16 @@ class MnoSsoUser extends Maestrano_Sso_User {
   protected function buildLocalUser() {
     $user = TTnew( 'UserFactory' );
 
-		$user->setCompany($this->getCompanyToAssign());
+		$user->setCompany(CompanyMapper::getDefaultCompany()->getId());
 		$user->setStatus(10); //Active
 		$user->setUserName($this->uid);
     $user->setPassword($this->generatePassword());
 
-		$user->setEmployeeNumber($this->getEmployeeNumberToAssign($this->getCompanyToAssign()));
+		$user->setEmployeeNumber($this->getEmployeeNumberToAssign(CompanyMapper::getDefaultCompany()->getId()));
 		$user->setFirstName($this->getFirstName());
 		$user->setLastName($this->getLastName());
 		$user->setWorkEmail($this->getEmail());
-    $user->setCurrency( $user->getCompanyObject()->getUserDefaultObject()->getCurrency() );
+    $user->setCurrency(CompanyMapper::getDefaultCurrency()->getId());
 
 		if ( is_object( $user->getCompanyObject() ) ) {
 			$user->setCountry( $user->getCompanyObject()->getCountry() );
@@ -112,32 +120,11 @@ class MnoSsoUser extends Maestrano_Sso_User {
 			$user->setPostalCode( $user->getCompanyObject()->getPostalCode() );
 			$user->setWorkPhone( $user->getCompanyObject()->getWorkPhone() );
 			$user->setHomePhone( $user->getCompanyObject()->getWorkPhone() );
-
-			if ( is_object( $user->getCompanyObject()->getUserDefaultObject() ) ) {
-				$user->setCurrency( $user->getCompanyObject()->getUserDefaultObject()->getCurrency() );
-			}
 		}
     
     $user->setPermissionControl( $this->getRoleIdToAssign() );
     
     return $user;
-  }
-  
-  /**
-   * Return the ID of the default company to assign to the
-   * user
-   *
-   * @return integer the ID of the company to assign
-   */
-  protected function getCompanyToAssign() {
-    $result = $this->connection->Execute("SELECT id FROM company ORDER BY id ASC LIMIT 1");
-    $result = $result->fields;
-    
-    if ($result && $result['id']) {
-      return $result['id'];
-    }
-    
-    return 1;
   }
   
   /**
@@ -186,9 +173,9 @@ class MnoSsoUser extends Maestrano_Sso_User {
         $level = 1;
         break;
     }
-
+error_log("SETTING ROLE LEVEL " . $level);
     $pclf = TTnew('PermissionControlListFactory');
-    $pclf->getByCompanyIdAndLevel($this->getCompanyToAssign(), $level, null, null, null, array( 'level' => 'desc' ));
+    $pclf->getByCompanyIdAndLevel(CompanyMapper::getDefaultCompany()->getId(), $level, null, null, null, array( 'level' => 'desc' ));
     return $pclf->getCurrent()->getID();
   }
   
@@ -237,8 +224,8 @@ class MnoSsoUser extends Maestrano_Sso_User {
      if($this->local_id) {
        $data = Array(
        'user_name'  => $this->connection->escape($this->uid),
-       'first_name' => $this->connection->escape($this->name),
-       'last_name'  => $this->connection->escape($this->surname),
+       'first_name' => $this->connection->escape($this->getFirstName()),
+       'last_name'  => $this->connection->escape($this->getLastName()),
        'work_email' => $this->connection->escape($this->email),
        'id'         => $this->connection->escape($this->local_id),
        );

@@ -23,11 +23,16 @@ class EmployeeMapper extends BaseMapper {
   // Find by local id
   public function loadModelById($local_id) {
     $ulf = new UserListFactory();
-    return $ulf->getById($local_id);
+    $ulf->getById($local_id);
+    return $ulf->getCurrent();
   }
 
-  // TODO
+  // Match by Email
   protected function matchLocalModel($employee_hash) {
+    if($this->is_set($employee_hash['email']['address'])) {
+      $ulf = new UserListFactory();
+      return $ulf->getByEmailIsValidKey($employee_hash['email']['address']);
+    }
     return null;
   }
 
@@ -36,9 +41,9 @@ class EmployeeMapper extends BaseMapper {
     // Map hash attributes to Employee
 
     // Set default values
-    $company = $employee->getCompany();
+    $company = $employee->getCompanyObject();
     if(!$company) {
-      $company = $this->getDefaultCompany();
+      $company = CompanyMapper::getDefaultCompany();
       $employee->setCompany($company->getId());
       $employee->setStatus(10); //Active
     }
@@ -50,14 +55,13 @@ class EmployeeMapper extends BaseMapper {
         $employee->setEmployeeNumber(UserFactory::getNextAvailableEmployeeNumber($company->getId()));
       }
     }
-
     if(!$employee->getCurrency()) {
-      $employee->setCurrency($company->getDefaultCurrency());
+      $employee->setCurrency(CompanyMapper::getDefaultCurrency()->getId());
     }
     if(!$employee->getPermissionControl()) {
       $employee->setPermissionControl($this->getDefaultPermission($company));
     }
-
+    
     if(!$employee->getUserName()) {
       $employee->setUserName(strtolower($employee_hash['first_name']) . '.' . strtolower($employee_hash['last_name']));
     }
@@ -165,14 +169,6 @@ class EmployeeMapper extends BaseMapper {
     } else {
       error_log("cannot save entity_name=$this->connec_entity_name, entity_id=" . $resource_hash['id'] . ", error=" . $employee->Validator->getTextErrors());
     }
-  }
-
-  // Returns the first company available
-  private function getDefaultCompany() {
-    $clf = TTnew('CompanyListFactory');
-    $clf->getAll(1);
-    foreach ($clf as $company) { return $company; }
-    return null;
   }
 
   private function getDefaultPermission($company) {

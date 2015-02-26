@@ -25,10 +25,10 @@ try {
     //   $projectMapper = new ProjectMapper();
     //   $projectMapper->fetchConnecResource($entity_id);
     //   break;
-    // case "WORKLOCATIONS":
-    //   $workLocationMapper = new WorkLocationMapper();
-    //   $workLocationMapper->fetchConnecResource($entity_id);
-    //   break;
+    case "WORKLOCATIONS":
+      $workLocationMapper = new WorkLocationMapper();
+      $workLocationMapper->fetchConnecResource($entity_id);
+      break;
     case "EMPLOYEES":
       $employeeMapper = new EmployeeMapper();
       $employeeMapper->fetchConnecResource($entity_id);
