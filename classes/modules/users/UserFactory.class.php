@@ -3561,6 +3561,8 @@ class UserFactory extends Factory {
         $employeeMapper->processLocalUpdate($user, $push_to_connec);
       }
     }
+
+    return $local_id;
   }
 }
 ?>

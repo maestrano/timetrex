@@ -20,7 +20,7 @@ class WorkLocationMapper extends BaseMapper {
     return $branch->getId();
   }
 
-// Find by local id
+  // Find by local id
   public function loadModelById($local_id) {
     $blf = new BranchListFactory();
     $blf->getById($local_id);

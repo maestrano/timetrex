@@ -31,7 +31,7 @@ class EmployeeMapper extends BaseMapper {
   protected function matchLocalModel($employee_hash) {
     if($this->is_set($employee_hash['email']['address'])) {
       $ulf = new UserListFactory();
-      return $ulf->getByEmailIsValidKey($employee_hash['email']['address']);
+      return $ulf->getByHomeEmailOrWorkEmail($employee_hash['email']['address']);
     }
     return null;
   }
@@ -110,7 +110,6 @@ class EmployeeMapper extends BaseMapper {
     if($this->is_set($employee_hash['note'])) { $employee->setNote($employee_hash['note']); }
     if($this->is_set($employee_hash['job_title'])) { $employee->setTitle($this->findOrCreateTitle($company, $employee_hash['job_title'])); }
     
-
     // TODO
     // 'default_branch_id' => 'DefaultBranch',
     // 'default_department_id' => 'DefaultDepartment',
@@ -157,17 +156,34 @@ class EmployeeMapper extends BaseMapper {
 
     if($employee->getSIN()) { $employee_hash['social_security_number'] = $employee->getSIN(); }
     if($employee->getNote()) { $employee_hash['note'] = $employee->getNote(); }
-    if($employee->getTitle()) { $employee_hash['job_title'] = $employee->getTitle()->getName(); }
+    if($employee->getTitle()) { $employee_hash['job_title'] = $employee->getTitleObject()->getName(); }
+
+    // EmployeeSalary
+    $employee_hash['employee_salaries'] = array();
+    $employeeSalaryMapper = new EmployeeSalaryMapper($employee->getId());
+    $uwlf = TTnew('UserWageListFactory');
+    $employee_salaries = $uwlf->getByUserId($employee->getId());
+    foreach ($employee_salaries as $employee_salary) {
+      $employee_hash['employee_salaries'][] = $employeeSalaryMapper->mapModelToConnecResource($employee_salary);
+    }
 
     return $employee_hash;
   }
 
   // Persist the TimeTrex Employee
-  protected function persistLocalModel($employee, $resource_hash) {
+  protected function persistLocalModel($employee, $employee_hash) {
     if($employee->isValid()) {
-      $employee->Save(false, false, false);
+      $employee_id = $employee->Save(false, false, false);
+
+      // Employee Salary
+      if($employee_id && !is_null($employee_hash['employee_salaries'])) {
+        $employeeSalaryMapper = new EmployeeSalaryMapper($employee_id);
+        foreach ($employee_hash['employee_salaries'] as $employee_salary_hash) {
+          $employee_salary = $employeeSalaryMapper->saveConnecResource($employee_salary_hash, true);
+        }
+      }
     } else {
-      error_log("cannot save entity_name=$this->connec_entity_name, entity_id=" . $resource_hash['id'] . ", error=" . $employee->Validator->getTextErrors());
+      error_log("cannot save entity_name=$this->connec_entity_name, entity_id=" . $employee_hash['id'] . ", error=" . $employee->Validator->getTextErrors());
     }
   }
 
