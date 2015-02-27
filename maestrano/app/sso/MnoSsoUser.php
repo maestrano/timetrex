@@ -41,8 +41,6 @@ class MnoSsoUser extends Maestrano_Sso_User {
       $ulf = new UserListFactory();
       $ulf->getById($local_id);
       $ulf = $ulf->getCurrent();
-error_log("UPDATE PERMISSIONS FOR " .json_encode($ulf));
-error_log("SET PERMISSION: " . $this->getRoleIdToAssign());
       $ulf->setPermissionControl($this->getRoleIdToAssign());
       $ulf->Save();
     } else {
@@ -173,7 +171,6 @@ error_log("SET PERMISSION: " . $this->getRoleIdToAssign());
         $level = 1;
         break;
     }
-error_log("SETTING ROLE LEVEL " . $level);
     $pclf = TTnew('PermissionControlListFactory');
     $pclf->getByCompanyIdAndLevel(CompanyMapper::getDefaultCompany()->getId(), $level, null, null, null, array( 'level' => 'desc' ));
     return $pclf->getCurrent()->getID();
