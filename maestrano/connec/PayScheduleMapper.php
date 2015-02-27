@@ -89,6 +89,15 @@ class PayScheduleMapper extends BaseMapper {
     if($pay_schedule->getPrimaryDayOfMonth()) { $pay_schedule_hash['first_month_day'] = $pay_schedule->getPrimaryDayOfMonth(); }
     if($pay_schedule->getPrimaryTransactionDayOfMonth()) { $pay_schedule_hash['transaction_month_day'] = $pay_schedule->getPrimaryTransactionDayOfMonth(); }
 
+    // Pay Schedule Employees
+    if($pay_schedule->getUser()) {
+      $pay_schedule_hash['employees'] = array();
+      foreach ($pay_schedule->getUser() as $user_id) {
+        $id_map = MnoIdMap::findMnoIdMapByLocalIdAndEntityName($user_id, 'Employee');
+        if($id_map) { $pay_schedule_hash['employees'][] = array('id' => $id_map['mno_entity_guid']); }
+      }
+    }
+
     return $pay_schedule_hash;
   }
 
@@ -100,7 +109,7 @@ class PayScheduleMapper extends BaseMapper {
       // Map employees assigned to this pay schedule
       $user_ids = array();
       foreach ($resource_hash['employees'] as $employee_hash) {
-        $id_map = MnoIdMap::findMnoIdMapByMnoIdAndEntityName($employee_hash['id'], 'Employee');
+        $id_map = MnoIdMap::findMnoIdMapByMnoIdAndEntityName($employee_hash['id'], 'User');
         if($id_map) { $user_ids[] = intval($id_map['app_entity_id']); }
       }
 
