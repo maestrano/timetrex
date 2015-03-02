@@ -413,12 +413,14 @@
 
 						if ( select_items.length === 0 ) {
 							if ( set_any ) {
-								return_value = -1;
+//								return_value = -1;
+								return_value.push( -1 ); // In fact, if the columns can be multiple selected. and no have any options selected, it's should be return an array.
 							}
 						}
 					} else {
 						if ( set_any ) {
-							return_value = -1;
+//							return_value = -1;
+							return_value.push( -1 ); // In fact, if the columns can be multiple selected. and no have any options selected, it's should be return an array.
 						}
 					}
 

@@ -948,6 +948,11 @@ CompanyTaxDeductionViewController = BaseViewController.extend( {
 	},
 
 	onLengthOfServiceChange: function() {
+
+		if ( this.sub_view_mode ) {
+			return;
+		}
+
 		if ( this.current_edit_record['minimum_length_of_service_unit_id'] === 50 || this.current_edit_record['maximum_length_of_service_unit_id'] === 50 ) {
 			this.edit_view_form_item_dic['length_of_service_contributing_pay_code_policy_id'].css( 'display', 'block' );
 		} else {
@@ -3520,26 +3525,26 @@ CompanyTaxDeductionViewController = BaseViewController.extend( {
 		form_item_input.TComboBox( {field: 'df_14', set_empty: true} );
 		this.addEditFieldToColumn( 'df_14', form_item_input, tab_tax_deductions_column1, '', null, true );
 
-		//Pay Stub Account
+		if ( !this.sub_view_mode ) {
+			//Pay Stub Account
 
-		var default_args = {};
-		default_args.filter_data = {};
-		default_args.filter_data.type_id = [10, 20, 30, 50, 80];
+			var default_args = {};
+			default_args.filter_data = {};
+			default_args.filter_data.type_id = [10, 20, 30, 50, 80];
 
-		form_item_input = Global.loadWidgetByName( FormItemType.AWESOME_BOX );
-		form_item_input.AComboBox( {
-			api_class: (APIFactory.getAPIClass( 'APIPayStubEntryAccount' )),
-			allow_multiple_selection: false,
-			layout_name: ALayoutIDs.PAY_STUB_ACCOUNT,
-			show_search_inputs: true,
-			set_empty: true,
-			field: 'pay_stub_entry_account_id'
+			form_item_input = Global.loadWidgetByName( FormItemType.AWESOME_BOX );
+			form_item_input.AComboBox( {
+				api_class: (APIFactory.getAPIClass( 'APIPayStubEntryAccount' )),
+				allow_multiple_selection: false,
+				layout_name: ALayoutIDs.PAY_STUB_ACCOUNT,
+				show_search_inputs: true,
+				set_empty: true,
+				field: 'pay_stub_entry_account_id'
 
-		} );
-
-		form_item_input.setDefaultArgs( default_args );
-
-		this.addEditFieldToColumn( $.i18n._( 'Pay Stub Account' ), form_item_input, tab_tax_deductions_column1 );
+			} );
+			form_item_input.setDefaultArgs( default_args );
+			this.addEditFieldToColumn( $.i18n._( 'Pay Stub Account' ), form_item_input, tab_tax_deductions_column1 );
+		}
 
 		// Calculation Order
 		form_item_input = Global.loadWidgetByName( FormItemType.TEXT_INPUT );
@@ -3558,22 +3563,22 @@ CompanyTaxDeductionViewController = BaseViewController.extend( {
 		v_box.append( form_item );
 		v_box.append( "<div class='clear-both-div'></div>" );
 
-		var form_item_input_1 = Global.loadWidgetByName( FormItemType.AWESOME_BOX );
+		if ( !this.sub_view_mode ) {
+			var form_item_input_1 = Global.loadWidgetByName( FormItemType.AWESOME_BOX );
 
-		form_item_input_1.AComboBox( {
-			api_class: (APIFactory.getAPIClass( 'APIPayStubEntryAccount' )),
-			allow_multiple_selection: true,
-			layout_name: ALayoutIDs.PAY_STUB_ACCOUNT,
-			show_search_inputs: true,
-			set_empty: true,
-			field: 'include_pay_stub_entry_account'
-		} );
+			form_item_input_1.AComboBox( {
+				api_class: (APIFactory.getAPIClass( 'APIPayStubEntryAccount' )),
+				allow_multiple_selection: true,
+				layout_name: ALayoutIDs.PAY_STUB_ACCOUNT,
+				show_search_inputs: true,
+				set_empty: true,
+				field: 'include_pay_stub_entry_account'
+			} );
+			form_item = this.putInputToInsideFormItem( form_item_input_1, $.i18n._( 'Selection' ) );
+			v_box.append( form_item );
+			this.addEditFieldToColumn( $.i18n._( 'Include Pay Stub Accounts' ), [form_item_input, form_item_input_1], tab_tax_deductions_column1, null, v_box, false, true );
 
-		form_item = this.putInputToInsideFormItem( form_item_input_1, $.i18n._( 'Selection' ) );
-
-		v_box.append( form_item );
-
-		this.addEditFieldToColumn( $.i18n._( 'Include Pay Stub Accounts' ), [form_item_input, form_item_input_1], tab_tax_deductions_column1, null, v_box, false, true );
+		}
 
 		// Exclude Pay Stub Accounts
 		v_box = $( "<div class='v-box'></div>" );
@@ -3586,36 +3591,35 @@ CompanyTaxDeductionViewController = BaseViewController.extend( {
 
 		v_box.append( form_item );
 		v_box.append( "<div class='clear-both-div'></div>" );
+		if ( !this.sub_view_mode ) {
+			form_item_input_1 = Global.loadWidgetByName( FormItemType.AWESOME_BOX );
+			form_item_input_1.AComboBox( {
+				api_class: (APIFactory.getAPIClass( 'APIPayStubEntryAccount' )),
+				allow_multiple_selection: true,
+				layout_name: ALayoutIDs.PAY_STUB_ACCOUNT,
+				show_search_inputs: true,
+				set_empty: true,
+				field: 'exclude_pay_stub_entry_account'
+			} );
 
-		form_item_input_1 = Global.loadWidgetByName( FormItemType.AWESOME_BOX );
+			form_item = this.putInputToInsideFormItem( form_item_input_1, $.i18n._( 'Selection' ) );
+			v_box.append( form_item );
+			this.addEditFieldToColumn( $.i18n._( 'Exclude Pay Stub Accounts' ), [form_item_input, form_item_input_1], tab_tax_deductions_column1, null, v_box, false, true );
+		}
 
-		form_item_input_1.AComboBox( {
-			api_class: (APIFactory.getAPIClass( 'APIPayStubEntryAccount' )),
-			allow_multiple_selection: true,
-			layout_name: ALayoutIDs.PAY_STUB_ACCOUNT,
-			show_search_inputs: true,
-			set_empty: true,
-			field: 'exclude_pay_stub_entry_account'
-		} );
-
-		form_item = this.putInputToInsideFormItem( form_item_input_1, $.i18n._( 'Selection' ) );
-
-		v_box.append( form_item );
-
-		this.addEditFieldToColumn( $.i18n._( 'Exclude Pay Stub Accounts' ), [form_item_input, form_item_input_1], tab_tax_deductions_column1, null, v_box, false, true );
-
-		// employees
-		form_item_input = Global.loadWidgetByName( FormItemType.AWESOME_BOX );
-		form_item_input.AComboBox( {
-			api_class: (APIFactory.getAPIClass( 'APIUser' )),
-			allow_multiple_selection: true,
-			layout_name: ALayoutIDs.USER,
-			show_search_inputs: true,
-			set_empty: true,
-			field: 'user'
-		} );
-		this.addEditFieldToColumn( $.i18n._( 'Employees' ), form_item_input, tab_tax_deductions_column1, '' );
-
+		if ( !this.sub_view_mode ) {
+			// employees
+			form_item_input = Global.loadWidgetByName( FormItemType.AWESOME_BOX );
+			form_item_input.AComboBox( {
+				api_class: (APIFactory.getAPIClass( 'APIUser' )),
+				allow_multiple_selection: true,
+				layout_name: ALayoutIDs.USER,
+				show_search_inputs: true,
+				set_empty: true,
+				field: 'user'
+			} );
+			this.addEditFieldToColumn( $.i18n._( 'Employees' ), form_item_input, tab_tax_deductions_column1, '' );
+		}
 		// Tab1  start
 
 		var tab_eligibility = this.edit_view_tab.find( '#tab_eligibility' );
@@ -3713,20 +3717,20 @@ CompanyTaxDeductionViewController = BaseViewController.extend( {
 		widgetContainer.append( widget_combo_box );
 
 		this.addEditFieldToColumn( $.i18n._( 'Maximum Length Of Service' ), [form_item_input, widget_combo_box], tab_eligibility_column1, '', widgetContainer );
-
-		//Length of Service contributing pay codes.
-		form_item_input = Global.loadWidgetByName( FormItemType.AWESOME_BOX );
-		form_item_input.AComboBox( {
-			api_class: (APIFactory.getAPIClass( 'APIContributingPayCodePolicy' )),
-			allow_multiple_selection: false,
-			layout_name: ALayoutIDs.CONTRIBUTING_PAY_CODE_POLICY,
-			show_search_inputs: true,
-			set_empty: true,
-			set_default: true,
-			field: 'length_of_service_contributing_pay_code_policy_id'
-		} );
-		this.addEditFieldToColumn( $.i18n._( 'Length Of Service Hours Based On' ), form_item_input, tab_eligibility_column1, '', null, true );
-
+		if ( !this.sub_view_mode ) {
+			//Length of Service contributing pay codes.
+			form_item_input = Global.loadWidgetByName( FormItemType.AWESOME_BOX );
+			form_item_input.AComboBox( {
+				api_class: (APIFactory.getAPIClass( 'APIContributingPayCodePolicy' )),
+				allow_multiple_selection: false,
+				layout_name: ALayoutIDs.CONTRIBUTING_PAY_CODE_POLICY,
+				show_search_inputs: true,
+				set_empty: true,
+				set_default: true,
+				field: 'length_of_service_contributing_pay_code_policy_id'
+			} );
+			this.addEditFieldToColumn( $.i18n._( 'Length Of Service Hours Based On' ), form_item_input, tab_eligibility_column1, '', null, true );
+		}
 		// Minimum Employee Age
 		form_item_input = Global.loadWidgetByName( FormItemType.TEXT_INPUT );
 		form_item_input.TTextInput( {field: 'minimum_user_age', width: 30} );

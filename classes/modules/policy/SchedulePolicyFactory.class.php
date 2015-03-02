@@ -306,10 +306,17 @@ class SchedulePolicyFactory extends Factory {
 		return FALSE;
 	}
 	function getMealPolicy() {
-		return CompanyGenericMapListFactory::getArrayByCompanyIDAndObjectTypeIDAndObjectID( $this->getCompany(), 155, $this->getID() );
+		$retarr = CompanyGenericMapListFactory::getArrayByCompanyIDAndObjectTypeIDAndObjectID( $this->getCompany(), 155, $this->getID() );
+
+		//Check if no CompanyGenericMap is *not* set at all, if so assume No Meal (-1)
+		if ( $retarr === FALSE ) {
+			$retarr = array( -1 );
+		}
+
+		return $retarr;
 	}
 	function setMealPolicy($ids) {
-		//If NONE(-1) or Use Policy Group (0) are defined, unset all other ids.
+		//If NONE(-1) or Use Policy Group(0) are defined, unset all other ids.
 		if ( is_array( $ids ) ) {
 			if ( in_array( 0, $ids )  ) {
 				$ids = array(0);
@@ -328,7 +335,15 @@ class SchedulePolicyFactory extends Factory {
 		return FALSE;
 	}
 	function getBreakPolicy() {
-		return CompanyGenericMapListFactory::getArrayByCompanyIDAndObjectTypeIDAndObjectID( $this->getCompany(), 165, $this->getID() );
+		$retarr = CompanyGenericMapListFactory::getArrayByCompanyIDAndObjectTypeIDAndObjectID( $this->getCompany(), 165, $this->getID() );
+
+		//Check if no CompanyGenericMap is *not* set at all, if so assume No Break (-1)
+		if ( $retarr === FALSE ) {
+			$retarr = array( -1 );
+		}
+
+		return $retarr;
+
 	}
 	function setBreakPolicy($ids) {
 		//If NONE(-1) or Use Policy Group (0) are defined, unset all other ids.
@@ -372,37 +387,7 @@ class SchedulePolicyFactory extends Factory {
 
 		return FALSE;
 	}
-/*
-	function getOverTimePolicyID() {
-		if ( isset($this->data['over_time_policy_id']) ) {
-			return (int)$this->data['over_time_policy_id'];
-		}
 
-		return FALSE;
-	}
-	function setOverTimePolicyID($id) {
-		$id = trim($id);
-
-		if ( $id == '' OR empty($id) ) {
-			$id = NULL;
-		}
-
-		$otplf = TTnew( 'OverTimePolicyListFactory' );
-
-		if (  $id == NULL
-				OR
-				$this->Validator->isResultSetWithRows(	'over_time_policy',
-														$otplf->getByID($id),
-														TTi18n::gettext('Invalid Overtime Policy ID')
-														) ) {
-			$this->data['over_time_policy_id'] = $id;
-
-			return TRUE;
-		}
-
-		return FALSE;
-	}
-*/
 	function getIncludeRegularTimePolicy() {
 		return CompanyGenericMapListFactory::getArrayByCompanyIDAndObjectTypeIDAndObjectID( $this->getCompany(), 105, $this->getID() );
 	}

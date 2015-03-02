@@ -842,7 +842,7 @@ class TTDate {
 	}
 
 	public static function getHours($seconds) {
-		return bcdiv( bcdiv( $seconds, 60), 60);
+		return bcdiv( $seconds, 3600 );
 	}
 
 	public static function getDays($seconds) {
@@ -1511,7 +1511,7 @@ class TTDate {
 
 		$retval = self::getEndDayEpoch( ( self::getMiddleDayEpoch( self::getBeginWeekEpoch( self::getMiddleDayEpoch($epoch), $start_day_of_week ) ) + ( 86400 * 6 ) ) );
 
-		Debug::text(' Epoch: '. TTDate::getDate('DATE+TIME', $epoch) .' Retval: '. TTDate::getDate('DATE+TIME', $retval) .' Start Day of Week: '. $start_day_of_week, __FILE__, __LINE__, __METHOD__, 10);
+		//Debug::text(' Epoch: '. TTDate::getDate('DATE+TIME', $epoch) .' Retval: '. TTDate::getDate('DATE+TIME', $retval) .' Start Day of Week: '. $start_day_of_week, __FILE__, __LINE__, __METHOD__, 10);
 
 		return $retval;
 	}

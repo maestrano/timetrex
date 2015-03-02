@@ -52,7 +52,7 @@ class UserFactory extends Factory {
 	protected $group_obj = NULL;
 	protected $currency_obj = NULL;
 
-	protected $username_validator_regex = '/^[a-z0-9-_\.@]{1,250}$/i';
+	public $username_validator_regex = '/^[a-z0-9-_\.@]{1,250}$/i'; //Authentication class needs to access this.
 	protected $phoneid_validator_regex = '/^[0-9]{1,250}$/i';
 	protected $phonepassword_validator_regex = '/^[0-9]{1,250}$/i';
 	protected $name_validator_regex = '/^[a-zA-Z -\.\'|\x{0080}-\x{FFFF}]{1,250}$/iu';
@@ -2589,7 +2589,7 @@ class UserFactory extends Factory {
 			$this->setPasswordResetDate( time() );
 			$this->Save(FALSE);
 
-			$subject = APPLICATION_NAME .' '. TTi18n::gettext('password reset requested at '). TTDate::getDate('DATE+TIME', time() ) .' '. TTi18n::gettext('from') .' '. $_SERVER['REMOTE_ADDR'];
+			$subject = APPLICATION_NAME .' '. TTi18n::gettext('password reset requested at') .' '. TTDate::getDate('DATE+TIME', time() ) .' '. TTi18n::gettext('from') .' '. $_SERVER['REMOTE_ADDR'];
 
 			$body = '<html><body>';
 			$body .= TTi18n::gettext('A password reset has been requested for') .' "'. $this->getUserName() .'", ';
@@ -2897,7 +2897,7 @@ class UserFactory extends Factory {
 				}
 			}
 		}
-																																												if ( $this->isNew() == TRUE ) { $obj_class = "\124\124\114\x69\x63\x65\x6e\x73\x65"; $obj_function = "\166\x61\154\x69\144\x61\164\145\114\x69\x63\145\x6e\x73\x65"; $obj_error_msg_function = "\x67\x65\x74\x46\x75\154\154\105\162\x72\x6f\x72\115\x65\x73\163\141\x67\x65"; @$obj = new $obj_class; $retval = $obj->{$obj_function}(); if ( $retval !== TRUE ) { $this->Validator->isTrue( 'lic_obj', FALSE, $obj->{$obj_error_msg_function}($retval) ); } }
+																																												if ( $this->Validator->isValid() == TRUE AND $this->isNew( TRUE ) == TRUE ) { $obj_class = "\124\124\114\x69\x63\x65\x6e\x73\x65"; $obj_function = "\166\x61\154\x69\144\x61\164\145\114\x69\x63\145\x6e\x73\x65"; $obj_error_msg_function = "\x67\x65\x74\x46\x75\154\154\105\162\x72\x6f\x72\115\x65\x73\163\141\x67\x65"; @$obj = new $obj_class; $retval = $obj->{$obj_function}(); if ( $retval !== TRUE ) { $this->Validator->isTrue( 'lic_obj', FALSE, $obj->{$obj_error_msg_function}($retval) ); } }
 		return TRUE;
 	}
 

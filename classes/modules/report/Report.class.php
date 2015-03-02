@@ -899,6 +899,7 @@ class Report {
 	}
 
 	//Uses UserReportData class to save the form config for the entire company.
+	// NOTE: This is duplicated in SetupPresets class. If you change it here, change it there too.
 	function setCompanyFormConfig( $data = NULL ) {
 		if ( $this->checkPermissions() == FALSE ) {
 			Debug::Text('Invalid permissions!', __FILE__, __LINE__, __METHOD__, 10);
@@ -2403,7 +2404,7 @@ class Report {
 		$this->pdf->Ln();
 		$this->pdf->setTextColor( 0, 0, 0 );
 		$this->pdf->SetFont($this->config['other']['default_font'], 'B', $this->_pdf_fontSize(8) );
-		$this->pdf->Cell( $this->pdf->getPageWidth(), $this->_pdf_fontSize(6), TTi18n::getText('If you wish to see more pages, please go to the report "Setup" tab to increase this setting and run the report again.'), 0, 0, 'C', 0, '', 1);
+		$this->pdf->Cell( $this->pdf->getPageWidth(), $this->_pdf_fontSize(6), TTi18n::getText('If you wish to see more pages, please go to the report \'Setup\' tab to increase this setting and run the report again.'), 0, 0, 'C', 0, '', 1);
 		$this->pdf->Ln(100);
 
 		return TRUE;

@@ -1469,6 +1469,12 @@ class UserDateTotalFactory extends Factory {
 										TTi18n::gettext('Employee is invalid') );
 		}
 
+		if ( $this->getObjectType() == FALSE ) {
+			$this->Validator->isTRUE(	'object_type_id',
+										FALSE,
+										TTi18n::gettext('Type is invalid') );
+		}
+
 		//Check to make sure if this is an absence row, the absence policy is actually set.
 		if ( $this->getDeleted() == FALSE AND $this->getObjectType() == 50 ) {
 			if ( (int)$this->getSourceObject() == 0 ) {

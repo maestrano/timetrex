@@ -878,6 +878,24 @@ class DemoData {
 		return FALSE;
 	}
 
+	function createTaxForms( $company_id, $user_id ) {
+		$sp = TTNew('SetupPresets');
+		$sp->setCompany( $company_id );
+		$sp->setUser( $user_id );
+
+		$retval = $sp->TaxForms();
+		$retval = $sp->TaxForms( 'us' );
+		$retval = $sp->TaxForms( 'us', 'ny' );
+		if ( $retval == TRUE ) {
+			Debug::Text('Created TaxForm data!', __FILE__, __LINE__, __METHOD__, 10);
+			return TRUE;
+		}
+
+		Debug::Text('Failed Creating Tax Form for Company ID: '. $company_id, __FILE__, __LINE__, __METHOD__, 10);
+
+		return FALSE;
+	}
+
 	function createPayStubAccountLink( $company_id ) {
 		$pseallf = TTnew( 'PayStubEntryAccountLinkListFactory' );
 		$pseallf->getByCompanyId( $company_id );
@@ -1273,6 +1291,26 @@ class DemoData {
 		switch ( $type ) {
 			case 100:
 				$pcf->setName( 'Regular Time' );
+				$pcf->setCode( 'REG' );
+				$pcf->setType( 10 ); //Paid
+				//$pcf->setRate( 1.0 );
+				//$pcf->setAccrualPolicyID( $accrual_policy_id );
+				$pcf->setPayStubEntryAccountID( CompanyDeductionFactory::getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName($company_id, 10, 'Regular Time') );
+				//$pcf->setAccrualRate( 1.0 );
+				$pcf->setPayFormulaPolicy( $pay_formula_policy_id );
+				break;
+			case 101:
+				$pcf->setName( 'Regular Time (B)' );
+				$pcf->setCode( 'REG' );
+				$pcf->setType( 10 ); //Paid
+				//$pcf->setRate( 1.0 );
+				//$pcf->setAccrualPolicyID( $accrual_policy_id );
+				$pcf->setPayStubEntryAccountID( CompanyDeductionFactory::getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName($company_id, 10, 'Regular Time') );
+				//$pcf->setAccrualRate( 1.0 );
+				$pcf->setPayFormulaPolicy( $pay_formula_policy_id );
+				break;
+			case 102:
+				$pcf->setName( 'Regular Time (C)' );
 				$pcf->setCode( 'REG' );
 				$pcf->setType( 10 ); //Paid
 				//$pcf->setRate( 1.0 );
@@ -6740,6 +6778,9 @@ class DemoData {
 
 			$policy_ids['exception_1'] = $this->createExceptionPolicy( $company_id );
 
+			//Create tax forms after absence policies and pay stub accounts
+			$this->createTaxForms( $company_id, $current_user->getId() );
+
 			$hierarchy_user_ids = $user_ids;
 
 			$root_user_id = array_pop( $hierarchy_user_ids );
@@ -6995,7 +7036,6 @@ class DemoData {
 			$kpi_group_ids[] = $this->createKPIGroup( $company_id, 50, 0 );
 
 
-
 			$kpi_all_ids[]['10'] = $this->createKPI( $company_id, 10, 10, array(-1) );
 			$kpi_all_ids[]['10'] = $this->createKPI( $company_id, 20, 10, array(-1) );
 			$kpi_all_ids[]['20'] = $this->createKPI( $company_id, 30, 20, array(-1) );
@@ -7003,8 +7043,6 @@ class DemoData {
 			$kpi_group1_ids[]['10'] = $this->createKPI( $company_id, 50, 10, array($kpi_group_ids[0]) );
 			$kpi_group2_ids[]['30'] = $this->createKPI( $company_id, 60, 30, array($kpi_group_ids[1]) );
 			$kpi_group2_ids[]['30'] = $this->createKPI( $company_id, 70, 30, array($kpi_group_ids[1]) );
-
-
 
 			foreach( $user_ids as $code => $user_id ) {
 				$reviewer_user_ids = $user_ids;

@@ -576,6 +576,9 @@ class Install {
 		if ( is_array($schema_versions) AND $total_schema_versions > 0 ) {
 			//$this->getDatabaseConnection()->StartTrans();
 			$this->getProgressBarObject()->start( $this->getAMFMessageID(), $total_schema_versions );
+
+			$this->initializeSequences(); //Initialize sequences before we start the schema upgrade to hopefully avoid duplicate key errors.
+
 			$x = 0;
 			foreach( $schema_versions as $schema_version ) {
 				if ( ( $start_version === NULL OR $schema_version >= $start_version )
@@ -600,7 +603,7 @@ class Install {
 						$msg = TTi18n::getText('Initializing database');
 					}
 
-					$this->getProgressBarObject()->set( $this->getAMFMessageID(), $x, $msg.' - '.($x+1).' '.TTi18n::getText('of').' '.$total_schema_versions );
+					$this->getProgressBarObject()->set( $this->getAMFMessageID(), $x, $msg.' - '.( $x + 1 ).' '.TTi18n::getText('of').' '.$total_schema_versions );
 
 					if ( $create_schema_result === FALSE ) {
 						Debug::text('CreateSchema Failed! On Version: '. $schema_version, __FILE__, __LINE__, __METHOD__, 9);
@@ -616,7 +619,6 @@ class Install {
 
 				$x++;
 			}
-			$this->initializeSequences();
 			$this->getProgressBarObject()->stop( $this->getAMFMessageID() );
 
 			//$this->getDatabaseConnection()->FailTrans();

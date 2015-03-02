@@ -186,5 +186,10 @@ ALayoutCache.buildDefaultColumns = function() {
 
 	];
 
+	default_columns[ALayoutIDs.PAY_STUB_ACCOUNT] = [
+		{label: 'Name', value: 'name'},
+		{label: 'Type', value: 'type'}
+	];
+
 	return default_columns;
 }

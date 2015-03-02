@@ -375,8 +375,8 @@ class CompanyDeductionFactory extends Factory {
 				break;
 			case 'state_al_filing_status':
 				$retval = array(
-														10 => TTi18n::gettext('Status "S" Claiming $1500'),
-														20 => TTi18n::gettext('Status "M" Claiming $3000'),
+														10 => TTi18n::gettext('Status "S": Claiming $1500'),
+														20 => TTi18n::gettext('Status "M": Claiming $3000'),
 														30 => TTi18n::gettext('Status "0"'),
 														40 => TTi18n::gettext('Head of Household'),
 														50 => TTi18n::gettext('Status "MS"')
@@ -1364,11 +1364,11 @@ class CompanyDeductionFactory extends Factory {
 				OR ( $this->getMaximumLengthOfServiceUnit() == 50 AND $this->getMaximumLengthOfService() > 0 ) ) {
 			//Hour based length of service, get users hours up until this period.
 			$worked_time = TTDate::getHours( $this->getWorkedTimeByUserIdAndEndDate( $u_obj->getId(), $u_obj->getHireDate(), $epoch ) );
-			Debug::Text('&nbsp;&nbsp;Worked Time: '. $worked_time .'hrs', __FILE__, __LINE__, __METHOD__, 10);
+			Debug::Text('  Worked Time: '. $worked_time .'hrs', __FILE__, __LINE__, __METHOD__, 10);
 		}
 
 		$employed_days = TTDate::getDays( ($epoch - $u_obj->getHireDate()) );
-		Debug::Text('&nbsp;&nbsp;Employed Days: '. $employed_days, __FILE__, __LINE__, __METHOD__, 10);
+		Debug::Text('  Employed Days: '. $employed_days, __FILE__, __LINE__, __METHOD__, 10);
 
 		$minimum_length_of_service_result = FALSE;
 		$maximum_length_of_service_result = FALSE;
@@ -1386,7 +1386,7 @@ class CompanyDeductionFactory extends Factory {
 			$maximum_length_of_service_result = TRUE;
 		}
 
-		Debug::Text('&nbsp;&nbsp; Min Result: '. (int)$minimum_length_of_service_result .' Max Result: '. (int)$maximum_length_of_service_result, __FILE__, __LINE__, __METHOD__, 10);
+		Debug::Text('   Min Result: '. (int)$minimum_length_of_service_result .' Max Result: '. (int)$maximum_length_of_service_result, __FILE__, __LINE__, __METHOD__, 10);
 
 		if ( $minimum_length_of_service_result == TRUE AND $maximum_length_of_service_result == TRUE ) {
 			return TRUE;

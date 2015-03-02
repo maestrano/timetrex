@@ -183,6 +183,11 @@ class ExceptionReport extends Report {
 										'-1170-exception_policy_type_id' => TTi18n::gettext('Code'),
 								);
 
+				if ( getTTProductEdition() >= TT_PRODUCT_CORPORATE ) {
+					$retval['-1120-default_job'] = TTi18n::gettext('Job');
+					$retval['-1125-default_job_item'] = TTi18n::gettext('Task');
+				}
+
 				$retval = array_merge( $retval, (array)$this->getOptions('date_columns'), (array)$this->getOptions('custom_columns'), (array)$this->getOptions('report_static_custom_column') );
 				ksort($retval);
 				break;

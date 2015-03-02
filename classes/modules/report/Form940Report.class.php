@@ -530,8 +530,8 @@ class Form940Report extends Report {
 				$payments_over_cutoff = $this->getF940Object()->payment_cutoff_amount; //Need to get this from the government form.
 				$before_adjustment_tax_rate = $this->getF940Object()->futa_tax_before_adjustment_rate;
 				$tax_rate = $this->getF940Object()->futa_tax_rate;
+				Debug::Text(' Cutoff: '. $payments_over_cutoff .' Before Adjustment Rate: '. $before_adjustment_tax_rate .' Rate: '. $tax_rate .' Line 10: '. $setup_data['line_10'], __FILE__, __LINE__, __METHOD__, 10);
 				if ( $setup_data['line_10'] > 0 ) {
-
 					//Because they had to fill out a separate worksheet which we don't deal with, just average the excluded wages over each loop iteration.
 					$excluded_wage_divisor = 0;
 					foreach($this->tmp_data['pay_stub_entry'] as $user_id => $data_a) {
@@ -541,6 +541,18 @@ class Form940Report extends Report {
 					}
 					$excluded_wage_avg = bcdiv( $setup_data['line_10'], $excluded_wage_divisor );
 					Debug::Text(' Excluded Wage Avg: '. $excluded_wage_avg .' Divisor: '. $excluded_wage_divisor, __FILE__, __LINE__, __METHOD__, 10);
+					unset($user_id, $data_a, $data_b, $date_stamp);
+				}
+				if ( $setup_data['line_11'] > 0 ) {
+					//Because they had to fill out a separate worksheet which we don't deal with, just average the excluded wages over each loop iteration.
+					$credit_reduction_wage_divisor = 0;
+					foreach($this->tmp_data['pay_stub_entry'] as $user_id => $data_a) {
+						foreach($data_a as $date_stamp => $data_b) {
+							$credit_reduction_wage_divisor++;
+						}
+					}
+					$credit_reduction_wage_avg = bcdiv( $setup_data['line_11'], $credit_reduction_wage_divisor );
+					Debug::Text(' Excluded Wage Avg: '. $credit_reduction_wage_avg .' Divisor: '. $credit_reduction_wage_divisor, __FILE__, __LINE__, __METHOD__, 10);
 					unset($user_id, $data_a, $data_b, $date_stamp);
 				}
 
@@ -564,12 +576,12 @@ class Form940Report extends Report {
 
 						if ( $this->tmp_data['user_total'][$user_id]['excess_payments'] == 0  ) {
 							if ( $this->tmp_data['user_total'][$user_id]['net_payments'] > $payments_over_cutoff ) {
-								Debug::Text(' First time over cutoff for User: '. $user_id, __FILE__, __LINE__, __METHOD__, 10);
+								//Debug::Text(' First time over cutoff for User: '. $user_id, __FILE__, __LINE__, __METHOD__, 10);
 								$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['excess_payments'] = ( $this->tmp_data['user_total'][$user_id]['net_payments'] - $payments_over_cutoff );
 								$this->tmp_data['user_total'][$user_id]['excess_payments'] += $this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['excess_payments'];
 							}
 						} else {
-							Debug::Text(' Next time over cutoff for User: '. $user_id .' Date Stamp: '. $date_stamp, __FILE__, __LINE__, __METHOD__, 10);
+							//Debug::Text(' Next time over cutoff for User: '. $user_id .' Date Stamp: '. $date_stamp, __FILE__, __LINE__, __METHOD__, 10);
 							$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['excess_payments'] = bcadd( $this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['excess_payments'], $this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['net_payments'] );
 						}
 
@@ -577,9 +589,13 @@ class Form940Report extends Report {
 						$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['before_adjustment_tax'] = bcmul( $this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['taxable_wages'], $before_adjustment_tax_rate );
 						if ( $setup_data['line_10'] > 0 ) {
 							$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['adjustment_tax'] = bcadd( $this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['adjustment_tax'], $excluded_wage_avg );
-						} else {
-							$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['adjustment_tax'] = bcmul( $this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['taxable_wages'], $tax_rate );
+							//Debug::Text('   Line 10: Adjustment Tax: '. $this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['adjustment_tax'], __FILE__, __LINE__, __METHOD__, 10);
 						}
+						if ( $setup_data['line_11'] > 0 ) {
+							$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['adjustment_tax'] = bcadd( $this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['adjustment_tax'], $credit_reduction_wage_avg );
+							//Debug::Text('   Line 11: Adjustment Tax: '. $this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['adjustment_tax'], __FILE__, __LINE__, __METHOD__, 10);
+						}
+						//Debug::Text(' Total Adjustment Tax: '. $this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['adjustment_tax'], __FILE__, __LINE__, __METHOD__, 10);
 						$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['after_adjustment_tax'] = bcadd( $this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['before_adjustment_tax'], $this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['adjustment_tax'] );
 
 						//Separate data used for reporting, grouping, sorting, from data specific used for the Form.

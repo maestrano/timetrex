@@ -407,6 +407,21 @@ LogViewController = BaseViewController.extend( {
 
 	},
 
+	autoOpenEditViewIfNecessary: function() {
+		//Auto open edit view. Should set in IndexController
+		switch ( LocalCacheData.current_doing_context_action ) {
+			case 'view':
+				if ( LocalCacheData.edit_id_for_next_open_view ) {
+					this.onViewClick( LocalCacheData.edit_id_for_next_open_view );
+					LocalCacheData.edit_id_for_next_open_view = null;
+				}
+				break;
+		}
+
+		this.autoOpenEditOnlyViewIfNecessary();
+
+	},
+
 	initLogDetailsView: function( column_start_from ) {
 
 		var grid = this.edit_view.find( '#grid' );

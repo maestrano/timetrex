@@ -175,8 +175,6 @@ class UserSummaryReport extends Report {
 										'-1080-user_group' => TTi18n::gettext('Group'),
 										'-1090-default_branch' => TTi18n::gettext('Branch'), //abbreviate for space
 										'-1100-default_department' => TTi18n::gettext('Department'), //abbreviate for space
-										'-1120-default_job' => TTi18n::gettext('Job'), //abbreviate for space
-										'-1150-default_job_item' => TTi18n::gettext('Task'), //abbreviate for space
 										'-1190-ethnic_group' => TTi18n::gettext('Ethnicity'),
 
 										'-1200-permission_control' => TTi18n::gettext('Permission Group'),
@@ -228,8 +226,13 @@ class UserSummaryReport extends Report {
 
 										'-2205-created_by' => TTi18n::gettext('Created By'),
 										'-2215-updated_by' => TTi18n::gettext('Updated By'),
-
 								);
+
+				if ( getTTProductEdition() >= TT_PRODUCT_CORPORATE ) {
+					$retval['-1120-default_job'] = TTi18n::gettext('Job');
+					$retval['-1125-default_job_item'] = TTi18n::gettext('Task');
+				}
+
 				$retval = array_merge( $retval, (array)$this->getOptions('date_columns'), (array)$this->getOptions('custom_columns'), (array)$this->getOptions('report_static_custom_column')  );
 				ksort($retval);
 				break;

@@ -211,6 +211,10 @@ class APIBankAccount extends APIFactory {
 						//Current user
 						$row['company_id'] = $this->getCurrentCompanyObject()->getId();
 						$row['user_id'] = $this->getCurrentUserObject()->getId();
+					} elseif ( $row['user_id'] != '' AND ( $row['company_id'] == '' OR $row['company_id'] == $this->getCurrentCompanyObject()->getId() ) AND $this->getPermissionObject()->Check('user', 'edit_child_bank') ) {
+						Debug::Text('Specified Child User', __FILE__, __LINE__, __METHOD__, 10);
+						//Specified User
+						$row['company_id'] = $this->getCurrentCompanyObject()->getId();
 					} elseif ( $row['user_id'] != '' AND ( $row['company_id'] == '' OR $row['company_id'] == $this->getCurrentCompanyObject()->getId() ) AND $this->getPermissionObject()->Check('user', 'edit_bank') ) {
 						Debug::Text('Specified User', __FILE__, __LINE__, __METHOD__, 10);
 						//Specified User

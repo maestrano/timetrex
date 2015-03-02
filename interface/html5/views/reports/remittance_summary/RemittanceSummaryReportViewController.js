@@ -231,7 +231,7 @@ RemittanceSummaryReportViewController = ReportBaseViewController.extend( {
 
 		v_box.append( form_item );
 
-		this.addEditFieldToColumn( $.i18n._( 'Employee/Employer EI Accounts' ), [form_item_input, form_item_input_1], tab3_column1, '', v_box, false, true );
+		this.addEditFieldToColumn( $.i18n._( 'Employee/Employer EI' ), [form_item_input, form_item_input_1], tab3_column1, '', v_box, false, true );
 
 		//Employee/Employer CPP Accounts
 		v_box = $( "<div class='v-box'></div>" );
@@ -268,7 +268,7 @@ RemittanceSummaryReportViewController = ReportBaseViewController.extend( {
 
 		v_box.append( form_item );
 
-		this.addEditFieldToColumn( $.i18n._( 'Employee/Employer CPP Accounts' ), [form_item_input, form_item_input_1], tab3_column1, '', v_box, false, true );
+		this.addEditFieldToColumn( $.i18n._( 'Employee/Employer CPP' ), [form_item_input, form_item_input_1], tab3_column1, '', v_box, false, true );
 
 		//Income Tax Accounts
 		v_box = $( "<div class='v-box'></div>" );
@@ -305,7 +305,7 @@ RemittanceSummaryReportViewController = ReportBaseViewController.extend( {
 
 		v_box.append( form_item );
 
-		this.addEditFieldToColumn( $.i18n._( 'Income Tax Accounts' ), [form_item_input, form_item_input_1], tab3_column1, '', v_box, false, true );
+		this.addEditFieldToColumn( $.i18n._( 'Federal/Provincial Income Tax' ), [form_item_input, form_item_input_1], tab3_column1, '', v_box, false, true );
 
 	},
 

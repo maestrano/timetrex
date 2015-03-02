@@ -211,6 +211,11 @@ class TimesheetSummaryReport extends Report {
 										'-1515-verified_time_sheet_date' => TTi18n::gettext('Verified TimeSheet Date'),
 								);
 
+				if ( getTTProductEdition() >= TT_PRODUCT_CORPORATE ) {
+					$retval['-1105-default_job'] = TTi18n::gettext('Default Job');
+					$retval['-1107-default_job_item'] = TTi18n::gettext('Default Task');
+				}
+				
 				$retval = array_merge( $retval, (array)$this->getOptions('date_columns'), (array)$this->getOptions('custom_columns'), (array)$this->getOptions('report_static_custom_column')  );
 				ksort($retval);
 				break;
@@ -243,6 +248,7 @@ class TimesheetSummaryReport extends Report {
 										
 										'-3200-gross_wage' => TTi18n::gettext('Gross Wage'),
 										'-3400-gross_wage_with_burden' => TTi18n::gettext('Gross Wage w/Burden'),
+										//'-3390-gross_hourly_rate' => TTi18n::gettext('Gross Hourly Rate'),
 							);
 
 				$retval = array_merge( $retval, $this->getOptions('paycode_columns') );
@@ -755,9 +761,9 @@ class TimesheetSummaryReport extends Report {
 								$this->tmp_data['user_date_total'][$user_id][$date_stamp][$branch_id][$department_id][$column.'_wage_with_burden'] = $udt_obj->getColumn('total_time_amount_with_burden');
 							}
 
-							if ( $this->tmp_data['user_date_total'][$user_id][$date_stamp][$branch_id][$department_id][$column.'_wage'] != 0 AND $this->tmp_data['user_date_total'][$user_id][$date_stamp][$branch_id][$department_id][$column.'_time'] != 0 ) {
-								$this->tmp_data['user_date_total'][$user_id][$date_stamp][$branch_id][$department_id][$column.'_hourly_rate'] = bcdiv($this->tmp_data['user_date_total'][$user_id][$date_stamp][$branch_id][$department_id][$column.'_wage'], bcdiv($this->tmp_data['user_date_total'][$user_id][$date_stamp][$branch_id][$department_id][$column.'_time'], 3600) );
-								$this->tmp_data['user_date_total'][$user_id][$date_stamp][$branch_id][$department_id][$column.'_hourly_rate_with_burden'] = bcdiv($this->tmp_data['user_date_total'][$user_id][$date_stamp][$branch_id][$department_id][$column.'_wage_with_burden'], bcdiv($this->tmp_data['user_date_total'][$user_id][$date_stamp][$branch_id][$department_id][$column.'_time'], 3600) );
+							if ( isset($this->tmp_data['user_date_total'][$user_id][$date_stamp][$branch_id][$department_id][$column.'_hourly_rate']) AND $this->tmp_data['user_date_total'][$user_id][$date_stamp][$branch_id][$department_id][$column.'_wage'] != 0 AND $this->tmp_data['user_date_total'][$user_id][$date_stamp][$branch_id][$department_id][$column.'_time'] != 0 ) {
+								$this->tmp_data['user_date_total'][$user_id][$date_stamp][$branch_id][$department_id][$column.'_hourly_rate'] = bcdiv($this->tmp_data['user_date_total'][$user_id][$date_stamp][$branch_id][$department_id][$column.'_wage'], TTDate::getHours($this->tmp_data['user_date_total'][$user_id][$date_stamp][$branch_id][$department_id][$column.'_time']) );
+								$this->tmp_data['user_date_total'][$user_id][$date_stamp][$branch_id][$department_id][$column.'_hourly_rate_with_burden'] = bcdiv($this->tmp_data['user_date_total'][$user_id][$date_stamp][$branch_id][$department_id][$column.'_wage_with_burden'], TTDate::getHours($this->tmp_data['user_date_total'][$user_id][$date_stamp][$branch_id][$department_id][$column.'_time']) );
 							} else {
 								$this->tmp_data['user_date_total'][$user_id][$date_stamp][$branch_id][$department_id][$column.'_hourly_rate'] = $udt_obj->getColumn( 'hourly_rate' );
 								$this->tmp_data['user_date_total'][$user_id][$date_stamp][$branch_id][$department_id][$column.'_hourly_rate_with_burden'] = $udt_obj->getColumn( 'hourly_rate_with_burden' );

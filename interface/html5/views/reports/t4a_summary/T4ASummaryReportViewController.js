@@ -389,7 +389,7 @@ T4ASummaryReportViewController = ReportBaseViewController.extend( {
 
 		v_box.append( form_item );
 
-		this.addEditFieldToColumn( $.i18n._( 'Employer CPP' ), [form_item_input, form_item_input_1], tab3_column1, '', v_box, false, true );
+		this.addEditFieldToColumn( $.i18n._( 'Income Tax Deducted (Box 22)' ), [form_item_input, form_item_input_1], tab3_column1, '', v_box, false, true );
 
 		//Annuities (Box: 27)
 		v_box = $( "<div class='v-box'></div>" );
@@ -426,7 +426,7 @@ T4ASummaryReportViewController = ReportBaseViewController.extend( {
 
 		v_box.append( form_item );
 
-		this.addEditFieldToColumn( $.i18n._( 'Employee EI (Box 18)' ), [form_item_input, form_item_input_1], tab3_column1, '', v_box, false, true );
+		this.addEditFieldToColumn( $.i18n._( 'Annuities (Box 24)' ), [form_item_input, form_item_input_1], tab3_column1, '', v_box, false, true );
 
 		//Fees for Services (Box: 48)
 		v_box = $( "<div class='v-box'></div>" );

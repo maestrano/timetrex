@@ -1935,6 +1935,7 @@ BaseViewController = Backbone.View.extend( {
 		if ( flag ) {
 			tab0.css( 'opacity', 1 );
 			this.edit_view.attr( 'init_complete', true );
+			this.setEditViewTabSize();
 
 		} else {
 			this.edit_view_tab.find( 'ul li' ).hide();
@@ -4456,7 +4457,6 @@ BaseViewController = Backbone.View.extend( {
 		if ( Global.isSet( column_start_from ) && column_start_from > 0 ) {
 			start_from = column_start_from;
 		}
-
 		for ( var i = start_from; i < len; i++ ) {
 			var view_column_data = display_columns[i];
 
@@ -5423,11 +5423,7 @@ BaseViewController = Backbone.View.extend( {
 			total_tab_width += $( this ).width();
 		} );
 
-		if ( tab_bar_label.children().eq( 0 ).is( ':visible' ) ) {
-			this.edit_view_tab.find( '.tab-arrow' ).show()
-		} else {
-			this.edit_view_tab.find( '.tab-arrow' ).hide()
-		}
+
 
 		if ( total_tab_width > (tab_width - nav_width - 25) ) {
 
@@ -5455,6 +5451,12 @@ BaseViewController = Backbone.View.extend( {
 			} else {
 				wrap_div.width( tab_width - nav_width - 25 );
 				wrap_div.children().eq( 0 ).width( tab_width - nav_width - 100 );
+			}
+
+			if ( tab_bar_label.children().eq( 0 ).is( ':visible' ) ) {
+				this.edit_view_tab.find( '.tab-arrow' ).show()
+			} else {
+				this.edit_view_tab.find( '.tab-arrow' ).hide()
 			}
 
 			setArrowStatus();

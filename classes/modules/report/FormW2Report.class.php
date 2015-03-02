@@ -545,23 +545,27 @@ class FormW2Report extends Report {
 		$cdlf->getByCompanyIdAndStatusIdAndTypeId( $this->getUserObject()->getCompany(), array(10, 20), 10 );
 		if ( $cdlf->getRecordCount() > 0 ) {
 			foreach( $cdlf as $cd_obj ) {
-				$tax_deductions[$cd_obj->getId()] = array(
-											'id' => $cd_obj->getId(),
-											'name' => $cd_obj->getName(),
-											'calculation_id' => $cd_obj->getCalculation(),
-											'province' => $cd_obj->getProvince(),
-											'district' => $cd_obj->getDistrictName(),
-											'pay_stub_entry_account_id' => $cd_obj->getPayStubEntryAccount(),
-											'include' => $cd_obj->getIncludePayStubEntryAccount(),
-											'exclude' => $cd_obj->getExcludePayStubEntryAccount(),
-											'user_ids' => $cd_obj->getUser(),
-											'company_value1' => $cd_obj->getCompanyValue1(),
-											'user_value1' => $cd_obj->getUserValue1(),
-											'user_value5' => $cd_obj->getUserValue5(), //District
-										);
-				$tax_deduction_pay_stub_account_id_map[$cd_obj->getPayStubEntryAccount()][] = $cd_obj->getId();
+				if ( in_array( $cd_obj->getCalculation(), array(200, 300) ) ) { //Only consider State/District records.
+					$tax_deductions[$cd_obj->getId()] = array(
+												'id' => $cd_obj->getId(),
+												'name' => $cd_obj->getName(),
+												'calculation_id' => $cd_obj->getCalculation(),
+												'province' => $cd_obj->getProvince(),
+												'district' => $cd_obj->getDistrictName(),
+												'pay_stub_entry_account_id' => $cd_obj->getPayStubEntryAccount(),
+												'include' => $cd_obj->getIncludePayStubEntryAccount(),
+												'exclude' => $cd_obj->getExcludePayStubEntryAccount(),
+												'user_ids' => $cd_obj->getUser(),
+												'company_value1' => $cd_obj->getCompanyValue1(),
+												'user_value1' => $cd_obj->getUserValue1(),
+												'user_value5' => $cd_obj->getUserValue5(), //District
+												'user_ids' => $cd_obj->getUser()
+											);
+					$tax_deduction_pay_stub_account_id_map[$cd_obj->getPayStubEntryAccount()][] = $cd_obj->getId();
+				}
 			}
 			//Debug::Arr($tax_deductions, 'Tax Deductions: ', __FILE__, __LINE__, __METHOD__, 10);
+			//Debug::Arr($tax_deduction_pay_stub_account_id_map, 'Tax Deduction Pay Stub Account Map: ', __FILE__, __LINE__, __METHOD__, 10);
 		}
 
 		$pself = TTnew( 'PayStubEntryListFactory' );
@@ -615,72 +619,73 @@ class FormW2Report extends Report {
 					$this->tmp_data['pay_stub_entry'][$user_id]['l14c']		= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['l14c']['include_pay_stub_entry_account'], $form_data['l14c']['exclude_pay_stub_entry_account'] );
 					$this->tmp_data['pay_stub_entry'][$user_id]['l14d']		= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['l14d']['include_pay_stub_entry_account'], $form_data['l14d']['exclude_pay_stub_entry_account'] );
 
-					if ( is_array($data_b['psen_ids']) ) {
-						foreach( $data_b['psen_ids'] as $psen_id => $psen_amount ) {
-							if ( isset($tax_deduction_pay_stub_account_id_map[$psen_id]) ) {
-								//Support multiple tax/deductions that deposit to the same pay stub account.
-								foreach( $tax_deduction_pay_stub_account_id_map[$psen_id] as $tax_deduction_id ) {
-									$tax_deduction_arr = $tax_deductions[$tax_deduction_id];
-
-									//Found Tax/Deduction associated with this pay stub account.
-									Debug::Text('Found User ID: '. $user_id .' in Tax Deduction Name: '. $tax_deduction_arr['name'] .'('.$tax_deduction_arr['id'].') Pay Stub Entry Account ID: '. $psen_id .' Calculation ID: '. $tax_deduction_arr['calculation_id'], __FILE__, __LINE__, __METHOD__, 10);
-									if ( $tax_deduction_arr['calculation_id'] == 200 AND $tax_deduction_arr['province'] != '' ) {
-										//determine how many district/states currently exist for this employee.
-										foreach( range('a', 'z') as $z ) {
-											//Make sure we are able to combine multiple state Tax/Deduction amounts together in the case
-											//where they are using different Pay Stub Accounts for the State Income Tax and State Addl. Income Tax PSA's.
-											if ( !( isset($this->tmp_data['pay_stub_entry'][$user_id]['l17'.$z]) AND isset($this->tmp_data['pay_stub_entry'][$user_id]['l15'. $z .'_state']) AND $this->tmp_data['pay_stub_entry'][$user_id]['l15'. $z .'_state'] != $tax_deduction_arr['province'] ) ) {
-												$state_id = $z;
-												break;
-											}
+					if ( is_array($data_b['psen_ids']) AND isset($tax_deductions) ) {
+						//Support multiple tax/deductions that deposit to the same pay stub account.
+						//Also make sure we handle tax/deductions that may not have anything deducted/withheld, but do have wages to be displayed.
+						//  For example an employee not earning enough to have State income tax taken off yet.
+						foreach( $tax_deductions as $tax_deduction_id => $tax_deduction_arr ) {
+							//Found Tax/Deduction associated with this pay stub account.
+							$tax_withheld_amount = Misc::calculateMultipleColumns( $data_b['psen_ids'], array($tax_deduction_arr['pay_stub_entry_account_id']) );
+							if ( $tax_withheld_amount > 0 OR in_array( $user_id, (array)$tax_deduction_arr['user_ids']) ) {
+								Debug::Text('Found User ID: '. $user_id .' in Tax Deduction Name: '. $tax_deduction_arr['name'] .'('.$tax_deduction_arr['id'].') Calculation ID: '. $tax_deduction_arr['calculation_id'] .' Withheld Amount: '. $tax_withheld_amount, __FILE__, __LINE__, __METHOD__, 10);
+								if ( $tax_deduction_arr['calculation_id'] == 200 AND $tax_deduction_arr['province'] != '' ) {
+									//determine how many district/states currently exist for this employee.
+									foreach( range('a', 'z') as $z ) {
+										//Make sure we are able to combine multiple state Tax/Deduction amounts together in the case
+										//where they are using different Pay Stub Accounts for the State Income Tax and State Addl. Income Tax PSA's.
+										if ( !( isset($this->tmp_data['pay_stub_entry'][$user_id]['l17'.$z]) AND isset($this->tmp_data['pay_stub_entry'][$user_id]['l15'. $z .'_state']) AND $this->tmp_data['pay_stub_entry'][$user_id]['l15'. $z .'_state'] != $tax_deduction_arr['province'] ) ) {
+											$state_id = $z;
+											break;
 										}
-										//Debug::Text('State ID: '. $state_id .' Z: '. $z, __FILE__, __LINE__, __METHOD__, 10);
-
-										//State Wages/Taxes
-										$this->tmp_data['pay_stub_entry'][$user_id]['l15'. $state_id .'_state'] = $tax_deduction_arr['province'];
-										if ( !isset($this->tmp_data['pay_stub_entry'][$user_id]['l16'. $state_id]) OR ( isset($this->tmp_data['pay_stub_entry'][$user_id]['l16'. $state_id]) AND $this->tmp_data['pay_stub_entry'][$user_id]['l16'. $state_id] == 0 ) ) {
-											$this->tmp_data['pay_stub_entry'][$user_id]['l16'. $state_id] = Misc::calculateMultipleColumns( $data_b['psen_ids'], $tax_deduction_arr['include'], $tax_deduction_arr['exclude'] );
-										}
-										if ( !isset($this->tmp_data['pay_stub_entry'][$user_id]['l17'. $state_id]) ) {
-											$this->tmp_data['pay_stub_entry'][$user_id]['l17'. $state_id] = 0;
-										}
-										//Just combine the tax withheld part, not the wages/earnings, as we don't want to double up on that.
-										$this->tmp_data['pay_stub_entry'][$user_id]['l17'. $state_id] += Misc::calculateMultipleColumns( $data_b['psen_ids'], array($tax_deduction_arr['pay_stub_entry_account_id']) );
-									} elseif ( $tax_deduction_arr['calculation_id'] == 300 AND ( $tax_deduction_arr['district'] != '' OR $tax_deduction_arr['company_value1'] != '' ) )	 {
-										if ( $tax_deduction_arr['district'] == '' AND $tax_deduction_arr['company_value1'] != '' ) {
-											$district_name = $tax_deduction_arr['company_value1'];
-										} else {
-											$district_name = $tax_deduction_arr['district'];
-										}
-
-										foreach( range('a', 'z') as $z ) {
-											//Make sure we are able to combine multiple district Tax/Deduction amounts together in the case
-											//where they are using different Pay Stub Accounts for the District Income Tax and District Addl. Income Tax PSA's.
-											if ( !( isset($this->tmp_data['pay_stub_entry'][$user_id]['l19'.$z]) AND isset($this->tmp_data['pay_stub_entry'][$user_id]['l20'. $z]) AND $this->tmp_data['pay_stub_entry'][$user_id]['l20'. $z] != $district_name ) ) {
-												$district_id = $z;
-												break;
-											}
-										}
-										//Debug::Text('District Name ID: '. $district_name .' Z: '. $z, __FILE__, __LINE__, __METHOD__, 10);
-
-										//District Wages/Taxes
-										$this->tmp_data['pay_stub_entry'][$user_id]['l20'. $district_id] = $district_name;
-										if ( !isset($this->tmp_data['pay_stub_entry'][$user_id]['l18'. $district_id]) OR ( isset($this->tmp_data['pay_stub_entry'][$user_id]['l18'. $district_id]) AND $this->tmp_data['pay_stub_entry'][$user_id]['l18'. $district_id] == 0 ) ) {
-											$this->tmp_data['pay_stub_entry'][$user_id]['l18'. $district_id] = Misc::calculateMultipleColumns( $data_b['psen_ids'], $tax_deduction_arr['include'], $tax_deduction_arr['exclude'] );
-										}
-										if ( !isset($this->tmp_data['pay_stub_entry'][$user_id]['l19'. $district_id]) ) {
-											$this->tmp_data['pay_stub_entry'][$user_id]['l19'. $district_id] = 0;
-										}
-										//Just combine the tax withheld part, not the wages/earnings, as we don't want to double up on that.
-										$this->tmp_data['pay_stub_entry'][$user_id]['l19'. $district_id] += Misc::calculateMultipleColumns( $data_b['psen_ids'], array($tax_deduction_arr['pay_stub_entry_account_id']) );
-									} else {
-										Debug::Text('Not State or Local income tax: '. $tax_deduction_arr['id'] .' Calculation: '. $tax_deduction_arr['calculation_id'] .' District: '. $tax_deduction_arr['district'] .' UserValue5: '.$tax_deduction_arr['user_value5'] .' CompanyValue1: '. $tax_deduction_arr['company_value1'], __FILE__, __LINE__, __METHOD__, 10);
 									}
-									unset($tax_deduction_arr);
+									//Debug::Text('State ID: '. $state_id .' Z: '. $z, __FILE__, __LINE__, __METHOD__, 10);
+
+									//State Wages/Taxes
+									$this->tmp_data['pay_stub_entry'][$user_id]['l15'. $state_id .'_state'] = $tax_deduction_arr['province'];
+									if ( !isset($this->tmp_data['pay_stub_entry'][$user_id]['l16'. $state_id]) OR ( isset($this->tmp_data['pay_stub_entry'][$user_id]['l16'. $state_id]) AND $this->tmp_data['pay_stub_entry'][$user_id]['l16'. $state_id] == 0 ) ) {
+										$this->tmp_data['pay_stub_entry'][$user_id]['l16'. $state_id] = Misc::calculateMultipleColumns( $data_b['psen_ids'], $tax_deduction_arr['include'], $tax_deduction_arr['exclude'] );
+									}
+									if ( !isset($this->tmp_data['pay_stub_entry'][$user_id]['l17'. $state_id]) ) {
+										$this->tmp_data['pay_stub_entry'][$user_id]['l17'. $state_id] = 0;
+									}
+									//Just combine the tax withheld part, not the wages/earnings, as we don't want to double up on that.
+									$this->tmp_data['pay_stub_entry'][$user_id]['l17'. $state_id] += Misc::calculateMultipleColumns( $data_b['psen_ids'], array($tax_deduction_arr['pay_stub_entry_account_id']) );
+								} elseif ( $tax_deduction_arr['calculation_id'] == 300 AND ( $tax_deduction_arr['district'] != '' OR $tax_deduction_arr['company_value1'] != '' ) )	 {
+									if ( $tax_deduction_arr['district'] == '' AND $tax_deduction_arr['company_value1'] != '' ) {
+										$district_name = $tax_deduction_arr['company_value1'];
+									} else {
+										$district_name = $tax_deduction_arr['district'];
+									}
+
+									foreach( range('a', 'z') as $z ) {
+										//Make sure we are able to combine multiple district Tax/Deduction amounts together in the case
+										//where they are using different Pay Stub Accounts for the District Income Tax and District Addl. Income Tax PSA's.
+										if ( !( isset($this->tmp_data['pay_stub_entry'][$user_id]['l19'.$z]) AND isset($this->tmp_data['pay_stub_entry'][$user_id]['l20'. $z]) AND $this->tmp_data['pay_stub_entry'][$user_id]['l20'. $z] != $district_name ) ) {
+											$district_id = $z;
+											break;
+										}
+									}
+									//Debug::Text('District Name ID: '. $district_name .' Z: '. $z, __FILE__, __LINE__, __METHOD__, 10);
+
+									//District Wages/Taxes
+									$this->tmp_data['pay_stub_entry'][$user_id]['l20'. $district_id] = $district_name;
+									if ( !isset($this->tmp_data['pay_stub_entry'][$user_id]['l18'. $district_id]) OR ( isset($this->tmp_data['pay_stub_entry'][$user_id]['l18'. $district_id]) AND $this->tmp_data['pay_stub_entry'][$user_id]['l18'. $district_id] == 0 ) ) {
+										$this->tmp_data['pay_stub_entry'][$user_id]['l18'. $district_id] = Misc::calculateMultipleColumns( $data_b['psen_ids'], $tax_deduction_arr['include'], $tax_deduction_arr['exclude'] );
+									}
+									if ( !isset($this->tmp_data['pay_stub_entry'][$user_id]['l19'. $district_id]) ) {
+										$this->tmp_data['pay_stub_entry'][$user_id]['l19'. $district_id] = 0;
+									}
+									//Just combine the tax withheld part, not the wages/earnings, as we don't want to double up on that.
+									$this->tmp_data['pay_stub_entry'][$user_id]['l19'. $district_id] += Misc::calculateMultipleColumns( $data_b['psen_ids'], array($tax_deduction_arr['pay_stub_entry_account_id']) );
+								} else {
+									Debug::Text('Not State or Local income tax: '. $tax_deduction_arr['id'] .' Calculation: '. $tax_deduction_arr['calculation_id'] .' District: '. $tax_deduction_arr['district'] .' UserValue5: '.$tax_deduction_arr['user_value5'] .' CompanyValue1: '. $tax_deduction_arr['company_value1'], __FILE__, __LINE__, __METHOD__, 10);
 								}
+							} else {
+								Debug::Text('User is either not assigned to Tax/Deduction, or they do not have any calculated amounts...', __FILE__, __LINE__, __METHOD__, 10);
 							}
+							unset($tax_withheld_amount);
 						}
-						unset($psen_id, $psen_amount, $state_id, $district_id);
+						unset($state_id, $district_id, $district_name, $tax_deduction_id, $tax_deduction_arr);
 					}
 				}
 			}

@@ -14,7 +14,7 @@ storage_dir = "/var/timetrex/storage"
 log_dir = "/var/log/timetrex"
 ;URL to TimeTrex web root directory. ie: http://your.domain.com/<*BASE_URL*>
 ;DO NOT INCLUDE http://your.domain.com, just the directory AFTER your domain
-base_url = "/interface/"
+base_url = "/interface"
 
 ;
 ;log directory
@@ -93,7 +93,7 @@ verbosity = 10
 ; Force all clients to use SSL.
 force_ssl = FALSE
 installer_enabled = FALSE
-primary_company_id = 2
+primary_company_id = 1
 hostname = localhost
 
 ; System Administrators Email address to send critical errors to if necessary. Set to FALSE to disable completely.
@@ -104,6 +104,6 @@ default_interface = html5
 ;WARNING: DO NOT CHANGE THIS AFTER YOU HAVE INSTALLED TIMETREX.
 ;If you do it will cause all your passwords to become invalid,
 ;and you may lose access to some encrypted data.
-salt = bcfe714a25063afd65e1f1d8647f0bd5
+salt = b71ff7b71b6a5f8bec1f90728fd80aff
 
 

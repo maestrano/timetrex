@@ -17,7 +17,7 @@ AccrualBalanceViewController = BaseViewController.extend( {
 		this.context_menu_name = $.i18n._( 'Accrual Balances' );
 		this.navigation_label = $.i18n._( 'Accrual Balance' ) + ':';
 		this.api = new (APIFactory.getAPIClass( 'APIAccrualBalance' ))();
-
+		this.accrual_api = new (APIFactory.getAPIClass( 'APIAccrual' ))();
 		this.user_group_api = new (APIFactory.getAPIClass( 'APIUserGroup' ))();
 
 		this.invisible_context_menu_dic[ContextMenuIconName.edit] = true; //Hide some context menus
@@ -188,14 +188,14 @@ AccrualBalanceViewController = BaseViewController.extend( {
 		return data;
 	},
 
-	saveLogIds: function( data ) {
-		this.parent_view_controller.log_object_ids = [];
-		for ( var i = 0; i < data.length; i++ ) {
-			this.parent_view_controller.log_object_ids.push( data[i]['id'] );
-		}
-
-		return data;
-	},
+//	saveLogIds: function( data ) {
+//		this.parent_view_controller.log_object_ids = [];
+//		for ( var i = 0; i < data.length; i++ ) {
+//			this.parent_view_controller.log_object_ids.push( data[i]['id'] );
+//		}
+//
+//		return data;
+//	},
 
 	setDefaultMenuAddIcon: function( context_btn, grid_selected_length, pId ) {
 		this.setDefaultMenuEditIcon( context_btn, grid_selected_length, pId );
@@ -245,7 +245,23 @@ AccrualBalanceViewController = BaseViewController.extend( {
 			}
 
 			$this.current_edit_record = result_data;
-			$this.initEditView();
+
+			if ( $this.current_edit_record && $this.current_edit_record.user_id && $this.current_edit_record.accrual_policy_account_id ) {
+				filter.filter_data.user_id = $this.current_edit_record.user_id;
+				filter.filter_data.accrual_policy_account_id = $this.current_edit_record.accrual_policy_account_id;
+			}
+
+			// get the accrual data with the same filter data in order to be used for the audit tab.
+			$this.accrual_api['get' + $this.accrual_api.key_name]( filter, {onResult: function( res ) {
+				var result = res.getResult();
+				$this.log_object_ids = [];
+				for ( var i = 0; i < result.length; i++ ) {
+					$this.log_object_ids.push( result[i]['id'] );
+				}
+
+				$this.initEditView();
+
+			}} );
 
 		}} );
 
@@ -301,10 +317,32 @@ AccrualBalanceViewController = BaseViewController.extend( {
 			}
 
 			$this.current_edit_record = result_data;
-			$this.initEditView();
+			if ( $this.current_edit_record && $this.current_edit_record.user_id && $this.current_edit_record.accrual_policy_account_id ) {
+				filter.filter_data.user_id = $this.current_edit_record.user_id;
+				filter.filter_data.accrual_policy_account_id = $this.current_edit_record.accrual_policy_account_id;
+			}
+
+			// get the accrual data with the same filter data in order to be used for the audit tab.
+			$this.accrual_api['get' + $this.accrual_api.key_name]( filter, {onResult: function( res ) {
+				var result = res.getResult();
+				$this.log_object_ids = [];
+				for ( var i = 0; i < result.length; i++ ) {
+					$this.log_object_ids.push( result[i]['id'] );
+				}
+
+				$this.initEditView();
+
+			}} );
 
 		}} );
 
+	},
+
+	setEditViewData: function() {
+		this.is_changed = false;
+		this.initEditViewData();
+		this.switchToProperTab();
+		this.initTabData();
 	},
 
 	initEditViewData: function() {
@@ -346,7 +384,6 @@ AccrualBalanceViewController = BaseViewController.extend( {
 	},
 
 	initTabData: function() {
-
 		if ( this.edit_view_tab.tabs( 'option', 'selected' ) === 0 ) {
 			if ( this.current_edit_record ) {
 				this.edit_view_tab.find( '#tab_accrual' ).find( '.first-column-sub-view' ).css( 'display', 'block' );
@@ -441,21 +478,22 @@ AccrualBalanceViewController = BaseViewController.extend( {
 			$this.sub_accrual_view_controller.parent_edit_record = $this.current_edit_record;
 			$this.sub_accrual_view_controller.parent_view_controller = $this;
 			$this.sub_accrual_view_controller.is_trigger_add = $this.is_add ? true : false;
-			$this.sub_accrual_view_controller.__createRowId = $this.saveLogIds;
+//			$this.sub_accrual_view_controller.__createRowId = $this.saveLogIds;
 			$this.sub_accrual_view_controller.initData();
 		}
 
 	},
 
 	initSubLogView: function( tab_id ) {
-
 		var $this = this;
 		if ( this.sub_log_view_controller ) {
 			this.sub_log_view_controller.buildContextMenu( true );
 			this.sub_log_view_controller.setDefaultMenu();
+			$this.sub_log_view_controller.parent_key = 'object_id';
 			$this.sub_log_view_controller.parent_value = $this.log_object_ids;
 			$this.sub_log_view_controller.table_name_key = $this.table_name_key;
 			$this.sub_log_view_controller.parent_edit_record = $this.current_edit_record;
+			$this.sub_log_view_controller.parent_view_controller = $this;
 			$this.sub_log_view_controller.initData();
 			return;
 		}
@@ -473,6 +511,12 @@ AccrualBalanceViewController = BaseViewController.extend( {
 		}
 
 		function afterLoadView( subViewController ) {
+			// Can't directly open Audit in this case, because Audit need data from Sub Accrual View and it not
+			// be loaded if directly open audit from url
+			if(!$this.log_object_ids){
+				$this.edit_view_tab.tabs( 'select', 0 );
+				return;
+			}
 			$this.sub_log_view_controller = subViewController;
 			$this.sub_log_view_controller.parent_key = 'object_id';
 			$this.sub_log_view_controller.parent_value = $this.log_object_ids;

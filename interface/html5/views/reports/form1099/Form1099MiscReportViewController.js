@@ -305,7 +305,7 @@ Form1099MiscReportViewController = ReportBaseViewController.extend( {
 
 		this.addEditFieldToColumn( $.i18n._( 'Medical and Health Care Payments (Box 6)' ), [form_item_input, form_item_input_1], tab3_column1, '', v_box, false, true );
 
-		//SNonemployee compensation (Box 7)
+		//Nonemployee compensation (Box 7)
 		v_box = $( "<div class='v-box'></div>" );
 
 		//Selection Type
@@ -340,7 +340,7 @@ Form1099MiscReportViewController = ReportBaseViewController.extend( {
 
 		v_box.append( form_item );
 
-		this.addEditFieldToColumn( $.i18n._( 'SNonemployee compensation (Box 7)' ), [form_item_input, form_item_input_1], tab3_column1, '', v_box, false, true );
+		this.addEditFieldToColumn( $.i18n._( 'Nonemployee compensation (Box 7)' ), [form_item_input, form_item_input_1], tab3_column1, '', v_box, false, true );
 
 		//Name
 		form_item_input = Global.loadWidgetByName( FormItemType.TEXT_INPUT );

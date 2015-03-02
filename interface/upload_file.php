@@ -48,6 +48,7 @@ extract	(FormVariables::GetVariables(
 										array	(
 												'action',
 												'object_type',
+												'parent_object_type_id',
 												'object_id',
 												'parent_id',
 												'SessionID'
@@ -142,17 +143,21 @@ switch ($object_type) {
 	case 'document_revision':
 		Debug::Text('Document...', __FILE__, __LINE__, __METHOD__, 10);
 		$max_upload_file_size = 128000000;
-
-		if ( DEMO_MODE == FALSE AND ( $permission->Check('document', 'add') OR $permission->Check('document', 'edit') OR $permission->Check('document', 'edit_child') OR $permission->Check('document', 'edit_own') ) ) {
+		if ( isset( $parent_object_type_id ) AND $parent_object_type_id == 400 ) {
+			$section = 'user_expense';
+		} else {
+			$section = 'document';
+		}
+		if ( DEMO_MODE == FALSE AND ( $permission->Check($section, 'add') OR $permission->Check($section, 'edit') OR $permission->Check($section, 'edit_child') OR $permission->Check($section, 'edit_own') ) ) {
 			$permission_children_ids = $permission->getPermissionHierarchyChildren( $current_company->getId(), $current_user->getId() );
 
 			$drlf = TTnew( 'DocumentRevisionListFactory' );
 			$drlf->getByIdAndCompanyId( (int)$object_id, $current_user->getCompany() );
 			if ( $drlf->getRecordCount() == 1
 				AND
-				( $permission->Check('document', 'edit')
-					OR ( $permission->Check('document', 'edit_own') AND $permission->isOwner( $drlf->getCurrent()->getCreatedBy(), $drlf->getCurrent()->getID() ) === TRUE )
-					OR ( $permission->Check('document', 'edit_child') AND $permission->isChild( $drlf->getCurrent()->getId(), $permission_children_ids ) === TRUE ) ) ) {
+				( $permission->Check($section, 'edit')
+					OR ( $permission->Check($section, 'edit_own') AND $permission->isOwner( $drlf->getCurrent()->getCreatedBy(), $drlf->getCurrent()->getID() ) === TRUE )
+					OR ( $permission->Check($section, 'edit_child') AND $permission->isChild( $drlf->getCurrent()->getId(), $permission_children_ids ) === TRUE ) ) ) {
 
 				$df = TTnew( 'DocumentFactory' );
 				$drf = TTnew( 'DocumentRevisionFactory' );

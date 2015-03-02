@@ -603,6 +603,16 @@ var PermissionManager = (function() {
 					result = true;
 				}
 				break;
+			case 'ROE':
+				if ( !PermissionManager.validate( permission_section, 'enabled' ) ) {
+					result = false;
+				} else if ( ( PermissionManager.validate( permission_section, 'view' ) ||
+					PermissionManager.validate( permission_section, 'view_own' ) ||
+					PermissionManager.validate( permission_section, 'view_child' ) ) &&
+						countryPermissionValidate( 'CA' ) ) {
+					result = true;
+				}
+				break;
 			default :
 
 				if ( !PermissionManager.validate( permission_section, 'enabled' ) ) {

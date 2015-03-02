@@ -429,7 +429,7 @@ AccrualPolicyViewController = BaseViewController.extend( {
 			show_search_inputs: true,
 			set_empty: true,
 			set_default: true,
-			field: 'accrual_policy_account_id',
+			field: 'accrual_policy_account_id'
 		} );
 		this.addEditFieldToColumn( $.i18n._( 'Accrual Account' ), form_item_input, tab_accrual_policy_column1 );
 
@@ -561,19 +561,25 @@ AccrualPolicyViewController = BaseViewController.extend( {
 	},
 
 	onApplyFrequencyHireDate: function() {
-
 		if ( this.current_edit_record['apply_frequency_id'] === 20 ) {
 
-			this.edit_view_form_item_dic['apply_frequency_month'].css( 'display', 'block' );
-			this.edit_view_form_item_dic['apply_frequency_day_of_month'].css( 'display', 'block' );
+//			this.edit_view_ui_dic['apply_frequency_hire_date'].setValue( false );
+//			this.current_edit_record['apply_frequency_hire_date'] = false;
+			this.edit_view_form_item_dic['apply_frequency_hire_date'].css( 'display', 'block' );
+//			this.edit_view_form_item_dic['apply_frequency_month'].css( 'display', 'block' );
+//			this.edit_view_form_item_dic['apply_frequency_day_of_month'].css( 'display', 'block' );
+
+
+//			this.edit_view_form_item_dic['apply_frequency_month'].css( 'display', 'block' );
+//			this.edit_view_form_item_dic['apply_frequency_day_of_month'].css( 'display', 'block' );
 
 			if ( this.current_edit_record['apply_frequency_hire_date'] === true ) {
 				this.edit_view_form_item_dic['apply_frequency_month'].css( 'display', 'none' );
 				this.edit_view_form_item_dic['apply_frequency_day_of_month'].css( 'display', 'none' );
 			} else {
 
-				this.edit_view_form_item_dic['apply_frequency_month'].css( 'display', 'none' );
-				this.edit_view_form_item_dic['apply_frequency_day_of_month'].css( 'display', 'none' );
+				this.edit_view_form_item_dic['apply_frequency_month'].css( 'display', 'block' );
+				this.edit_view_form_item_dic['apply_frequency_day_of_month'].css( 'display', 'block' );
 			}
 
 			this.editFieldResize();
@@ -600,9 +606,11 @@ AccrualPolicyViewController = BaseViewController.extend( {
 		this.edit_view_form_item_dic['apply_frequency_day_of_week'].css( 'display', 'none' );
 
 		if ( arg === 20 ) {
-			this.edit_view_form_item_dic['apply_frequency_hire_date'].css( 'display', 'block' );
-			this.edit_view_form_item_dic['apply_frequency_month'].css( 'display', 'block' );
-			this.edit_view_form_item_dic['apply_frequency_day_of_month'].css( 'display', 'block' );
+//			this.edit_view_ui_dic['apply_frequency_hire_date'].setValue( false );
+//			this.current_edit_record['apply_frequency_hire_date'] = false;
+//			this.edit_view_form_item_dic['apply_frequency_hire_date'].css( 'display', 'block' );
+//			this.edit_view_form_item_dic['apply_frequency_month'].css( 'display', 'block' );
+//			this.edit_view_form_item_dic['apply_frequency_day_of_month'].css( 'display', 'block' );
 			this.onApplyFrequencyHireDate();
 
 		} else if ( arg === 30 ) {

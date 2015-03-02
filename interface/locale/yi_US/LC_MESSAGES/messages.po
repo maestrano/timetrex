@@ -1454,6 +1454,9 @@ msgstr "Z"
 msgid "Annually"
 msgstr "Z"
 
+msgid "Annuities (Box 24)"
+msgstr "Z"
+
 msgid "Another Pay Stub Amendment already exists for the same employee, account, effective date and amount"
 msgstr "Z"
 
@@ -4376,6 +4379,9 @@ msgstr "Z"
 msgid "Description (Private)"
 msgstr "Z"
 
+msgid "Description Locked"
+msgstr "Z"
+
 msgid "Description is invalid"
 msgstr "Z"
 
@@ -5357,10 +5363,10 @@ msgstr "Z"
 msgid "Employee(s)"
 msgstr "Z"
 
-msgid "Employee/Employer CPP Accounts"
+msgid "Employee/Employer CPP"
 msgstr "Z"
 
-msgid "Employee/Employer EI Accounts"
+msgid "Employee/Employer EI"
 msgstr "Z"
 
 msgid "Employee:"
@@ -5988,6 +5994,9 @@ msgid "Federal Income Tax Withheld (Box 2)"
 msgstr "Z"
 
 msgid "Federal Income Tax Withheld (Box 4)"
+msgstr "Z"
+
+msgid "Federal/Provincial Income Tax"
 msgstr "Z"
 
 msgid "Fees for Services (Box: 48)"
@@ -7034,7 +7043,7 @@ msgstr "Z"
 msgid "If you did request the password for"
 msgstr "Z"
 
-msgid "If you wish to see more pages, please go to the report \"Setup\" tab to increase this setting and run the report again."
+msgid "If you wish to see more pages, please go to the report 'Setup' tab to increase this setting and run the report again."
 msgstr "Z"
 
 msgid "Ifugao"
@@ -7301,7 +7310,7 @@ msgstr "Z"
 msgid "Income Tax (Line 3)"
 msgstr "Z"
 
-msgid "Income Tax Accounts"
+msgid "Income Tax Deducted (Box 22)"
 msgstr "Z"
 
 msgid "Incorrect Accrual Rate"
@@ -9722,9 +9731,6 @@ msgstr "Z"
 msgid "Lock Description"
 msgstr "Z"
 
-msgid "Lock Description "
-msgstr "Z"
-
 msgid "Lock Price"
 msgstr "Z"
 
@@ -11202,6 +11208,9 @@ msgid "None"
 msgstr "Z"
 
 msgid "Nonemployee Compensation (7)"
+msgstr "Z"
+
+msgid "Nonemployee compensation (Box 7)"
 msgstr "Z"
 
 msgid "Nonqualified Plans (11)"
@@ -12852,6 +12861,9 @@ msgstr "Z"
 msgid "Positive"
 msgstr "Z"
 
+msgid "Possible corruption detected, please contact support department (crv)"
+msgstr "Z"
+
 msgid "Post Adjustment"
 msgstr "Z"
 
@@ -14229,9 +14241,6 @@ msgstr "Z"
 msgid "SIN/SSN is invalid"
 msgstr "Z"
 
-msgid "SNonemployee compensation (Box 7)"
-msgstr "Z"
-
 msgid "SOAP Enabled"
 msgstr "Z"
 
@@ -15026,9 +15035,6 @@ msgid "Show All"
 msgstr "Z"
 
 msgid "Show Duplicate Values"
-msgstr "Z"
-
-msgid "Show Pre-Mature"
 msgstr "Z"
 
 msgid "Show Sub-Expenses"
@@ -18802,7 +18808,7 @@ msgstr "Z"
 msgid "or( expression, expression ) - Example: or( #regular_time# > 40, #regular_time# < 80)"
 msgstr "Z"
 
-msgid "password reset requested at "
+msgid "password reset requested at"
 msgstr "Z"
 
 msgid "permission preset to each administrator employee in"

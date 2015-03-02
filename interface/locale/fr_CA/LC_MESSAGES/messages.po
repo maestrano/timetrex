@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: timetrex\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-01-30 09:26-0800\n"
+"POT-Creation-Date: 2015-02-13 16:01-0800\n"
 "PO-Revision-Date: 2012-08-10 20:15+0000\n"
 "Last-Translator: Marytsa Beuns <marytsa.beuns@peocanada.com>\n"
 "Language-Team: French (Canada) <fr_CA@li.org>\n"
@@ -1472,6 +1472,9 @@ msgid "Annual Wage Base/Maximum Earnings"
 msgstr "Salaire Annuel de Base/Revenus Maximaux"
 
 msgid "Annually"
+msgstr ""
+
+msgid "Annuities (Box 24)"
 msgstr ""
 
 msgid "Another Pay Stub Amendment already exists for the same employee, account, effective date and amount"
@@ -4396,6 +4399,9 @@ msgstr "Description"
 msgid "Description (Private)"
 msgstr ""
 
+msgid "Description Locked"
+msgstr ""
+
 msgid "Description is invalid"
 msgstr "La description est inadmissible"
 
@@ -5377,10 +5383,10 @@ msgstr ""
 msgid "Employee(s)"
 msgstr ""
 
-msgid "Employee/Employer CPP Accounts"
+msgid "Employee/Employer CPP"
 msgstr ""
 
-msgid "Employee/Employer EI Accounts"
+msgid "Employee/Employer EI"
 msgstr ""
 
 msgid "Employee:"
@@ -6008,6 +6014,9 @@ msgid "Federal Income Tax Withheld (Box 2)"
 msgstr ""
 
 msgid "Federal Income Tax Withheld (Box 4)"
+msgstr ""
+
+msgid "Federal/Provincial Income Tax"
 msgstr ""
 
 msgid "Fees for Services (Box: 48)"
@@ -7054,7 +7063,7 @@ msgstr ""
 msgid "If you did request the password for"
 msgstr ""
 
-msgid "If you wish to see more pages, please go to the report \"Setup\" tab to increase this setting and run the report again."
+msgid "If you wish to see more pages, please go to the report 'Setup' tab to increase this setting and run the report again."
 msgstr ""
 
 msgid "Ifugao"
@@ -7321,7 +7330,7 @@ msgstr ""
 msgid "Income Tax (Line 3)"
 msgstr ""
 
-msgid "Income Tax Accounts"
+msgid "Income Tax Deducted (Box 22)"
 msgstr ""
 
 msgid "Incorrect Accrual Rate"
@@ -9742,9 +9751,6 @@ msgstr "Serrure"
 msgid "Lock Description"
 msgstr ""
 
-msgid "Lock Description "
-msgstr ""
-
 msgid "Lock Price"
 msgstr ""
 
@@ -11222,6 +11228,9 @@ msgid "None"
 msgstr "Aucun"
 
 msgid "Nonemployee Compensation (7)"
+msgstr ""
+
+msgid "Nonemployee compensation (Box 7)"
 msgstr ""
 
 msgid "Nonqualified Plans (11)"
@@ -12872,6 +12881,9 @@ msgstr ""
 msgid "Positive"
 msgstr ""
 
+msgid "Possible corruption detected, please contact support department (crv)"
+msgstr ""
+
 msgid "Post Adjustment"
 msgstr "Ajustement de poteau"
 
@@ -14249,9 +14261,6 @@ msgstr "NAS"
 msgid "SIN/SSN is invalid"
 msgstr ""
 
-msgid "SNonemployee compensation (Box 7)"
-msgstr ""
-
 msgid "SOAP Enabled"
 msgstr ""
 
@@ -15046,9 +15055,6 @@ msgid "Show All"
 msgstr ""
 
 msgid "Show Duplicate Values"
-msgstr ""
-
-msgid "Show Pre-Mature"
 msgstr ""
 
 msgid "Show Sub-Expenses"
@@ -18822,7 +18828,7 @@ msgstr "ou plus"
 msgid "or( expression, expression ) - Example: or( #regular_time# > 40, #regular_time# < 80)"
 msgstr ""
 
-msgid "password reset requested at "
+msgid "password reset requested at"
 msgstr ""
 
 msgid "permission preset to each administrator employee in"

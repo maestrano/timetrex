@@ -767,7 +767,10 @@ PayStubViewController = BaseViewController.extend( {
 
 	setEditViewDataDone: function() {
 		this._super( 'setEditViewDataDone' );
-		this.initInsideEditorData();
+		if ( this.is_mass_editing ) {
+		} else {
+			this.initInsideEditorData();
+		}
 	},
 
 	initInsideEditorData: function() {
@@ -1468,7 +1471,7 @@ PayStubViewController = BaseViewController.extend( {
 //		this.is_add = false;
 		LocalCacheData.current_doing_context_action = 'save';
 		if ( this.is_mass_editing ) {
-
+			this.include_entries = false;
 			var check_fields = {};
 			for ( var key in this.edit_view_ui_dic ) {
 				var widget = this.edit_view_ui_dic[key];

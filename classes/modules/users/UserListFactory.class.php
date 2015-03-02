@@ -107,6 +107,16 @@ class UserListFactory extends UserFactory implements IteratorAggregate {
 		return $this->db->GetCol( $query, $ph );
 	}
 
+	function getMaxUserId() {
+		$uf = new UserFactory();
+
+		$query = '
+					select	max(id)
+					from	'. $uf->getTable();
+
+		return $this->db->GetOne( $query );
+	}
+
 	function getByCompanyIdAndStatus($company_id, $status, $where = NULL, $order = NULL) {
 		//$key = Option::getByValue($status, $this->getOptions('status') );
 		//if ($key !== FALSE) {

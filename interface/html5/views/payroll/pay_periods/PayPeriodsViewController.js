@@ -272,10 +272,10 @@ PayPeriodsViewController = BaseViewController.extend( {
 	/* jshint ignore:start */
 	setDefaultMenu: function( doNotSetFocus ) {
 
-        //Error: Uncaught TypeError: Cannot read property 'length' of undefined in https://ondemand2001.timetrex.com/interface/html5/#!m=Employee&a=edit&id=42411&tab=Wage line 282
-        if (!this.context_menu_array) {
-            return;
-        }
+		//Error: Uncaught TypeError: Cannot read property 'length' of undefined in https://ondemand2001.timetrex.com/interface/html5/#!m=Employee&a=edit&id=42411&tab=Wage line 282
+		if ( !this.context_menu_array ) {
+			return;
+		}
 
 		if ( !Global.isSet( doNotSetFocus ) || !doNotSetFocus ) {
 			this.selectContextMenu();
@@ -355,6 +355,10 @@ PayPeriodsViewController = BaseViewController.extend( {
 	/* jshint ignore:end */
 	setDefaultMenuImportIcon: function( context_btn, grid_selected_length ) {
 
+		if ( !this.importValidate() ) {
+			context_btn.addClass( 'invisible-image' );
+		}
+
 		if ( grid_selected_length >= 1 ) {
 			context_btn.removeClass( 'disable-image' );
 		} else {
@@ -362,7 +366,29 @@ PayPeriodsViewController = BaseViewController.extend( {
 		}
 	},
 
+	importValidate: function( selected_item ) {
+		var p_id = this.permission_id;
+
+		if ( !Global.isSet( selected_item ) ) {
+			selected_item = this.getSelectedItem();
+		}
+
+		if ( p_id === 'report' ) {
+			return true;
+		}
+
+		if ( this.editPermissionValidate( p_id, selected_item ) || this.addPermissionValidate( p_id, selected_item ) ) {
+			return true;
+		}
+
+		return false;
+	},
+
 	setDefaultMenuDeleteDataIcon: function( context_btn, grid_selected_length ) {
+
+		if ( !this.importValidate() ) {
+			context_btn.addClass( 'invisible-image' );
+		}
 
 		if ( grid_selected_length >= 1 ) {
 			context_btn.removeClass( 'disable-image' );
@@ -447,36 +473,11 @@ PayPeriodsViewController = BaseViewController.extend( {
 	},
 	/* jshint ignore:end */
 	setEditMenuImportIcon: function( context_btn, pId ) {
+		if ( !this.importValidate() ) {
+			context_btn.addClass( 'invisible-image' );
+		}
 		context_btn.addClass( 'disable-image' );
 	},
-
-//	onContextMenuClick: function( context_btn, menu_name ) {
-//
-//		this._super( 'onContextMenuClick', context_btn, menu_name );
-//
-//		var id;
-//
-//		if ( Global.isSet( menu_name ) ) {
-//			id = menu_name;
-//		} else {
-//			context_btn = $( context_btn );
-//
-//			id = $( context_btn.find( '.ribbon-sub-menu-icon' ) ).attr( 'id' );
-//
-//			if ( context_btn.hasClass( 'disable-image' ) ) {
-//				return;
-//			}
-//		}
-//
-//		switch ( id ) {
-//			case ContextMenuIconName.delete_data:
-//			case ContextMenuIconName.import_icon:
-//				ProgressBar.showOverlay();
-//				this.onOtherClick( id );
-//				break;
-//
-//		}
-//	},
 
 	onCustomContextClick: function( context_btn ) {
 		var $this = this;
@@ -504,14 +505,16 @@ PayPeriodsViewController = BaseViewController.extend( {
 
 						if ( result ) {
 							ProgressBar.showOverlay();
-							$this.api.importData( ids, {onResult: function( res ) {
-								ProgressBar.closeOverlay();
-								if ( res.isValid() ) {
-									$this.search( false );
-								} else {
-									TAlertManager.showErrorAlert( res );
+							$this.api.importData( ids, {
+								onResult: function( res ) {
+									ProgressBar.closeOverlay();
+									if ( res.isValid() ) {
+										$this.search( false );
+									} else {
+										TAlertManager.showErrorAlert( res );
+									}
 								}
-							}} );
+							} );
 
 						} else {
 							ProgressBar.closeOverlay();
@@ -524,14 +527,16 @@ PayPeriodsViewController = BaseViewController.extend( {
 
 						if ( result ) {
 							ProgressBar.showOverlay();
-							$this.api.deleteData( ids, {onResult: function( res ) {
-								ProgressBar.closeOverlay();
-								if ( res.isValid() ) {
-									$this.search( false );
-								} else {
-									TAlertManager.showErrorAlert( res );
+							$this.api.deleteData( ids, {
+								onResult: function( res ) {
+									ProgressBar.closeOverlay();
+									if ( res.isValid() ) {
+										$this.search( false );
+									} else {
+										TAlertManager.showErrorAlert( res );
+									}
 								}
-							}} );
+							} );
 
 						} else {
 							ProgressBar.closeOverlay();
@@ -548,23 +553,26 @@ PayPeriodsViewController = BaseViewController.extend( {
 		filter.filter_data = {};
 		filter.filter_data.id = [id];
 
-		this.api['get' + this.api.key_name]( filter, {onResult: function( result ) {
-			var result_data = result.getResult();
+		this.api['get' + this.api.key_name]( filter, {
+			onResult: function( result ) {
+				var result_data = result.getResult();
 
-			if ( !result_data ) {
-				result_data = [];
+				if ( !result_data ) {
+					result_data = [];
+				}
+				result_data = result_data[0];
+
+				callBack( result_data );
+
 			}
-			result_data = result_data[0];
-
-			callBack( result_data );
-
-		}} );
+		} );
 	},
 
 	buildSearchFields: function() {
 		this._super( 'buildSearchFields' );
 		this.search_fields = [
-			new SearchField( {label: $.i18n._( 'Pay Period Schedule' ),
+			new SearchField( {
+				label: $.i18n._( 'Pay Period Schedule' ),
 				in_column: 1,
 				field: 'pay_period_schedule_id',
 				layout_name: ALayoutIDs.PAY_PERIOD_SCHEDULE,
@@ -572,22 +580,28 @@ PayPeriodsViewController = BaseViewController.extend( {
 				multiple: true,
 				basic_search: true,
 				script_name: 'PayPeriodScheduleView',
-				form_item_type: FormItemType.AWESOME_BOX} ),
-			new SearchField( {label: $.i18n._( 'Status' ),
+				form_item_type: FormItemType.AWESOME_BOX
+			} ),
+			new SearchField( {
+				label: $.i18n._( 'Status' ),
 				in_column: 1,
 				field: 'status_id',
 				multiple: true,
 				basic_search: true,
 				layout_name: ALayoutIDs.OPTION_COLUMN,
-				form_item_type: FormItemType.AWESOME_BOX} ),
-			new SearchField( {label: $.i18n._( 'type' ),
+				form_item_type: FormItemType.AWESOME_BOX
+			} ),
+			new SearchField( {
+				label: $.i18n._( 'type' ),
 				in_column: 1,
 				field: 'type_id',
 				multiple: true,
 				basic_search: true,
 				layout_name: ALayoutIDs.OPTION_COLUMN,
-				form_item_type: FormItemType.AWESOME_BOX} ),
-			new SearchField( {label: $.i18n._( 'Created By' ),
+				form_item_type: FormItemType.AWESOME_BOX
+			} ),
+			new SearchField( {
+				label: $.i18n._( 'Created By' ),
 				in_column: 2,
 				field: 'created_by',
 				layout_name: ALayoutIDs.USER,
@@ -595,8 +609,10 @@ PayPeriodsViewController = BaseViewController.extend( {
 				multiple: true,
 				basic_search: true,
 				script_name: 'EmployeeView',
-				form_item_type: FormItemType.AWESOME_BOX} ),
-			new SearchField( {label: $.i18n._( 'Updated By' ),
+				form_item_type: FormItemType.AWESOME_BOX
+			} ),
+			new SearchField( {
+				label: $.i18n._( 'Updated By' ),
 				in_column: 2,
 				field: 'updated_by',
 				layout_name: ALayoutIDs.USER,
@@ -604,7 +620,8 @@ PayPeriodsViewController = BaseViewController.extend( {
 				multiple: true,
 				basic_search: true,
 				script_name: 'EmployeeView',
-				form_item_type: FormItemType.AWESOME_BOX} )
+				form_item_type: FormItemType.AWESOME_BOX
+			} )
 
 		];
 	},
@@ -619,7 +636,6 @@ PayPeriodsViewController = BaseViewController.extend( {
 			'tab_pay_period': $.i18n._( 'Pay Period' ),
 			'tab_audit': $.i18n._( 'Audit' )
 		} );
-
 
 		if ( !this.edit_only_mode ) {
 			this.navigation.AComboBox( {
@@ -753,7 +769,7 @@ PayPeriodsViewController = BaseViewController.extend( {
 
 PayPeriodsViewController.loadView = function( container ) {
 	Global.loadViewSource( 'PayPeriods', 'PayPeriodsView.html', function( result ) {
-		var args = { };
+		var args = {};
 		var template = _.template( result, args );
 
 		if ( Global.isSet( container ) ) {
@@ -769,7 +785,7 @@ PayPeriodsViewController.loadSubView = function( container, beforeViewLoadedFun,
 
 	Global.loadViewSource( 'PayPeriods', 'SubPayPeriodsView.html', function( result ) {
 
-		var args = { };
+		var args = {};
 		var template = _.template( result, args );
 
 		if ( Global.isSet( beforeViewLoadedFun ) ) {

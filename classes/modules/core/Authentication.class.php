@@ -615,6 +615,13 @@ class Authentication {
 				return FALSE;
 			}
 
+			$uf = new UserFactory();
+			if ( preg_match( $uf->username_validator_regex, $user_name ) === 0 ) {
+				Debug::Text('Username doesnt match regex: '. $user_name, __FILE__, __LINE__, __METHOD__, 10);
+				return FALSE; //No company by that user name.
+			}
+			unset($uf);
+
 			if ( strtolower($type) == 'user_name' ) {
 				if ( $this->checkCompanyStatus( $user_name ) == 10 ) { //Active
 					//Lowercase regular user_names here only.
