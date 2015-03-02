@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,7 +33,11 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-
+/*
+ * $Revision: 10749 $
+ * $Id: Authentication.class.php 10749 2013-08-26 22:00:42Z ipso $
+ * $Date: 2013-08-26 15:00:42 -0700 (Mon, 26 Aug 2013) $
+ */
 
 
 /**
@@ -175,7 +179,7 @@ class Authentication {
 		$authentication->Write();
 
 		//$authentication->UpdateLastLoginDate(); //Don't do this when switching users.
-		//TTLog::addEntry( $authentication->getObject()->getID(), 100, TTi18n::getText('SourceIP').': '. $authentication->getIPAddress() .' '. TTi18n::getText('Type').': '. $type .' '.  TTi18n::getText('SessionID') .': '.$authentication->getSessionID() .' '.	TTi18n::getText('UserID').': '. $authentication->getObject()->getId(), $authentication->getObject()->getID(), 'authentication'); //Login
+		//TTLog::addEntry( $authentication->getObject()->getID(), 100,  TTi18n::getText('SourceIP').': '. $authentication->getIPAddress() .' '. TTi18n::getText('Type').': '. $type .' '.  TTi18n::getText('SessionID') .': '.$authentication->getSessionID() .' '.  TTi18n::getText('UserID').': '. $authentication->getObject()->getId(), $authentication->getObject()->getID() , 'authentication'); //Login
 
 		return $authentication->getSessionID();
 	}
@@ -595,13 +599,13 @@ class Authentication {
 		return FALSE;
 	}
 
-	function Login($user_name, $password, $type = 'USER_NAME') {
+	function Login($user_name, $password, $type = 'USER_NAME', $nopassword = false) {
 		//DO NOT lowercase username, because iButton values are case sensitive.
 		$user_name = html_entity_decode( trim($user_name) );
 		$password = html_entity_decode( $password );
 
 		//Checks user_name/password
-		if ( $user_name == '' OR $password == '' ) {
+        if ( $user_name == '' OR (!$nopassword && $password == '') ) {
 			return FALSE;
 		}
 
@@ -625,7 +629,12 @@ class Authentication {
 			if ( strtolower($type) == 'user_name' ) {
 				if ( $this->checkCompanyStatus( $user_name ) == 10 ) { //Active
 					//Lowercase regular user_names here only.
-					$password_result = $this->checkPassword( $user_name, $password);
+          if ($nopassword) {
+            $password_result = TRUE;
+          } else {
+            $password_result = $this->checkPassword( strtolower($user_name), $password);
+          }
+					
 				} else {
 					$password_result = FALSE; //No company by that user name.
 				}

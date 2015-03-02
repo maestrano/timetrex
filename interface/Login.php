@@ -35,6 +35,7 @@
  ********************************************************************************/
 
 require_once('../includes/global.inc.php');
+
 $form_vars = FormVariables::GetVariables( array('desktop') );
 if ( array_key_exists( 'desktop', $form_vars ) AND $form_vars['desktop'] != 1 ) { //isset() won't work here as 'desktop' key can be NULL
 	unset($form_vars['desktop']);
