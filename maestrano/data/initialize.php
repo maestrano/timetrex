@@ -3,6 +3,8 @@
 require_once '../init.php';
 // require_once '../connec/init.php';
 
+if(!Maestrano::param('connec.enabled')) { return false; }
+
 $filepath = '../var/_data_sequence';
 $status = false;
 
@@ -13,7 +15,7 @@ if (file_exists($filepath)) {
   if (empty($timestamp)) { $timestamp = 0; } 
 
   // Fetch updates
-  $client = new Maestrano_Connec_Client('orangehrm.app.dev.maestrano.io');
+  $client = new Maestrano_Connec_Client();
   $msg = $client->get("updates/$timestamp");
   $code = $msg['code'];
   $body = $msg['body'];

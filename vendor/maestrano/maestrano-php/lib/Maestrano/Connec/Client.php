@@ -10,11 +10,15 @@ class Maestrano_Connec_Client
   
   /**
    * Constructor
-   * @param group_id The customer group id
+   * @param group_id The customer group id (defaults to Maestrano configuration)
    */
-  public function __construct($group_id)
-  {
-      $this->group_id = $group_id;
+  public function __construct($group_id = null) {
+      if(!is_null($group_id)) {
+        $this->group_id = $group_id;
+      } else {
+        $this->group_id = Maestrano::param('api.group_id');
+      }
+
       $this->base_url = Maestrano::param('connec.host') . Maestrano::param('connec.base_path');
   }
   
@@ -25,8 +29,7 @@ class Maestrano_Connec_Client
    * @param params Optional filtering parameters
    * @return associative array describing the response. E.g. ( 'code' => 200, 'body' => {...} )
    */
-  public function get($relativePath, $params = null)
-  {
+  public function get($relativePath, $params = null) {
     return $this->_curlRequest(
       'GET',
       $this->scopedUrl($relativePath),
@@ -42,8 +45,7 @@ class Maestrano_Connec_Client
    * @param attributes Associative array of attributes
    * @return associative array describing the response. E.g. ( 'code' => 200, 'body' => {...} )
    */
-  public function post($relativePath, $attributes = null)
-  {
+  public function post($relativePath, $attributes = null) {
     return $this->_curlRequest(
       'POST',
       $this->scopedUrl($relativePath),
@@ -59,8 +61,7 @@ class Maestrano_Connec_Client
    * @param attributes Associative array of attributes
    * @return associative array describing the response. E.g. ( 'code' => 200, 'body' => {...} )
    */
-  public function put($relativePath, $attributes = null)
-  {
+  public function put($relativePath, $attributes = null) {
     return $this->_curlRequest(
       'PUT',
       $this->scopedUrl($relativePath),
@@ -73,8 +74,7 @@ class Maestrano_Connec_Client
   /**
    * @return array The default HTTP headers
    */
-  private function defaultHeaders()
-  {
+  private function defaultHeaders() {
     $apiToken = Maestrano::param('api.token');
     
     return array(
@@ -89,8 +89,7 @@ class Maestrano_Connec_Client
    * @param relativePath the API resource path. E.g. '/organizations'
    * @return String the relative path prefixed with the group_id
    */
-  private function scopedPath($relativePath)
-  {
+  private function scopedPath($relativePath) {
     $clean_path = preg_replace('/^\/+/','',$relativePath);
     $clean_path = preg_replace('/\/+$/','',$clean_path);
     
@@ -101,8 +100,7 @@ class Maestrano_Connec_Client
    * @param relativePath the API resource path. E.g. '/organizations'
    * @return String the absolute url to the resource
    */
-  private function scopedUrl($relativePath)
-  {
+  private function scopedUrl($relativePath) {
     return $this->base_url . $this->scopedPath($relativePath);
   }
   
@@ -111,8 +109,7 @@ class Maestrano_Connec_Client
    *
    * @return string A querystring, essentially.
    */
-  public static function encode($arr)
-  {
+  public static function encode($arr) {
     if (!is_array($arr))
       return $arr;
 
@@ -137,8 +134,7 @@ class Maestrano_Connec_Client
    * @return string|mixed The UTF8-encoded string, or the object passed in if
    *    it wasn't a string.
    */
-  public static function utf8($value)
-  {
+  public static function utf8($value) {
     if (is_string($value)
         && mb_detect_encoding($value, "UTF-8", TRUE) != "UTF-8") {
       return utf8_encode($value);
@@ -147,9 +143,7 @@ class Maestrano_Connec_Client
     }
   }
   
-  private function _curlRequest($method, $absUrl, $headers, $params)
-  {
-
+  private function _curlRequest($method, $absUrl, $headers, $params) {
     $curl = curl_init();
     $method = strtoupper($method);
     $opts = array();

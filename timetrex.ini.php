@@ -40,8 +40,8 @@ php_cli = "/usr/bin/php"
 ; Database connection settings. These can be set from the installer.
 ;
 [database]
-type = mysqli
-;type = postgres8
+;type = mysqli
+type = postgres8
 
 host = localhost
 database_name = timetrex
@@ -92,7 +92,7 @@ verbosity = 10
 [other]
 ; Force all clients to use SSL.
 force_ssl = FALSE
-installer_enabled = FALSE
+installer_enabled = TRUE
 primary_company_id = 1
 hostname = localhost
 
