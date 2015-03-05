@@ -1,0 +1,9 @@
+AlTER TABLE user_preference ADD COLUMN schedule_icalendar_type_id SMALLINT NOT NULL DEFAULT 1;
+ALTER TABLE user_preference ADD COLUMN schedule_icalendar_event_name INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE user_preference ADD COLUMN schedule_icalendar_alarm1_working INTEGER NOT NULL DEFAULT 3600;
+ALTER TABLE user_preference ADD COLUMN schedule_icalendar_alarm2_working INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE user_preference ADD COLUMN schedule_icalendar_alarm1_absence INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE user_preference ADD COLUMN schedule_icalendar_alarm2_absence INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE user_preference ADD COLUMN schedule_icalendar_alarm1_modified INTEGER NOT NULL DEFAULT 7200;
+ALTER TABLE user_preference ADD COLUMN schedule_icalendar_alarm2_modified INTEGER NOT NULL DEFAULT 3600;
+ALTER TABLE user_preference ADD COLUMN enable_save_timesheet_state SMALLINT NOT NULL DEFAULT 1;

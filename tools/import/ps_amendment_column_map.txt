@@ -1,0 +1,9 @@
+timetrex_column, csv_column, default_value, parse_hint
+"user_name","","",""
+"status_id","","50",""
+"type_id","","10",""
+"pay_stub_account","","",""
+"units","","",""
+"rate","","",""
+"amount","","",""
+"effective_date","","","m/d/y"

@@ -1,0 +1,20 @@
+{
+  "undef": false,
+//  "unused": true,
+  "white": false,
+//  "quotmark": "single",
+  "trailing": true,
+  "strict": false, //Causes problems with 3rd part libs.
+  "noempty": true,
+//  "latedef": "nofunc", //Don't error on latedef of functions, but do on variables
+  "latedef": false, //Don't error on latedef of functions, but do on variables
+  "forin": false, //Not required right now.
+  "eqeqeq": true,
+  "curly": true,
+  "sub": true, //Dot Notation. We use SBN for variables and dot notation for objects.
+  "browser": true,
+  "maxcomplexity": 10,
+  "indent": 4,
+  "maxerr": 1000,
+  "globals": { "MY_GLOBAL": false }
+}

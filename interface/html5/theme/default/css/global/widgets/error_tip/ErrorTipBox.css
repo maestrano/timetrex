@@ -1,0 +1,16 @@
+.errortip-box {
+    background-color: #cb2e2e;
+    border: 1px solid #cb2e2e;
+    position: absolute;
+    padding: 4px;
+    padding-top: 2px;
+    z-index: 100;
+    max-width: 500px;
+    border-radius: 3px;
+}
+
+.errortip-box .errortip-label {
+    font-size: 11px;
+    color: #ffffff;
+}
+

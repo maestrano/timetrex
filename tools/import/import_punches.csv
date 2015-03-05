@@ -1,0 +1,5 @@
+"user_id","user_name","type_id","status_id","branch_id","department_id","job_id","task_id","quantity","bad_quantity","disable_rounding","time_stamp"
+,"john.doe","Normal","In",11,2,4,6,1,2,0,"10/17/06 08:00 AM"
+,"john.doe","Lunch","Out",11,2,4,6,1,2,0,"10/17/06 12:00 PM"
+,"john.doe","Lunch","In",20,3,3,7,3,1,0,"10/17/06 01:00 PM"
+,"john.doe","Normal","Out",20,3,3,7,3,1,0,"10/17/06 06:00 PM"

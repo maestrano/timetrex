@@ -1,0 +1,9 @@
+<?php
+/*$License$*/
+
+
+/*
+ * Example plugin.
+ */
+class PunchFactoryPlugin extends PunchListFactory {
+}

@@ -1,0 +1,222 @@
+#floatingCirclesG {
+    position: absolute;
+    width: 70px;
+    height: 70px;
+    -webkit-transform: scale(0.6);
+    -moz-transform: scale(0.6);
+    -o-transform: scale(0.6);
+    -ms-transform: scale(0.6);
+
+    top: 50%;
+    left: 50%;
+
+    margin: -35px 0 0 -35px;
+}
+
+.f_circleG {
+    position: absolute;
+    background-color: #000000;
+    height: 13px;
+    width: 13px;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    border-radius: 6px;
+    -webkit-animation-name: f_fadeG;
+    -webkit-animation-duration: 0.56s;
+    -webkit-animation-iteration-count: infinite;
+    -webkit-animation-direction: linear;
+    -moz-animation-name: f_fadeG;
+    -moz-animation-duration: 0.56s;
+    -moz-animation-iteration-count: infinite;
+    -moz-animation-direction: linear;
+    -o-animation-name: f_fadeG;
+    -o-animation-duration: 0.56s;
+    -o-animation-iteration-count: infinite;
+    -o-animation-direction: linear;
+    -ms-animation-name: f_fadeG;
+    -ms-animation-duration: 0.56s;
+    -ms-animation-iteration-count: infinite;
+    -ms-animation-direction: linear;
+}
+
+#frotateG_01 {
+    left: 0;
+    top: 29px;
+    -webkit-animation-delay: 0.21s;
+    -moz-animation-delay: 0.21s;
+    -o-animation-delay: 0.21s;
+    -ms-animation-delay: 0.21s
+}
+
+#frotateG_02 {
+    left: 8px;
+    top: 8px;
+    -webkit-animation-delay: 0.28s;
+    -moz-animation-delay: 0.28s;
+    -o-animation-delay: 0.28s;
+    -ms-animation-delay: 0.28s
+}
+
+#frotateG_03 {
+    left: 29px;
+    top: 0;
+    -webkit-animation-delay: 0.35s;
+    -moz-animation-delay: 0.35s;
+    -o-animation-delay: 0.35s;
+    -ms-animation-delay: 0.35s;
+}
+
+#frotateG_04 {
+    right: 8px;
+    top: 8px;
+    -webkit-animation-delay: 0.42s;
+    -moz-animation-delay: 0.42s;
+    -o-animation-delay: 0.42s;
+    -ms-animation-delay: 0.42s;
+}
+
+#frotateG_05 {
+    right: 0;
+    top: 29px;
+    -webkit-animation-delay: 0.49s;
+    -moz-animation-delay: 0.49s;
+    -o-animation-delay: 0.49s;
+    -ms-animation-delay: 0.49s;
+}
+
+#frotateG_06 {
+    right: 8px;
+    bottom: 8px;
+    -webkit-animation-delay: 0.56s;
+    -moz-animation-delay: 0.56s;
+    -o-animation-delay: 0.56s;
+    -ms-animation-delay: 0.56s;
+}
+
+#frotateG_07 {
+    left: 29px;
+    bottom: 0;
+    -webkit-animation-delay: 0.63s;
+    -moz-animation-delay: 0.63s;
+    -o-animation-delay: 0.63s;
+    -ms-animation-delay: 0.63s;
+}
+
+#frotateG_08 {
+    left: 8px;
+    bottom: 8px;
+    -webkit-animation-delay: 0.7s;
+    -moz-animation-delay: 0.7s;
+    -o-animation-delay: 0.7s;
+    -ms-animation-delay: 0.7s;
+}
+
+@-webkit-keyframes f_fadeG {
+    0% {
+        background-color: #F2F7FA
+    }
+
+    100% {
+        background-color: #000000
+    }
+
+}
+
+@-moz-keyframes f_fadeG {
+    0% {
+        background-color: #F2F7FA
+    }
+
+    100% {
+        background-color: #000000
+    }
+
+}
+
+@-o-keyframes f_fadeG {
+    0% {
+        background-color: #F2F7FA
+    }
+
+    100% {
+        background-color: #000000
+    }
+
+}
+
+@-ms-keyframes f_fadeG {
+    0% {
+        background-color: #F2F7FA
+    }
+
+    100% {
+        background-color: #000000
+    }
+
+}
+
+.popup-loading {
+    background-color: #000000;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: -100px 0 0 -100px;
+    border: 1px solid;
+    height: 200px;
+    width: 200px;
+    /*line-height:200px;*/
+    font-size: 16px;
+    text-align: center;
+    z-index: 101;
+    -moz-border-radius: 15px;
+    border-radius: 15px;
+    opacity: 0.8;
+
+}
+
+.popup-loading .processing {
+    position: relative;
+    top: 10%;
+    color: #ffffff;
+    max-height: 20px;
+
+
+}
+
+.popup-loading .close-icon {
+    color: #FFFFFF;
+    cursor: pointer;
+    font-size: 12px;
+    position: absolute;
+    right: 7px;
+    top: 3px;
+}
+
+.popup-loading .complete-info {
+    color: #FFFFFF;
+    cursor: pointer;
+    font-size: 11px;
+    position: relative;
+    text-align: center;
+    top: -15px;
+}
+
+.popup-loading .progress-bar {
+    left: 10px;
+    position: absolute;
+    bottom: 50px;
+    width: 180px;
+    background-color: #eaeaea;
+}
+
+.popup-loading .time-remaining {
+    color: #FFFFFF;
+    cursor: pointer;
+    font-size: 11px;
+    position: relative;
+    top: -10px;
+}
+
+.popup-loading .sonic {
+
+}

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:include schemaLocation="BulkRoe_Basic.xsd"/>
+	<xs:element name="ROEHEADER">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="Roe" type="RoeType" minOccurs="1" maxOccurs="unbounded"/>
+			</xs:sequence>
+			<xs:attribute name="Application" type="xs:string" use="required" fixed="RoeWeb"/>
+			<xs:attribute name="FileVersion" type="xs:string" use="required" fixed="1.00"/>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

@@ -1,0 +1,170 @@
+.schedule-view {
+
+}
+
+.schedule-view .control-bar {
+    float: left;
+    left: 50%;
+    margin-left: -300px;
+    position: relative;
+    margin-bottom: 5px;
+}
+
+.schedule-view .date-chooser-div {
+    float: left;
+    margin-right: 20px;
+    margin-top: 5px;
+}
+
+.schedule-view .action-chooser-div {
+    float: left;
+    margin-right: 20px;
+    margin-top: 5px;
+}
+
+.schedule-view .date-chooser-div .arrow {
+    cursor: pointer;
+    position: relative;
+    top: 2px;
+}
+
+.schedule-view .date-chooser-div .label {
+    margin-right: 5px;
+}
+
+.schedule-view .date-chooser-div .date-picker-div {
+    display: inline;
+
+}
+
+.schedule-view .schedule-mode-div {
+    float: left;
+    margin-top: 3px;
+}
+
+.schedule-view .schedule-grid-div {
+    overflow-x: auto;
+}
+
+.schedule-view .schedule-content-div {
+    text-align: center;
+    cursor: default;
+    height: 24px;
+}
+
+.schedule-view .month-date-cell {
+    background: #375979;
+    /*height: 100%;*/
+    vertical-align: middle;
+    line-height: 20px;
+
+}
+
+.schedule-view .schedule-content-div .schedule-time {
+    font-size: 11px;
+    line-height: 22px;
+}
+
+.schedule-view .schedule-content-div .no-id {
+    color: #777777;
+}
+
+.schedule-view .schedule-content-div .total {
+    font-weight: bold;
+    display: block;
+}
+
+.schedule-view .schedule-content-div .date {
+    color: #ffffff;
+}
+
+.schedule-view .schedule-content-div .empty-date {
+    color: #375979;
+}
+
+.schedule-view .schedule-content-div .empty {
+    color: #999999;
+    font-style: italic;
+}
+
+.schedule-view .schedule-content-div .absence-cell {
+    color: #ae0000;
+}
+
+.schedule-view .schedule-content-div .shift-cell {
+
+    color: #009900;
+}
+
+.schedule-view .highlight-header {
+    background: #33CCFF !important;
+}
+
+.schedule-view .year-day {
+    color: #ffffff;
+    display: block;
+}
+
+.schedule-view .year-date {
+    margin-top: 2px;
+    color: #ffffff;
+    display: block;
+}
+
+.schedule-view .day_hour_div {
+    height: 100%;
+    text-align: left;
+}
+
+.schedule-view .day_hour_div .day-column {
+    text-align: center;
+    margin-bottom: 3px;
+    margin-top: 3px;
+}
+
+.schedule-view .day_hour_span {
+    width: 60px;
+    display: inline-block;
+    text-align: center;
+    border-right: 1px solid;
+    margin-right: -1px;
+    font-size: 11px;
+}
+
+.schedule-view .schedule-content-day-div {
+    position: relative;
+    height: 100%;
+    cursor: default;
+}
+
+.schedule-view .schedule-content-day-div .schedule-day-time {
+    color: #000000;
+    background: #9bbbdc;
+    display: block;
+    float: left;
+    height: 100%;
+    line-height: 20px;
+    overflow: hidden;
+    position: relative;
+    text-align: center;
+}
+
+.schedule-view .schedule-content-day-div .even {
+
+    background: #7a9bbd !important;
+
+}
+
+.schedule-view .schedule-content-day-div .no-day-id {
+
+    color: #ffffff;
+
+}
+
+.schedule-view .ui-jqgrid .ui-jqgrid-btable td {
+    padding-left: 0px;
+}
+
+.schedule-view .schedule-drag-over {
+    background: #de5a5a;
+}

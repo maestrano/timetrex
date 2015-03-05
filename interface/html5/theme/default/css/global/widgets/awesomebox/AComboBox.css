@@ -1,0 +1,193 @@
+.a-combobox {
+
+    display: inline-block;
+    height: 24px;
+    min-width: 192px;
+    cursor: pointer;
+    text-align: left;
+    margin-right: 3px;
+    font-size: 0px;
+
+}
+
+.a-combobox:hover .a-combobox-left-bg {
+    background: url("../../../../images/combobox_up_left_down.png") no-repeat scroll 0 0 transparent;
+    height: 24px;
+    width: 7px;
+    display: inline-block;
+}
+
+.a-combobox:hover .a-combobox-mid-bg {
+    background: url("../../../../images/combobox_up_middle_down.png") repeat-x scroll 0 0 transparent;
+    height: 24px;
+    display: inline-block;
+}
+
+.a-combobox:hover .clickable-space {
+    display: inline-block;
+    width: 23px;
+    height: 24px;
+    background: url("../../../../images/combobox_up_right_down.png") no-repeat scroll 0 0 transparent;
+
+}
+
+.a-combobox .a-combobox-left-bg {
+    background: url("../../../../images/combobox_up_left.png") no-repeat scroll 0 0 transparent;
+    height: 24px;
+    width: 7px;
+    display: inline-block;
+}
+
+.a-combobox .a-combobox-mid-bg {
+    background: url("../../../../images/combobox_up_middle.png") repeat-x scroll 0 0 transparent;
+    height: 24px;
+    display: inline-block;
+}
+
+.a-combobox .clickable-space {
+    display: inline-block;
+    width: 23px;
+    height: 24px;
+    background: url("../../../../images/combobox_up_right.png") no-repeat scroll 0 0 transparent;
+}
+
+.a-error-tip .a-combobox-left-bg {
+    background: url("../../../../images/combobox_up_left_error.png") no-repeat scroll 0 0 transparent;
+    height: 24px;
+    width: 7px;
+    display: inline-block;
+}
+
+.a-error-tip .a-combobox-mid-bg {
+    background: url("../../../../images/combobox_up_middle_error.png") repeat-x scroll 0 0 transparent;
+    height: 24px;
+    display: inline-block;
+}
+
+.a-error-tip .clickable-space {
+    display: inline-block;
+    width: 23px;
+    height: 24px;
+    background: url("../../../../images/combobox_up_right_error.png") no-repeat scroll 0 0 transparent;
+
+}
+
+.a-combobox-readonly .a-combobox-left-bg {
+    background: none;
+    height: 24px;
+    width: 7px;
+    display: inline-block;
+}
+
+.a-combobox-readonly .a-combobox-mid-bg {
+    background: none;
+    height: 24px;
+    display: inline-block;
+}
+
+.a-combobox-readonly .clickable-space {
+    display: inline-block;
+    width: 23px;
+    height: 24px;
+    background: none;
+
+}
+
+.a-combobox-readonly:hover .a-combobox-left-bg {
+    background: none;
+    height: 24px;
+    width: 7px;
+    display: inline-block;
+}
+
+.a-combobox-readonly:hover .a-combobox-mid-bg {
+    background: none;
+    height: 24px;
+    display: inline-block;
+}
+
+.a-combobox-readonly:hover .clickable-space {
+    display: inline-block;
+    width: 23px;
+    height: 24px;
+    background: none;
+
+}
+
+.a-combobox-readonly {
+    background: none;
+    cursor: default;
+}
+
+.a-combobox .focus-input {
+    width: 1px;
+    height: 1px;
+    border: 0px;
+    padding: 0px;
+    position: absolute;
+    opacity: 0;
+}
+
+.a-combobox-readonly:hover {
+    background: none;
+    cursor: default;
+}
+
+.a-combobox .a-combobox-label {
+    color: #362B36;
+    height: 24px;
+    font-size: 12px;
+    line-height: 24px;
+    min-width: 132px;
+    overflow: hidden;
+    position: relative;
+    display: inline-block;
+    word-wrap: break-word;
+    word-break: break-all;
+    padding-right: 3px;
+    max-width: 200px;
+
+}
+
+.a-combobox-label-hide .a-combobox-label {
+    display: none;
+}
+
+.focus {
+    border: 1px dotted;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+}
+
+.a-combobox .edit-columnIcon-div {
+    display: inline-block;
+    margin-left: 3px;
+    margin-top: 5px;
+    width: 20px;
+
+}
+
+.a-combobox .edit-columnIcon-div .edit_column_icon {
+
+}
+
+.a-dropdown-div {
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+    cursor: default;
+    position: absolute;
+    top: 400px;
+    background: none repeat scroll 0 0 #EAEAEA;
+    border: 1px solid #BDBDBD;
+    border-radius: 5px 5px 5px 5px;
+    padding: 5px;
+    box-shadow: 6px 6px 10px 0 #666666;
+    -moz-box-shadow: 6px 6px 10px 0 #666666;
+    -webkit-box-shadow: 6px 6px 10px 0 #666666;
+    z-index: 100;
+
+}

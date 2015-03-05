@@ -1,0 +1,95 @@
+<?xml version="1.0"?>
+<ruleset name="TTStandard">
+ <description>TT Coding Standard</description>
+
+ <exclude-pattern>*/adodb/*</exclude-pattern>
+ <exclude-pattern>*/bitmask/*</exclude-pattern>
+ <exclude-pattern>*/cache_lite/*</exclude-pattern>
+ <exclude-pattern>*/fpdf/*</exclude-pattern>
+ <exclude-pattern>*/fpdi/*</exclude-pattern>
+ <exclude-pattern>*/icalcreator/*</exclude-pattern>
+ <exclude-pattern>*/Image_Barcode/*</exclude-pattern>
+ <exclude-pattern>*/jpgraph/*</exclude-pattern>
+ <exclude-pattern>*/misc/*</exclude-pattern>
+ <exclude-pattern>*/pear/*</exclude-pattern>
+ <exclude-pattern>*/SabreAMF/*</exclude-pattern>
+ <exclude-pattern>*/smarty/*</exclude-pattern>
+ <exclude-pattern>*/upload/*</exclude-pattern>
+ <exclude-pattern>*/tcpdf/*</exclude-pattern>
+ <exclude-pattern>*/SoapClient/*</exclude-pattern>
+ <exclude-pattern>*TTLicense.class.php</exclude-pattern>
+ <exclude-pattern>*TTLicense.private.class.php</exclude-pattern>
+ <exclude-pattern>*Profiler.class.php</exclude-pattern>
+ <exclude-pattern>*SoapClient.php</exclude-pattern>
+ <exclude-pattern>*EvalMath.class.php</exclude-pattern>
+
+ <exclude-pattern>*/GovernmentForms/country/grid.class.php</exclude-pattern> <!-- For some reason this appears to confuse the code sniffer -->
+ <exclude-pattern>*/GovernmentForms/examples/country/us/941sb.php</exclude-pattern> <!-- For some reason this appears to confuse the code sniffer -->
+
+ <!-- Exclude 3rd party JS libraries -->
+ <exclude-pattern>*/html5/framework/*</exclude-pattern>
+ <exclude-pattern>*/client/*</exclude-pattern>
+
+ <exclude-pattern>*/test/*</exclude-pattern>
+
+
+ <!-- Include some sniffs from all around the place -->
+ <rule ref="Generic.PHP.DisallowShortOpenTag"/>
+ <rule ref="Generic.PHP.ForbiddenFunctions"/>
+ <rule ref="Generic.Functions.FunctionCallArgumentSpacing"/>
+ <rule ref="Generic.Functions.OpeningFunctionBraceKernighanRitchie"/>
+
+ <rule ref="Generic.NamingConventions.UpperCaseConstantName">
+	<exclude-pattern>*/core/TTi18n.class.php</exclude-pattern>
+ </rule>
+ <rule ref="Generic.PHP.UpperCaseConstant">
+	<exclude-pattern>*/core/TTi18n.class.php</exclude-pattern>
+ </rule>
+
+ <rule ref="Generic.Formatting.DisallowMultipleStatements">
+	<exclude-pattern>*/company/CompanyFactory.class.php</exclude-pattern>
+	<exclude-pattern>*/users/UserFactory.class.php</exclude-pattern>
+	<exclude-pattern>*/core/StationFactory.class.php</exclude-pattern>
+	<exclude-pattern>*/punch/PunchFactory.class.php</exclude-pattern>
+	<exclude-pattern>*/schedule/ScheduleFactory.class.php</exclude-pattern>
+	<exclude-pattern>*/time_clock/TimeClock.class.php</exclude-pattern>
+	<exclude-pattern>*/time_clock/APITimeClockUnAuthenticated.class.php</exclude-pattern>
+	<exclude-pattern>*/soap/TimeTrexSoapServerUnAuthenticated.class.php</exclude-pattern>
+	<exclude-pattern>*/client_station/APIClientStationUnAuthenticated.class.php</exclude-pattern>
+	<exclude-pattern>*/includes/*</exclude-pattern>
+ </rule>
+
+ <rule ref="Generic.Formatting.NoSpaceAfterCast"/>
+ <!-- <rule ref="Generic.Formatting.MultipleStatementAlignment"/> -->
+ <rule ref="Squiz.WhiteSpace.LogicalOperatorSpacing"/>
+ <rule ref="Squiz.WhiteSpace.ObjectOperatorSpacing"/>
+ <rule ref="Squiz.WhiteSpace.OperatorSpacing"/>
+ <rule ref="Squiz.Operators.IncrementDecrementUsage"/>
+ <rule ref="Squiz.Formatting.OperatorBracket"/>
+ <rule ref="Squiz.Arrays.ArrayBracketSpacing"/>
+
+ <!-- <rule ref="TT.Operators.ValidLogicalOperators"/> -->
+
+ <!-- <rule ref="Generic.Files.EndFileNewline"/> -->
+ <rule ref="Generic.Files.LineEndings"/>
+ <rule ref="Generic.PHP.CharacterBeforePHPOpeningTag"/>
+ <rule ref="Generic.PHP.DeprecatedFunctions"/>
+ <rule ref="Generic.CodeAnalysis.EmptyStatement"/>
+ <!-- <rule ref="Generic.CodeAnalysis.UnusedFunctionParameter"/> -->
+ <rule ref="Generic.CodeAnalysis.UnconditionalIfStatement"/>
+
+ <rule ref="Generic.WhiteSpace.DisallowSpaceIndent"/>
+
+ <rule ref="Generic.ControlStructures.InlineControlStructure"/>
+
+ <!-- <rule ref="Generic.NamingConventions.CamelCapsFunctionName"/> -->
+ <!-- <rule ref="Generic.WhiteSpace.DisallowTabIndent"/> -->
+
+ <!-- Use Unix newlines -->
+ <rule ref="Generic.Files.LineEndings">
+  <properties>
+   <property name="eolChar" value="\n"/>
+  </properties>
+ </rule>
+
+</ruleset>
