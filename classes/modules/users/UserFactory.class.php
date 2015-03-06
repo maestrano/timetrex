@@ -3539,5 +3539,30 @@ class UserFactory extends Factory {
 	function addLog( $log_action ) {
 		return TTLog::addEntry( $this->getId(), $log_action, TTi18n::getText('Employee').': '. $this->getFullName( FALSE, TRUE ), NULL, $this->getTable(), $this );
 	}
+
+  // Hook:Maestrano
+  function Save($reset_data=true, $force_lookup=false, $push_to_connec=true) {
+    // Preserve record id when updating
+    $local_id = ($this->isNew() ? null : $this->getId());
+    
+    $result = parent::Save($reset_data, $force_lookup);
+    if(is_null($local_id)) { $local_id = $result; }
+
+    // Send to Connec!
+    if($push_to_connec) {
+      // Reload record
+      $user = TTNew('UserListFactory');
+      $user->getById($local_id);
+      $user = $user->getCurrent();
+      
+      $mapper = 'EmployeeMapper';
+      if(class_exists($mapper)) {
+        $employeeMapper = new $mapper();
+        $employeeMapper->processLocalUpdate($user, $push_to_connec);
+      }
+    }
+
+    return $local_id;
+  }
 }
 ?>

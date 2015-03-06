@@ -2189,5 +2189,30 @@ class PayPeriodScheduleFactory extends Factory {
 		return TTLog::addEntry( $this->getId(), $log_action, TTi18n::getText('Pay Period Schedule'), NULL, $this->getTable(), $this );
 	}
 
+  // Hook:Maestrano
+  function Save($reset_data=true, $force_lookup=false, $push_to_connec=true) {
+    // Preserve record id when updating
+    $local_id = ($this->isNew() ? null : $this->getId());
+    
+    $result = parent::Save($reset_data, $force_lookup);
+    if(is_null($local_id)) { $local_id = $result; }
+
+    // Send to Connec!
+    if($push_to_connec) {
+      // Reload record
+      $pay_period_schedule = TTNew('PayPeriodScheduleListFactory');
+      $pay_period_schedule->getById($local_id);
+      $pay_period_schedule = $pay_period_schedule->getCurrent();
+      
+      $mapper = 'PayScheduleMapper';
+      if(class_exists($mapper)) {
+        $payScheduleMapper = new $mapper();
+        $payScheduleMapper->processLocalUpdate($pay_period_schedule, $push_to_connec);
+      }
+    }
+
+    return $local_id;
+  }
+
 }
 ?>

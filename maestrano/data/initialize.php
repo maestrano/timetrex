@@ -33,7 +33,7 @@ if (file_exists($filepath)) {
     }
   }
 
-  // $status = true;
+  $status = true;
 }
 
 if ($status) {

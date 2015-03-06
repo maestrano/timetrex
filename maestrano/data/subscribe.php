@@ -19,14 +19,6 @@ try {
       $companyMapper = new CompanyMapper();
       $companyMapper->fetchConnecResource($entity_id);
       break;
-    // case "ORGANIZATIONS":
-    //   $customerMapper = new CustomerMapper();
-    //   $customerMapper->fetchConnecResource($entity_id);
-    //   break;
-    // case "PROJECTS":
-    //   $projectMapper = new ProjectMapper();
-    //   $projectMapper->fetchConnecResource($entity_id);
-    //   break;
     case "WORKLOCATIONS":
       $workLocationMapper = new WorkLocationMapper();
       $workLocationMapper->fetchConnecResource($entity_id);
@@ -39,10 +31,6 @@ try {
       $employeeMapper = new EmployeeMapper();
       $employeeMapper->fetchConnecResource($entity_id);
       break;
-    // case "TIMESHEETS":
-    //   $timesheetMapper = new TimesheetMapper();
-    //   $timesheetMapper->fetchConnecResource($entity_id);
-    //   break;
   }
 } catch (Exception $e) {
   error_log("Caught exception in subscribe " . json_encode($e->getMessage()));
