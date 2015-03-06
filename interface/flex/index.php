@@ -36,6 +36,25 @@
 
 require_once('../../includes/global.inc.php'); //Mainly to force redirect to SSL URL if required...
 
+// Hook: Maestrano
+// Load Maestrano
+$authentication = new Authentication();
+if(Maestrano::sso()->isSsoEnabled()) {
+  if (!isset($_SESSION)) session_start();
+  if ($authentication->Check()) {
+    $mnoSession = new Maestrano_Sso_Session($_SESSION);
+    // Check session validity and trigger SSO if not
+    if (!$mnoSession->isValid()) {
+      header('Location: ' . Maestrano::sso()->getInitPath());
+      exit;
+    }
+  } else {
+    // Redirect to login
+    header('Location: ' . Maestrano::sso()->getInitPath());
+    exit;
+  }
+}
+
 Misc::redirectMobileBrowser(); //Redirect mobile browsers automatically.
 Redirect::Page( URLBuilder::getURL( NULL, Environment::getDefaultInterfaceBaseURL() ) ); //Redirect to default interface URL.
 Debug::writeToLog();

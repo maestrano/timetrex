@@ -1,0 +1,29 @@
+{
+  "name": "maestrano/maestrano-php",
+  "description": "Maestrano PHP Library",
+  "keywords": [
+    "maestrano",
+    "sme",
+    "marketplace",
+    "api"
+  ],
+  "homepage": "https://maestrano.com",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Arnaud Lachaume"
+    }
+  ],
+  "require": {
+    "php": ">=5.2",
+    "ext-curl": "*",
+    "ext-json": "*",
+    "ext-mbstring": "*"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "4.3.*"
+  },
+  "autoload": {
+    "classmap": ["lib/Maestrano/"]
+  }
+}
