@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,14 +33,10 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 4104 $
- * $Id: MaintenanceJobs.php 4104 2011-01-04 19:04:05Z ipso $
- * $Date: 2011-01-04 11:04:05 -0800 (Tue, 04 Jan 2011) $
- */
+
 require_once('../../includes/global.inc.php');
 
-$authenticate=FALSE;
+$authenticate = FALSE;
 require_once(Environment::getBasePath() .'includes/Interface.inc.php');
 
 $smarty->assign('title', TTi18n::gettext($title = '7. Maintenance Jobs')); // See index.php
@@ -52,7 +48,8 @@ extract	(FormVariables::GetVariables(
 										array	(
 												'action',
 												'company_id',
-												'user_data'
+												'user_data',
+												'external_installer',
 												) ) );
 
 $install_obj = new Install();
@@ -65,14 +62,14 @@ $uf = TTnew( 'UserFactory' );
 $action = Misc::findSubmitButton();
 switch ($action) {
 	case 'back':
-		Debug::Text('Back', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Back', __FILE__, __LINE__, __METHOD__, 10);
 
 		Redirect::Page( URLBuilder::getURL(NULL, 'User.php') );
 		break;
 
 	case 'next':
 		//Debug::setVerbosity(11);
-		Debug::Text('Submit!', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Submit!', __FILE__, __LINE__, __METHOD__, 10);
 
 		Redirect::Page( URLBuilder::getURL( NULL, 'Done.php') );
 		break;
@@ -88,9 +85,21 @@ switch ($action) {
 $handle = @fopen('http://www.timetrex.com/'.URLBuilder::getURL( array('v' => $install_obj->getFullApplicationVersion(), 'page' => 'maintenance'), 'pre_install.php'), "r");
 @fclose($handle);
 
+if ( $install_obj->ScheduleMaintenanceJobs() == 0 ) { //Add scheduled maintenance jobs to cron/schtask, if it succeeds move to next step automatically.
+	Redirect::Page( URLBuilder::getURL( NULL, 'Done.php') );
+}
+
 $smarty->assign_by_ref('uf', $uf);
+$schedule_maintenance_job_command = $install_obj->getScheduleMaintenanceJobsCommand();
+$smarty->assign_by_ref('schedule_maintenance_job_command', $schedule_maintenance_job_command );
+
 $cron_file = Environment::getBasePath().'maint'. DIRECTORY_SEPARATOR .'cron.php';
 $smarty->assign_by_ref('cron_file', $cron_file);
+
+$smarty->assign_by_ref('web_server_user', $install_obj->getWebServerUser() );
+$smarty->assign_by_ref('php_cli', $install_obj->getPHPCLI() );
+$smarty->assign_by_ref('is_sudo_installed', $install_obj->isSUDOInstalled() );
+
 
 $smarty->display('install/MaintenanceJobs.tpl');
 ?>

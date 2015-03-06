@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 8720 $
- * $Id: OR.class.php 8720 2012-12-29 01:06:58Z ipso $
- * $Date: 2012-12-28 17:06:58 -0800 (Fri, 28 Dec 2012) $
- */
+
 
 /**
  * @package PayrollDeduction\US
@@ -50,6 +46,62 @@
 class PayrollDeduction_US_OR extends PayrollDeduction_US {
 	var $original_filing_status = NULL;
 	var $state_options = array(
+								1420099200 => array( //01-Jan-15
+												'standard_deduction' => array(
+																			'10' => 2145,
+																			'20' => 4295,
+																			),
+												'allowance' => 194,
+												'federal_tax_maximum' => 6450,
+												'phase_out' => array(
+																		'10' => array(
+																						50000 =>  6450,
+																						125000 => 6450,
+																						130000 => 5150,
+																						135000 => 3850,
+																						140000 => 2550,
+																						145000 => 1250,
+																						145000 => 0,
+																					 ),
+																		'20' => array(
+																						50000 =>  6450,
+																						250000 => 6450,
+																						260000 => 5150,
+																						270000 => 3850,
+																						280000 => 2550,
+																						290000 => 1250,
+																						290000 => 0,
+																					 ),
+																	),
+												),
+								1388563200 => array( //01-Jan-14
+												'standard_deduction' => array(
+																			'10' => 2115,
+																			'20' => 4230,
+																			),
+												'allowance' => 191,
+												'federal_tax_maximum' => 6350,
+												'phase_out' => array(
+																		'10' => array(
+																						50000 =>  6350,
+																						125000 => 6350,
+																						130000 => 5050,
+																						135000 => 3800,
+																						140000 => 2500,
+																						145000 => 1250,
+																						145000 => 0,
+																					 ),
+																		'20' => array(
+																						50000 =>  6350,
+																						250000 => 6350,
+																						260000 => 5050,
+																						270000 => 3800,
+																						280000 => 2500,
+																						290000 => 1250,
+																						290000 => 0,
+																					 ),
+																	),
+												),
 								1357027200 => array( //01-Jan-13
 												'standard_deduction' => array(
 																			'10' => 2080,

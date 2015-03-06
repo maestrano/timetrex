@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 9936 $
- * $Id: PermissionControlFactory.class.php 9936 2013-05-20 16:40:47Z ipso $
- * $Date: 2013-05-20 09:40:47 -0700 (Mon, 20 May 2013) $
- */
+
 
 /**
  * @package Core
@@ -100,7 +96,7 @@ class PermissionControlFactory extends Factory {
 							);
 				break;
 			case 'list_columns':
-				$retval = Misc::arrayIntersectByKey( array('name','description','level'), Misc::trimSortPrefix( $this->getOptions('columns') ) );
+				$retval = Misc::arrayIntersectByKey( array('name', 'description', 'level'), Misc::trimSortPrefix( $this->getOptions('columns') ) );
 				break;
 			case 'default_display_columns': //Columns that are displayed by default.
 				$retval = array(
@@ -154,7 +150,7 @@ class PermissionControlFactory extends Factory {
 
 	function getCompany() {
 		if ( isset($this->data['company_id']) ) {
-			return $this->data['company_id'];
+			return (int)$this->data['company_id'];
 		}
 
 		return FALSE;
@@ -185,7 +181,7 @@ class PermissionControlFactory extends Factory {
 
 		$query = 'select id from '. $this->getTable() .' where company_id = ? AND name = ? AND deleted=0';
 		$permission_control_id = $this->db->GetOne($query, $ph);
-		Debug::Arr($permission_control_id,'Unique Permission Control ID: '. $permission_control_id, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Arr($permission_control_id, 'Unique Permission Control ID: '. $permission_control_id, __FILE__, __LINE__, __METHOD__, 10);
 
 		if ( $permission_control_id === FALSE ) {
 			return TRUE;
@@ -206,7 +202,7 @@ class PermissionControlFactory extends Factory {
 		if (	$this->Validator->isLength(	'name',
 											$name,
 											TTi18n::gettext('Name is invalid'),
-											2,50)
+											2, 50)
 				AND	$this->Validator->isTrue(	'name',
 												$this->isUniqueName($name),
 												TTi18n::gettext('Name is already in use')
@@ -231,7 +227,7 @@ class PermissionControlFactory extends Factory {
 				OR $this->Validator->isLength(	'description',
 											$description,
 											TTi18n::gettext('Description is invalid'),
-											1,255) ) {
+											1, 255) ) {
 
 			$this->data['description'] = $description;
 
@@ -280,7 +276,7 @@ class PermissionControlFactory extends Factory {
 	}
 	function setUser($ids) {
 		Debug::text('Setting User IDs : ', __FILE__, __LINE__, __METHOD__, 10);
-		if (is_array($ids) and count($ids) > 0) {
+		if ( is_array($ids) AND count($ids) > 0 ) {
 			global $current_user;
 
 			//Remove any of the selected employees from other permission control objects first.
@@ -304,8 +300,6 @@ class PermissionControlFactory extends Factory {
 				//If needed, delete mappings first.
 				$pulf = TTnew( 'PermissionUserListFactory' );
 				$pulf->getByPermissionControlId( $this->getId() );
-
-				$tmp_ids = array();
 				foreach ($pulf as $obj) {
 					$id = $obj->getUser();
 					Debug::text('Permission Control ID: '. $obj->getPermissionControl() .' ID: '. $id, __FILE__, __LINE__, __METHOD__, 10);
@@ -390,7 +384,7 @@ class PermissionControlFactory extends Factory {
 		$plf = TTnew( 'PermissionListFactory' );
 		$plf->getByCompanyIdAndPermissionControlId( $this->getCompany(), $this->getId() );
 		if ( $plf->getRecordCount() > 0 ) {
-			Debug::Text('Found Permissions: '. $plf->getRecordCount(), __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text('Found Permissions: '. $plf->getRecordCount(), __FILE__, __LINE__, __METHOD__, 10);
 			foreach($plf as $p_obj) {
 				$current_permissions[$p_obj->getSection()][$p_obj->getName()] = $p_obj->getValue();
 			}
@@ -418,15 +412,15 @@ class PermissionControlFactory extends Factory {
 			//If we do the permission diff it messes up the HTML interface.
 			if ( !is_array($old_permission_arr) OR ( is_array($old_permission_arr) AND count($old_permission_arr) == 0 ) ) {
 				$old_permission_arr = $this->getPermission();
-				//Debug::Text(' Old Permissions: '. count($old_permission_arr), __FILE__, __LINE__, __METHOD__,10);
+				//Debug::Text(' Old Permissions: '. count($old_permission_arr), __FILE__, __LINE__, __METHOD__, 10);
 			}
 
 			$permission_options = $this->getPermissionOptions();
-			//Debug::Arr($permission_options, ' Permission Options: '. count($permission_options), __FILE__, __LINE__, __METHOD__,10);
+			//Debug::Arr($permission_options, ' Permission Options: '. count($permission_options), __FILE__, __LINE__, __METHOD__, 10);
 
 			$permission_arr = Misc::arrayMergeRecursiveDistinct( (array)$permission_options, (array)$permission_arr );
-			//Debug::Text(' New Permissions: '. count($permission_arr), __FILE__, __LINE__, __METHOD__,10);
-			//Debug::Arr($permission_arr, ' Final Permissions: '. count($permission_arr), __FILE__, __LINE__, __METHOD__,10);
+			//Debug::Text(' New Permissions: '. count($permission_arr), __FILE__, __LINE__, __METHOD__, 10);
+			//Debug::Arr($permission_arr, ' Final Permissions: '. count($permission_arr), __FILE__, __LINE__, __METHOD__, 10);
 		}
 
 		$pf = TTnew( 'PermissionFactory' );
@@ -434,11 +428,11 @@ class PermissionControlFactory extends Factory {
 		//Don't Delete all previous permissions, do that in the Permission class.
 		if ( isset($permission_arr) AND is_array($permission_arr) AND count($permission_arr) > 0 ) {
 			foreach ($permission_arr as $section => $permissions) {
-				//Debug::Text('  Section: '. $section, __FILE__, __LINE__, __METHOD__,10);
+				//Debug::Text('	 Section: '. $section, __FILE__, __LINE__, __METHOD__, 10);
 
 				foreach ($permissions as $name => $value) {
-					//Debug::Text('     Name: '. $name .' - Value: '. $value, __FILE__, __LINE__, __METHOD__,10);
-					if ( 	(
+					//Debug::Text('		Name: '. $name .' - Value: '. $value, __FILE__, __LINE__, __METHOD__, 10);
+					if (	(
 							!isset($old_permission_arr[$section][$name])
 								OR (isset($old_permission_arr[$section][$name]) AND $value != $old_permission_arr[$section][$name] )
 							)
@@ -446,7 +440,7 @@ class PermissionControlFactory extends Factory {
 							) {
 
 						if ( $value == 0 OR $value == 1 ) {
-							Debug::Text('    Modifying/Adding Permission: '. $name .' - Value: '. $value, __FILE__, __LINE__, __METHOD__,10);
+							Debug::Text('	 Modifying/Adding Permission: '. $name .' - Value: '. $value, __FILE__, __LINE__, __METHOD__, 10);
 							$tmp_pf = TTnew( 'PermissionFactory' );
 							$tmp_pf->setCompany( $this->getCompanyObject()->getId() );
 							$tmp_pf->setPermissionControl( $this->getId() );
@@ -457,9 +451,7 @@ class PermissionControlFactory extends Factory {
 								$tmp_pf->save();
 							}
 						}
-					} else {
-						//Debug::Text('     Permission didnt change... Skipping', __FILE__, __LINE__, __METHOD__,10);
-					}
+					} //else { //Debug::Text('	   Permission didnt change... Skipping', __FILE__, __LINE__, __METHOD__, 10);
 				}
 			}
 		}
@@ -467,6 +459,32 @@ class PermissionControlFactory extends Factory {
 		$profiler->stopTimer( 'setPermission' );
 
 		return TRUE;
+	}
+
+	//Quick way to touch the updated_date, updated_by when adding/removing employees from the UserFactory.
+	function touchUpdatedByAndDate( $permission_control_id = NULL ) {
+		global $current_user;
+
+		if ( is_object($current_user) ) {
+			$user_id = $current_user->getID();
+		} else {
+			return FALSE;
+		}
+
+		$ph = array(
+					'updated_date' => TTDate::getTime(),
+					'updated_by' => $user_id,
+					'id' => ( $permission_control_id == '' ) ? (int)$this->getID() : (int)$permission_control_id,
+					);
+
+		$query = 'update '. $this->getTable() .' set updated_date = ?, updated_by = ? where id = ?';
+
+		try {
+			$this->db->Execute($query, $ph);
+		} catch (Exception $e) {
+			throw new DBError($e);
+		}
+
 	}
 
 	function preSave() {
@@ -486,7 +504,7 @@ class PermissionControlFactory extends Factory {
 		}
 	}
 
-	//Support setting created_by,updated_by especially for importing data.
+	//Support setting created_by, updated_by especially for importing data.
 	//Make sure data is set based on the getVariableToFunctionMap order.
 	function setObjectFromArray( $data ) {
 		if ( is_array( $data ) ) {
@@ -541,7 +559,7 @@ class PermissionControlFactory extends Factory {
 	}
 
 	function addLog( $log_action ) {
-		return TTLog::addEntry( $this->getId(), $log_action,  TTi18n::getText('Permission Group: '). $this->getName(), NULL, $this->getTable(), $this );
+		return TTLog::addEntry( $this->getId(), $log_action, TTi18n::getText('Permission Group: '). $this->getName(), NULL, $this->getTable(), $this );
 	}
 }
 ?>

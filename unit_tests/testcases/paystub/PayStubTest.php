@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,24 +33,15 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 9521 $
- * $Id: PayStubTest.php 9521 2013-04-08 23:09:52Z ipso $
- * $Date: 2013-04-08 16:09:52 -0700 (Mon, 08 Apr 2013) $
- */
+
 require_once('PHPUnit/Framework/TestCase.php');
 
 class PayStubTest extends PHPUnit_Framework_TestCase {
-
 	protected $company_id = NULL;
 	protected $user_id = NULL;
 	protected $pay_period_schedule_id = NULL;
 	protected $pay_period_objs = NULL;
 	protected $pay_stub_account_link_arr = NULL;
-
-    public function __construct() {
-        global $db, $cache, $profiler;
-    }
 
     public function setUp() {
         Debug::text('Running setUp(): ', __FILE__, __LINE__, __METHOD__,10);
@@ -63,7 +54,7 @@ class PayStubTest extends PHPUnit_Framework_TestCase {
 
 		$dd->createCurrency( $this->company_id, 10 );
 
-		$dd->createPermissionGroups( $this->company_id, 40 ); //Administrator only.
+		//$dd->createPermissionGroups( $this->company_id, 40 ); //Administrator only.
 
 		$dd->createUserWageGroups( $this->company_id );
 
@@ -166,8 +157,7 @@ class PayStubTest extends PHPUnit_Framework_TestCase {
 
 				Debug::Text('I: '. $i .' End Date: '. TTDate::getDate('DATE+TIME', $end_date) , __FILE__, __LINE__, __METHOD__,10);
 
-
-				$pps_obj->createNextPayPeriod( $end_date , (86400*360) );
+				$pps_obj->createNextPayPeriod( $end_date , (86400*3600), FALSE ); //Don't import punches, as that causes deadlocks when running tests in parallel.
 			}
 
 		}
@@ -245,6 +235,9 @@ class PayStubTest extends PHPUnit_Framework_TestCase {
 		return FALSE;
 	}
 
+	/**
+	 * @group PayStub_testSinglePayStub
+	 */
 	function testSinglePayStub() {
 		//Test all parts of a single pay stub.
 
@@ -340,6 +333,9 @@ class PayStubTest extends PHPUnit_Framework_TestCase {
 		return TRUE;
 	}
 
+	/**
+	 * @group PayStub_testSinglePayStubLargeAmounts
+	 */
 	function testSinglePayStubLargeAmounts() {
 		//Test all parts of a single pay stub.
 
@@ -435,6 +431,9 @@ class PayStubTest extends PHPUnit_Framework_TestCase {
 		return TRUE;
 	}
 
+	/**
+	 * @group PayStub_testMultiplePayStub
+	 */
 	function testMultiplePayStub() {
 		//Test all parts of multiple pay stubs that span a year boundary.
 
@@ -713,6 +712,9 @@ class PayStubTest extends PHPUnit_Framework_TestCase {
 		return TRUE;
 	}
 
+	/**
+	 * @group PayStub_testEditMultiplePayStub
+	 */
 	//Test editing pay stub in the middle of the year, and having the other pay stubs YTD re-calculated.
 	function testEditMultiplePayStub() {
 		//Test all parts of multiple pay stubs that span a year boundary.
@@ -1135,6 +1137,9 @@ class PayStubTest extends PHPUnit_Framework_TestCase {
 		return TRUE;
 	}
 
+	/**
+	 * @group PayStub_testMultiplePayStubAccruals
+	 */
 	function testMultiplePayStubAccruals() {
 		//Test all parts of multiple pay stubs that span a year boundary.
 
@@ -1403,7 +1408,6 @@ class PayStubTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals( $pse_arr[$this->pay_stub_account_link_arr['employer_contribution']][0]['ytd_amount'], '79.25' );
 
 		unset($pse_arr, $pay_stub_id, $pay_stub);
-
 
 		return TRUE;
 	}

@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,16 +33,12 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 11018 $
- * $Id: AddRecurringScheduleShift.php 11018 2013-09-24 23:39:40Z ipso $
- * $Date: 2013-09-24 16:39:40 -0700 (Tue, 24 Sep 2013) $
- */
+
 require_once( dirname(__FILE__) . DIRECTORY_SEPARATOR .'..'. DIRECTORY_SEPARATOR .'includes'. DIRECTORY_SEPARATOR .'global.inc.php');
 require_once( dirname(__FILE__) . DIRECTORY_SEPARATOR .'..'. DIRECTORY_SEPARATOR .'includes'. DIRECTORY_SEPARATOR .'CLI.inc.php');
 
 $minimum_add_shift_offset = (3600 * 2) ; //Add shifts at least 2hrs before they start.
-$lookup_shift_offset = 3600 * 10; //Lookup shifts that started X hrs before now.
+$lookup_shift_offset = (3600 * 10); //Lookup shifts that started X hrs before now.
 
 $current_epoch = TTDate::getTime();
 //$current_epoch = strtotime('05-Sep-2013 10:00 PM');
@@ -50,33 +46,33 @@ Debug::text('Current Epoch: '. TTDate::getDate('DATE+TIME', $current_epoch ), __
 
 //Initial Start/End dates need to cover all timezones, we narrow it done further once we change to each users timezone later on.
 $initial_start_date = TTDate::getBeginDayEpoch( $current_epoch - $lookup_shift_offset );
-$initial_end_date = $current_epoch + 86400;
-Debug::text('Initial Start Date: '. TTDate::getDate('DATE+TIME', $initial_start_date ) .' End Date: '. TTDate::getDate('DATE+TIME', $initial_end_date ) , __FILE__, __LINE__, __METHOD__, 10);
+$initial_end_date = ($current_epoch + 86400);
+Debug::text('Initial Start Date: '. TTDate::getDate('DATE+TIME', $initial_start_date ) .' End Date: '. TTDate::getDate('DATE+TIME', $initial_end_date ), __FILE__, __LINE__, __METHOD__, 10);
 
 $clf = new CompanyListFactory();
 $clf->getAll();
 if ( $clf->getRecordCount() > 0 ) {
 	foreach ( $clf as $c_obj ) {
 		if ( $c_obj->getStatus() != 30 ) {
-			Debug::text('Company: '. $c_obj->getName() .' ID: '. $c_obj->getID() , __FILE__, __LINE__, __METHOD__, 10);
+			Debug::text('Company: '. $c_obj->getName() .' ID: '. $c_obj->getID(), __FILE__, __LINE__, __METHOD__, 10);
 
 			$rsclf = new RecurringScheduleControlListFactory();
 			$rsclf->getByCompanyIdAndStartDateAndEndDate( $c_obj->getId(), $initial_start_date, $initial_end_date );
 			if ( $rsclf->getRecordCount() > 0 ) {
 
-				Debug::text('Recurring Schedule Control List Record Count: '. $rsclf->getRecordCount() , __FILE__, __LINE__, __METHOD__, 10);
+				Debug::text('Recurring Schedule Control List Record Count: '. $rsclf->getRecordCount(), __FILE__, __LINE__, __METHOD__, 10);
 
 				foreach( $rsclf as $rsc_obj ) {
 					//$rsclf->StartTransaction(); Wrap each individual schedule in its own transaction instead.
 
-					Debug::text('Recurring Schedule ID: '. $rsc_obj->getID() , __FILE__, __LINE__, __METHOD__, 10);
+					Debug::text('Recurring Schedule ID: '. $rsc_obj->getID(), __FILE__, __LINE__, __METHOD__, 10);
 					//Debug::Arr($rsc_obj->getUser(), 'Users assigned to Schedule', __FILE__, __LINE__, __METHOD__, 10);
 
 					$user_ids = $rsc_obj->getUser();
 					$total_user_ids = count($user_ids);
 
 					if ( is_array($user_ids) AND $total_user_ids > 0 ) {
-						$i=0;
+						$i = 0;
 						foreach( $user_ids as $user_id ) {
 							Debug::text('I: '. $i .'/'. $total_user_ids .' User ID: '. $user_id, __FILE__, __LINE__, __METHOD__, 10);
 
@@ -111,14 +107,14 @@ if ( $clf->getRecordCount() > 0 ) {
 							//Get maximum schedule policy start/stop window, so we know when to create the scheduled shift.
 							//This allows for large start/stop windows like 6-8hrs. So shifts are always created one hour before the schedule start/stop window.
 							$splf = TTnew('SchedulePolicyListFactory');
-							$max_start_stop_window = (int)$splf->getMaximumStartStopWindowByCompanyIdAndRecurringScheduleControlID( $c_obj->getID(), $rsc_obj->getRecurringScheduleTemplateControl() )+3600;
+							$max_start_stop_window = ( (int)$splf->getMaximumStartStopWindowByCompanyIdAndRecurringScheduleControlID( $c_obj->getID(), $rsc_obj->getRecurringScheduleTemplateControl() ) + 3600 );
 							if ( $max_start_stop_window < $minimum_add_shift_offset ) {
 								$max_start_stop_window = $minimum_add_shift_offset;
 							}
 
 							Debug::text('Current Epoch: '. TTDate::getDate('DATE+TIME', $current_epoch ), __FILE__, __LINE__, __METHOD__, 10);
 							$start_date = TTDate::getBeginDayEpoch( $current_epoch - $lookup_shift_offset );
-							$end_date = $current_epoch + $max_start_stop_window;
+							$end_date = ($current_epoch + $max_start_stop_window);
 							Debug::text('Start Date: '. TTDate::getDate('DATE+TIME', $start_date ) .' End Date: '. TTDate::getDate('DATE+TIME', $end_date ) .' Max Start/Stop Window: '. $max_start_stop_window, __FILE__, __LINE__, __METHOD__, 10);
 
 							//Make sure employee is employed in this time frame.
@@ -141,7 +137,7 @@ if ( $clf->getRecordCount() > 0 ) {
 
 							if ( $recurring_schedule_days !== FALSE ) {
 								foreach( $recurring_schedule_days as $date_stamp => $recurring_schedule_shifts ) {
-									Debug::text('Recurring Schedule Shift Date Stamp: '. $date_stamp , __FILE__, __LINE__, __METHOD__, 10);
+									Debug::text('Recurring Schedule Shift Date Stamp: '. $date_stamp, __FILE__, __LINE__, __METHOD__, 10);
 									foreach($recurring_schedule_shifts as $recurring_schedule_shift ) {
 
 										$recurring_schedule_shift_start_time = TTDate::strtotime( $recurring_schedule_shift['start_time'] );
@@ -150,10 +146,12 @@ if ( $clf->getRecordCount() > 0 ) {
 										Debug::text('(After User TimeZone)Recurring Schedule Shift Start Time: '. TTDate::getDate('DATE+TIME', $recurring_schedule_shift_start_time ) .' End Time: '. TTDate::getDate('DATE+TIME', $recurring_schedule_shift_end_time ), __FILE__, __LINE__, __METHOD__, 10);
 										//Make sure punch pairs fall within limits
 
-										if ( $recurring_schedule_shift_start_time < $current_epoch + $max_start_stop_window ) {
+										if ( $recurring_schedule_shift_start_time < ( $current_epoch + $max_start_stop_window ) ) {
 											Debug::text('Recurring Schedule Shift Start Time falls within Limits: '. TTDate::getDate('DATE+TIME', $recurring_schedule_shift_start_time ), __FILE__, __LINE__, __METHOD__, 10);
 
-											$status_id = 10; //Working
+											//Need to support recurring scheduled absences.
+											$status_id = $recurring_schedule_shift['status_id'];
+											$absence_policy_id = $recurring_schedule_shift['absence_policy_id'];
 
 											//Make sure we not already added this schedule shift.
 											//And that no schedule shifts overlap this one.
@@ -195,8 +193,7 @@ if ( $clf->getRecordCount() > 0 ) {
 												Debug::text('No Holidays on this day: ', __FILE__, __LINE__, __METHOD__, 10);
 											}
 											unset($hlf, $h_obj);
-
-											//Debug::text('Schedule Status ID: '. $status_id, __FILE__, __LINE__, __METHOD__, 10);
+											Debug::text('Schedule Status ID: '. $status_id, __FILE__, __LINE__, __METHOD__, 10);
 
 											$profiler->startTimer( "Add Schedule");
 
@@ -207,7 +204,7 @@ if ( $clf->getRecordCount() > 0 ) {
 											$sf->setEndTime( $recurring_schedule_shift_end_time );
 											$sf->setSchedulePolicyID( $recurring_schedule_shift['schedule_policy_id'] );
 
-											if ( isset($absence_policy_id) AND $absence_policy_id != '' ) {
+											if ( isset($absence_policy_id) AND $absence_policy_id > 0 ) {
 												$sf->setAbsencePolicyID( $absence_policy_id );
 											}
 											unset($absence_policy_id);
@@ -367,8 +364,7 @@ if ( $clf->getRecordCount() > 0 ) {
 															$pcf->Save( TRUE, TRUE );
 
 															$commit_punch_transaction = TRUE;
-														} else {
-														}
+														} 
 													} else {
 														Debug::text('Punch In and Out failed, not saving punch control!', __FILE__, __LINE__, __METHOD__, 10);
 													}

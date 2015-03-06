@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 11018 $
- * $Id: CalculatePayStub.class.php 11018 2013-09-24 23:39:40Z ipso $
- * $Date: 2013-09-24 16:39:40 -0700 (Tue, 24 Sep 2013) $
- */
+
 
 /**
  * @package Core
@@ -55,7 +51,7 @@ class CalculatePayStub extends PayStubFactory {
 
 	function getUser() {
 		if ( isset($this->data['user_id']) ) {
-			return $this->data['user_id'];
+			return (int)$this->data['user_id'];
 		}
 	}
 	function setUser($id) {
@@ -78,7 +74,7 @@ class CalculatePayStub extends PayStubFactory {
 
 	function getPayPeriod() {
 		if ( isset($this->data['pay_period_id']) ) {
-			return $this->data['pay_period_id'];
+			return (int)$this->data['pay_period_id'];
 		}
 
 		return FALSE;
@@ -186,7 +182,7 @@ class CalculatePayStub extends PayStubFactory {
 
 	function getPayStubEntryAccountsTypeArray() {
 		if ( is_array($this->pay_stub_entry_accounts_type_obj) ) {
-			//Debug::text('Returning Cached data...' , __FILE__, __LINE__, __METHOD__,10);
+			//Debug::text('Returning Cached data...', __FILE__, __LINE__, __METHOD__, 10);
 			return $this->pay_stub_entry_accounts_type_obj;
 		} else {
 			$psealf = TTnew( 'PayStubEntryAccountListFactory' );
@@ -196,14 +192,14 @@ class CalculatePayStub extends PayStubFactory {
 				return $this->pay_stub_entry_accounts_type_obj;
 			}
 
-			Debug::text('Returning FALSE...' , __FILE__, __LINE__, __METHOD__,10);
+			Debug::text('Returning FALSE...', __FILE__, __LINE__, __METHOD__, 10);
 			return FALSE;
 		}
 	}
 
 	function getDeductionObjectArrayForSorting( $obj ) {
 		$type_map_arr = $this->getPayStubEntryAccountsTypeArray();
-		//Debug::Arr($type_map_arr, 'PS Account Type Map Array: ', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($type_map_arr, 'PS Account Type Map Array: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		if ( !is_object($obj) ) {
 			return FALSE;
@@ -215,15 +211,15 @@ class CalculatePayStub extends PayStubFactory {
 			}
 
 			if ( !is_object( $obj->getCompanyDeductionObject()->getPayStubEntryAccountObject() ) ) {
-				Debug::text('Bad PS Entry Account(s) for Company Deduction. Skipping... ID: '. $obj->getCompanyDeductionObject()->getId(), __FILE__, __LINE__, __METHOD__,10);
+				Debug::text('Bad PS Entry Account(s) for Company Deduction. Skipping... ID: '. $obj->getCompanyDeductionObject()->getId(), __FILE__, __LINE__, __METHOD__, 10);
 				return FALSE;
 			}
-			//Debug::Arr($obj->getCompanyDeductionObject()->getIncludePayStubEntryAccount(), 'Include Accounts: ', __FILE__, __LINE__, __METHOD__,10);
-			//Debug::Arr($obj->getCompanyDeductionObject()->getExcludePayStubEntryAccount(), 'Exclude Accounts: ', __FILE__, __LINE__, __METHOD__,10);
+			//Debug::Arr($obj->getCompanyDeductionObject()->getIncludePayStubEntryAccount(), 'Include Accounts: ', __FILE__, __LINE__, __METHOD__, 10);
+			//Debug::Arr($obj->getCompanyDeductionObject()->getExcludePayStubEntryAccount(), 'Exclude Accounts: ', __FILE__, __LINE__, __METHOD__, 10);
 
 			$arr['type'] = get_class( $obj );
 			$arr['obj_id'] = $obj->getId();
-			$arr['id'] = substr($arr['type'],0,1).$obj->getId();
+			$arr['id'] = substr($arr['type'], 0, 1).$obj->getId();
 			$arr['name'] = $obj->getCompanyDeductionObject()->getName();
 			//Need more than just TypeCalculationOrder to prevent Federal/Prov income tax from being calculated BEFORE CPP/EI.
 			//$arr['order'] = $obj->getCompanyDeductionObject()->getPayStubEntryAccountObject()->getTypeCalculationOrder();
@@ -233,7 +229,7 @@ class CalculatePayStub extends PayStubFactory {
 			//that require different types or cirucular depedencies that require/provide different types, (ie: ER-DED that requires earnings, and an earnings that requires ER-Ded, for scratch calculations)
 			//So put TypeCalculation order at the end. However this breaks existing tax calculations as it relies too much on the calculation order specified manually.
 			//FIXME: Will need to come up with another situation that can trigger this another way. Perhaps
-			//       when calculation orders exceed 5 digits it can squeeze out the TypeCalculationOrder?
+			//		 when calculation orders exceed 5 digits it can squeeze out the TypeCalculationOrder?
 			//$arr['order'] = '1' . str_pad( $obj->getCompanyDeductionObject()->getCalculationOrder(), 5, 0, STR_PAD_LEFT) . $obj->getCompanyDeductionObject()->getPayStubEntryAccountObject()->getTypeCalculationOrder();
 			$arr['obj'] = $obj;
 			$arr['require_accounts'] = array();
@@ -272,7 +268,7 @@ class CalculatePayStub extends PayStubFactory {
 		} elseif ( get_class($obj) == 'PayStubAmendmentListFactory' ) {
 			$arr['type'] = get_class( $obj );
 			$arr['obj_id'] = $obj->getId();
-			$arr['id'] = substr($arr['type'],0,1).$obj->getId();
+			$arr['id'] = substr($arr['type'], 0, 1).$obj->getId();
 			$arr['name'] = $obj->getDescription();
 			$arr['order'] = $obj->getPayStubEntryNameObject()->getTypeCalculationOrder() . str_pad( $obj->getPayStubEntryNameObject()->getOrder(), 5, 0, STR_PAD_LEFT);
 			//$arr['order'] = '1' . str_pad( $obj->getPayStubEntryNameObject()->getOrder(), 5, 0, STR_PAD_LEFT) . $obj->getPayStubEntryNameObject()->getTypeCalculationOrder();
@@ -311,19 +307,27 @@ class CalculatePayStub extends PayStubFactory {
 		$dependency_tree = new DependencyTree();
 
 		$deduction_order_arr = array();
+		$look_back_deduction_ids = array();
 		if ( is_object($udlf) ) {
 			//Loop over all User Deductions getting Include/Exclude and PS accounts.
 			if ( $udlf->getRecordCount() > 0 ) {
 				foreach ( $udlf as $ud_obj ) {
-					//Debug::text('User Deduction: ID: '. $ud_obj->getId(), __FILE__, __LINE__, __METHOD__,10);
+					//Debug::text('User Deduction: ID: '. $ud_obj->getId(), __FILE__, __LINE__, __METHOD__, 10);
 					if ( $ud_obj->getCompanyDeductionObject()->getStatus() == 10 ) {
-						$global_id = substr(get_class( $ud_obj ),0,1) . $ud_obj->getId();
+						$global_id = substr(get_class( $ud_obj ), 0, 1) . $ud_obj->getId();
 						$deduction_order_arr[$global_id] = $this->getDeductionObjectArrayForSorting( $ud_obj );
 
-						//Debug::Arr( array($deduction_order_arr[$global_id]['require_accounts'], $deduction_order_arr[$global_id]['affect_accounts']), 'Deduction Name: '. $deduction_order_arr[$global_id]['name'], __FILE__, __LINE__, __METHOD__,10);
-						$dependency_tree->addNode( $global_id, $deduction_order_arr[$global_id]['require_accounts'], $deduction_order_arr[$global_id]['affect_accounts'], $deduction_order_arr[$global_id]['order']);
+						//Debug::Arr( array($deduction_order_arr[$global_id]['require_accounts'], $deduction_order_arr[$global_id]['affect_accounts']), 'Deduction Name: '. $deduction_order_arr[$global_id]['name'], __FILE__, __LINE__, __METHOD__, 10);
+
+						//If the calculation uses lookback, that utilizes previous pay stubs and should be calculated first so it doesn't
+						//contribute to circular dependancies when calculating current pay stub amounts.
+						if ( $ud_obj->getCompanyDeductionObject()->isLookbackCalculation() == TRUE ) {
+							$dependency_tree->addNode( $global_id, array(), array(), $deduction_order_arr[$global_id]['order'] );
+						} else {
+							$dependency_tree->addNode( $global_id, $deduction_order_arr[$global_id]['require_accounts'], $deduction_order_arr[$global_id]['affect_accounts'], $deduction_order_arr[$global_id]['order']);
+						}
 					} else {
-						Debug::text('Company Deduction is DISABLED!', __FILE__, __LINE__, __METHOD__,10);
+						Debug::text('Company Deduction is DISABLED!', __FILE__, __LINE__, __METHOD__, 10);
 					}
 				}
 			}
@@ -333,8 +337,8 @@ class CalculatePayStub extends PayStubFactory {
 		if ( is_object( $psalf) ) {
 			if ( $psalf->getRecordCount() > 0 ) {
 				foreach ( $psalf as $psa_obj ) {
-					//Debug::text('PS Amendment ID: '. $psa_obj->getId(), __FILE__, __LINE__, __METHOD__,10);
-					$global_id = substr(get_class( $psa_obj ),0,1) . $psa_obj->getId();
+					//Debug::text('PS Amendment ID: '. $psa_obj->getId(), __FILE__, __LINE__, __METHOD__, 10);
+					$global_id = substr(get_class( $psa_obj ), 0, 1) . $psa_obj->getId();
 					$deduction_order_arr[$global_id] = $this->getDeductionObjectArrayForSorting( $psa_obj );
 
 					$dependency_tree->addNode( $global_id, $deduction_order_arr[$global_id]['require_accounts'], $deduction_order_arr[$global_id]['affect_accounts'], $deduction_order_arr[$global_id]['order']);
@@ -346,7 +350,7 @@ class CalculatePayStub extends PayStubFactory {
 		if ( is_object($uelf) ) {
 			if ( $uelf->getRecordCount() > 0 ) {
 				foreach ( $uelf as $ue_obj ) {
-					Debug::text('User Expense ID: '. $ue_obj->getId(), __FILE__, __LINE__, __METHOD__,10);
+					Debug::text('User Expense ID: '. $ue_obj->getId(), __FILE__, __LINE__, __METHOD__, 10);
 					$global_id = 'E' . $ue_obj->getId();
 					$deduction_order_arr[$global_id] = $this->getDeductionObjectArrayForSorting( $ue_obj );
 
@@ -359,14 +363,15 @@ class CalculatePayStub extends PayStubFactory {
 		$profiler->startTimer( 'Calculate Dependency Tree');
 		$sorted_deduction_ids = $dependency_tree->getAllNodesInOrder();
 		$profiler->stopTimer( 'Calculate Dependency Tree');
-
+		
+		//Debug::Arr($sorted_deduction_ids , 'Sorted Deduction IDs Array: ', __FILE__, __LINE__, __METHOD__, 10);
 		if ( is_array($sorted_deduction_ids) ) {
 			foreach( $sorted_deduction_ids as $tmp => $deduction_id ) {
 				$retarr[$deduction_id] = $deduction_order_arr[$deduction_id];
 			}
 		}
 
-		//Debug::Arr($retarr, 'AFTER - Deduction Order Array: ', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($retarr, 'AFTER - Deduction Order Array: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		if ( isset($retarr) ) {
 			return $retarr;
@@ -393,7 +398,7 @@ class CalculatePayStub extends PayStubFactory {
 		if ( $this->getUserObject()->getTerminationDate() != ''
 				AND $this->getUserObject()->getTerminationDate() >= $this->getPayPeriodObject()->getStartDate()
 				AND $this->getUserObject()->getTerminationDate() <= $this->getPayPeriodObject()->getEndDate() ) {
-			Debug::text('User has been terminated in this pay period!', __FILE__, __LINE__, __METHOD__,10);
+			Debug::text('User has been terminated in this pay period!', __FILE__, __LINE__, __METHOD__, 10);
 
 			$is_terminated = TRUE;
 		} else {
@@ -408,12 +413,12 @@ class CalculatePayStub extends PayStubFactory {
 				AND ( $is_terminated == FALSE AND
 					( $this->getUserObject()->getTerminationDate() == '' OR $this->getUserObject()->getTerminationDate() < $this->getPayPeriodObject()->getStartDate() ) )
 			) {
-			Debug::text('Pay Period is after users termination date ('.$this->getUserObject()->getTerminationDate().'), or no termination date is set...', __FILE__, __LINE__, __METHOD__,10);
+			Debug::text('Pay Period is after users termination date ('.$this->getUserObject()->getTerminationDate().'), or no termination date is set...', __FILE__, __LINE__, __METHOD__, 10);
 
 			return FALSE;
 		}
 
-		Debug::text('User Id: '. $this->getUser() .' Pay Period End Date: '. TTDate::getDate('DATE+TIME', $this->getPayPeriodObject()->getEndDate() ), __FILE__, __LINE__, __METHOD__,10);
+		Debug::text('User Id: '. $this->getUser() .' Pay Period End Date: '. TTDate::getDate('DATE+TIME', $this->getPayPeriodObject()->getEndDate() ), __FILE__, __LINE__, __METHOD__, 10);
 
 		$generic_queue_status_label = $this->getUserObject()->getFullName(TRUE).' - '. TTi18n::gettext('Pay Stub');
 
@@ -422,7 +427,7 @@ class CalculatePayStub extends PayStubFactory {
 
 		$old_pay_stub_id = NULL;
 		if ( $this->getEnableCorrection() == TRUE ) {
-			Debug::text('Correction Enabled!', __FILE__, __LINE__, __METHOD__,10);
+			Debug::text('Correction Enabled!', __FILE__, __LINE__, __METHOD__, 10);
 			$pay_stub->setTemp(TRUE);
 
 			//Check for current pay stub ID so we can compare against it.
@@ -430,7 +435,7 @@ class CalculatePayStub extends PayStubFactory {
 			$pslf->getByUserIdAndPayPeriodId( $this->getUser(), $this->getPayPeriod() );
 			if ( $pslf->getRecordCount() > 0 ) {
 				$old_pay_stub_id = $pslf->getCurrent()->getId();
-				Debug::text('Comparing Against Pay Stub ID: '. $old_pay_stub_id, __FILE__, __LINE__, __METHOD__,10);
+				Debug::text('Comparing Against Pay Stub ID: '. $old_pay_stub_id, __FILE__, __LINE__, __METHOD__, 10);
 			}
 		}
 		$pay_stub->setUser( $this->getUser() );
@@ -439,7 +444,7 @@ class CalculatePayStub extends PayStubFactory {
 		$pay_stub->setStatus( 10 ); //New
 
 		if ( $is_terminated == TRUE ) {
-			Debug::text('User is Terminated, assuming final pay, setting End Date to terminated date: '. TTDate::getDate('DATE+TIME', $this->getUserObject()->getTerminationDate() ), __FILE__, __LINE__, __METHOD__,10);
+			Debug::text('User is Terminated, assuming final pay, setting End Date to terminated date: '. TTDate::getDate('DATE+TIME', $this->getUserObject()->getTerminationDate() ), __FILE__, __LINE__, __METHOD__, 10);
 			
 			$pay_stub->setStartDate( $pay_stub->getPayPeriodObject()->getStartDate() );
 			$pay_stub->setEndDate( $this->getUserObject()->getTerminationDate() );
@@ -461,13 +466,13 @@ class CalculatePayStub extends PayStubFactory {
 			}
 
 		} else {
-			Debug::text('User Termination Date is NOT set, assuming normal pay.', __FILE__, __LINE__, __METHOD__,10);
+			Debug::text('User Termination Date is NOT set, assuming normal pay.', __FILE__, __LINE__, __METHOD__, 10);
 			$pay_stub->setDefaultDates();
 		}
 
 		//This must go after setting advance
 		if ( $this->getEnableCorrection() == FALSE AND $pay_stub->IsUniquePayStub() == FALSE ) {
-			Debug::text('Pay Stub already exists', __FILE__, __LINE__, __METHOD__,10);
+			Debug::text('Pay Stub already exists', __FILE__, __LINE__, __METHOD__, 10);
 			$this->CommitTransaction();
 
 			UserGenericStatusFactory::queueGenericStatus( $generic_queue_status_label, 20, TTi18n::gettext('Pay Stub for this employee already exists, skipping...'), NULL );
@@ -479,7 +484,7 @@ class CalculatePayStub extends PayStubFactory {
 			$pay_stub->Save(FALSE);
 			$pay_stub->setStatus( 25 ); //Open
 		} else {
-			Debug::text('Pay Stub isValid failed!', __FILE__, __LINE__, __METHOD__,10);
+			Debug::text('Pay Stub isValid failed!', __FILE__, __LINE__, __METHOD__, 10);
 
 			UserGenericStatusFactory::queueGenericStatus( $generic_queue_status_label, 10, $pay_stub->Validator->getTextErrors(), NULL );
 
@@ -491,21 +496,21 @@ class CalculatePayStub extends PayStubFactory {
 		$pay_stub->loadPreviousPayStub();
 
 		$user_date_total_arr = $this->getWageObject()->getUserDateTotalArray();
-
 		if ( isset($user_date_total_arr['entries']) AND is_array( $user_date_total_arr['entries'] ) ) {
 			foreach( $user_date_total_arr['entries'] as $udt_arr ) {
 				//Allow negative amounts so flat rate premium policies can reduce an employees wage if need be.
 				if ( $udt_arr['amount'] != 0 ) {
-					Debug::text('Adding Pay Stub Entry: '. $udt_arr['pay_stub_entry'] .' Amount: '. $udt_arr['amount'], __FILE__, __LINE__, __METHOD__,10);
-					$pay_stub->addEntry( $udt_arr['pay_stub_entry'], $udt_arr['amount'], TTDate::getHours( $udt_arr['total_time'] ), $udt_arr['rate'] );
+					Debug::text('Adding Pay Stub Entry: '. $udt_arr['pay_stub_entry'] .' Amount: '. $udt_arr['amount'], __FILE__, __LINE__, __METHOD__, 10);
+					$pay_stub->addEntry( $udt_arr['pay_stub_entry'], $udt_arr['amount'], TTDate::getHours( $udt_arr['total_time'] ), $udt_arr['rate'], $udt_arr['description'] );
 				} else {
-					Debug::text('NOT Adding ($0 amount) Pay Stub Entry: '. $udt_arr['pay_stub_entry'] .' Amount: '. $udt_arr['amount'], __FILE__, __LINE__, __METHOD__,10);
+					Debug::text('NOT Adding ($0 amount) Pay Stub Entry: '. $udt_arr['pay_stub_entry'] .' Amount: '. $udt_arr['amount'], __FILE__, __LINE__, __METHOD__, 10);
 				}
 			}
 		} else {
 			//No Earnings, CHECK FOR PS AMENDMENTS next for earnings.
-			Debug::text('NO TimeSheet EARNINGS ON PAY STUB... Checking for PS amendments', __FILE__, __LINE__, __METHOD__,10);
+			Debug::text('NO TimeSheet EARNINGS ON PAY STUB... Checking for PS amendments', __FILE__, __LINE__, __METHOD__, 10);
 		}
+		unset($user_date_total_arr);
 
 		//Get all PS amendments and Tax / Deductions so we can determine the proper order to calculate them in.
 		$psalf = TTnew( 'PayStubAmendmentListFactory' );
@@ -517,7 +522,7 @@ class CalculatePayStub extends PayStubFactory {
 		if ( getTTProductEdition() >= TT_PRODUCT_ENTERPRISE AND $this->getUserObject()->getCompanyObject()->getProductEdition() >= TT_PRODUCT_ENTERPRISE ) {
 			$uelf = TTnew( 'UserExpenseListFactory' );
 			$uelf->getByUserIdAndAuthorizedAndStartDateAndEndDate( $this->getUser(), TRUE, $this->getPayPeriodObject()->getStartDate(), $this->getPayPeriodObject()->getEndDate() );
-			Debug::text('Total User Expenses: '. $uelf->getRecordCount(), __FILE__, __LINE__, __METHOD__,10);
+			Debug::text('Total User Expenses: '. $uelf->getRecordCount(), __FILE__, __LINE__, __METHOD__, 10);
 		} else {
 			$uelf = FALSE;
 		}
@@ -526,7 +531,7 @@ class CalculatePayStub extends PayStubFactory {
 		if ( is_array($deduction_order_arr) AND count($deduction_order_arr) > 0 ) {
 			foreach($deduction_order_arr as $calculation_order => $data_arr ) {
 
-				Debug::text('Found PS Amendment/Deduction: Type: '. $data_arr['type'] .' Name: '. $data_arr['name'] .' Order: '. $calculation_order, __FILE__, __LINE__, __METHOD__,10);
+				Debug::text('Found PS Amendment/Deduction: Type: '. $data_arr['type'] .' Name: '. $data_arr['name'] .' Order: '. $calculation_order, __FILE__, __LINE__, __METHOD__, 10);
 				if ( isset($data_arr['obj']) AND is_object($data_arr['obj']) ) {
 					if ( $data_arr['type'] == 'UserDeductionListFactory' ) {
 						$ud_obj = $data_arr['obj'];
@@ -541,53 +546,54 @@ class CalculatePayStub extends PayStubFactory {
 								) {
 
 								$amount = $ud_obj->getDeductionAmount( $this->getUserObject()->getId(), $pay_stub, $this->getPayPeriodObject() );
-								Debug::text('User Deduction: '. $ud_obj->getCompanyDeductionObject()->getName() .' Amount: '. $amount .' Calculation Order: '. $ud_obj->getCompanyDeductionObject()->getCalculationOrder(), __FILE__, __LINE__, __METHOD__,10);
+								Debug::text('User Deduction: '. $ud_obj->getCompanyDeductionObject()->getName() .' Amount: '. $amount .' Calculation Order: '. $ud_obj->getCompanyDeductionObject()->getCalculationOrder(), __FILE__, __LINE__, __METHOD__, 10);
 
 								//Allow negative amounts, so they can reduce previously calculated deductions or something.
 								if ( isset($amount) AND $amount != 0 ) {
 									$pay_stub->addEntry( $ud_obj->getCompanyDeductionObject()->getPayStubEntryAccount(), $amount, NULL, NULL, $ud_obj->getCompanyDeductionObject()->getPayStubEntryDescription() );
 								} else {
-									Debug::text('Amount is 0, skipping...', __FILE__, __LINE__, __METHOD__,10);
+									Debug::text('Amount is 0, skipping...', __FILE__, __LINE__, __METHOD__, 10);
 								}
 						}
 						unset($amount, $ud_obj);
 					} elseif ( $data_arr['type'] == 'PayStubAmendmentListFactory' ) {
 						$psa_obj = $data_arr['obj'];
 
-						Debug::text('Found Pay Stub Amendment: ID: '. $psa_obj->getID() .' Entry Name ID: '. $psa_obj->getPayStubEntryNameId() .' Type: '. $psa_obj->getType() , __FILE__, __LINE__, __METHOD__,10);
+						Debug::text('Found Pay Stub Amendment: ID: '. $psa_obj->getID() .' Entry Name ID: '. $psa_obj->getPayStubEntryNameId() .' Type: '. $psa_obj->getType(), __FILE__, __LINE__, __METHOD__, 10);
 
 						$amount = $psa_obj->getCalculatedAmount( $pay_stub );
 						if ( isset($amount) AND $amount != 0 ) {
-							Debug::text('Pay Stub Amendment Amount: '. $amount , __FILE__, __LINE__, __METHOD__,10);
+							Debug::text('Pay Stub Amendment Amount: '. $amount, __FILE__, __LINE__, __METHOD__, 10);
 
 							//Keep in mind this causes pay stubs to be re-generated every time, as this modifies the updated time
 							//to slightly more then the pay stub creation time.
-							$psa_obj->setStatus( 52 ); //InUse
-							if ( $psa_obj->isValid() ) {
+							//PayStubFactory->handlePayStubAmendmentStatuses() takes care of this now.
+							//$psa_obj->setStatus( 52 ); //InUse
+							//if ( $psa_obj->isValid() ) {
 								$pay_stub->addEntry( $psa_obj->getPayStubEntryNameId(), $amount, $psa_obj->getUnits(), $psa_obj->getRate(), $psa_obj->getDescription(), $psa_obj->getID(), NULL, NULL, $psa_obj->getYTDAdjustment() );
-								$psa_obj->Save();
-							}
+							//	$psa_obj->Save();
+							//}
 						} else {
-							Debug::text('bPay Stub Amendment Amount is not set...', __FILE__, __LINE__, __METHOD__,10);
+							Debug::text('bPay Stub Amendment Amount is not set...', __FILE__, __LINE__, __METHOD__, 10);
 						}
 						unset($amount, $psa_obj);
 					} elseif ( $data_arr['type'] == 'UserExpenseListFactory' ) {
 						$ue_obj = $data_arr['obj'];
 
-						Debug::text('Found User Expense: ID: '. $ue_obj->getID() .' Expense Policy ID: '. $ue_obj->getExpensePolicy(), __FILE__, __LINE__, __METHOD__,10);
+						Debug::text('Found User Expense: ID: '. $ue_obj->getID() .' Expense Policy ID: '. $ue_obj->getExpensePolicy(), __FILE__, __LINE__, __METHOD__, 10);
 
 						$amount = $ue_obj->getReimburseAmount();
 						if ( isset($amount) AND $amount != 0 ) {
-							Debug::text('User Expense reimbursable Amount: '. $amount , __FILE__, __LINE__, __METHOD__,10);
+							Debug::text('User Expense reimbursable Amount: '. $amount, __FILE__, __LINE__, __METHOD__, 10);
 							$pay_stub->addEntry( $ue_obj->getExpensePolicyObject()->getPayStubEntryAccount(), $amount, NULL, NULL, NULL, NULL, NULL, NULL, FALSE, $ue_obj->getID() );
 
 							//Keep in mind this causes pay stubs to be re-generated every time, as this modifies the updated time
 							//to slightly more then the pay stub creation time.
-							$ue_obj->setStatus( 35 ); //InUse
-							$ue_obj->Save();
-
+							//PayStubFactory->handleUserExpenseStatuses() takes care of this now.
+							//$ue_obj->setStatus( 35 ); //InUse
+							//$ue_obj->Save();
 						} else {
-							Debug::text('bUser Expense Amount is not set...', __FILE__, __LINE__, __METHOD__,10);
+							Debug::text('bUser Expense Amount is not set...', __FILE__, __LINE__, __METHOD__, 10);
 						}
 						unset($amount, $ue_obj);
 					}
@@ -603,13 +609,13 @@ class CalculatePayStub extends PayStubFactory {
 		$pay_stub->setEnableProcessEntries(TRUE);
 		$pay_stub->processEntries();
 		if ( $pay_stub->isValid() == TRUE ) {
-			Debug::text('Pay Stub is valid, final save.', __FILE__, __LINE__, __METHOD__,10);
+			Debug::text('Pay Stub is valid, final save.', __FILE__, __LINE__, __METHOD__, 10);
 			$pay_stub->setEnableCalcYTD( TRUE ); //When recalculating old pay stubs in the middle of the year, we need to make sure YTD values are updated.
 			$pay_stub->Save();
 
 			if ( $this->getEnableCorrection() == TRUE ) {
 				if ( isset($old_pay_stub_id) ) {
-					Debug::text('bCorrection Enabled - Doing Comparison here', __FILE__, __LINE__, __METHOD__,10);
+					Debug::text('bCorrection Enabled - Doing Comparison here', __FILE__, __LINE__, __METHOD__, 10);
 					PayStubFactory::CalcDifferences( $pay_stub_id, $old_pay_stub_id );
 				}
 
@@ -636,7 +642,7 @@ class CalculatePayStub extends PayStubFactory {
 			return TRUE;
 		}
 
-		Debug::text('Pay Stub is NOT valid returning FALSE', __FILE__, __LINE__, __METHOD__,10);
+		Debug::text('Pay Stub is NOT valid returning FALSE', __FILE__, __LINE__, __METHOD__, 10);
 
 		UserGenericStatusFactory::queueGenericStatus( $generic_queue_status_label, 10, $pay_stub->Validator->getTextErrors(), NULL );
 

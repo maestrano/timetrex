@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2095 $
- * $Id: HierarchyObjectTypeFactory.class.php 2095 2008-09-01 07:04:25Z ipso $
- * $Date: 2008-09-01 00:04:25 -0700 (Mon, 01 Sep 2008) $
- */
+
 
 /**
  * @package Modules\Hierarchy
@@ -124,7 +120,7 @@ class HierarchyLevelFactory extends Factory {
 
 	function getHierarchyControl() {
 		if ( isset($this->data['hierarchy_control_id']) ) {
-			return $this->data['hierarchy_control_id'];
+			return (int)$this->data['hierarchy_control_id'];
 		}
 
 		return FALSE;
@@ -164,7 +160,7 @@ class HierarchyLevelFactory extends Factory {
 			$int = 1; //1 is the lowest level
 		}
 
-		if 	(	$int > 0
+		if	(	$int > 0
 				AND
 				$this->Validator->isNumeric(		'level',
 													$int,
@@ -179,7 +175,7 @@ class HierarchyLevelFactory extends Factory {
 
 	function getUser() {
 		if ( isset($this->data['user_id']) ) {
-			return $this->data['user_id'];
+			return (int)$this->data['user_id'];
 		}
 
 		return FALSE;
@@ -250,7 +246,7 @@ class HierarchyLevelFactory extends Factory {
 		if ( !is_array($hierarchy_level_data) ) {
 			return FALSE;
 		}
-		Debug::Arr($hierarchy_level_data, ' aHierarchy Users:', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Arr($hierarchy_level_data, ' aHierarchy Users:', __FILE__, __LINE__, __METHOD__, 10);
 
 
 		foreach( $hierarchy_level_data as $hierarchy_level_id => $hierarchy_level ) {
@@ -262,7 +258,7 @@ class HierarchyLevelFactory extends Factory {
 		if ( count($tmp_hierarchy_users) != count( $unique_hierarchy_users ) ) {
 			//Duplicate superiors found.
 			$diff_hierarchy_users = array_diff_assoc( $tmp_hierarchy_users, $unique_hierarchy_users );
-			Debug::Arr($diff_hierarchy_users, ' Diff Hierarchy Users:', __FILE__, __LINE__, __METHOD__,10);
+			Debug::Arr($diff_hierarchy_users, ' Diff Hierarchy Users:', __FILE__, __LINE__, __METHOD__, 10);
 			if ( is_array($diff_hierarchy_users) ) {
 				foreach( $diff_hierarchy_users as $diff_hierarchy_key => $diff_hierarchy_value ) {
 					unset($hierarchy_level_data[$diff_hierarchy_key]);
@@ -271,7 +267,7 @@ class HierarchyLevelFactory extends Factory {
 		}
 		unset($tmp_hierarchy_users, $unique_hierarchy_users, $diff_hierarchy_users, $diff_hierarchy_key, $diff_hierarchy_value);
 
-		Debug::Arr($hierarchy_level_data, ' bHierarchy Users:', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Arr($hierarchy_level_data, ' bHierarchy Users:', __FILE__, __LINE__, __METHOD__, 10);
 
 		return $hierarchy_level_data;
 	}
@@ -314,7 +310,7 @@ class HierarchyLevelFactory extends Factory {
 
 				OR
 
-				( z.hierarchy_control_id = 469 AND a.authorization_level = 1 AND a.type_id in (10,20,30) )
+				( z.hierarchy_control_id = 469 AND a.authorization_level = 1 AND a.type_id in (10, 20, 30) )
 					OR ( z.hierarchy_control_id = 471 AND a.authorization_level = 2 AND a.type_id in (10) )
 					OR ( z.hierarchy_control_id = 470 AND a.authorization_level = 3 AND a.type_id in (100) )
 		*/
@@ -323,7 +319,11 @@ class HierarchyLevelFactory extends Factory {
 			$rf = new RequestFactory();
 			$clause_arr = array();
 			foreach( $hierarchy_level_map as $hierarchy_data ) {
-				if ( $hierarchy_data['last_level'] == TRUE ) {
+				if ( !isset( $hierarchy_data['hierarchy_control_id'] ) OR !isset( $hierarchy_data['level'] ) ) {
+					continue;
+				}
+				
+				if ( isset($hierarchy_data['last_level']) AND $hierarchy_data['last_level'] == TRUE ) {
 					$operator = ' >= ';
 				} else {
 					$operator = ' = ';
@@ -337,7 +337,7 @@ class HierarchyLevelFactory extends Factory {
 				$clause_arr[] = '( '. $hierarchy_user_table.'hierarchy_control_id = '. (int)$hierarchy_data['hierarchy_control_id'] .' AND '.$object_table.'authorization_level '. $operator .' '. (int)$hierarchy_data['level'] . $object_type_clause .' )';
 			}
 			$retval = implode(' OR ', $clause_arr );
-			//Debug::Text(' Hierarchy Filter SQL: '. $retval, __FILE__, __LINE__, __METHOD__,10);
+			//Debug::Text(' Hierarchy Filter SQL: '. $retval, __FILE__, __LINE__, __METHOD__, 10);
 			return $retval;
 		}
 

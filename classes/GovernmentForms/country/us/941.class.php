@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2286 $
- * $Id: CA.class.php 2286 2008-12-12 23:12:41Z ipso $
- * $Date: 2008-12-12 15:12:41 -0800 (Fri, 12 Dec 2008) $
- */
+
 
 include_once( 'US.class.php' );
 
@@ -1366,65 +1362,64 @@ class GovernmentForms_US_941 extends GovernmentForms_US {
         
         if ( isset( $this->l5a ) ) {
             $xml->IRS941->addChild('TaxableSocialSecurityWages', $this->l5a);
-            if ( $this->calcL5A2(NULL,NULL) > 0 ) {
-                $xml->IRS941->addChild('TaxOnSocialSecurityWages', $this->calcL5A2(NULL,NULL));
+            if ( $this->calcL5A2(NULL, NULL) > 0 ) {
+                $xml->IRS941->addChild('TaxOnSocialSecurityWages', $this->calcL5A2(NULL, NULL));
             }
         }
         if ( isset( $this->l5b ) ) {
             $xml->IRS941->addChild('TaxableSocialSecurityTips', $this->l5b);
-            if ( $this->calcL5B2(NULL,NULL) > 0 ) {
-                $xml->IRS941->addChild('TaxOnSocialSecurityTips', $this->calcL5B2(NULL,NULL));
+            if ( $this->calcL5B2(NULL, NULL) > 0 ) {
+                $xml->IRS941->addChild('TaxOnSocialSecurityTips', $this->calcL5B2(NULL, NULL));
             }
             
         }
         if ( isset( $this->l5c ) ) {
             $xml->IRS941->addChild('TaxableMedicareWagesTips', $this->l5c);
-            if ( $this->calcL5C2(NULL,NULL) > 0 ) {
-                $xml->IRS941->addChild('TaxOnMedicareWagesTips',$this->calcL5C2(NULL,NULL) );
+            if ( $this->calcL5C2(NULL, NULL) > 0 ) {
+                $xml->IRS941->addChild('TaxOnMedicareWagesTips', $this->calcL5C2(NULL, NULL) );
             }
         }
-        if ( $this->calcL5D(NULL,NULL) > 0 ) {
-            $xml->IRS941->addChild('TotalSocialSecurityMedTaxes', $this->calcL5D(NULL,NULL) );
+        if ( $this->calcL5D(NULL, NULL) > 0 ) {
+            $xml->IRS941->addChild('TotalSocialSecurityMedTaxes', $this->calcL5D(NULL, NULL) );
             $xml->IRS941->addChild('WagesNotSubjToSSMedicareTaxes', 'X');
         }   
-        if ( $this->calcL6E(NULL,NULL) > 0 ) {
-            $xml->IRS941->addChild('TotalTaxesBeforeAdjustmentsAmt',$this->calcL6E(NULL,NULL) );
+        if ( $this->calcL6E(NULL, NULL) > 0 ) {
+            $xml->IRS941->addChild('TotalTaxesBeforeAdjustmentsAmt', $this->calcL6E(NULL, NULL) );
         }
         if ( isset( $this->l7 ) ) {
-            $xml->IRS941->addChild('FractionsOfCentsAdjustment',$this->l7 );
+            $xml->IRS941->addChild('FractionsOfCentsAdjustment', $this->l7 );
         }
         if ( isset( $this->l9 ) ) {
-            $xml->IRS941->addChild('TipsGroupTermLifeInsAdjAmount',$this->l9 );
+            $xml->IRS941->addChild('TipsGroupTermLifeInsAdjAmount', $this->l9 );
         }
-        if ( $this->calcL10(NULL,NULL) > 0 ) {
-            $xml->IRS941->addChild('TotalTax',$this->calcL10(NULL,NULL));
+        if ( $this->calcL10(NULL, NULL) > 0 ) {
+            $xml->IRS941->addChild('TotalTax', $this->calcL10(NULL, NULL));
         } else {
-            $xml->IRS941->addChild('TotalTax',0.00);
+            $xml->IRS941->addChild('TotalTax', 0.00);
         }    
         
-        $xml->IRS941->addChild('TotalDepositsOverpaymentForQtr',$this->l11); 
-        if ( $this->calcL13(NULL,NULL) > 0 ) {
-            $xml->IRS941->addChild('PaymentCreditTotal',$this->calcL13(NULL,NULL));
+        $xml->IRS941->addChild('TotalDepositsOverpaymentForQtr', $this->l11);
+        if ( $this->calcL13(NULL, NULL) > 0 ) {
+            $xml->IRS941->addChild('PaymentCreditTotal', $this->calcL13(NULL, NULL));
         } else {
-            $xml->IRS941->addChild('PaymentCreditTotal',0.00);
+            $xml->IRS941->addChild('PaymentCreditTotal', 0.00);
         }
         
-        if ( $this->calcL14(NULL,NULL) > 0 ) {
-            
-            $xml->IRS941->addChild('BalanceDue',$this->calcL14(NULL,NULL));
+        if ( $this->calcL14(NULL, NULL) > 0 ) {
+            $xml->IRS941->addChild('BalanceDue', $this->calcL14(NULL, NULL));
         } else {
             $xml->IRS941->addChild('Overpayment');
-            if ( $this->calcL15(NULL,NULL) > 0 ) {
-                $xml->IRS941->Overpayment->addChild('Amount',$this->calcL15(NULL,NULL) );
-                $xml->IRS941->Overpayment->addChild('CreditElect','X');
+            if ( $this->calcL15(NULL, NULL) > 0 ) {
+                $xml->IRS941->Overpayment->addChild('Amount', $this->calcL15(NULL, NULL) );
+                $xml->IRS941->Overpayment->addChild('CreditElect', 'X');
             } else {
-                $xml->IRS941->Overpayment->addChild('Amount',0.00 );
+                $xml->IRS941->Overpayment->addChild('Amount', 0.00 );
             }
             
         }
         
         if ( isset( $this->l16 ) ) {
-           $xml->IRS941->addChild('DepositStateCode',$this->l16 ); 
+           $xml->IRS941->addChild('DepositStateCode', $this->l16 );
         }
         
         if ( is_array( $this->filterL16(NULL, NULL) ) ) {
@@ -1441,13 +1436,13 @@ class GovernmentForms_US_941 extends GovernmentForms_US {
                             $xml->IRS941->MonthlyDepositorGroup->addChild('Month1Liability', $this->l16_month1);
                         }
                         if ( isset( $this->l16_month2 ) ){
-                            $xml->IRS941->MonthlyDepositorGroup->addChild('Month2Liability',$this->l16_month2 );
+                            $xml->IRS941->MonthlyDepositorGroup->addChild('Month2Liability', $this->l16_month2 );
                         }
                         if ( isset( $this->l16_month3 ) ){
-                            $xml->IRS941->MonthlyDepositorGroup->addChild('Month3Liability',$this->l16_month3 );
+                            $xml->IRS941->MonthlyDepositorGroup->addChild('Month3Liability', $this->l16_month3 );
                         }                      
-                        if ( $this->calcL16MonthTotal(NULL,NULL) > 0 ) {
-                            $xml->IRS941->MonthlyDepositorGroup->addChild('TotalQuarterLiability',$this->calcL16MonthTotal(NULL,NULL) );
+                        if ( $this->calcL16MonthTotal(NULL, NULL) > 0 ) {
+                            $xml->IRS941->MonthlyDepositorGroup->addChild('TotalQuarterLiability', $this->calcL16MonthTotal(NULL, NULL) );
                         }
                         
                         break;

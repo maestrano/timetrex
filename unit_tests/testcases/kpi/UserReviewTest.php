@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,15 +33,13 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 676 $
- * $Id: PayStubCalculationTest.php 676 2007-03-07 23:47:29Z ipso $
- * $Date: 2007-03-07 15:47:29 -0800 (Wed, 07 Mar 2007) $
- */
+
 require_once('PHPUnit/Framework/TestCase.php');
 
+/**
+ * @group UserReview
+ */
 class UserReviewTest extends PHPUnit_Framework_TestCase {
-
 	protected $company_id = NULL;
 	protected $user_id = NULL;
     protected $currency_id = NULL;
@@ -52,10 +50,6 @@ class UserReviewTest extends PHPUnit_Framework_TestCase {
 	protected $department_ids = NULL;
     protected $expense_policy_ids = NULL;
     //protected $user_expense_id = NULL;
-
-    public function __construct() {
-        global $db, $cache, $profiler;
-    }
 
     public function setUp() {
 		global $dd;
@@ -317,7 +311,7 @@ class UserReviewTest extends PHPUnit_Framework_TestCase {
         $kpi_group_ids[] = $this->createKPIGroup( $this->company_id, 20, 0 );
         $kpi_group_ids[] = $this->createKPIGroup( $this->company_id, 30, 0 );
         
-        $kpi_id = $this->createKPI( $this->company_id, 10, 10, $kpi_group_ids, 10, 100 );
+        $kpi_id = $this->createKPI( $this->company_id, 20, 10, $kpi_group_ids, 10, 100 );
 
         $kpi_arr = $this->getKPIArrayByGroupId( $kpi_group_ids[0] );
 

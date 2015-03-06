@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2564 $
- * $Id: Option.class.php 2564 2009-05-22 22:15:39Z ipso $
- * $Date: 2009-05-22 15:15:39 -0700 (Fri, 22 May 2009) $
- */
+
 
 /**
  * @package Core
@@ -51,14 +47,14 @@ class TTLDAP {
 		global $LDAP_CONNECT_OPTIONS;
 
 		if ( $this->checkLDAPExtension() == TRUE ) {
-			$LDAP_CONNECT_OPTIONS = Array(
-					 Array ("OPTION_NAME"=>LDAP_OPT_DEREF, "OPTION_VALUE"=>2),
-					 Array ("OPTION_NAME"=>LDAP_OPT_SIZELIMIT,"OPTION_VALUE"=>100),
-					 Array ("OPTION_NAME"=>LDAP_OPT_TIMELIMIT,"OPTION_VALUE"=>30),
-					 Array ("OPTION_NAME"=>LDAP_OPT_PROTOCOL_VERSION,"OPTION_VALUE"=>3),
-					 Array ("OPTION_NAME"=>LDAP_OPT_ERROR_NUMBER,"OPTION_VALUE"=>13),
-					 Array ("OPTION_NAME"=>LDAP_OPT_REFERRALS,"OPTION_VALUE"=>FALSE),
-					 Array ("OPTION_NAME"=>LDAP_OPT_RESTART,"OPTION_VALUE"=>FALSE)
+			$LDAP_CONNECT_OPTIONS = array(
+					array('OPTION_NAME' => LDAP_OPT_DEREF, 'OPTION_VALUE' => 2 ),
+					array('OPTION_NAME' => LDAP_OPT_SIZELIMIT, 'OPTION_VALUE' => 100 ),
+					array('OPTION_NAME' => LDAP_OPT_TIMELIMIT, 'OPTION_VALUE' => 30 ),
+					array('OPTION_NAME' => LDAP_OPT_PROTOCOL_VERSION, 'OPTION_VALUE' => 3 ),
+					array('OPTION_NAME' => LDAP_OPT_ERROR_NUMBER, 'OPTION_VALUE' => 13 ),
+					array('OPTION_NAME' => LDAP_OPT_REFERRALS, 'OPTION_VALUE' => FALSE ),
+					array('OPTION_NAME' => LDAP_OPT_RESTART, 'OPTION_VALUE' => FALSE )
 			);
 		}
 
@@ -198,8 +194,11 @@ class TTLDAP {
 		return FALSE;
 	}
 
+	//Bind authentication is when a specific bind User/Password is *not* specified,
+	//so we try to initially bind as the username trying to login instead.
+	//However when bind username/password is specified, we can still attempt to bind as the username trying to login after a filter query is run.
 	function isBindAuthentication() {
-		if ( $this->getBindUserName() != '' AND $this->getBindPassword() != '' ) {
+		if ( $this->getBindUserName() == '' ) { //Don't check password, as anonymous binding doesn't have one specified.
 			return TRUE;
 		}
 
@@ -228,13 +227,13 @@ class TTLDAP {
 	}
 
 	function getBindDN( $user_name ) {
-		//return $this->getBindAttribute().'='. $user_name .','.$this->getBaseDN();
+		//return $this->getBindAttribute().'='. $user_name .', '.$this->getBaseDN();
 		$retval = '';
 		if ( $this->getBindAttribute() != '' ) {
 			$retval .= $this->getBindAttribute().'=';
 		}
 
-		$retval .= $user_name .','.$this->getBaseDN();
+		$retval .= $user_name .', '.$this->getBaseDN();
 
 		return $retval;
 	}
@@ -252,35 +251,40 @@ class TTLDAP {
 			$ldap = NewADOConnection( 'ldap' );
 			$ldap->port = $this->getPort(); //If port is 636, use SSL instead.
 
-			Debug::Text('LDAP: Host: '. $this->getHost() .' Port: '. $this->getPort() .' Bind User Name: '. $this->getBindUserName() .' Bind Password: '. $this->getBindPassword() .' Bind DN: '. $this->getBindDN( $user_name ) .' Base DN: '. $this->getBaseDN() .' Bind Authentication Mode: '. (int)$this->isBindAuthentication() .' Password: '. $password, __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text('LDAP: Host: '. $this->getHost() .' Port: '. $this->getPort() .' Bind User Name: '. $this->getBindUserName() .' Bind Password: '. $this->getBindPassword() .' Bind DN: '. $this->getBindDN( $user_name ) .' Base DN: '. $this->getBaseDN() .' Bind Authentication Mode: '. (int)$this->isBindAuthentication() .' Password: '. $password, __FILE__, __LINE__, __METHOD__, 10);
 			try {
 				//Poor mans timeout if we aren't using PHP v5.3 (which supports a built-in LDAP timeout setting)
-				$fp = @fsockopen( str_ireplace('ldaps://','', $this->getHost() ), $this->getPort(), $errno, $errstr, 3);
+				$fp = @fsockopen( str_ireplace('ldaps://', '', $this->getHost() ), $this->getPort(), $errno, $errstr, 3);
 				if ( $fp == FALSE ) {
-					Debug::Text('LDAP socket connection failed/timedout: '. $errstr .' ('.$errno.')', __FILE__, __LINE__, __METHOD__,10);
+					Debug::Text('LDAP socket connection failed/timedout: '. $errstr .' ('.$errno.')', __FILE__, __LINE__, __METHOD__, 10);
 				} else {
 					fclose($fp);
 					if ( $this->isBindAuthentication() == TRUE ) {
 						try {
-							Debug::Text('aLDAP Bind Authentication Mode...', __FILE__, __LINE__, __METHOD__,10);
+							Debug::Text('aLDAP Bind Authentication Mode...', __FILE__, __LINE__, __METHOD__, 10);
 							//Attempt to connect with the raw user_name first, if that fails, try with a full BindDN
 							$connection_result = $ldap->Connect( $this->getHost(), $user_name, $password, $this->getBaseDN() );
 						} catch ( exception $e ) {
-							Debug::Text('bLDAP Bind Authentication Mode...', __FILE__, __LINE__, __METHOD__,10);
+							Debug::Text('bLDAP Bind Authentication Mode...', __FILE__, __LINE__, __METHOD__, 10);
 							$connection_result = $ldap->Connect( $this->getHost(), $this->getBindDN( $user_name ), $password, $this->getBaseDN() );
 						}
 					} else {
-						Debug::Text('LDAP BindUser Authentication Mode...', __FILE__, __LINE__, __METHOD__,10);
-						$connection_result = $ldap->Connect( $this->getHost(), $this->getBindUserName(), $this->getBindPassword(), $this->getBaseDN() );
+						if ( strtolower( $this->getBindUserName() ) == 'anonymous' ) {
+							Debug::Text('LDAP Anonymous Bind Authentication Mode...', __FILE__, __LINE__, __METHOD__, 10);
+							$connection_result = $ldap->Connect( $this->getHost(), '', '', $this->getBaseDN() );
+						} else {
+							Debug::Text('LDAP BindUser Authentication Mode...', __FILE__, __LINE__, __METHOD__, 10);
+							$connection_result = $ldap->Connect( $this->getHost(), $this->getBindUserName(), $this->getBindPassword(), $this->getBaseDN() );
+						}
 					}
-					Debug::Text('LDAP Connection Result: '. (int)$connection_result, __FILE__, __LINE__, __METHOD__,10);
+					Debug::Text('LDAP Connection Result: '. (int)$connection_result, __FILE__, __LINE__, __METHOD__, 10);
 				}
 			} catch ( exception $e ) {
-				Debug::Text('LDAP Connection Failed!: '. $e->getMessage() , __FILE__, __LINE__, __METHOD__,10);
+				Debug::Text('LDAP Connection Failed!: '. $e->getMessage(), __FILE__, __LINE__, __METHOD__, 10);
 			}
 
 			$filter = $this->getFilterQuery( $user_name );
-			Debug::Text('LDAP Filter User: '. $filter, __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text('LDAP Filter User: '. $filter, __FILE__, __LINE__, __METHOD__, 10);
 
 			if ( $connection_result == TRUE AND $filter != '' ) {
 				$ldap->SetFetchMode(ADODB_FETCH_ASSOC);
@@ -293,64 +297,71 @@ class TTLDAP {
 
 						if ( $this->getLoginAttribute() != '' AND isset($ldap_data[$this->getLoginAttribute()]) ) {
 
-							if ( $ldap_data[$this->getLoginAttribute()] == $user_name ) {
+							//Usernames are passed here in lowercase already, so it should be case insensitive match.
+							if ( strtolower($ldap_data[$this->getLoginAttribute()]) == strtolower($user_name) ) {
 								//Try to compare plain text password if it exists
 								if ( isset($ldap_data[$this->password_attribute]) ) {
 									if ( $ldap_data[$this->password_attribute] == $password ) {
-										Debug::Text('LDAP authentication success! (z)', __FILE__, __LINE__, __METHOD__,10);
+										Debug::Text('LDAP authentication success! (z)', __FILE__, __LINE__, __METHOD__, 10);
 										$retval = TRUE;
 									} else {
-										Debug::Text('LDAP password comparison failed... LDAP Password attribute: '. $ldap_data[$this->password_attribute], __FILE__, __LINE__, __METHOD__,10);
+										Debug::Text('LDAP password comparison failed... LDAP Password attribute: '. $ldap_data[$this->password_attribute], __FILE__, __LINE__, __METHOD__, 10);
 									}
 								} else {
 									//If no password attribute exists, and we're using bind authentication, still return true as we've matched the password and user filter
-									Debug::Text('LDAP no password attribute exists...', __FILE__, __LINE__, __METHOD__,10);
+									Debug::Text('LDAP no password attribute exists...', __FILE__, __LINE__, __METHOD__, 10);
 									if ( $this->isBindAuthentication() == TRUE ) {
-										Debug::Text('LDAP matched filter, but no password attribute exists, returning TRUE...', __FILE__, __LINE__, __METHOD__,10);
+										Debug::Text('LDAP matched filter, but no password attribute exists, returning TRUE...', __FILE__, __LINE__, __METHOD__, 10);
 										$retval = TRUE;
 									} else {
 										//Bind authentication was not used, however we found the user with no password attribute, so attempt
 										//to rebind with the discovered bindAttribute to test the password for cases where it may include a fully qualified domain.
 										//This should avoid the need to suffix the user_name with '@mydomain.com'
 										if ( isset($ldap_data[$this->getBindAttribute()]) AND $ldap_data[$this->getBindAttribute()] != '' ) {
-											//$retval = $ldap->Connect( $this->getHost(), $ldap_data[$this->getBindAttribute()], $password, $this->getBaseDN() );
-											$retval = $ldap->Connect( $this->getHost(), $this->getBindDN( $ldap_data[$this->getBindAttribute()] ), $password, $this->getBaseDN() );
-											Debug::Text('LDAP post-search bind connection result: '. (int)$retval, __FILE__, __LINE__, __METHOD__,10);
+											try {
+												Debug::Text('aLDAP post-search Bind Authentication Mode...', __FILE__, __LINE__, __METHOD__, 10);
+												//Attempt to connect with the raw post-search filter data first, if that fails, try with a full BindDN
+												$retval = $ldap->Connect( $this->getHost(), $ldap_data[$this->getBindAttribute()], $password, $this->getBaseDN() );
+											} catch ( exception $e ) {
+												Debug::Text('bLDAP post-search Bind Authentication Mode...', __FILE__, __LINE__, __METHOD__, 10);
+												$retval = $ldap->Connect( $this->getHost(), $this->getBindDN( $ldap_data[$this->getBindAttribute()] ), $password, $this->getBaseDN() );
+											}
+											Debug::Text('LDAP post-search bind connection result: '. (int)$retval, __FILE__, __LINE__, __METHOD__, 10);
 										} else {
-											Debug::Text('BindAttribute not found in users LDAP record...', __FILE__, __LINE__, __METHOD__,10);
+											Debug::Text('BindAttribute not found in users LDAP record...', __FILE__, __LINE__, __METHOD__, 10);
 										}
 									}
 								}
 							} else {
-								Debug::Text('LDAP Login Attribute does not match user name...', __FILE__, __LINE__, __METHOD__,10);
+								Debug::Text('LDAP Login Attribute does not match user name...', __FILE__, __LINE__, __METHOD__, 10);
 							}
 						} else {
-							Debug::Text('LDAP Login Attribute not found or not set...', __FILE__, __LINE__, __METHOD__,10);
+							Debug::Text('LDAP Login Attribute not found or not set...', __FILE__, __LINE__, __METHOD__, 10);
 							if ( $this->isBindAuthentication() == TRUE ) {
-								Debug::Text('LDAP matched filter, but no login attribute exists, returning TRUE...', __FILE__, __LINE__, __METHOD__,10);
+								Debug::Text('LDAP matched filter, but no login attribute exists, returning TRUE...', __FILE__, __LINE__, __METHOD__, 10);
 								$retval = TRUE;
 							}
 						}
 
 					} else {
-						Debug::Text('LDAP Filter data not found...', __FILE__, __LINE__, __METHOD__,10);
+						Debug::Text('LDAP Filter data not found...', __FILE__, __LINE__, __METHOD__, 10);
 					}
 
 					if ( $retval == FALSE ) {
-						Debug::Arr($ldap_data, 'LDAP Data: ', __FILE__, __LINE__, __METHOD__,10);
+						Debug::Arr($ldap_data, 'LDAP Data: ', __FILE__, __LINE__, __METHOD__, 10);
 					}
 				} catch ( exception $e ) {
-					Debug::Text('LDAP Filter Failed!: '. $e->getMessage() , __FILE__, __LINE__, __METHOD__,10);
+					Debug::Text('LDAP Filter Failed!: '. $e->getMessage(), __FILE__, __LINE__, __METHOD__, 10);
 				}
 			} elseif ( $this->isBindAuthentication() === TRUE AND $connection_result === TRUE ) {
-				Debug::Text('LDAP bind authentication success! (a)', __FILE__, __LINE__, __METHOD__,10);
+				Debug::Text('LDAP bind authentication success! (a)', __FILE__, __LINE__, __METHOD__, 10);
 				$retval = TRUE;
 			}
 
 			$ldap->Close();
 		}
 
-		Debug::Text('LDAP authentication result: '. (int)$retval .' Total Time: '. (microtime(TRUE)-$authentication_start_time) .'s', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('LDAP authentication result: '. (int)$retval .' Total Time: '. (microtime(TRUE) - $authentication_start_time) .'s', __FILE__, __LINE__, __METHOD__, 10);
 		return $retval;
 	}
 

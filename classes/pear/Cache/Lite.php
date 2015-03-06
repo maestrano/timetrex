@@ -19,8 +19,8 @@
 *
 * @package Cache_Lite
 * @category Caching
-* @version $Id: Lite.php,v 1.54 2009/07/07 05:34:37 tacker Exp $
 * @author Fabien MARTY <fab@php.net>
+* @author Markus Tacker <tacker@php.net>
 */
 
 define('CACHE_LITE_ERROR_RETURN', 1);
@@ -79,7 +79,7 @@ class Cache_Lite
     * @var string $_file
     */
     var $_file;
-
+    
     /**
     * File name (without path)
     *
@@ -128,7 +128,7 @@ class Cache_Lite
     * @var int $_pearErrorMode
     */
     var $_pearErrorMode = CACHE_LITE_ERROR_RETURN;
-
+    
     /**
     * Current cache id
     *
@@ -146,7 +146,7 @@ class Cache_Lite
     /**
     * Enable / Disable "Memory Caching"
     *
-    * NB : There is no lifetime for memory caching !
+    * NB : There is no lifetime for memory caching ! 
     *
     * @var boolean $_memoryCaching
     */
@@ -180,7 +180,7 @@ class Cache_Lite
     * @var int $memoryCachingLimit
     */
     var $_memoryCachingLimit = 1000;
-
+    
     /**
     * File Name protection
     *
@@ -192,17 +192,17 @@ class Cache_Lite
     * @var boolean $fileNameProtection
     */
     var $_fileNameProtection = true;
-
+    
     /**
     * Enable / disable automatic serialization
     *
     * it can be used to save directly datas which aren't strings
-    * (but it's slower)
+    * (but it's slower)    
     *
     * @var boolean $_serialize
     */
     var $_automaticSerialization = false;
-
+    
     /**
     * Disable / Tune the automatic cleaning process
     *
@@ -215,39 +215,45 @@ class Cache_Lite
     * @var int $_automaticCleaning
     */
     var $_automaticCleaningFactor = 0;
-
+    
     /**
     * Nested directory level
     *
-    * Set the hashed directory structure level. 0 means "no hashed directory
-    * structure", 1 means "one level of directory", 2 means "two levels"...
-    * This option can speed up Cache_Lite only when you have many thousands of
-    * cache file. Only specific benchs can help you to choose the perfect value
+    * Set the hashed directory structure level. 0 means "no hashed directory 
+    * structure", 1 means "one level of directory", 2 means "two levels"... 
+    * This option can speed up Cache_Lite only when you have many thousands of 
+    * cache file. Only specific benchs can help you to choose the perfect value 
     * for you. Maybe, 1 or 2 is a good start.
     *
     * @var int $_hashedDirectoryLevel
     */
     var $_hashedDirectoryLevel = 0;
-
+    
     /**
     * Umask for hashed directory structure
     *
     * @var int $_hashedDirectoryUmask
     */
     var $_hashedDirectoryUmask = 0700;
-
+    
     /**
      * API break for error handling in CACHE_LITE_ERROR_RETURN mode
-     *
+     * 
      * In CACHE_LITE_ERROR_RETURN mode, error handling was not good because
      * for example save() method always returned a boolean (a PEAR_Error object
      * would be better in CACHE_LITE_ERROR_RETURN mode). To correct this without
      * breaking the API, this option (false by default) can change this handling.
-     *
+     * 
      * @var boolean
      */
     var $_errorHandlingAPIBreak = false;
-
+	
+	var $_hashedDirectoryGroup = NULL;
+	
+	var $_cacheFileMode = NULL;
+	
+	var $_cacheFileGroup = NULL;
+    
     // --- Public methods ---
 
     /**
@@ -272,7 +278,18 @@ class Cache_Lite
     *     'hashedDirectoryLevel' => level of the hashed directory system (int),
     *     'hashedDirectoryUmask' => umask for hashed directory structure (int),
     *     'errorHandlingAPIBreak' => API break for better error handling ? (boolean)
+	*     'hashedDirectoryGroup' => group of hashed directory structure (int | string) (see function chgrp)
+	*     'cacheFileMode' => filesystem mode of newly created cache files (int)
+	*     'cacheFileGroup' => group of newly created cache files (int | string) (see function chgrp)
     * );
+    * 
+    * If sys_get_temp_dir() is available and the 
+    * 'cacheDir' option is not provided in the 
+    * constructor options array its output is used 
+    * to determine the suitable temporary directory.
+    * 
+    * @see http://de.php.net/sys_get_temp_dir
+    * @see http://pear.php.net/bugs/bug.php?id=18328
     *
     * @param array $options options
     * @access public
@@ -282,8 +299,11 @@ class Cache_Lite
         foreach($options as $key => $value) {
             $this->setOption($key, $value);
         }
+        if (!isset($options['cacheDir']) && function_exists('sys_get_temp_dir')) {
+        	$this->setOption('cacheDir', sys_get_temp_dir() . DIRECTORY_SEPARATOR);
+        }
     }
-
+    
     /**
     * Generic way to set a Cache_Lite option
     *
@@ -293,15 +313,15 @@ class Cache_Lite
     * @var mixed $value value of the option
     * @access public
     */
-    function setOption($name, $value)
+    function setOption($name, $value) 
     {
-        $availableOptions = array('errorHandlingAPIBreak', 'hashedDirectoryUmask', 'hashedDirectoryLevel', 'automaticCleaningFactor', 'automaticSerialization', 'fileNameProtection', 'memoryCaching', 'onlyMemoryCaching', 'memoryCachingLimit', 'cacheDir', 'caching', 'lifeTime', 'fileLocking', 'writeControl', 'readControl', 'readControlType', 'pearErrorMode');
+        $availableOptions = array('errorHandlingAPIBreak', 'hashedDirectoryUmask', 'hashedDirectoryLevel', 'automaticCleaningFactor', 'automaticSerialization', 'fileNameProtection', 'memoryCaching', 'onlyMemoryCaching', 'memoryCachingLimit', 'cacheDir', 'caching', 'lifeTime', 'fileLocking', 'writeControl', 'readControl', 'readControlType', 'pearErrorMode', 'hashedDirectoryGroup', 'cacheFileMode', 'cacheFileGroup');
         if (in_array($name, $availableOptions)) {
             $property = '_'.$name;
             $this->$property = $value;
         }
     }
-
+    
     /**
     * Test if a cache is available and (if yes) return it
     *
@@ -329,7 +349,7 @@ class Cache_Lite
                 }
                 if ($this->_onlyMemoryCaching) {
                     return false;
-                }
+                }                
             }
             if (($doNotTestCacheValidity) || (is_null($this->_refreshTime))) {
                 if (file_exists($this->_file)) {
@@ -350,7 +370,7 @@ class Cache_Lite
         }
         return false;
     }
-
+    
     /**
     * Save some data in a cache file
     *
@@ -376,24 +396,24 @@ class Cache_Lite
                 }
             }
             if ($this->_automaticCleaningFactor>0 && ($this->_automaticCleaningFactor==1 || mt_rand(1, $this->_automaticCleaningFactor)==1)) {
-				$this->clean(false, 'old');
+				$this->clean(false, 'old');			
 			}
             if ($this->_writeControl) {
                 $res = $this->_writeAndControl($data);
                 if (is_bool($res)) {
                     if ($res) {
-                        return true;
+                        return true;  
                     }
                     // if $res if false, we need to invalidate the cache
                     @touch($this->_file, time() - 2*abs($this->_lifeTime));
                     return false;
-                }
+                }            
             } else {
                 $res = $this->_write($data);
             }
             if (is_object($res)) {
-                // $res is a PEAR_Error object
-                if (!($this->_errorHandlingAPIBreak)) {
+                // $res is a PEAR_Error object 
+                if (!($this->_errorHandlingAPIBreak)) {   
                     return false; // we return false (old API)
                 }
             }
@@ -436,7 +456,7 @@ class Cache_Lite
     * else only cache files of the specified group will be destroyed
     *
     * @param string $group name of the cache group
-    * @param string $mode flush cache mode : 'old', 'ingroup', 'notingroup',
+    * @param string $mode flush cache mode : 'old', 'ingroup', 'notingroup', 
     *                                        'callback_myFunction'
     * @return boolean true if no problem
     * @access public
@@ -445,12 +465,12 @@ class Cache_Lite
     {
         return $this->_cleanDir($this->_cacheDir, $group, $mode);
     }
-
+       
     /**
     * Set to debug mode
     *
     * When an error is found, the script will stop and the message will be displayed
-    * (in debug mode only).
+    * (in debug mode only). 
     *
     * @access public
     */
@@ -508,7 +528,7 @@ class Cache_Lite
             }
         }
     }
-
+    
     /**
     * Return the cache last modification time
     *
@@ -516,11 +536,11 @@ class Cache_Lite
     *
     * @return int last modification time
     */
-    function lastModified()
+    function lastModified() 
     {
         return @filemtime($this->_file);
     }
-
+    
     /**
     * Trigger a PEAR error
     *
@@ -534,32 +554,30 @@ class Cache_Lite
     */
     function raiseError($msg, $code)
     {
-        if ( !class_exists('PEAR') ) {
-            require_once('PEAR.php');
-        }
+        include_once('PEAR.php');
         return PEAR::raiseError($msg, $code, $this->_pearErrorMode);
     }
-
+    
     /**
      * Extend the life of a valid cache file
-     *
+     * 
      * see http://pear.php.net/bugs/bug.php?id=6681
-     *
+     * 
      * @access public
      */
     function extendLife()
     {
         @touch($this->_file);
     }
-
+    
     // --- Private methods ---
-
+    
     /**
     * Compute & set the refresh time
     *
     * @access private
     */
-    function _setRefreshTime()
+    function _setRefreshTime() 
     {
         if (is_null($this->_lifeTime)) {
             $this->_refreshTime = null;
@@ -567,10 +585,10 @@ class Cache_Lite
             $this->_refreshTime = time() - $this->_lifeTime;
         }
     }
-
+    
     /**
     * Remove a file
-    *
+    * 
     * @param string $file complete file path and name
     * @return boolean true if no problem
     * @access private
@@ -580,7 +598,7 @@ class Cache_Lite
         if (!@unlink($file)) {
             return $this->raiseError('Cache_Lite : Unable to remove cache !', -3);
         }
-        return true;
+        return true;        
     }
 
     /**
@@ -593,7 +611,7 @@ class Cache_Lite
     * @return boolean true if no problem
     * @access private
     */
-    function _cleanDir($dir, $group = false, $mode = 'ingroup')
+    function _cleanDir($dir, $group = false, $mode = 'ingroup')     
     {
         if ($this->_fileNameProtection) {
             $motif = ($group) ? 'cache_'.md5($group).'_' : 'cache_';
@@ -615,7 +633,7 @@ class Cache_Lite
             return $this->raiseError('Cache_Lite : Unable to open cache directory !', -4);
         }
         $result = true;
-        while ($file = readdir($dh)) {
+        while (($file = readdir($dh)) !== false) {
             if (($file != '.') && ($file != '..')) {
                 if (substr($file, 0, 6)=='cache_') {
                     $file2 = $dir . $file;
@@ -658,6 +676,18 @@ class Cache_Lite
     }
 
     /**
+    * Touch the cache file while are recreating it to avoid
+    * launch this task more then once when necessary
+    * When the cache recreated and Added in Cache Memory
+    * @return void
+    * @access private
+    */
+    function _touchCacheFile(){
+        if (file_exists($this->_file)) {
+            @touch($this->_file);
+        }
+    }
+    /**
     * Add some date in the memory caching array
     *
     * @param string $data data to cache
@@ -665,6 +695,7 @@ class Cache_Lite
     */
     function _memoryCacheAdd($data)
     {
+        $this->_touchCacheFile();
         $this->_memoryCachingArray[$this->_file] = $data;
         if ($this->_memoryCachingCounter >= $this->_memoryCachingLimit) {
             list($key, ) = each($this->_memoryCachingArray);
@@ -683,7 +714,7 @@ class Cache_Lite
     */
     function _setFileName($id, $group)
     {
-
+        
         if ($this->_fileNameProtection) {
             $suffix = 'cache_'.md5($group).'_'.md5($id);
         } else {
@@ -694,12 +725,12 @@ class Cache_Lite
             $hash = md5($suffix);
             for ($i=0 ; $i<$this->_hashedDirectoryLevel ; $i++) {
                 $root = $root . 'cache_' . substr($hash, 0, $i + 1) . '/';
-            }
+            }   
         }
         $this->_fileName = $suffix;
         $this->_file = $root.$suffix;
     }
-
+    
     /**
     * Read the cache file and return the content
     *
@@ -709,8 +740,8 @@ class Cache_Lite
     function _read()
     {
         $fp = @fopen($this->_file, "rb");
-        if ($this->_fileLocking) @flock($fp, LOCK_SH);
         if ($fp) {
+	    if ($this->_fileLocking) @flock($fp, LOCK_SH);
             clearstatcache();
             $length = @filesize($this->_file);
             $mqr = get_magic_quotes_runtime();
@@ -721,8 +752,12 @@ class Cache_Lite
                 $hashControl = @fread($fp, 32);
                 $length = $length - 32;
             }
+
             if ($length) {
-                $data = @fread($fp, $length);
+                $data = '';
+                // See https://bugs.php.net/bug.php?id=30936
+                // The 8192 magic number is the chunk size used internally by PHP.
+                while(!feof($fp)) $data .= fread($fp, 8192);
             } else {
                 $data = '';
             }
@@ -735,7 +770,7 @@ class Cache_Lite
                 $hashData = $this->_hash($data, $this->_readControlType);
                 if ($hashData != $hashControl) {
                     if (!(is_null($this->_lifeTime))) {
-                        @touch($this->_file, time() - 2*abs($this->_lifeTime));
+                        @touch($this->_file, time() - 2*abs($this->_lifeTime)); 
                     } else {
                         @unlink($this->_file);
                     }
@@ -744,9 +779,9 @@ class Cache_Lite
             }
             return $data;
         }
-        return $this->raiseError('Cache_Lite : Unable to read cache !', -2);
+        return $this->raiseError('Cache_Lite : Unable to read cache !', -2); 
     }
-
+    
     /**
     * Write the given data in the cache file
     *
@@ -762,13 +797,29 @@ class Cache_Lite
             for ($i=0 ; $i<$this->_hashedDirectoryLevel ; $i++) {
                 $root = $root . 'cache_' . substr($hash, 0, $i + 1) . '/';
                 if (!(@is_dir($root))) {
-                    @mkdir($root, $this->_hashedDirectoryUmask);
+					if (@mkdir($root))
+					{
+						@chmod($root, $this->_hashedDirectoryUmask);
+						if (! is_null($this->_hashedDirectoryGroup))
+							@chgrp($root, $this->_hashedDirectoryGroup);
+					}
                 }
             }
         }
+		// if both _cacheFileMode and _cacheFileGroup is null, then we don't need to call
+		// file_exists (see below: if ($is_newfile) ...)
+		$is_newfile = (! is_null($this->_cacheFileMode) || !is_null($this->_cacheFileGroup)) 
+			&& ! @file_exists($this->_file);
         $fp = @fopen($this->_file, "wb");
         if ($fp) {
             if ($this->_fileLocking) @flock($fp, LOCK_EX);
+			if ($is_newfile)
+			{
+				if (! is_null($this->_cacheFileMode))
+					@chmod($this->_file, $this->_cacheFileMode);
+				if (! is_null($this->_cacheFileGroup))
+					@chgrp($this->_file, $this->_cacheFileGroup);
+			}
             if ($this->_readControl) {
                 @fwrite($fp, $this->_hash($data, $this->_readControlType), 32);
             }
@@ -783,10 +834,10 @@ class Cache_Lite
             if ($this->_fileLocking) @flock($fp, LOCK_UN);
             @fclose($fp);
             return true;
-        }
+        }      
         return $this->raiseError('Cache_Lite : Unable to write cache file : '.$this->_file, -1);
     }
-
+       
     /**
     * Write the given data in the cache file and control it just after to avoir corrupted cache entries
     *
@@ -805,11 +856,11 @@ class Cache_Lite
             return $dataRead; # We return the PEAR_Error object
         }
         if ((is_bool($dataRead)) && (!$dataRead)) {
-            return false;
+            return false; 
         }
         return ($dataRead==$data);
     }
-
+    
     /**
     * Make a control key with the string containing datas
     *
@@ -831,7 +882,5 @@ class Cache_Lite
             return $this->raiseError('Unknown controlType ! (available values are only \'md5\', \'crc32\', \'strlen\')', -5);
         }
     }
-
-}
-
-?>
+    
+} 

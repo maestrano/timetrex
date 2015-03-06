@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2196 $
- * $Id: User.class.php 2196 2008-10-14 16:08:54Z ipso $
- * $Date: 2008-10-14 09:08:54 -0700 (Tue, 14 Oct 2008) $
- */
+
 
 /**
  * @package API\UnAuthenticated
@@ -86,7 +82,7 @@ class APIAuthentication extends APIFactory {
 					$error_message = TTi18n::gettext('Sorry, your trial period has expired, please contact our sales department to reactivate your account');
 				} elseif ( $c_obj->getStatus() == 28 ) {
 					if ( $c_obj->getMigrateURL() != '' ) {
-						$error_message = TTi18n::gettext('To better serve our customers your account has been migrated, please update your bookmarks to use the following URL from now on: ') . 'http://'. $c_obj->getMigrateURL();
+						$error_message = TTi18n::gettext('To better serve our customers your account has been migrated, please update your bookmarks to use the following URL from now on') . ': ' . 'http://'. $c_obj->getMigrateURL();
 					} else {
 						$error_message = TTi18n::gettext('To better serve our customers your account has been migrated, please contact customer support immediately.');
 					}
@@ -125,9 +121,9 @@ class APIAuthentication extends APIFactory {
 		if ( is_object($authentication) AND $authentication->getSessionID() != '' ) {
 			Debug::text('Session ID: '. $authentication->getSessionID(), __FILE__, __LINE__, __METHOD__, 10);
 
-			if ( $this->getPermissionObject()->Check('company','view') AND $this->getPermissionObject()->Check('company','login_other_user') ) {
+			if ( $this->getPermissionObject()->Check('company', 'view') AND $this->getPermissionObject()->Check('company', 'login_other_user') ) {
 				if ( !is_numeric( $user_id ) ) { //If username is used, lookup user_id
-					Debug::Text('Lookup User ID by UserName: '. $user_id, __FILE__, __LINE__, __METHOD__,10);
+					Debug::Text('Lookup User ID by UserName: '. $user_id, __FILE__, __LINE__, __METHOD__, 10);
 					$ulf = TTnew( 'UserListFactory' );
 					$ulf->getByUserName( trim($user_id) );
 					if ( $ulf->getRecordCount() == 1 ) {
@@ -140,7 +136,7 @@ class APIAuthentication extends APIFactory {
 				if ( $ulf->getRecordCount() == 1 ) {
 					$new_session_user_obj = $ulf->getCurrent();
 
-					Debug::Text('Login as different user: '. $user_id .' IP Address: '. $ip_address, __FILE__, __LINE__, __METHOD__,10);
+					Debug::Text('Login as different user: '. $user_id .' IP Address: '. $ip_address, __FILE__, __LINE__, __METHOD__, 10);
 					$new_session_id = $authentication->newSession( $user_id, $ip_address );
 
 					$retarr = array(
@@ -150,10 +146,10 @@ class APIAuthentication extends APIFactory {
 
 					//Add entry in source *AND* destination user log describing who logged in.
 					//Source user log, showing that the source user logged in as someone else.
-					TTLog::addEntry( $this->getCurrentUserObject()->getId(), 'Login',  TTi18n::getText('Override Login').': '. TTi18n::getText('SourceIP').': '. $authentication->getIPAddress() .' '. TTi18n::getText('SessionID') .': '.$authentication->getSessionID() .' '.  TTi18n::getText('To Employee').': '. $new_session_user_obj->getFullName() .'('.$user_id.')', $this->getCurrentUserObject()->getId(), 'authentication');
+					TTLog::addEntry( $this->getCurrentUserObject()->getId(), 'Login', TTi18n::getText('Override Login').': '. TTi18n::getText('SourceIP').': '. $authentication->getIPAddress() .' '. TTi18n::getText('SessionID') .': '.$authentication->getSessionID() .' '.	TTi18n::getText('To Employee').': '. $new_session_user_obj->getFullName() .'('.$user_id.')', $this->getCurrentUserObject()->getId(), 'authentication');
 
 					//Destination user log, showing the destination user was logged in *by* someone else.
-					TTLog::addEntry( $user_id, 'Login',  TTi18n::getText('Override Login').': '. TTi18n::getText('SourceIP').': '. $authentication->getIPAddress() .' '. TTi18n::getText('SessionID') .': '.$authentication->getSessionID() .' '.  TTi18n::getText('By Employee').': '. $this->getCurrentUserObject()->getFullName() .'('.$user_id.')', $user_id, 'authentication');
+					TTLog::addEntry( $user_id, 'Login', TTi18n::getText('Override Login').': '. TTi18n::getText('SourceIP').': '. $authentication->getIPAddress() .' '. TTi18n::getText('SessionID') .': '.$authentication->getSessionID() .' '.  TTi18n::getText('By Employee').': '. $this->getCurrentUserObject()->getFullName() .'('.$user_id.')', $user_id, 'authentication');
 
 					return $this->returnHandler( $retarr );
 				}
@@ -170,9 +166,9 @@ class APIAuthentication extends APIFactory {
 		if ( is_object($authentication) AND $authentication->getSessionID() != '' ) {
 			Debug::text('Session ID: '. $authentication->getSessionID(), __FILE__, __LINE__, __METHOD__, 10);
 
-			if ( $this->getPermissionObject()->Check('company','view') AND $this->getPermissionObject()->Check('company','login_other_user') ) {
+			if ( $this->getPermissionObject()->Check('company', 'view') AND $this->getPermissionObject()->Check('company', 'login_other_user') ) {
 				if ( !is_numeric( $user_id ) ) { //If username is used, lookup user_id
-					Debug::Text('Lookup User ID by UserName: '. $user_id, __FILE__, __LINE__, __METHOD__,10);
+					Debug::Text('Lookup User ID by UserName: '. $user_id, __FILE__, __LINE__, __METHOD__, 10);
 					$ulf = TTnew( 'UserListFactory' );
 					$ulf->getByUserName( trim($user_id) );
 					if ( $ulf->getRecordCount() == 1 ) {
@@ -183,19 +179,19 @@ class APIAuthentication extends APIFactory {
 				$ulf = TTnew( 'UserListFactory' );
 				$ulf->getByIdAndStatus( (int)$user_id, 10 );  //Can only switch to Active employees
 				if ( $ulf->getRecordCount() == 1 ) {
-					Debug::Text('Login as different user: '. $user_id, __FILE__, __LINE__, __METHOD__,10);
+					Debug::Text('Login as different user: '. $user_id, __FILE__, __LINE__, __METHOD__, 10);
 					$authentication->changeObject( $user_id );
 
 					//Add entry in source *AND* destination user log describing who logged in.
 					//Source user log, showing that the source user logged in as someone else.
-					TTLog::addEntry( $this->getCurrentUserObject()->getId(), 'Login',  TTi18n::getText('Override Login').': '. TTi18n::getText('SourceIP').': '. $authentication->getIPAddress() .' '. TTi18n::getText('SessionID') .': '.$authentication->getSessionID() .' '.  TTi18n::getText('To Employee').': '. $authentication->getObject()->getFullName() .'('.$user_id.')', $this->getCurrentUserObject()->getId(), 'authentication');
+					TTLog::addEntry( $this->getCurrentUserObject()->getId(), 'Login', TTi18n::getText('Override Login').': '. TTi18n::getText('SourceIP').': '. $authentication->getIPAddress() .' '. TTi18n::getText('SessionID') .': '.$authentication->getSessionID() .' '.	TTi18n::getText('To Employee').': '. $authentication->getObject()->getFullName() .'('.$user_id.')', $this->getCurrentUserObject()->getId(), 'authentication');
 
 					//Destination user log, showing the destination user was logged in *by* someone else.
-					TTLog::addEntry( $user_id, 'Login',  TTi18n::getText('Override Login').': '. TTi18n::getText('SourceIP').': '. $authentication->getIPAddress() .' '. TTi18n::getText('SessionID') .': '.$authentication->getSessionID() .' '.  TTi18n::getText('By Employee').': '. $this->getCurrentUserObject()->getFullName() .'('.$user_id.')', $user_id, 'authentication');
+					TTLog::addEntry( $user_id, 'Login', TTi18n::getText('Override Login').': '. TTi18n::getText('SourceIP').': '. $authentication->getIPAddress() .' '. TTi18n::getText('SessionID') .': '.$authentication->getSessionID() .' '.  TTi18n::getText('By Employee').': '. $this->getCurrentUserObject()->getFullName() .'('.$user_id.')', $user_id, 'authentication');
 
 					return TRUE;
 				} else {
-					Debug::Text('User is likely not active: '. $user_id, __FILE__, __LINE__, __METHOD__,10);
+					Debug::Text('User is likely not active: '. $user_id, __FILE__, __LINE__, __METHOD__, 10);
 				}
 			}
 		}
@@ -205,22 +201,25 @@ class APIAuthentication extends APIFactory {
 
 	function Logout() {
 		global $authentication;
-    
+
 		if ( is_object($authentication) AND $authentication->getSessionID() != '' ) {
 			Debug::text('Logging out session ID: '. $authentication->getSessionID(), __FILE__, __LINE__, __METHOD__, 10);
 
-			$result = $authentication->Logout();
-      
-      // Hook:Maestrano
-      // Set cookie instructing to redirect
-      $maestrano = MaestranoService::getInstance();
-      if ($result && $maestrano->isSsoEnabled()) {
-        setcookie('timetrex_logout',true, 0,'/');
-      }
-      return $result;
+			return $authentication->Logout();
 		}
 
 		return FALSE;
+	}
+
+	function getSessionIdle() {
+		global $config_vars;
+
+		if ( isset($config_vars['other']['web_session_timeout']) AND $config_vars['other']['web_session_timeout'] != '' ) {
+			return (int)$config_vars['other']['web_session_timeout'];
+		} else {
+			$authentication = new Authentication();
+			return $authentication->getIdle();
+		}
 	}
 
 	function isLoggedIn( $touch_updated_date = TRUE ) {
@@ -231,24 +230,12 @@ class APIAuthentication extends APIFactory {
 		if ( $session_id != '' ) {
 			$authentication = new Authentication();
 
-			Debug::text('AMF Session ID: '. $session_id .' Source IP: '. $_SERVER['REMOTE_ADDR'], __FILE__, __LINE__, __METHOD__, 10);
+			Debug::text('AMF Session ID: '. $session_id .' Source IP: '. $_SERVER['REMOTE_ADDR'] .' Touch Updated Date: '. (int)$touch_updated_date, __FILE__, __LINE__, __METHOD__, 10);
 			if ( isset($config_vars['other']['web_session_timeout']) AND $config_vars['other']['web_session_timeout'] != '' ) {
 				$authentication->setIdle( (int)$config_vars['other']['web_session_timeout'] );
 			}
-			
-      if ( $authentication->Check( $session_id, $touch_updated_date ) === TRUE ) {
-        // Hook: Maestrano
-        // Check Maestrano session is still valid
-        $maestrano = MaestranoService::getInstance();
-        if ($maestrano->isSsoEnabled()) {
-          if (!isset($_SESSION)) session_start();
-          if (!$maestrano->getSsoSession()->isValid()) {
-            setcookie('timetrex_relogin',true, 0,'/');
-            return FALSE;
-          }
-        }
-        
-        return TRUE;
+			if ( $authentication->Check( $session_id, $touch_updated_date ) === TRUE ) {
+				return TRUE;
 			}
 		}
 
@@ -288,11 +275,20 @@ class APIAuthentication extends APIFactory {
 
 	//Functions that can be called before the API client is logged in.
 	//Mainly so the proper loading/login page can be displayed.
+	function getProduction() {
+		return PRODUCTION;
+	}
 	function getApplicationName() {
 		return APPLICATION_NAME;
 	}
 	function getApplicationVersion() {
 		return APPLICATION_VERSION;
+	}
+	function getApplicationVersionDate() {
+		return APPLICATION_VERSION_DATE;
+	}
+	function getApplicationBuild() {
+		return APPLICATION_BUILD;
 	}
 	function getOrganizationName() {
 		return ORGANIZATION_NAME;
@@ -372,8 +368,10 @@ class APIAuthentication extends APIFactory {
 		}
 		TTi18n::setLocale(); //Sets master locale
 
-		$retval = str_replace('.UTF-8', '', TTi18n::getLocale() );
-		Debug::text('Locale: '. $retval, __FILE__, __LINE__, __METHOD__, 10);
+		//$retval = str_replace('.UTF-8', '', TTi18n::getLocale() );
+		$retval = TTi18n::getNormalizedLocale();
+
+		Debug::text('Locale: '. $retval .' Language: '. $language, __FILE__, __LINE__, __METHOD__, 10);
 		return $retval;
 	}
 
@@ -399,16 +397,39 @@ class APIAuthentication extends APIFactory {
 
 	//Returns all login data required in a single call for optimization purposes.
 	function getPreLoginData( $api = NULL ) {
-		global $config_vars;
+		global $config_vars, $authentication;
+
+		if ( isset($config_vars['other']['installer_enabled']) AND $config_vars['other']['installer_enabled'] == 1 ) {
+			return array(
+				'analytics_enabled' => $this->isAnalyticsEnabled(),
+				'application_build' => $this->getApplicationBuild(),
+				'powered_by_logo_enabled' => $this->isPoweredByLogoEnabled(),
+				'deployment_on_demand' => $this->getDeploymentOnDemand(),
+				'product_edition' => $this->getTTProductEdition( FALSE ),
+				'locale' => TTi18n::getNormalizedLocale(),
+				'base_url' => Environment::getBaseURL(),
+				'api_base_url' => Environment::getAPIBaseURL()
+			);
+		}
+
+		$company_name = $this->getCompanyName();
+		if ( $company_name == '' ) {
+			$company_name = 'N/A';
+		}
 
 		return array(
 				'primary_company_id' => PRIMARY_COMPANY_ID, //Needed for some branded checks.
+				'primary_company_name' => $company_name,
 				'base_url' => Environment::getBaseURL(),
 				'api_url' => Environment::getAPIURL( $api ),
 				'api_base_url' => Environment::getAPIBaseURL( $api ),
 				'api_json_url' => Environment::getAPIURL( 'json' ),
 				'images_url' => Environment::getImagesURL(),
 				'powered_by_logo_enabled' => $this->isPoweredByLogoEnabled(),
+				'is_application_branded' => $this->isApplicationBranded(),
+				'application_name' => $this->getApplicationName(),
+				'organization_url' => $this->getOrganizationURL(),
+				'copyright_notice' => COPYRIGHT_NOTICE,
 				'product_edition' => $this->getTTProductEdition( FALSE ),
 				'product_edition_name' => $this->getTTProductEdition( TRUE ),
 				'deployment_on_demand' => $this->getDeploymentOnDemand(),
@@ -416,21 +437,40 @@ class APIAuthentication extends APIFactory {
 				'analytics_enabled' => $this->isAnalyticsEnabled(),
 				'registration_key' => $this->getRegistrationKey(),
 				'http_host' => $this->getHTTPHost(),
+				'is_ssl' => Misc::isSSL(),
+				'production' => $this->getProduction(),
 				'application_version' => $this->getApplicationVersion(),
+				'application_version_date' => $this->getApplicationVersionDate(),
+				'application_build' => $this->getApplicationBuild(),
 				'is_logged_in' => $this->isLoggedIn(),
+				'session_idle_timeout' => $this->getSessionIdle(),
+				'footer_left_html' => ( isset($config_vars['other']['footer_left_html']) AND $config_vars['other']['footer_left_html'] != '' ) ? $config_vars['other']['footer_left_html'] : FALSE,
+				'footer_right_html' => ( isset($config_vars['other']['footer_right_html']) AND $config_vars['other']['footer_right_html'] != '' ) ? $config_vars['other']['footer_right_html'] : FALSE,
 				'language_options' => Misc::addSortPrefix( TTi18n::getLanguageArray() ),
-				'language' => TTi18n::getLanguageFromLocale( TTi18n::getLocaleCookie() ),
+				//Make sure locale is set properly before this function is called, either in api.php or APIGlobal.js.php for example.
+				'enable_default_language_translation' => ( isset($config_vars['other']['enable_default_language_translation']) ) ? $config_vars['other']['enable_default_language_translation'] : FALSE,
+				'language' => TTi18n::getLanguage(),
+				'locale' => TTi18n::getNormalizedLocale(), //Needed for HTML5 interface to load proper translation file.
 			);
 	}
 
 	//Function that Flex can call when an irrecoverable error or uncaught exception is triggered.
-	function sendErrorReport( $data, $screenshot = NULL ) {
+	function sendErrorReport( $data = NULL, $screenshot = NULL ) {
 		$attachments = NULL;
 		if ( $screenshot != '' ) {
 			$attachments[] = array( 'file_name' => 'screenshot.png', 'mime_type' => 'image/png', 'data' => base64_decode( $screenshot ) );
 		}
 
-		return Misc::sendSystemMail( TTi18n::gettext('Flex Error Report'), $data, $attachments );
+		if ( defined( 'TIMETREX_JSON_API' ) == TRUE ) {
+			$subject = TTi18n::gettext('HTML5 Error Report');
+		} else {
+			$subject = TTi18n::gettext('Flex Error Report');
+		}
+
+		Misc::sendSystemMail( $subject, $data, $attachments, TRUE ); //Always force these emails to be sent, even when PRODUCTION=FALSE
+
+		//return APPLICATION_BUILD so JS can check if its correct and notify the user to refresh/clear cache.
+		return APPLICATION_BUILD;
 	}
 
 	/**
@@ -452,13 +492,13 @@ class APIAuthentication extends APIFactory {
 
 					if ( $current_password != '' ) {
 						if ( $u_obj->checkPassword($current_password, FALSE) !== TRUE ) { //Disable password policy checking on current password.
-							Debug::Text('Password check failed!', __FILE__, __LINE__, __METHOD__,10);
+							Debug::Text('Password check failed!', __FILE__, __LINE__, __METHOD__, 10);
 							$u_obj->Validator->isTrue(	'current_password',
 													FALSE,
 													TTi18n::gettext('Current password is incorrect') );
 						}
 					} else {
-						Debug::Text('Current password not specified', __FILE__, __LINE__, __METHOD__,10);
+						Debug::Text('Current password not specified', __FILE__, __LINE__, __METHOD__, 10);
 						$u_obj->Validator->isTrue(	'current_password',
 												FALSE,
 												TTi18n::gettext('Current password is incorrect') );

@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 1981 $
- * $Id: global.css.php 1981 2008-07-10 23:13:44Z ipso $
- * $Date: 2008-07-10 16:13:44 -0700 (Thu, 10 Jul 2008) $
- */
+
 $disable_database_connection=TRUE;
 require_once('../includes/global.inc.php');
 Header("Content-type: text/css; charset=UTF-8");
@@ -445,4 +441,29 @@ td.taboff {
 /* Used for making SPAN's that don't wrap. */
 .nowrap {
 	white-space: nowrap;
+}
+
+
+
+#popUpDiv {
+    background-color: #FFB3B3;
+    color: #FFF;
+    height: 100px;
+	padding-top:5px;
+    position: absolute;
+	left: 25%;
+	top: 450px;
+    width: 50%;
+	text-align: center;
+	border-style: solid;
+	border-width: 2px;
+	border-color: #FF0000;
+	z-index:99;
+    transition: top 3.5s;
+    -moz-transition: top 3.5s;
+    -webkit-transition: top 3.5s;
+    -o-transition: top 3.5s;
+}
+#popUpDiv.visible {
+	top: 110px;
 }

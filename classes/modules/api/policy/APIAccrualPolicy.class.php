@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2196 $
- * $Id: APIAccrualPolicy.class.php 2196 2008-10-14 16:08:54Z ipso $
- * $Date: 2008-10-14 09:08:54 -0700 (Tue, 14 Oct 2008) $
- */
+
 
 /**
  * @package API\Policy
@@ -59,8 +55,8 @@ class APIAccrualPolicy extends APIFactory {
 	 */
 	function getOptions( $name, $parent = NULL ) {
 		if ( $name == 'columns'
-				AND ( !$this->getPermissionObject()->Check('accrual_policy','enabled')
-					OR !( $this->getPermissionObject()->Check('accrual_policy','view') OR $this->getPermissionObject()->Check('accrual_policy','view_own') OR $this->getPermissionObject()->Check('accrual_policy','view_child') ) ) ) {
+				AND ( !$this->getPermissionObject()->Check('accrual_policy', 'enabled')
+					OR !( $this->getPermissionObject()->Check('accrual_policy', 'view') OR $this->getPermissionObject()->Check('accrual_policy', 'view_own') OR $this->getPermissionObject()->Check('accrual_policy', 'view_child') ) ) ) {
 			$name = 'list_columns';
 		}
 
@@ -74,11 +70,11 @@ class APIAccrualPolicy extends APIFactory {
 	function getAccrualPolicyDefaultData() {
 		$company_obj = $this->getCurrentCompanyObject();
 
-		Debug::Text('Getting accrual_policy default data...', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Getting accrual_policy default data...', __FILE__, __LINE__, __METHOD__, 10);
 
 		$data = array(
 						'company_id' => $company_obj->getId(),
-						'type_id' => 10,
+						'type_id' => 20,
 						'minimum_employed_days' => 0,
 					);
 
@@ -91,8 +87,8 @@ class APIAccrualPolicy extends APIFactory {
 	 * @return array
 	 */
 	function getAccrualPolicy( $data = NULL, $disable_paging = FALSE ) {
-		if ( !$this->getPermissionObject()->Check('accrual_policy','enabled')
-				OR !( $this->getPermissionObject()->Check('accrual_policy','view') OR $this->getPermissionObject()->Check('accrual_policy','view_own') OR $this->getPermissionObject()->Check('accrual_policy','view_child')  ) ) {
+		if ( !$this->getPermissionObject()->Check('accrual_policy', 'enabled')
+				OR !( $this->getPermissionObject()->Check('accrual_policy', 'view') OR $this->getPermissionObject()->Check('accrual_policy', 'view_own') OR $this->getPermissionObject()->Check('accrual_policy', 'view_child')	 ) ) {
 			//return $this->getPermissionObject()->PermissionDenied();
 			$data['filter_columns'] = $this->handlePermissionFilterColumns( (isset($data['filter_columns'])) ? $data['filter_columns'] : NULL, Misc::trimSortPrefix( $this->getOptions('list_columns') ) );
 		}
@@ -146,9 +142,9 @@ class APIAccrualPolicy extends APIFactory {
 			return $this->returnHandler( FALSE );
 		}
 
-		if ( !$this->getPermissionObject()->Check('accrual_policy','enabled')
-				OR !( $this->getPermissionObject()->Check('accrual_policy','edit') OR $this->getPermissionObject()->Check('accrual_policy','edit_own') OR $this->getPermissionObject()->Check('accrual_policy','edit_child') OR $this->getPermissionObject()->Check('accrual_policy','add') ) ) {
-			return  $this->getPermissionObject()->PermissionDenied();
+		if ( !$this->getPermissionObject()->Check('accrual_policy', 'enabled')
+				OR !( $this->getPermissionObject()->Check('accrual_policy', 'edit') OR $this->getPermissionObject()->Check('accrual_policy', 'edit_own') OR $this->getPermissionObject()->Check('accrual_policy', 'edit_child') OR $this->getPermissionObject()->Check('accrual_policy', 'add') ) ) {
+			return	$this->getPermissionObject()->PermissionDenied();
 		}
 
 		if ( $validate_only == TRUE ) {
@@ -172,11 +168,11 @@ class APIAccrualPolicy extends APIFactory {
 					if ( $lf->getRecordCount() == 1 ) {
 						//Object exists, check edit permissions
 						if (
-							  $validate_only == TRUE
-							  OR
+							$validate_only == TRUE
+							OR
 								(
-								$this->getPermissionObject()->Check('accrual_policy','edit')
-									OR ( $this->getPermissionObject()->Check('accrual_policy','edit_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE )
+								$this->getPermissionObject()->Check('accrual_policy', 'edit')
+									OR ( $this->getPermissionObject()->Check('accrual_policy', 'edit_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE )
 								) ) {
 
 							Debug::Text('Row Exists, getting current data: ', $row['id'], __FILE__, __LINE__, __METHOD__, 10);
@@ -191,7 +187,7 @@ class APIAccrualPolicy extends APIFactory {
 					}
 				} else {
 					//Adding new object, check ADD permissions.
-					$primary_validator->isTrue( 'permission', $this->getPermissionObject()->Check('accrual_policy','add'), TTi18n::gettext('Add permission denied') );
+					$primary_validator->isTrue( 'permission', $this->getPermissionObject()->Check('accrual_policy', 'add'), TTi18n::gettext('Add permission denied') );
 				}
 				Debug::Arr($row, 'Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
@@ -199,10 +195,10 @@ class APIAccrualPolicy extends APIFactory {
 				if ( $is_valid == TRUE ) { //Check to see if all permission checks passed before trying to save data.
 					Debug::Text('Setting object data...', __FILE__, __LINE__, __METHOD__, 10);
 
-					$lf->setObjectFromArray( $row );
-
 					//Force Company ID to current company.
-					$lf->setCompany( $this->getCurrentCompanyObject()->getId() );
+					$row['company_id'] = $this->getCurrentCompanyObject()->getId();
+
+					$lf->setObjectFromArray( $row );
 
 					$is_valid = $lf->isValid();
 					if ( $is_valid == TRUE ) {
@@ -262,16 +258,16 @@ class APIAccrualPolicy extends APIFactory {
 			return $this->returnHandler( FALSE );
 		}
 
-		if ( !$this->getPermissionObject()->Check('accrual_policy','enabled')
-				OR !( $this->getPermissionObject()->Check('accrual_policy','delete') OR $this->getPermissionObject()->Check('accrual_policy','delete_own') OR $this->getPermissionObject()->Check('accrual_policy','delete_child') ) ) {
-			return  $this->getPermissionObject()->PermissionDenied();
+		if ( !$this->getPermissionObject()->Check('accrual_policy', 'enabled')
+				OR !( $this->getPermissionObject()->Check('accrual_policy', 'delete') OR $this->getPermissionObject()->Check('accrual_policy', 'delete_own') OR $this->getPermissionObject()->Check('accrual_policy', 'delete_child') ) ) {
+			return	$this->getPermissionObject()->PermissionDenied();
 		}
 
 		Debug::Text('Received data for: '. count($data) .' AccrualPolicys', __FILE__, __LINE__, __METHOD__, 10);
 		Debug::Arr($data, 'Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		$total_records = count($data);
-        $validator_stats = array('total_records' => $total_records, 'valid_records' => 0 );
+		$validator_stats = array('total_records' => $total_records, 'valid_records' => 0 );
 		if ( is_array($data) ) {
 			foreach( $data as $key => $id ) {
 				$primary_validator = new Validator();
@@ -283,8 +279,8 @@ class APIAccrualPolicy extends APIFactory {
 					$lf->getByIdAndCompanyId( $id, $this->getCurrentCompanyObject()->getId() );
 					if ( $lf->getRecordCount() == 1 ) {
 						//Object exists, check edit permissions
-						if ( $this->getPermissionObject()->Check('accrual_policy','delete')
-								OR ( $this->getPermissionObject()->Check('accrual_policy','delete_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE ) ) {
+						if ( $this->getPermissionObject()->Check('accrual_policy', 'delete')
+								OR ( $this->getPermissionObject()->Check('accrual_policy', 'delete_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE ) ) {
 							Debug::Text('Record Exists, deleting record: ', $id, __FILE__, __LINE__, __METHOD__, 10);
 							$lf = $lf->getCurrent();
 						} else {
@@ -364,7 +360,7 @@ class APIAccrualPolicy extends APIFactory {
 			Debug::Arr($src_rows, 'SRC Rows: ', __FILE__, __LINE__, __METHOD__, 10);
 			foreach( $src_rows as $key => $row ) {
 				$original_ids[$key] = $src_rows[$key]['id'];
-				unset($src_rows[$key]['id'],$src_rows[$key]['manual_id'] ); //Clear fields that can't be copied
+				unset($src_rows[$key]['id'], $src_rows[$key]['manual_id'] ); //Clear fields that can't be copied
 				$src_rows[$key]['name'] = Misc::generateCopyName( $row['name'] ); //Generate unique name
 			}
 			//Debug::Arr($src_rows, 'bSRC Rows: ', __FILE__, __LINE__, __METHOD__, 10);
@@ -374,11 +370,14 @@ class APIAccrualPolicy extends APIFactory {
 			//Now we need to loop through the result set, and copy the milestones as well.
 			if ( isset($original_ids) ) {
 				Debug::Arr($original_ids, ' Original IDs: ', __FILE__, __LINE__, __METHOD__, 10);
+				Debug::Arr($retval, ' New IDs: ', __FILE__, __LINE__, __METHOD__, 10);
 
 				foreach( $original_ids as $key => $original_id ) {
 					$new_id = NULL;
 					if ( is_array($retval) ) {
-						if ( isset($retval['api_details']['details'][$key]) ) {
+						if ( isset($retval['api_retval']) AND is_numeric($retval['api_retval']) AND $retval['api_retval'] > 0 ) {
+							$new_id = $retval['api_retval'];
+						} elseif ( isset($retval['api_details']['details'][$key]) ) {
 							$new_id = $retval['api_details']['details'][$key];
 						}
 					} elseif ( is_numeric($retval) ) {
@@ -391,7 +390,7 @@ class APIAccrualPolicy extends APIFactory {
 						$apmlf->getByAccrualPolicyID( $original_id );
 						if ( $apmlf->getRecordCount() > 0 ) {
 							foreach( $apmlf as $apm_obj ) {
-								Debug::Text('Copying Milestone ID: '. $apm_obj->getID()  .' To Accrual Policy: '. $new_id, __FILE__, __LINE__, __METHOD__, 10);
+								Debug::Text('Copying Milestone ID: '. $apm_obj->getID()	 .' To Accrual Policy: '. $new_id, __FILE__, __LINE__, __METHOD__, 10);
 
 								//Copy milestone to new_id
 								$apm_obj->setId( FALSE );
@@ -410,5 +409,77 @@ class APIAccrualPolicy extends APIFactory {
 
 		return $this->returnHandler( FALSE );
 	}
+
+	/**
+	 * ReCalculate accrual policies
+	 * @return bool
+	 */
+	function reCalculateAccrual( $accrual_policy_ids, $time_period_arr, $user_ids = NULL ) {
+		//Debug::text('Recalculating Employee Timesheet: User ID: '. $user_ids .' Pay Period ID: '. $pay_period_ids, __FILE__, __LINE__, __METHOD__, 10);
+		//Debug::setVerbosity(11);
+
+		if ( !$this->getPermissionObject()->Check('accrual_policy', 'enabled')
+				OR !( $this->getPermissionObject()->Check('accrual_policy', 'edit') OR $this->getPermissionObject()->Check('accrual_policy', 'edit_child') OR $this->getPermissionObject()->Check('accrual_policy', 'edit_own') ) ) {
+			return	$this->getPermissionObject()->PermissionDenied();
+		}
+
+		if ( Misc::isSystemLoadValid() == FALSE ) { //Check system load before anything starts.
+			Debug::Text('ERROR: System load exceeded, preventing new recalculation processes from starting...', __FILE__, __LINE__, __METHOD__, 10);
+			return $this->returnHandler( FALSE );
+		}
+
+		$report_obj = TTNew('Report');
+		$date_arr = $report_obj->convertTimePeriodToStartEndDate( $time_period_arr, NULL, TRUE ); //Force start/end dates even if pay periods selected.
+		Debug::Arr($date_arr, 'Date Arr', __FILE__, __LINE__, __METHOD__, 10);
+		
+		if ( isset($date_arr['start_date']) AND isset($date_arr['end_date']) ) {
+			$total_days = TTDate::getDays( ( $date_arr['end_date'] - $date_arr['start_date'] ) );
+
+			$aplf = TTnew( 'AccrualPolicyListFactory' );
+			$aplf->getByIdAndCompanyId( (array)$accrual_policy_ids, $this->getCurrentCompanyObject()->getId() );
+			if ( $aplf->getRecordCount() > 0 ) {
+				$this->getProgressBarObject()->start( $this->getAMFMessageID(), $aplf->getRecordCount(), NULL, TTi18n::getText('ReCalculating...') );
+
+				foreach( $aplf as $ap_obj ) {
+					if ( Misc::isSystemLoadValid() == FALSE ) { //Check system load as the user could ask to calculate decades worth at a time.
+						Debug::Text('ERROR: System load exceeded, stopping recalculation... (a)', __FILE__, __LINE__, __METHOD__, 10);
+						break;
+					}
+
+					$aplf->StartTransaction();
+
+					TTLog::addEntry( $this->getCurrentUserObject()->getId(), 500, 'Recalculate Accrual Policy: '. $ap_obj->getName() .' Start Date: '. TTDate::getDate('DATE', $date_arr['start_date'] ) .' End Date: '. TTDate::getDate('DATE', $date_arr['end_date'] ) .' Total Days: '. round( $total_days ), $this->getCurrentUserObject()->getId(), $ap_obj->getTable() );
+
+					$x = 0;
+					for( $i = $date_arr['start_date']; $i < $date_arr['end_date']; $i += (86400) ) {
+						if ( ( $x % 100 ) == 0 AND Misc::isSystemLoadValid() == FALSE ) { //Check system load as the user could ask to calculate decades worth at a time.
+							Debug::Text('ERROR: System load exceeded, stopping recalculation... (b)', __FILE__, __LINE__, __METHOD__, 10);
+							break;
+						}
+
+						//$i = TTDate::getBeginDayEpoch( $i ); //This causes infinite loops during DST transitions.
+						Debug::Text('Recalculating Accruals for Date: '. TTDate::getDate('DATE+TIME', TTDate::getBeginDayEpoch( $i ) ), __FILE__, __LINE__, __METHOD__, 10);
+						$ap_obj->addAccrualPolicyTime( TTDate::getBeginDayEpoch( $i ), 79200, $user_ids ); //Use default offset.
+
+						$this->getProgressBarObject()->set( $this->getAMFMessageID(), $x );
+
+						$x++;
+					}
+
+					//$aplf->FailTransaction();
+					$aplf->CommitTransaction();
+				}
+
+				$this->getProgressBarObject()->stop( $this->getAMFMessageID() );
+			} else {
+				Debug::Text('No accrual policies to recalculate...', __FILE__, __LINE__, __METHOD__, 10);
+			}
+		} else {
+			Debug::Text('No dates to calculate accrual policies for...', __FILE__, __LINE__, __METHOD__, 10);
+		}
+
+		return $this->returnHandler( TRUE );
+	}
+
 }
 ?>

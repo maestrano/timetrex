@@ -2,6 +2,8 @@
 /**
  * OO AJAX Implementation for PHP
  *
+ * SVN Rev: $Id$
+ *
  * @category   HTML
  * @package    AJAX
  * @author     Joshua Eichorn <josh@bluga.net>
@@ -93,6 +95,24 @@ class HTML_AJAX_Server
         );
 
     /**
+     * Compression Options
+     *
+     * <code>
+     * array(
+     *  'enabled'   => false,   // enable compression
+     *  'type'      => 'gzip'   // the type of compression to do, options: gzip
+     * )
+     * </code>
+     *
+     * @var array
+     * @access public
+     */
+    var $compression = array(
+        'enabled'       => false,
+        'type'          => 'gzip'
+    );
+
+    /**
      * Javascript library names and there path 
      *
      * the return of $this->clientJsLocation(), is prepended before running readfile on them
@@ -176,7 +196,7 @@ class HTML_AJAX_Server
         if (substr($serverUrl,-1) != '?') {
             $serverUrl .= '?';
         }
-        $this->ajax->serverUrl =  $serverUrl . htmlentities($querystring);
+        $this->ajax->serverUrl =  $serverUrl . $querystring;
         
         $methods = get_class_methods($this);
         foreach($methods as $method) {
@@ -252,7 +272,7 @@ class HTML_AJAX_Server
      * @param object    $instance an external class with initClassName methods
      */
     function registerInitObject(&$instance) {
-        $instance->server = $this;
+        $instance->server =& $this;
         $methods = get_class_methods($instance);
         foreach($methods as $method) {
             if (preg_match('/^init([a-zA-Z0-9_]+)$/',$method,$match)) {
@@ -434,8 +454,15 @@ class HTML_AJAX_Server
             $output = $this->ajax->packJavaScript($output);
             $length = strlen($output);
         }
+
+        if ($this->compression['enabled'] && $this->compression['type'] == 'gzip' && strpos($_SERVER["HTTP_ACCEPT_ENCODING"], "gzip") !== false) {
+            $output = gzencode($output,9);
+            $length = strlen($output);
+            $headers['Content-Encoding'] = 'gzip';
+        }
+
         if ($length > 0 && $this->ajax->_sendContentLength()) { 
-            //$headers['Content-Length'] = $length;
+            $headers['Content-Length'] = $length;
         }
         $headers['Content-Type'] = 'text/javascript; charset=utf-8';
         $this->ajax->_sendHeaders($headers);
@@ -592,7 +619,7 @@ class HTML_AJAX_Server
         $className = strtolower($className);
         if ($this->initMethods) {
             if (isset($this->_initLookup[$className])) {
-                $method = $this->_initLookup[$className];
+                $method =& $this->_initLookup[$className];
                 if (is_array($method)) {
                     call_user_func($method);
                 }

@@ -1,14 +1,14 @@
 CREATE TABLE wage_group (
-    id serial NOT NULL,
-    company_id integer NOT NULL,
-    name varchar(250),
-    created_date integer,
-    created_by integer,
-    updated_date integer,
-    updated_by integer,
-    deleted_date integer,
-    deleted_by integer,
-    deleted smallint DEFAULT 0 NOT NULL
+	id serial NOT NULL,
+	company_id integer NOT NULL,
+	name varchar(250),
+	created_date integer,
+	created_by integer,
+	updated_date integer,
+	updated_by integer,
+	deleted_date integer,
+	deleted_by integer,
+	deleted smallint DEFAULT 0 NOT NULL
 );
 CREATE INDEX wage_group_id ON wage_group(id);
 
@@ -39,11 +39,11 @@ ALTER TABLE meal_policy ADD COLUMN minimum_punch_time integer;
 ALTER TABLE meal_policy ADD COLUMN maximum_punch_time integer;
 
 CREATE TABLE company_generic_map (
-    id serial NOT NULL,
-    company_id integer NOT NULL,
-    object_type_id integer NOT NULL,
-    object_id integer NULL,
-    map_id integer NULL
+	id serial NOT NULL,
+	company_id integer NOT NULL,
+	object_type_id integer NOT NULL,
+	object_id integer NULL,
+	map_id integer NULL
 );
 CREATE INDEX company_generic_map_id ON company_generic_map(id);
 CREATE INDEX company_generic_map_company_id_object_type_id_object_id ON company_generic_map(company_id,object_type_id,object_id);
@@ -65,25 +65,25 @@ drop table policy_group_premium_policy;
 drop table policy_group_over_time_policy;
 
 CREATE TABLE break_policy (
-    id serial NOT NULL,
-    company_id integer NOT NULL,
-    name varchar(250) NOT NULL,
-    type_id integer NOT NULL,
-    trigger_time integer,
-    amount integer NOT NULL,
-    auto_detect_type_id integer NOT NULL,
-    start_window integer,
-    window_length integer,
-    minimum_punch_time integer,
-    maximum_punch_time integer,
-    include_break_punch_time smallint,
-    created_date integer,
-    created_by integer,
-    updated_date integer,
-    updated_by integer,
-    deleted_date integer,
-    deleted_by integer,
-    deleted smallint DEFAULT 0 NOT NULL
+	id serial NOT NULL,
+	company_id integer NOT NULL,
+	name varchar(250) NOT NULL,
+	type_id integer NOT NULL,
+	trigger_time integer,
+	amount integer NOT NULL,
+	auto_detect_type_id integer NOT NULL,
+	start_window integer,
+	window_length integer,
+	minimum_punch_time integer,
+	maximum_punch_time integer,
+	include_break_punch_time smallint,
+	created_date integer,
+	created_by integer,
+	updated_date integer,
+	updated_by integer,
+	deleted_date integer,
+	deleted_by integer,
+	deleted smallint DEFAULT 0 NOT NULL
 );
 
 ALTER TABLE user_date_total ADD COLUMN break_policy_id integer DEFAULT 0;
@@ -116,24 +116,24 @@ ALTER TABLE holiday_policy ADD COLUMN worked_after_scheduled_days smallint DEFAU
 ALTER TABLE holiday_policy ADD COLUMN paid_absence_as_worked  smallint DEFAULT 0;
 
 CREATE TABLE hierarchy_level (
-    id serial NOT NULL,
-    hierarchy_control_id integer NOT NULL,
-    level integer NOT NULL,
-    user_id integer NOT NULL,
-    created_date integer,
-    created_by integer,
-    updated_date integer,
-    updated_by integer,
-    deleted_date integer,
-    deleted_by integer,
-    deleted integer DEFAULT 0 NOT NULL
+	id serial NOT NULL,
+	hierarchy_control_id integer NOT NULL,
+	level integer NOT NULL,
+	user_id integer NOT NULL,
+	created_date integer,
+	created_by integer,
+	updated_date integer,
+	updated_by integer,
+	deleted_date integer,
+	deleted_by integer,
+	deleted integer DEFAULT 0 NOT NULL
 );
 CREATE INDEX hierarchy_level_hierarchy_control_id_user_id ON hierarchy_level(hierarchy_control_id,user_id);
 
 CREATE TABLE hierarchy_user (
-    id serial NOT NULL,
-    hierarchy_control_id integer NOT NULL,
-    user_id integer NOT NULL
+	id serial NOT NULL,
+	hierarchy_control_id integer NOT NULL,
+	user_id integer NOT NULL
 );
 CREATE INDEX hierarchy_user_hierarchy_control_id_user_id ON hierarchy_user(hierarchy_control_id,user_id);
 

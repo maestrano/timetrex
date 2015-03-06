@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 1396 $
- * $Id: AddRecurringPayStubAmendment.php 1396 2007-11-07 16:49:35Z ipso $
- * $Date: 2007-11-07 08:49:35 -0800 (Wed, 07 Nov 2007) $
- */
+
 /*
  * Adds all recurring PS amendments
  * This file should be run once a day.
@@ -50,9 +46,10 @@ $epoch = TTDate::getTime();
 
 //Get all recurring PS amendments by company, loop through each one.
 $rpsalf = new RecurringPayStubAmendmentListFactory();
-$rpsalf->getByStatusAndStartDate(50, $epoch );
+$rpsalf->getByStatusAndStartDate( 50, $epoch );
+Debug::text('Total Recurring PS Amendments: '. $rpsalf->getRecordCount() ,__FILE__, __LINE__, __METHOD__, 10);
 foreach( $rpsalf as $recurring_ps_amendment_obj ) {
-	Debug::text('Recurring PS Amendment ID: '. $recurring_ps_amendment_obj->getID() , __FILE__, __LINE__, __METHOD__,10);
+	Debug::text('Recurring PS Amendment ID: '. $recurring_ps_amendment_obj->getID() ,__FILE__, __LINE__, __METHOD__, 10);
 	$recurring_ps_amendment_obj->createPayStubAmendments( $epoch );
 }
 

@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,20 +33,16 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 11115 $
- * $Id: PayStubEntryListFactory.class.php 11115 2013-10-11 18:29:20Z ipso $
- * $Date: 2013-10-11 11:29:20 -0700 (Fri, 11 Oct 2013) $
- */
+
 
 /**
- * @package Modules_Pay\Stub
+ * @package Modules\PayStub
  */
 class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAggregate {
 
 	function getAll($limit = NULL, $page = NULL, $where = NULL, $order = NULL) {
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					WHERE deleted = 0';
 		$query .= $this->getWhereSQL( $where );
@@ -67,7 +63,7 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 					);
 
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					where	id = ?
 						AND deleted = 0';
@@ -105,6 +101,90 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 		return $this;
 	}
 
+
+	function getByIdAndCompanyId( $id, $company_id, $where = NULL, $order = NULL) {
+
+		if ( $id == '' ) {
+			return FALSE;
+		}
+
+		if ( $company_id == '') {
+			return FALSE;
+		}
+
+		$uf = new UserFactory();
+		$psf = new PayStubFactory();
+
+		$ph = array(
+			'id' => $id,
+			'company_id' => $company_id,
+		);
+
+		$query = '
+					SELECT a.*
+					FROM '. $this->getTable() .' as a
+						LEFT JOIN '. $psf->getTable() .' as psf ON a.pay_stub_id = psf.id
+						LEFT JOIN '. $uf->getTable() .' as uf ON psf.user_id = uf.id
+					WHERE
+							a.id = ?
+							AND
+							uf.company_id = ?
+							AND ( a.deleted = 0 AND psf.deleted = 0 AND uf.deleted = 0)
+					';
+
+		$query .= $this->getWhereSQL( $where );
+		$query .= $this->getSortSQL( $order );
+
+		$this->ExecuteSQL( $query, $ph );
+
+		return $this;
+	}
+
+	function getByIdAndPayStubIdAndCompanyId( $id, $pay_stub_id, $company_id, $where = NULL, $order = NULL ) {
+		if ( $id == '' ) {
+			return FALSE;
+		}
+
+		if ( $pay_stub_id == '' ) {
+			return FALSE;
+		}
+
+		if ( $company_id == '') {
+			return FALSE;
+		}
+
+		$uf = new UserFactory();
+		$psf = new PayStubFactory();
+
+		$ph = array(
+			'id' => $id,
+			'pay_stub_id' => $pay_stub_id,
+			'company_id' => $company_id,
+		);
+
+
+		$query = '
+					SELECT a.*
+					FROM '. $this->getTable() .' as a
+						LEFT JOIN '. $psf->getTable() .' as psf ON a.pay_stub_id = psf.id
+						LEFT JOIN '. $uf->getTable() .' as uf ON psf.user_id = uf.id
+					WHERE
+							a.id = ? AND a.pay_stub_id = ?
+							AND
+							uf.company_id = ?
+							AND ( a.deleted = 0 AND psf.deleted = 0 AND uf.deleted = 0)
+					';
+
+		$query .= $this->getWhereSQL( $where );
+		$query .= $this->getSortSQL( $order );
+
+		$this->ExecuteSQL( $query, $ph );
+
+		return $this;
+
+
+	}
+
 	function getByPayStubId($id, $where = NULL, $order = NULL) {
 		if ( $id == '') {
 			return FALSE;
@@ -127,18 +207,25 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 		// and keeps negative accrual amounts from being calculated incorrectly.
 
 		$psealf = new PayStubEntryAccountListFactory();
+		$psalf = new PayStubAmendmentListFactory();
 
 		$ph = array(
 					'id' => $id,
 					);
 
+		//Also need to make sure we include PS Amendments so we know if its a YTD Adjustment or not. Important for recalculating YTD amounts on newer pay stubs.
+		//  Used to filter out deleted pay stub amendments with: AND ( c.deleted is NULL OR c.deleted = 0 )
+		//  However this causes a problem where if the user generates a pay stub with the pay stub amendment, then deletes the pay stub amendment before
+		//  marking the pay stub as paid, the pay stub looks like the totals are incorrect because its missing a line item, at least until the pay stub is generated again.
+		//  So instead always show deleted pay stub amendments on pay stubs.
 		$query = '
-					select 	a.*
-					from	'. $this->getTable() .' as a,
-							'. $psealf->getTable() .' as b
-					where	a.pay_stub_entry_name_id = b.id
-						AND a.pay_stub_id = ?
-						AND a.deleted = 0
+					select	a.*,
+							c.ytd_adjustment
+					from	'. $this->getTable() .' as a
+							LEFT JOIN '. $psealf->getTable() .' as b ON ( a.pay_stub_entry_name_id = b.id )
+							LEFT JOIN '. $psalf->getTable() .' as c ON ( a.pay_stub_amendment_id = c.id )
+					where	a.pay_stub_id = ?
+						AND ( a.deleted = 0 AND b.deleted = 0 )
 					';
 
 		$query .= $this->getWhereSQL( $where );
@@ -179,7 +266,7 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 					);
 
 		$query = '
-					select 	a.*
+					select	a.*
 					from	'. $this->getTable() .' as a
 					LEFT JOIN '. $psealf->getTable() .' as b ON ( a.pay_stub_entry_name_id = b.id )
 					LEFT JOIN '. $psalf->getTable() .' as c ON ( a.pay_stub_amendment_id = c.id )
@@ -210,7 +297,7 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 		$psealf = new PayStubEntryAccountListFactory();
 
 		$query = '
-					select 	a.*
+					select	a.*
 					from	'. $this->getTable() .' as a,
 							'. $psealf->getTable() .' as b
 					where	a.pay_stub_entry_name_id = b.id
@@ -244,7 +331,7 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 					);
 
 		$query = '
-					select 	a.*
+					select	a.*
 					from	'. $this->getTable() .' as a,
 							'. $psealf->getTable() .' as b
 					where	a.pay_stub_entry_name_id = b.id
@@ -260,6 +347,8 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 
 		return $this;
 	}
+
+
 
 	function getAmountSumByPayStubIdAndEntryNameID($id, $entry_name_id, $where = NULL, $order = NULL) {
 		if ( $id == '') {
@@ -278,7 +367,7 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 					);
 
 		$query = '
-					select 	sum(a.amount) as amount, sum(a.units) as units
+					select	sum(a.amount) as amount, sum(a.units) as units
 					from	'. $this->getTable() .' as a,
 							'. $psealf->getTable() .' as b
 					where	a.pay_stub_entry_name_id = b.id
@@ -326,7 +415,7 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 					);
 
 		$query = '
-					select 	a.*
+					select	a.*
 					from	'. $this->getTable() .' as a,
 							'. $psealf->getTable() .' as b
 					where	a.pay_stub_entry_name_id = b.id
@@ -342,6 +431,7 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 
 		return $this;
 	}
+
 
 	function getYTDAmountSumByUserIdAndTypeIdAndDate($id, $type_id, $date = NULL, $exclude_id = NULL, $where = NULL, $order = NULL) {
 		if ( $id == '') {
@@ -383,9 +473,9 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 		//base this query off the PAY PERIOD transaction date, NOT the pay stub transaction date.
 		$query = '
 
-					select 	sum(amount) as amount, sum(units) as units
+					select	sum(amount) as amount, sum(units) as units
 					from (
-						select 	sum(amount) as amount, sum(units) as units
+						select	sum(amount) as amount, sum(units) as units
 						from	'. $this->getTable() .' as a,
 								'. $pslf->getTable() .' as b,
 								'. $pplf->getTable() .' as c,
@@ -402,8 +492,8 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 						UNION
 						select sum(amount) as amount, sum(units) as units
 						from '. $psalf->getTable() .' as m,
-							 '. $psealf->getTable() .' as n
-						where 	m.pay_stub_entry_name_id = n.id
+							'. $psealf->getTable() .' as n
+						where	m.pay_stub_entry_name_id = n.id
 							AND m.user_id = ?
 							AND m.effective_date >= ?
 							AND m.effective_date <= ?
@@ -470,9 +560,9 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 		//base this query off the PAY PERIOD transaction date, NOT the pay stub transaction date.
 		$query = '
 
-					select 	sum(amount) as amount, sum(units) as units
+					select	sum(amount) as amount, sum(units) as units
 					from (
-						select 	sum(amount) as amount, sum(units) as units
+						select	sum(amount) as amount, sum(units) as units
 						from	'. $this->getTable() .' as a,
 								'. $pslf->getTable() .' as b,
 								'. $pplf->getTable() .' as c
@@ -558,7 +648,7 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 		//Make sure we don't include entries that have a sum of 0.
 		//This is YTD for the EMPLOYEES... So it should always be when they are paid.
 		$query = '
-					select 	distinct(pay_stub_entry_name_id)
+					select	distinct(pay_stub_entry_name_id)
 					from	'. $this->getTable() .' as a,
 							'. $pslf->getTable() .' as b,
 							'. $psealf->getTable() .' as c
@@ -567,7 +657,7 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 						AND b.pay_period_id in (select id from '. $pplf->getTable() .' as y
 													where y.pay_period_schedule_id = ( select pay_period_schedule_id from '. $pplf->getTable() .' as z where z.id = b.pay_period_id ) AND y.transaction_date >= ? AND y.deleted=0)
 						AND b.user_id = ?
-						AND c.type_id in (10,20,30)
+						AND c.type_id in (10, 20, 30)
 						AND a.pay_stub_entry_name_id NOT IN ( select distinct(pay_stub_entry_name_id) from '. $this->getTable() .' as x WHERE x.pay_stub_id = ?)
 						AND a.deleted = 0
 						AND b.deleted = 0
@@ -611,9 +701,9 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 					);
 
 		$query = '
-					select 	sum(amount) as amount, sum(units) as units
+					select	sum(amount) as amount, sum(units) as units
 					from (
-						select 	sum(amount) as amount, sum(units) as units
+						select	sum(amount) as amount, sum(units) as units
 						from	'. $this->getTable() .' as a,
 								'. $pslf->getTable() .' as b
 						where	a.pay_stub_id = b.id
@@ -675,7 +765,7 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 					);
 
 		$query = '
-					select 	sum(amount) as amount, sum(units) as units
+					select	sum(amount) as amount, sum(units) as units
 					from	'. $this->getTable() .' as a,
 							'. $pslf->getTable() .' as b
 					where	a.pay_stub_id = b.id
@@ -732,7 +822,7 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 					);
 
 		$query = '
-					select 	sum(amount) as amount, sum(units) as units
+					select	sum(amount) as amount, sum(units) as units
 					from	'. $this->getTable() .' as a,
 							'. $pslf->getTable() .' as b
 					where	a.pay_stub_id = b.id
@@ -777,7 +867,7 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 		$pslf = new PayStubListFactory();
 
 		$query = '
-					select 	sum(amount) as amount, sum(units) as units
+					select	sum(amount) as amount, sum(units) as units
 					from	'. $this->getTable() .' as a,
 							'. $pslf->getTable() .' as b
 					where	a.pay_stub_id = b.id
@@ -822,7 +912,7 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 					);
 /*
 		$query = '
-					select 	sum(amount) as amount, sum(units) as units, sum(ytd_amount) as ytd_amount, sum(ytd_units) as ytd_units
+					select	sum(amount) as amount, sum(units) as units, sum(ytd_amount) as ytd_amount, sum(ytd_units) as ytd_units
 					from	'. $this->getTable() .' as a
 					where
 						a.pay_stub_id = ?
@@ -831,9 +921,9 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 				';
 */
 		$query = '
-					select 	sum(amount) as amount, sum(units) as units, sum(ytd_amount) as ytd_amount, sum(ytd_units) as ytd_units
+					select	sum(amount) as amount, sum(units) as units, sum(ytd_amount) as ytd_amount, sum(ytd_units) as ytd_units
 					from (
-						select 	sum(amount) as amount, sum(units) as units, max(ytd_amount) as ytd_amount, max(ytd_units) as ytd_units
+						select	sum(amount) as amount, sum(units) as units, sum(ytd_amount) as ytd_amount, sum(ytd_units) as ytd_units
 						from	'. $this->getTable() .' as a
 						where
 							a.pay_stub_id = ?
@@ -895,7 +985,7 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 		//This is mainly for PayStub Calc Diff function.
 /*
 		$query = '
-					select 	sum(amount) as amount, sum(units) as units, sum(ytd_amount) as ytd_amount, sum(ytd_units) as ytd_units
+					select	sum(amount) as amount, sum(units) as units, sum(ytd_amount) as ytd_amount, sum(ytd_units) as ytd_units
 					from	'. $this->getTable() .' as a
 					where
 						a.pay_stub_id = ?
@@ -905,9 +995,9 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 				';
 */
 		$query = '
-					select 	sum(amount) as amount, sum(units) as units, sum(ytd_amount) as ytd_amount, sum(ytd_units) as ytd_units
+					select	sum(amount) as amount, sum(units) as units, sum(ytd_amount) as ytd_amount, sum(ytd_units) as ytd_units
 					from (
-						select 	sum(amount) as amount, sum(units) as units, max(ytd_amount) as ytd_amount, max(ytd_units) as ytd_units
+						select	sum(amount) as amount, sum(units) as units, sum(ytd_amount) as ytd_amount, sum(ytd_units) as ytd_units
 						from	'. $this->getTable() .' as a
 						where
 							a.pay_stub_id = ?
@@ -969,7 +1059,7 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 					);
 /*
 		$query = '
-					select 	sum(amount) as amount, sum(units) as units, sum(ytd_amount) as ytd_amount, sum(ytd_units) as ytd_units
+					select	sum(amount) as amount, sum(units) as units, sum(ytd_amount) as ytd_amount, sum(ytd_units) as ytd_units
 					from	'. $this->getTable() .' as a,
 							'. $psealf->getTable() .' as b
 					where	a.pay_stub_entry_name_id = b.id
@@ -982,9 +1072,9 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 		//Account for cases where the same entry is made twice, the YTD amount will be doubled up
 		//so when calculating the sum by type we need to ignore this.
 		$query = '
-					select 	sum(amount) as amount, sum(units) as units, sum(ytd_amount) as ytd_amount, sum(ytd_units) as ytd_units
+					select	sum(amount) as amount, sum(units) as units, sum(ytd_amount) as ytd_amount, sum(ytd_units) as ytd_units
 					from (
-						select 	sum(amount) as amount, sum(units) as units, max(ytd_amount) as ytd_amount, max(ytd_units) as ytd_units
+						select	sum(amount) as amount, sum(units) as units, sum(ytd_amount) as ytd_amount, sum(ytd_units) as ytd_units
 						from	'. $this->getTable() .' as a,
 								'. $psealf->getTable() .' as b
 						where	a.pay_stub_entry_name_id = b.id
@@ -1046,7 +1136,7 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 					);
 
 		$query = '
-					select 	sum(amount)
+					select	sum(amount)
 					from	'. $this->getTable() .' as a,
 							'. $psealf->getTable() .' as b
 					where	a.pay_stub_entry_name_id = b.id
@@ -1077,7 +1167,6 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 			return FALSE;
 		}
 
-		//$psenlf = new PayStubEntryNameListFactory();
 		$psealf = new PayStubEntryAccountListFactory();
 
 		$ph = array(
@@ -1086,7 +1175,7 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 					);
 
 		$query = '
-					select 	sum(units)
+					select	sum(units)
 					from	'. $this->getTable() .' as a,
 							'. $psealf->getTable() .' as b
 					where	a.pay_stub_entry_name_id = b.id
@@ -1113,14 +1202,16 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 			return FALSE;
 		}
 
+		$psealf = new PayStubEntryAccountListFactory();
+		
 		$ph = array(
 					'name' => $name,
 					);
 
 		$query = '
-					select 	a.*
-					from	'. $this->getTable() .' as a
-							'. $psenlf->getTable() .' as b
+					select	a.*
+					from	'. $this->getTable() .' as a,
+							'. $psealf->getTable() .' as b
 					where	a.pay_stub_entry_name_id = b.id
 						AND b.name = ?
 						AND a.deleted = 0';
@@ -1145,7 +1236,7 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 
 		//Make sure we ignore pay stub entries attached to deleted pay stubs.
 		$query = '
-					select 	a.*
+					select	a.*
 					from	'. $this->getTable() .' as a
 					LEFT JOIN '. $psf->getTable() .' as psf ON ( a.pay_stub_id = psf.id )
 					where	a.pay_stub_entry_name_id = ?
@@ -1175,7 +1266,7 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 		$uf = new UserFactory();
 
 /*
-//group by b.user_id,a.pay_stub_entry_name_id
+//group by b.user_id, a.pay_stub_entry_name_id
 
 */
 
@@ -1184,14 +1275,14 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 					);
 
 		$query = '
-					select 	b.user_id as user_id,
+					select	b.user_id as user_id,
 							a.pay_stub_entry_name_id as pay_stub_entry_name_id,
 							sum(amount) as amount,
-							max(ytd_amount) as ytd_amount
+							sum(ytd_amount) as ytd_amount
 					from	'. $this->getTable() .' as a,
 							'. $psf->getTable() .' as b,
 							'. $uf->getTable() .' as c
-					where 	a.pay_stub_id = b.id
+					where	a.pay_stub_id = b.id
 						AND b.user_id = c.id
 						AND	c.company_id = ?
 					';
@@ -1203,7 +1294,7 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 		$query .= '
 						AND b.user_id in ('. $this->getListSQL($user_ids, $ph) .')
 						AND (a.deleted = 0 AND b.deleted=0)
-					group by b.user_id,a.pay_stub_entry_name_id
+					group by b.user_id, a.pay_stub_entry_name_id
 					';
 		$query .= $this->getWhereSQL( $where );
 		$query .= $this->getSortSQL( $order );
@@ -1240,14 +1331,14 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 					);
 
 		$query = '
-					select 	b.user_id as user_id,
+					select	b.user_id as user_id,
 							a.pay_stub_entry_name_id as pay_stub_entry_name_id,
 							sum(amount) as amount,
-							max(ytd_amount) as ytd_amount
+							sum(ytd_amount) as ytd_amount
 					from	'. $this->getTable() .' as a,
 							'. $psf->getTable() .' as b,
 							'. $uf->getTable() .' as c
-					where 	a.pay_stub_id = b.id
+					where	a.pay_stub_id = b.id
 						AND b.user_id = c.id
 						AND	c.company_id = ?
 						AND b.transaction_date >= ?
@@ -1257,7 +1348,7 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 		$query .= '
 						AND b.user_id in ('. $this->getListSQL($user_ids, $ph) .')
 						AND (a.deleted = 0 AND b.deleted=0)
-					group by b.user_id,a.pay_stub_entry_name_id
+					group by b.user_id, a.pay_stub_entry_name_id
 					';
 		$query .= $this->getWhereSQL( $where );
 		$query .= $this->getSortSQL( $order );
@@ -1267,7 +1358,7 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 		return $this;
 	}
 
-	function getPayPeriodReportByUserIdAndEntryNameIdAndStartDateAndEndDate($id, $entry_name_id, $start_date = NULL, $end_date = NULL, $exclude_id = NULL, $where = NULL, $order = NULL) {
+	function getPayPeriodReportByUserIdAndEntryNameIdAndStartDateAndEndDate($id, $entry_name_id, $start_date = NULL, $end_date = NULL, $exclude_id = NULL, $exclude_ytd_adjustment = FALSE, $where = NULL, $order = NULL) {
 		if ( $id == '') {
 			return FALSE;
 		}
@@ -1283,12 +1374,13 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 		if ( $end_date == '') {
 			$end_date = TTDate::getTime();
 		}
-
+		
+		$psaf = new PayStubAmendmentFactory();
 		$ppf = new PayPeriodFactory();
 		$ppsuf = new PayPeriodScheduleUserFactory();
 		$psf = new PayStubFactory();
 		$uf = new UserFactory();
-		$udf = new UserDateFactory();
+		$udtf = new UserDateTotalFactory();
 
 		$ph = array(
 					'start_date' => $this->db->BindTimeStamp( $start_date ),
@@ -1296,37 +1388,44 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 					'user_id' => $id,
 					'exclude_id' => (int)$exclude_id,
 					);
-
+		
 		//Include pay periods with no pay stubs for ROEs.
 		//If the company has multiple pay period schedules, this will include pay periods from all schedules, even if the employee was never assigned
 		//to a different one. Therefore only include pay periods that have at least one user_date entry assigned to it.
+		//FIXME: This doesnt handle the case where they may be added at a later date, then some time is manually added earlier, but still with a pay period have no time on it.
 		$query = '
-					select 	x.id as pay_period_id,
+					select	x.id as pay_period_id,
 							y.id as user_id,
 							x.start_date as pay_period_start_date,
 							x.end_date as pay_period_end_date,
 							x.transaction_date as pay_period_transaction_date,
 							tmp.amount as amount,
 							tmp.units as units
-					from 	'. $ppf->getTable() .' x
+					from	'. $ppf->getTable() .' x
 						LEFT JOIN '. $uf->getTable() .' as y ON x.company_id = y.company_id
-						LEFT JOIN 	(
-										select 	b.user_id as user_id,
+						LEFT JOIN	(
+										select	b.user_id as user_id,
 												b.pay_period_id as pay_period_id,
-												sum(amount) as amount,
-												sum(units) as units
-										from	'. $this->getTable() .' as a,
-												'. $psf->getTable() .' as b,
-												'. $ppf->getTable() .' as c
-										where	a.pay_stub_id = b.id
-											AND b.pay_period_id = c.id
-											AND c.start_date >= ?
+												sum(a.amount) as amount,
+												sum(a.units) as units
+										from	'. $this->getTable() .' as a
+												LEFT JOIN '. $psf->getTable() .' as b ON ( a.pay_stub_id = b.id )
+												LEFT JOIN '. $ppf->getTable() .' as c ON ( b.pay_period_id = c.id )
+												LEFT JOIN '. $psaf->getTable() .' as d ON a.pay_stub_amendment_id = d.id
+										where
+											c.start_date >= ?
 											AND c.start_date < ?
 											AND b.user_id = ?
 											AND a.id != ?
-											AND	a.pay_stub_entry_name_id in ('. $this->getListSQL($entry_name_id, $ph) .')
+											AND	a.pay_stub_entry_name_id in ('. $this->getListSQL($entry_name_id, $ph) .') ';
+
+		if ( isset($exclude_ytd_adjustment) AND (bool)$exclude_ytd_adjustment == TRUE ) {
+			$query .= ' AND ( d.ytd_adjustment is NULL OR d.ytd_adjustment = 0 )';
+		}
+
+		$query .= '
 											AND ( a.deleted = 0 AND b.deleted = 0 AND c.deleted = 0 )
-										group by b.user_id,b.pay_period_id
+										group by b.user_id, b.pay_period_id
 									) as tmp ON y.id = tmp.user_id AND x.id = tmp.pay_period_id ';
 
 		$ph[] = $id;
@@ -1336,12 +1435,14 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 					where y.id = ?
 						AND x.start_date >= ?
 						AND x.start_date < ?
-						AND EXISTS (select 1 from '. $udf->getTable() .' as ud WHERE x.id = ud.pay_period_id AND y.id = ud.user_id )
+						AND EXISTS (select 1 from '. $udtf->getTable() .' as ud WHERE x.id = ud.pay_period_id AND y.id = ud.user_id )
 						AND x.deleted = 0
 				';
 
 		$query .= $this->getWhereSQL( $where );
 		$query .= $this->getSortSQL( $order, FALSE );
+
+		//Debug::Arr($ph, 'Query: '. $query, __FILE__, __LINE__, __METHOD__, 10);
 
 		$this->ExecuteSQL( $query, $ph );
 
@@ -1370,11 +1471,11 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 					);
 
 		$query = '
-					select 	b.user_id as user_id,
+					select	b.user_id as user_id,
 							a.pay_stub_entry_name_id as pay_stub_entry_name_id,
 							b.transaction_date as transaction_date,
 							sum(a.amount) as amount,
-							max(a.ytd_amount) as ytd_amount
+							sum(a.ytd_amount) as ytd_amount
 					from	'. $this->getTable() .' as a
 						LEFT JOIN '. $psaf->getTable() .' as d ON a.pay_stub_amendment_id = d.id
 						LEFT JOIN '. $psf->getTable() .' as b ON a.pay_stub_id = b.id
@@ -1393,7 +1494,7 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 		$query .= '
 						AND b.user_id in ('. $this->getListSQL($user_ids, $ph) .')
 						AND (a.deleted = 0 AND b.deleted=0)
-					group by b.user_id,b.transaction_date,a.pay_stub_entry_name_id
+					group by b.user_id, b.transaction_date, a.pay_stub_entry_name_id
 					';
 		$query .= $this->getWhereSQL( $where );
 		$query .= $this->getSortSQL( $order );
@@ -1402,6 +1503,7 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 
 		return $this;
 	}
+
 
 	function getReportByCompanyIdAndArrayCriteria( $company_id, $filter_data, $limit = NULL, $page = NULL, $where = NULL, $order = NULL ) {
 		if ( $company_id == '') {
@@ -1432,7 +1534,7 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 			if ( !isset($order['status_id']) ) {
 				$order = Misc::prependArray( array('status_id' => 'asc'), $order );
 			}
-			//Always sort by last name,first name after other columns
+			//Always sort by last name, first name after other columns
 			if ( !isset($order['last_name']) ) {
 				$order['last_name'] = 'asc';
 			}
@@ -1442,8 +1544,8 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 			*/
 			$strict = TRUE;
 		}
-		//Debug::Arr($order,'Order Data:', __FILE__, __LINE__, __METHOD__,10);
-		//Debug::Arr($filter_data,'Filter Data:', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($order, 'Order Data:', __FILE__, __LINE__, __METHOD__, 10);
+		//Debug::Arr($filter_data, 'Filter Data:', __FILE__, __LINE__, __METHOD__, 10);
 
 		if ( isset($filter_data['exclude_user_ids']) ) {
 			$filter_data['exclude_id'] = $filter_data['exclude_user_ids'];
@@ -1482,22 +1584,19 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 					);
 
 		$query = '
-					select 	a.*,
+					select	a.*,
 							b.user_id as user_id,
 							b.pay_period_id as pay_period_id,
 							b.start_date as pay_stub_start_date,
 							b.end_date as pay_stub_end_date,
 							b.transaction_date as pay_stub_transaction_date,
 							b.currency_id as currency_id,
-							b.currency_rate as currency_rate,
-							a.pay_stub_entry_name_id as pay_stub_entry_name_id,
-							a.amount as amount,
-							a.ytd_amount as ytd_amount
-					from 	(
+							b.currency_rate as currency_rate
+					from	(
 							select aa.pay_stub_id as pay_stub_id,
 								aa.pay_stub_entry_name_id as pay_stub_entry_name_id,
 								sum(aa.amount) as amount,
-								max(aa.ytd_amount) as ytd_amount
+								sum(aa.ytd_amount) as ytd_amount
 							from '. $this->getTable() .' as aa
 							LEFT JOIN '. $psf->getTable() .' as bb ON aa.pay_stub_id = bb.id
 							LEFT JOIN '. $uf->getTable() .' as cc ON bb.user_id = cc.id
@@ -1508,69 +1607,69 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 
 							where cc.company_id = ? ';
 							if ( isset($filter_data['permission_children_ids']) AND isset($filter_data['permission_children_ids'][0]) AND !in_array(-1, (array)$filter_data['permission_children_ids']) ) {
-								$query  .=	' AND cc.id in ('. $this->getListSQL($filter_data['permission_children_ids'], $ph) .') ';
+								$query	.=	' AND cc.id in ('. $this->getListSQL($filter_data['permission_children_ids'], $ph) .') ';
 							}
 							if ( isset($filter_data['id']) AND isset($filter_data['id'][0]) AND !in_array(-1, (array)$filter_data['id']) ) {
-								$query  .=	' AND cc.id in ('. $this->getListSQL($filter_data['id'], $ph) .') ';
+								$query	.=	' AND cc.id in ('. $this->getListSQL($filter_data['id'], $ph) .') ';
 							}
 							if ( isset($filter_data['user_id']) AND isset($filter_data['user_id'][0]) AND !in_array(-1, (array)$filter_data['user_id']) ) {
-								$query  .=	' AND cc.id in ('. $this->getListSQL($filter_data['user_id'], $ph) .') ';
+								$query	.=	' AND cc.id in ('. $this->getListSQL($filter_data['user_id'], $ph) .') ';
 							}
 							if ( isset($filter_data['exclude_id']) AND isset($filter_data['exclude_id'][0]) AND !in_array(-1, (array)$filter_data['exclude_id']) ) {
-								$query  .=	' AND cc.id not in ('. $this->getListSQL($filter_data['exclude_id'], $ph) .') ';
+								$query	.=	' AND cc.id not in ('. $this->getListSQL($filter_data['exclude_id'], $ph) .') ';
 							}
 							if ( isset($filter_data['status_id']) AND isset($filter_data['status_id'][0]) AND !in_array(-1, (array)$filter_data['status_id']) ) {
-								$query  .=	' AND cc.status_id in ('. $this->getListSQL($filter_data['status_id'], $ph) .') ';
+								$query	.=	' AND cc.status_id in ('. $this->getListSQL($filter_data['status_id'], $ph) .') ';
 							}
 							if ( isset($filter_data['group_id']) AND isset($filter_data['group_id'][0]) AND !in_array(-1, (array)$filter_data['group_id']) ) {
 								if ( isset($filter_data['include_subgroups']) AND (bool)$filter_data['include_subgroups'] == TRUE ) {
 									$uglf = new UserGroupListFactory();
 									$filter_data['group_id'] = $uglf->getByCompanyIdAndGroupIdAndSubGroupsArray( $company_id, $filter_data['group_id'], TRUE);
 								}
-								$query  .=	' AND cc.group_id in ('. $this->getListSQL($filter_data['group_id'], $ph) .') ';
+								$query	.=	' AND cc.group_id in ('. $this->getListSQL($filter_data['group_id'], $ph) .') ';
 							}
 							if ( isset($filter_data['default_branch_id']) AND isset($filter_data['default_branch_id'][0]) AND !in_array(-1, (array)$filter_data['default_branch_id']) ) {
-								$query  .=	' AND cc.default_branch_id in ('. $this->getListSQL($filter_data['default_branch_id'], $ph) .') ';
+								$query	.=	' AND cc.default_branch_id in ('. $this->getListSQL($filter_data['default_branch_id'], $ph) .') ';
 							}
 							if ( isset($filter_data['default_department_id']) AND isset($filter_data['default_department_id'][0]) AND !in_array(-1, (array)$filter_data['default_department_id']) ) {
-								$query  .=	' AND cc.default_department_id in ('. $this->getListSQL($filter_data['default_department_id'], $ph) .') ';
+								$query	.=	' AND cc.default_department_id in ('. $this->getListSQL($filter_data['default_department_id'], $ph) .') ';
 							}
 							if ( isset($filter_data['title_id']) AND isset($filter_data['title_id'][0]) AND !in_array(-1, (array)$filter_data['title_id']) ) {
-								$query  .=	' AND cc.title_id in ('. $this->getListSQL($filter_data['title_id'], $ph) .') ';
+								$query	.=	' AND cc.title_id in ('. $this->getListSQL($filter_data['title_id'], $ph) .') ';
 							}
 							if ( isset($filter_data['sex_id']) AND isset($filter_data['sex_id'][0]) AND !in_array(-1, (array)$filter_data['sex_id']) ) {
-								$query  .=	' AND cc.sex_id in ('. $this->getListSQL($filter_data['sex_id'], $ph) .') ';
+								$query	.=	' AND cc.sex_id in ('. $this->getListSQL($filter_data['sex_id'], $ph) .') ';
 							}
 							if ( isset($filter_data['currency_id']) AND isset($filter_data['currency_id'][0]) AND !in_array(-1, (array)$filter_data['currency_id']) ) {
-								$query  .=	' AND bb.currency_id in ('. $this->getListSQL($filter_data['currency_id'], $ph) .') ';
+								$query	.=	' AND bb.currency_id in ('. $this->getListSQL($filter_data['currency_id'], $ph) .') ';
 							}
 							if ( isset($filter_data['pay_period_ids']) AND isset($filter_data['pay_period_ids'][0]) AND !in_array(-1, (array)$filter_data['pay_period_ids']) ) {
-								$query .= 	' AND bb.pay_period_id in ('. $this->getListSQL($filter_data['pay_period_ids'], $ph) .') ';
+								$query .=	' AND bb.pay_period_id in ('. $this->getListSQL($filter_data['pay_period_ids'], $ph) .') ';
 							}
 
-							if ( isset($filter_data['transaction_start_date']) AND trim($filter_data['transaction_start_date']) != '' ) {
+							if ( isset($filter_data['transaction_start_date']) AND !is_array($filter_data['transaction_start_date']) AND trim($filter_data['transaction_start_date']) != '' ) {
 								$ph[] = $this->db->BindTimeStamp( strtolower(trim($filter_data['transaction_start_date'])) );
-								$query  .=	' AND bb.transaction_date >= ?';
+								$query	.=	' AND bb.transaction_date >= ?';
 							}
-							if ( isset($filter_data['transaction_end_date']) AND trim($filter_data['transaction_end_date']) != '' ) {
+							if ( isset($filter_data['transaction_end_date']) AND !is_array($filter_data['transaction_end_date']) AND trim($filter_data['transaction_end_date']) != '' ) {
 								$ph[] = $this->db->BindTimeStamp( strtolower(trim($filter_data['transaction_end_date'])) );
-								$query  .=	' AND bb.transaction_date <= ?';
+								$query	.=	' AND bb.transaction_date <= ?';
 							}
-							if ( isset($filter_data['transaction_date']) AND trim($filter_data['transaction_date']) != '' ) {
+							if ( isset($filter_data['transaction_date']) AND !is_array($filter_data['transaction_date']) AND trim($filter_data['transaction_date']) != '' ) {
 								$ph[] = $this->db->BindTimeStamp( strtolower(trim($filter_data['transaction_date'])) );
-								$query  .=	' AND bb.transaction_date = ?';
+								$query	.=	' AND bb.transaction_date = ?';
 							}
 
 		$query .= '
 								AND (aa.deleted = 0 AND bb.deleted = 0 AND cc.deleted=0)
-							group by aa.pay_stub_id,aa.pay_stub_entry_name_id
+							group by aa.pay_stub_id, aa.pay_stub_entry_name_id
 							) a
 						LEFT JOIN '. $psf->getTable() .' as b ON a.pay_stub_id = b.id
 						LEFT JOIN '. $uf->getTable() .' as c ON b.user_id = c.id
 					where	1=1
 					';
 
-		$query .= 	'
+		$query .=	'
 						AND (c.deleted=0)
 					';
 		$query .= $this->getWhereSQL( $where );
@@ -1609,8 +1708,152 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 		} else {
 			$strict = TRUE;
 		}
-		//Debug::Arr($order,'Order Data:', __FILE__, __LINE__, __METHOD__,10);
-		//Debug::Arr($filter_data,'Filter Data:', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($order, 'Order Data:', __FILE__, __LINE__, __METHOD__, 10);
+		//Debug::Arr($filter_data, 'Filter Data:', __FILE__, __LINE__, __METHOD__, 10);
+
+		$ppf = new PayPeriodFactory();
+		$bf = new BranchFactory();
+		$df = new DepartmentFactory();
+		$ugf = new UserGroupFactory();
+		$utf = new UserTitleFactory();
+		$psf = new PayStubFactory();
+		$uf = new UserFactory();
+		$psaf = new PayStubAmendmentFactory();
+
+		$ph = array(
+					'company_id' => $company_id,
+					);
+
+		//Used to max(aa.ytd_amount), but that caused bugs when YTD or Accrual Balances (for loans specifically)
+		//were in the negative for one row and $0 for the next row as it would always select the $0
+		$query = '
+					select	a.*,
+							b.user_id as user_id,
+							b.pay_period_id as pay_period_id,
+							ppf.start_date as pay_period_start_date,
+							ppf.end_date as pay_period_end_date,
+							ppf.transaction_date as pay_period_transaction_date,
+
+							b.start_date as pay_stub_start_date,
+							b.end_date as pay_stub_end_date,
+							b.transaction_date as pay_stub_transaction_date,
+							b.currency_id as currency_id,
+							b.currency_rate as currency_rate
+					from	(
+							select aa.pay_stub_id as pay_stub_id,
+								aa.pay_stub_entry_name_id as pay_stub_entry_name_id,
+								avg(aa.rate) as rate,
+								sum(aa.units) as units,
+								sum(aa.amount) as amount,
+								sum(aa.ytd_amount) as ytd_amount
+							from '. $this->getTable() .' as aa
+							LEFT JOIN '. $psaf->getTable() .' as hh ON aa.pay_stub_amendment_id = hh.id
+							LEFT JOIN '. $psf->getTable() .' as bb ON aa.pay_stub_id = bb.id
+							LEFT JOIN '. $uf->getTable() .' as cc ON bb.user_id = cc.id
+							LEFT JOIN '. $bf->getTable() .' as dd ON cc.default_branch_id = dd.id
+							LEFT JOIN '. $df->getTable() .' as ee ON cc.default_department_id = ee.id
+							LEFT JOIN '. $ugf->getTable() .' as ff ON cc.group_id = ff.id
+							LEFT JOIN '. $utf->getTable() .' as gg ON cc.title_id = gg.id
+
+							where cc.company_id = ? ';
+
+							$query .= ( isset($filter_data['permission_children_ids']) ) ? $this->getWhereClauseSQL( 'cc.id', $filter_data['permission_children_ids'], 'numeric_list', $ph ) : NULL;
+							$query .= ( isset($filter_data['id']) ) ? $this->getWhereClauseSQL( 'cc.id', $filter_data['id'], 'numeric_list', $ph ) : NULL;
+							$query .= ( isset($filter_data['user_id']) ) ? $this->getWhereClauseSQL( 'cc.id', $filter_data['user_id'], 'numeric_list', $ph ) : NULL;
+							$query .= ( isset($filter_data['include_user_id']) ) ? $this->getWhereClauseSQL( 'cc.id', $filter_data['include_user_id'], 'numeric_list', $ph ) : NULL;
+							$query .= ( isset($filter_data['exclude_user_id']) ) ? $this->getWhereClauseSQL( 'cc.id', $filter_data['exclude_user_id'], 'not_numeric_list', $ph ) : NULL;
+							$query .= ( isset($filter_data['user_status_id']) ) ? $this->getWhereClauseSQL( 'cc.status_id', $filter_data['user_status_id'], 'numeric_list', $ph ) : NULL;
+
+							$query .= ( isset($filter_data['pay_stub_status_id']) ) ? $this->getWhereClauseSQL( 'bb.status_id', $filter_data['pay_stub_status_id'], 'numeric_list', $ph ) : NULL;
+
+							if ( isset($filter_data['exclude_ytd_adjustment']) AND (bool)$filter_data['exclude_ytd_adjustment'] == TRUE ) {
+								$query .= ' AND ( hh.ytd_adjustment is NULL OR hh.ytd_adjustment = 0 )';
+							}
+
+							if ( isset($filter_data['include_subgroups']) AND (bool)$filter_data['include_subgroups'] == TRUE ) {
+								$uglf = new UserGroupListFactory();
+								$filter_data['group_id'] = $uglf->getByCompanyIdAndGroupIdAndSubGroupsArray( $company_id, $filter_data['group_id'], TRUE);
+							}
+							$query .= ( isset($filter_data['group_id']) ) ? $this->getWhereClauseSQL( 'cc.group_id', $filter_data['group_id'], 'numeric_list', $ph ) : NULL;
+
+							$query .= ( isset($filter_data['default_branch_id']) ) ? $this->getWhereClauseSQL( 'cc.default_branch_id', $filter_data['default_branch_id'], 'numeric_list', $ph ) : NULL;
+							$query .= ( isset($filter_data['default_department_id']) ) ? $this->getWhereClauseSQL( 'cc.default_department_id', $filter_data['default_department_id'], 'numeric_list', $ph ) : NULL;
+							$query .= ( isset($filter_data['title_id']) ) ? $this->getWhereClauseSQL( 'cc.title_id', $filter_data['title_id'], 'numeric_list', $ph ) : NULL;
+							$query .= ( isset($filter_data['sex_id']) ) ? $this->getWhereClauseSQL( 'cc.sex_id', $filter_data['sex_id'], 'numeric_list', $ph ) : NULL;
+
+							$query .= ( isset($filter_data['currency_id']) ) ? $this->getWhereClauseSQL( 'bb.currency_id', $filter_data['currency_id'], 'numeric_list', $ph ) : NULL;
+							$query .= ( isset($filter_data['pay_period_id']) ) ? $this->getWhereClauseSQL( 'bb.pay_period_id', $filter_data['pay_period_id'], 'numeric_list', $ph ) : NULL;
+
+							//$query .= ( isset($filter_data['tag']) ) ? $this->getWhereClauseSQL( 'a.id', array( 'company_id' => $company_id, 'object_type_id' => 200, 'tag' => $filter_data['tag'] ), 'tag', $ph ) : NULL;
+
+							if ( isset($filter_data['start_date']) AND !is_array($filter_data['start_date']) AND trim($filter_data['start_date']) != '' ) {
+								$ph[] = $this->db->BindTimeStamp( strtolower(trim($filter_data['start_date'])) );
+								$query	.=	' AND bb.transaction_date >= ?';
+							}
+							if ( isset($filter_data['end_date']) AND !is_array($filter_data['end_date']) AND trim($filter_data['end_date']) != '' ) {
+								$ph[] = $this->db->BindTimeStamp( strtolower(trim($filter_data['end_date'])) );
+								$query	.=	' AND bb.transaction_date <= ?';
+							}
+							/*
+							if ( isset($filter_data['transaction_date']) AND !is_array($filter_data['transaction_date']) AND trim($filter_data['transaction_date']) != '' ) {
+								$ph[] = $this->db->BindTimeStamp( strtolower(trim($filter_data['transaction_date'])) );
+								$query	.=	' AND bb.transaction_date = ?';
+							}
+							*/
+
+		$query .= '
+								AND (aa.deleted = 0 AND bb.deleted = 0 AND cc.deleted=0)
+							group by aa.pay_stub_id, aa.pay_stub_entry_name_id
+							) a
+						LEFT JOIN '. $psf->getTable() .' as b ON a.pay_stub_id = b.id
+						LEFT JOIN '. $uf->getTable() .' as c ON b.user_id = c.id
+						LEFT JOIN '. $ppf->getTable() .' as ppf ON b.pay_period_id = ppf.id
+					where	1=1
+					';
+
+		$query .=	'
+						AND (c.deleted=0)
+					';
+		$query .= $this->getWhereSQL( $where );
+		$query .= $this->getSortSQL( $order, $strict, $additional_order_fields );
+
+		//Debug::Arr($ph, 'Query: '. $query, __FILE__, __LINE__, __METHOD__, 10);
+
+		$this->ExecuteSQL( $query, $ph, $limit, $page );
+
+		return $this;
+	}
+
+	function getAPIGeneralLedgerReportByCompanyIdAndArrayCriteria( $company_id, $filter_data, $limit = NULL, $page = NULL, $where = NULL, $order = NULL ) {
+		if ( $company_id == '') {
+			return FALSE;
+		}
+
+		if ( !is_array($order) ) {
+			//Use Filter Data ordering if its set.
+			if ( isset($filter_data['sort_column']) AND $filter_data['sort_order']) {
+				$order = array(Misc::trimSortPrefix($filter_data['sort_column']) => $filter_data['sort_order']);
+			}
+		}
+
+		$additional_order_fields = array(	'default_branch',
+											'default_department',
+											'group',
+											'title',
+											'currency',
+											'pay_period_transaction_date',
+											'pay_stub_transaction_date',
+											'user_id',
+											);
+
+		if ( $order == NULL ) {
+			$order = array( 'b.user_id' => 'asc');
+			$strict = FALSE;
+		} else {
+			$strict = TRUE;
+		}
+		//Debug::Arr($order, 'Order Data:', __FILE__, __LINE__, __METHOD__, 10);
+		//Debug::Arr($filter_data, 'Filter Data:', __FILE__, __LINE__, __METHOD__, 10);
 
 		$ppf = new PayPeriodFactory();
 		$bf = new BranchFactory();
@@ -1626,7 +1869,7 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 					);
 
 		$query = '
-					select 	a.*,
+					select	a.*,
 							b.user_id as user_id,
 							b.pay_period_id as pay_period_id,
 							ppf.start_date as pay_period_start_date,
@@ -1643,13 +1886,13 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 							a.units as units,
 							a.amount as amount,
 							a.ytd_amount as ytd_amount
-					from 	(
+					from	(
 							select aa.pay_stub_id as pay_stub_id,
 								aa.pay_stub_entry_name_id as pay_stub_entry_name_id,
-								avg(aa.rate) as rate,
-								sum(aa.units) as units,
-								sum(aa.amount) as amount,
-								max(aa.ytd_amount) as ytd_amount
+								aa.rate as rate,
+								aa.units as units,
+								aa.amount as amount,
+								aa.ytd_amount as ytd_amount
 							from '. $this->getTable() .' as aa
 							LEFT JOIN '. $psaf->getTable() .' as hh ON aa.pay_stub_amendment_id = hh.id
 							LEFT JOIN '. $psf->getTable() .' as bb ON aa.pay_stub_id = bb.id
@@ -1688,24 +1931,23 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 
 							//$query .= ( isset($filter_data['tag']) ) ? $this->getWhereClauseSQL( 'a.id', array( 'company_id' => $company_id, 'object_type_id' => 200, 'tag' => $filter_data['tag'] ), 'tag', $ph ) : NULL;
 
-							if ( isset($filter_data['start_date']) AND trim($filter_data['start_date']) != '' ) {
+							if ( isset($filter_data['start_date']) AND !is_array($filter_data['start_date']) AND trim($filter_data['start_date']) != '' ) {
 								$ph[] = $this->db->BindTimeStamp( strtolower(trim($filter_data['start_date'])) );
-								$query  .=	' AND bb.transaction_date >= ?';
+								$query	.=	' AND bb.transaction_date >= ?';
 							}
-							if ( isset($filter_data['end_date']) AND trim($filter_data['end_date']) != '' ) {
+							if ( isset($filter_data['end_date']) AND !is_array($filter_data['end_date']) AND trim($filter_data['end_date']) != '' ) {
 								$ph[] = $this->db->BindTimeStamp( strtolower(trim($filter_data['end_date'])) );
-								$query  .=	' AND bb.transaction_date <= ?';
+								$query	.=	' AND bb.transaction_date <= ?';
 							}
 							/*
-							if ( isset($filter_data['transaction_date']) AND trim($filter_data['transaction_date']) != '' ) {
+							if ( isset($filter_data['transaction_date']) AND !is_array($filter_data['transaction_date']) AND trim($filter_data['transaction_date']) != '' ) {
 								$ph[] = $this->db->BindTimeStamp( strtolower(trim($filter_data['transaction_date'])) );
-								$query  .=	' AND bb.transaction_date = ?';
+								$query	.=	' AND bb.transaction_date = ?';
 							}
 							*/
 
 		$query .= '
 								AND (aa.deleted = 0 AND bb.deleted = 0 AND cc.deleted=0)
-							group by aa.pay_stub_id,aa.pay_stub_entry_name_id
 							) a
 						LEFT JOIN '. $psf->getTable() .' as b ON a.pay_stub_id = b.id
 						LEFT JOIN '. $uf->getTable() .' as c ON b.user_id = c.id
@@ -1713,18 +1955,76 @@ class PayStubEntryListFactory extends PayStubEntryFactory implements IteratorAgg
 					where	1=1
 					';
 
-		$query .= 	'
+		//Don't group line items as that causes "net" accounting, which works, but can be frowned upon.
+		//							group by aa.pay_stub_id, aa.pay_stub_entry_name_id
+
+		$query .=	'
 						AND (c.deleted=0)
 					';
 		$query .= $this->getWhereSQL( $where );
 		$query .= $this->getSortSQL( $order, $strict, $additional_order_fields );
 
-		//Debug::Arr($ph, 'Query: '. $query, __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($ph, 'Query: '. $query, __FILE__, __LINE__, __METHOD__, 10);
 
 		$this->ExecuteSQL( $query, $ph, $limit, $page );
 
 		return $this;
 	}
+
+	function getAPISearchByCompanyIdAndArrayCriteria( $company_id, $filter_data, $limit = NULL, $page = NULL, $where = NULL, $order = NULL ) {
+		if ( $company_id == '') {
+			return FALSE;
+		}
+
+		$strict = TRUE;
+		if ( $order == NULL ) {
+			$strict = FALSE;
+
+			$order = array( 'b.ps_order' => 'asc', 'abs(a.ytd_amount)' => 'asc', 'a.id' => 'asc' );
+		}
+
+		$uf = new UserFactory();
+		$psf = new PayStubFactory();
+		$psealf = new PayStubEntryAccountListFactory();
+		$psalf = new PayStubAmendmentListFactory();
+
+		$ph = array(
+			'company_id' => $company_id,
+		);
+
+		$query = '
+					select	a.*,
+							b.type_id,
+							b.name
+					FROM	'. $this->getTable() .' as a
+						LEFT JOIN '. $psealf->getTable() .' as b ON ( a.pay_stub_entry_name_id = b.id AND b.deleted = 0 )
+						LEFT JOIN '. $psalf->getTable() .' as c ON ( a.pay_stub_amendment_id = c.id AND c.deleted = 0 )
+						LEFT JOIN '. $psf->getTable() .' as d ON ( a.pay_stub_id = d.id AND d.deleted = 0 )
+						LEFT JOIN '. $uf->getTable() .' as uf ON ( d.user_id = uf.id AND uf.deleted = 0 )
+					where	uf.company_id = ?';
+
+		$query .= ( isset($filter_data['permission_children_ids']) ) ? $this->getWhereClauseSQL( 'a.created_by', $filter_data['permission_children_ids'], 'numeric_list', $ph ) : NULL;
+		$query .= ( isset($filter_data['id']) ) ? $this->getWhereClauseSQL( 'a.id', $filter_data['id'], 'numeric_list', $ph ) : NULL;
+		$query .= ( isset($filter_data['exclude_id']) ) ? $this->getWhereClauseSQL( 'a.id', $filter_data['exclude_id'], 'not_numeric_list', $ph ) : NULL;
+
+		$query .= ( isset($filter_data['pay_stub_id']) ) ? $this->getWhereClauseSQL( 'a.pay_stub_id', $filter_data['pay_stub_id'], 'numeric_list', $ph ) : NULL;
+		$query .= ( isset($filter_data['pay_stub_entry_name_id']) ) ? $this->getWhereClauseSQL( 'b.id', $filter_data['pay_stub_entry_name_id'], 'numeric_list', $ph ) : NULL;
+
+		$query .= ( isset($filter_data['type_id']) ) ? $this->getWhereClauseSQL( 'b.type_id', $filter_data['type_id'], 'numeric_list', $ph ) : NULL;
+
+		$query .= ( isset($filter_data['name']) ) ? $this->getWhereClauseSQL( 'b.name', $filter_data['name'], 'text', $ph ) : NULL;
+		$query .= ( isset($filter_data['pay_period_id']) ) ? $this->getWhereClauseSQL( 'd.pay_period_id', $filter_data['pay_period_id'], 'numeric_list', $ph ) : NULL;
+		$query .= ( isset($filter_data['user_id']) ) ? $this->getWhereClauseSQL( 'd.user_id', $filter_data['user_id'], 'numeric_list', $ph ) : NULL;
+
+		$query .=	' AND a.deleted = 0 ';
+		$query .= $this->getWhereSQL( $where );
+		$query .= $this->getSortSQL( $order, $strict );
+
+		$this->ExecuteSQL( $query, $ph, $limit, $page );
+
+		return $this;
+	}
+
 
 }
 ?>

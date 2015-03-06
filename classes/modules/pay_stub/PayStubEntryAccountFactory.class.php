@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,14 +33,10 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 10376 $
- * $Id: PayStubEntryAccountFactory.class.php 10376 2013-07-05 20:34:11Z ipso $
- * $Date: 2013-07-05 13:34:11 -0700 (Fri, 05 Jul 2013) $
- */
+
 
 /**
- * @package Modules_Pay\Stub
+ * @package Modules\PayStub
  */
 class PayStubEntryAccountFactory extends Factory {
 	protected $table = 'pay_stub_entry_account';
@@ -98,6 +94,8 @@ class PayStubEntryAccountFactory extends Factory {
 										'-1150-debit_account' => TTi18n::gettext('Debit Account'),
 										'-1150-credit_account' => TTi18n::gettext('Credit Account'),
 
+										'-1900-in_use' => TTi18n::gettext('In Use'),
+
 										'-2000-created_by' => TTi18n::gettext('Created By'),
 										'-2010-created_date' => TTi18n::gettext('Created Date'),
 										'-2020-updated_by' => TTi18n::gettext('Updated By'),
@@ -146,6 +144,7 @@ class PayStubEntryAccountFactory extends Factory {
 											'credit_account' => 'CreditAccount',
 											'accrual_pay_stub_entry_account_id' => 'Accrual',
 											'accrual_type_id' => 'AccrualType',
+											'in_use' => FALSE,
 											'deleted' => 'Deleted',
 											);
 			return $variable_function_map;
@@ -153,7 +152,7 @@ class PayStubEntryAccountFactory extends Factory {
 
 	function getCompany() {
 		if ( isset($this->data['company_id']) ) {
-			return $this->data['company_id'];
+			return (int)$this->data['company_id'];
 		}
 
 		return FALSE;
@@ -161,7 +160,7 @@ class PayStubEntryAccountFactory extends Factory {
 	function setCompany($id) {
 		$id = trim($id);
 
-		Debug::Text('Company ID: '. $id, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Company ID: '. $id, __FILE__, __LINE__, __METHOD__, 10);
 		$clf = TTnew( 'CompanyListFactory' );
 
 		if ( $this->Validator->isResultSetWithRows(	'company',
@@ -217,7 +216,7 @@ class PayStubEntryAccountFactory extends Factory {
 
 	function getType() {
 		if ( isset($this->data['type_id']) ) {
-			return $this->data['type_id'];
+			return (int)$this->data['type_id'];
 		}
 
 		return FALSE;
@@ -247,7 +246,7 @@ class PayStubEntryAccountFactory extends Factory {
 
 		$query = 'select id from '. $this->getTable() .' where company_id = ? AND type_id = ? AND name = ? AND deleted=0';
 		$id = $this->db->GetOne($query, $ph);
-		Debug::Arr($id,'Unique Pay Stub Account: '. $name, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Arr($id, 'Unique Pay Stub Account: '. $name, __FILE__, __LINE__, __METHOD__, 10);
 
 		if ( $id === FALSE ) {
 			return TRUE;
@@ -274,7 +273,7 @@ class PayStubEntryAccountFactory extends Factory {
 	function setName($value) {
 		$value = trim($value);
 
-		if 	(
+		if	(
 				$this->Validator->isLength(		'name',
 												$value,
 												TTi18n::gettext('Name is too short or too long'),
@@ -329,7 +328,7 @@ class PayStubEntryAccountFactory extends Factory {
 	function setDebitAccount($value) {
 		$value = trim($value);
 
-		if 	(	$value == ''
+		if	(	$value == ''
 				OR
 				$this->Validator->isLength(		'debit_account',
 												$value,
@@ -355,7 +354,7 @@ class PayStubEntryAccountFactory extends Factory {
 	function setCreditAccount($value) {
 		$value = trim($value);
 
-		if 	(	$value == ''
+		if	(	$value == ''
 				OR
 				$this->Validator->isLength(		'credit_account',
 												$value,
@@ -373,7 +372,7 @@ class PayStubEntryAccountFactory extends Factory {
 
 	function getAccrual() {
 		if ( isset($this->data['accrual_pay_stub_entry_account_id']) ) {
-			return $this->data['accrual_pay_stub_entry_account_id'];
+			return (int)$this->data['accrual_pay_stub_entry_account_id'];
 		}
 
 		return FALSE;
@@ -381,7 +380,7 @@ class PayStubEntryAccountFactory extends Factory {
 	function setAccrual($id) {
 		$id = trim($id);
 
-		Debug::Text('ID: '. $id, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('ID: '. $id, __FILE__, __LINE__, __METHOD__, 10);
 		$psealf = TTnew( 'PayStubEntryAccountListFactory' );
 		$psealf->getByID($id);
 		if ( $psealf->getRecordCount() > 0 ) {
@@ -408,7 +407,7 @@ class PayStubEntryAccountFactory extends Factory {
 	}
 	function getAccrualType() {
 		if ( isset($this->data['accrual_type_id']) ) {
-			return $this->data['accrual_type_id'];
+			return (int)$this->data['accrual_type_id'];
 		}
 
 		return FALSE;
@@ -468,7 +467,7 @@ class PayStubEntryAccountFactory extends Factory {
 			$psealf->setCompany( $company_id );
 		}
 
-		Debug::text('Country: '. $country , __FILE__, __LINE__, __METHOD__, 10);
+		Debug::text('Country: '. $country, __FILE__, __LINE__, __METHOD__, 10);
 		switch (strtolower($country)) {
 			case 'ca':
 				Debug::text('Saving.... Federal Taxes', __FILE__, __LINE__, __METHOD__, 10);
@@ -762,7 +761,7 @@ class PayStubEntryAccountFactory extends Factory {
 				break;
 		}
 
-		Debug::text('Province: '. $province , __FILE__, __LINE__, __METHOD__, 10);
+		Debug::text('Province: '. $province, __FILE__, __LINE__, __METHOD__, 10);
 		switch (strtolower($province)) {
 			case 'ny':
 				$pseaf = TTnew( 'PayStubEntryAccountFactory' );
@@ -1047,7 +1046,7 @@ class PayStubEntryAccountFactory extends Factory {
 				Debug::text('PS Order... Min: '. $min_ps_order .' Max: '. $max_ps_order, __FILE__, __LINE__, __METHOD__, 10);
 				$this->Validator->isTrue(				'ps_order',
 														FALSE,
-														TTi18n::gettext('Order is invalid for this type of account, it must be between'). ' '. ($min_ps_order+1) . ' ' . TTi18n::gettext('and') . ' ' . ($max_ps_order-1) );
+														TTi18n::gettext('Order is invalid for this type of account, it must be between'). ' '. ($min_ps_order + 1) . ' ' . TTi18n::gettext('and') . ' ' . ($max_ps_order - 1) );
 			}
 		}
 
@@ -1126,6 +1125,9 @@ class PayStubEntryAccountFactory extends Factory {
 
 					$function = 'get'.$function_stub;
 					switch( $variable ) {
+						case 'in_use':
+							$data[$variable] = $this->getColumn( $variable );
+							break;
 						case 'status':
 						case 'type':
 						case 'accrual_type':
@@ -1150,7 +1152,7 @@ class PayStubEntryAccountFactory extends Factory {
 	}
 
 	function addLog( $log_action ) {
-		return TTLog::addEntry( $this->getId(), $log_action,  TTi18n::getText('Pay Stub Account'), NULL, $this->getTable(), $this );
+		return TTLog::addEntry( $this->getId(), $log_action, TTi18n::getText('Pay Stub Account'), NULL, $this->getTable(), $this );
 	}
 }
 ?>

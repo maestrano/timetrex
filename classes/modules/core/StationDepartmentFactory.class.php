@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 5089 $
- * $Id: StationDepartmentFactory.class.php 5089 2011-08-06 19:51:55Z ipso $
- * $Date: 2011-08-06 12:51:55 -0700 (Sat, 06 Aug 2011) $
- */
+
 
 /**
  * @package Core
@@ -50,7 +46,7 @@ class StationDepartmentFactory extends Factory {
 
 	function getStation() {
 		if ( isset($this->data['station_id']) ) {
-			return $this->data['station_id'];
+			return (int)$this->data['station_id'];
 		}
 	}
 	function setStation($id) {
@@ -95,7 +91,7 @@ class StationDepartmentFactory extends Factory {
 	}
 	function getDepartment() {
 		if ( isset($this->data['department_id']) ) {
-			return $this->data['department_id'];
+			return (int)$this->data['department_id'];
 		}
 
 		return FALSE;
@@ -167,7 +163,7 @@ class StationDepartmentFactory extends Factory {
 	function addLog( $log_action ) {
 		$d_obj = $this->getDepartmentObject();
 		if ( is_object($d_obj) ) {
-			return TTLog::addEntry( $this->getStation(), $log_action, TTi18n::getText('Department').': '. $d_obj->getName() , NULL, $this->getTable() );
+			return TTLog::addEntry( $this->getStation(), $log_action, TTi18n::getText('Department').': '. $d_obj->getName(), NULL, $this->getTable() );
 		}
 
 		return FALSE;

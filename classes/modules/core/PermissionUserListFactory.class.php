@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 11018 $
- * $Id: PermissionUserListFactory.class.php 11018 2013-09-24 23:39:40Z ipso $
- * $Date: 2013-09-24 16:39:40 -0700 (Tue, 24 Sep 2013) $
- */
+
 
 /**
  * @package Core
@@ -46,7 +42,7 @@ class PermissionUserListFactory extends PermissionUserFactory implements Iterato
 
 	function getAll($limit = NULL, $page = NULL, $where = NULL, $order = NULL) {
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable();
 		$query .= $this->getWhereSQL( $where );
 		$query .= $this->getSortSQL( $order );
@@ -66,7 +62,7 @@ class PermissionUserListFactory extends PermissionUserFactory implements Iterato
 					);
 
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					where	id = ?
 					';
@@ -90,7 +86,7 @@ class PermissionUserListFactory extends PermissionUserFactory implements Iterato
 					);
 
 		$query = '
-					select 	a.*
+					select	a.*
 					from	'. $this->getTable() .' as a,
 							'. $pcf->getTable() .' as b
 					where	a.permission_control_id = b.id
@@ -126,7 +122,7 @@ class PermissionUserListFactory extends PermissionUserFactory implements Iterato
 					);
 
 		$query = '
-					select 	a.*
+					select	a.*
 					from	'. $this->getTable() .' as a,
 							'. $pcf->getTable() .' as b
 					where	a.permission_control_id = b.id
@@ -135,6 +131,56 @@ class PermissionUserListFactory extends PermissionUserFactory implements Iterato
 						AND a.user_id in ('. $this->getListSQL($user_id, $ph) .')
 						AND b.deleted = 0
 					';
+		$query .= $this->getWhereSQL( $where );
+		$query .= $this->getSortSQL( $order );
+
+		$this->ExecuteSQL( $query, $ph );
+
+		return $this;
+	}
+
+	function getByCompanyIdAndDateAndValidIDs($company_id, $date = NULL, $valid_ids = array(), $where = NULL, $order = NULL) {
+		if ( $company_id == '') {
+			return FALSE;
+		}
+
+		if ( $date == '') {
+			$date = 0;
+		}
+
+		$ph = array(
+					'company_id' => $company_id,
+					);
+
+		$pcf = new PermissionControlFactory();
+		
+		$query = '
+					select	a.*,
+							b.updated_date as updated_date,
+							b.updated_by as updated_by
+					from	'. $this->getTable() .' as a,
+							'. $pcf->getTable() .' as b
+					where	b.id = a.permission_control_id
+						AND b.company_id = ?
+						AND (
+								(
+								1=1 ';
+
+		if ( isset($date) AND $date > 0 ) {
+			//Append the same date twice for created and updated.
+			$ph[] = (int)$date;
+			$ph[] = (int)$date;
+			$query	.=	'		AND ( b.created_date >= ? OR b.updated_date >= ? ) )';
+		} else {
+			$query	.=	' ) ';
+		}
+		
+		if ( isset($valid_ids) AND is_array($valid_ids) AND count($valid_ids) > 0 ) {
+			$query	.=	' OR a.id in ('. $this->getListSQL($valid_ids, $ph) .') ';
+		}
+
+		$query .= '	)
+						AND ( b.deleted = 0)';
 		$query .= $this->getWhereSQL( $where );
 		$query .= $this->getSortSQL( $order );
 
@@ -160,9 +206,9 @@ class PermissionUserListFactory extends PermissionUserFactory implements Iterato
 					);
 
 		$query = '
-					select 	a.*
+					select	a.*
 					from	'. $this->getTable() .' as a
-					where 	a.permission_control_id = ?
+					where	a.permission_control_id = ?
 					';
 		$query .= $this->getWhereSQL( $where );
 		$query .= $this->getSortSQL( $order );
@@ -187,7 +233,7 @@ class PermissionUserListFactory extends PermissionUserFactory implements Iterato
 					);
 
 		$query = '
-					select 	a.*
+					select	a.*
 					from	'. $this->getTable() .' as a
 					where	a.permission_control_id = ?
 						AND a.user_id = ?
@@ -216,5 +262,48 @@ class PermissionUserListFactory extends PermissionUserFactory implements Iterato
 
 		return array();
 	}
+
+	function getIsModifiedByCompanyIdAndDate($company_id, $date, $where = NULL, $order = NULL) {
+		if ( $company_id == '') {
+			return FALSE;
+		}
+
+		if ( $date == '') {
+			return FALSE;
+		}
+
+		$ph = array(
+					'company_id' => $company_id,
+					'created_date' => $date,
+					'updated_date' => $date,
+					);
+
+		$pcf = new PermissionControlFactory();
+
+		$query = '
+					select	a.*,
+							b.updated_date as updated_date,
+							b.updated_by as updated_by
+					from	'. $this->getTable() .' as a,
+							'. $pcf->getTable() .' as b
+					where	b.id = a.permission_control_id
+						AND b.company_id = ?
+						AND
+							( b.created_date >=	 ? OR b.updated_date >= ? )
+					LIMIT 1
+					';
+		$query .= $this->getWhereSQL( $where );
+		$query .= $this->getSortSQL( $order );
+
+		$this->ExecuteSQL( $query, $ph );
+		if ( $this->getRecordCount() > 0 ) {
+			Debug::text('Rows have been modified: '. $this->getRecordCount(), __FILE__, __LINE__, __METHOD__, 10);
+
+			return TRUE;
+		}
+		Debug::text('Rows have NOT been modified', __FILE__, __LINE__, __METHOD__, 10);
+		return FALSE;
+	}
+
 }
 ?>

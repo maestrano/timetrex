@@ -2,10 +2,6 @@
 <?php
 /*$License$*/
 /*
- * $Revision: 800 $
- * $Id: mergelocales.sh 800 2007-04-25 18:02:23Z ipso $
- * $Date: 2007-04-25 11:02:23 -0700 (Wed, 25 Apr 2007) $
- *
  * File Contributed By: Open Source Consulting, S.A.   San Jose, Costa Rica.
  * http://osc.co.cr
  */

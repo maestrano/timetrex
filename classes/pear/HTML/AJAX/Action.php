@@ -2,12 +2,15 @@
 /**
  * OO AJAX Implementation for PHP, contains HTML_AJAX_Action
  *
- * @category   HTML
- * @package    AJAX
- * @author     Elizabeth Smith <auroraeosrose@gmail.com>
- * @copyright  2005-2006 Elizabeth Smith
- * @license    http://www.opensource.org/licenses/lgpl-license.php  LGPL
- * @version    Release: 0.5.2
+ * SVN Rev: $Id: Action.php 626 2008-06-16 17:31:39Z jeichorn $
+ *
+ * @category  HTML
+ * @package   AJAX
+ * @author    Elizabeth Smith <auroraeosrose@gmail.com>
+ * @copyright 2005-2008 Elizabeth Smith
+ * @license   http://www.opensource.org/licenses/lgpl-license.php  LGPL
+ * @version   Release: 0.5.6
+ * @link      http://htmlajax.org/HTML_AJAX/Using%20haSerializer
  */
 
 /**
@@ -20,11 +23,17 @@ require_once 'HTML/AJAX/Serializer/JSON.php';
  * Helper class to eliminate the need to write javascript functions to deal with data
  *
  * This class creates information that can be properly serialized and used by
- * the haaction serializer which eliminates the need for php users to write javascript
- * for dealing with the information returned by an ajax method - instead the javascript
- * is basically created for them
+ * the haaction serializer which eliminates the need for php users to write 
+ * javascript for dealing with the information returned by an ajax method - 
+ * instead the javascript is basically created for them
  *
- * @version   $Id: Action.php 537 2006-08-12 01:48:12Z emsmith $
+ * @category  HTML
+ * @package   AJAX
+ * @author    Elizabeth Smith <auroraeosrose@gmail.com>
+ * @copyright 2005-2008 Elizabeth Smith
+ * @license   http://www.opensource.org/licenses/lgpl-license.php  LGPL
+ * @version   Release: 0.5.6
+ * @link      http://htmlajax.org/HTML_AJAX/Using%20haSerializer
  */
 class HTML_AJAX_Action extends HTML_AJAX_Response
 {
@@ -49,7 +58,7 @@ class HTML_AJAX_Action extends HTML_AJAX_Response
      * @var array
      * @access private
      */
-    var $_actions;
+    var $_actions = array();
 
     /**
      * Prepends data to the attribute identified by id
@@ -60,16 +69,16 @@ class HTML_AJAX_Action extends HTML_AJAX_Response
      * $response->prependAttr('myid', 'class', 'red');
      * $response->prependAttr('myid', array('class' => 'red', 'innerHTML' => 'this is an error'));
      *
-     * @param   string   $id    id for a specific item on the page <div id="myid"></div>
-     * @param   string|array   $attribute    either an array of attribute/data pairs or a string attribute name
-     * @param   mixed   $data    should be NULL if attribute is an array, otherwise data you wish to set the attribute to
-     * @return  void
+     * @param string       $id        id for a specific item on the page <div id="myid"></div>
+     * @param string|array $attribute either an array of attribute/data pairs or a string attribute name
+     * @param mixed        $data      should be NULL if attribute is an array, otherwise data you wish to set the attribute to
+     *
+     * @return void
      * @access public
      */
-    function prependAttr($id, $attribute, $data = NULL)
+    function prependAttr($id, $attribute, $data = null)
     {
-        if(!is_null($data))
-        {
+        if (!is_null($data)) {
             $attribute = array($attribute => $data);
         }
         $this->_actions[] = array(
@@ -90,16 +99,16 @@ class HTML_AJAX_Action extends HTML_AJAX_Response
      * $response->appendAttr('myid', 'class', 'red');
      * $response->appendAttr('myid', array('class' => 'red', 'innerHTML' => 'this is an error'));
      *
-     * @param   string   $id    id for a specific item on the page <div id="myid"></div>
-     * @param   string|array   $attribute    either an array of attribute/data pairs or a string attribute name
-     * @param   mixed   $data    should be NULL if attribute is an array, otherwise data you wish to set the attribute to
-     * @return  void
+     * @param string       $id        id for a specific item on the page <div id="myid"></div>
+     * @param string|array $attribute either an array of attribute/data pairs or a string attribute name
+     * @param mixed        $data      should be NULL if attribute is an array, otherwise data you wish to set the attribute to
+     *
+     * @return void
      * @access public
      */
-    function appendAttr($id, $attribute, $data = NULL)
+    function appendAttr($id, $attribute, $data = null)
     {
-        if(!is_null($data))
-        {
+        if (!is_null($data)) {
             $attribute = array($attribute => $data);
         }
         $this->_actions[] = array(
@@ -119,16 +128,16 @@ class HTML_AJAX_Action extends HTML_AJAX_Response
      * $response->assignAttr('myid', 'class', 'red');
      * $response->assignAttr('myid', array('class' => 'red', 'innerHTML' => 'this is an error'));
      *
-     * @param   string   $id    id for a specific item on the page <div id="myid"></div>
-     * @param   string|array   $attribute    either an array of attribute/data pairs or a string attribute name
-     * @param   mixed   $data    should be NULL if attribute is an array, otherwise data you wish to set the attribute to
-     * @return  void
+     * @param string       $id        id for a specific item on the page <div id="myid"></div>
+     * @param string|array $attribute either an array of attribute/data pairs or a string attribute name
+     * @param mixed        $data      should be NULL if attribute is an array, otherwise data you wish to set the attribute to
+     *
+     * @return void
      * @access public
      */
-    function assignAttr($id, $attribute, $data = NULL)
+    function assignAttr($id, $attribute, $data = null)
     {
-        if(!is_null($data))
-        {
+        if (!is_null($data)) {
             $attribute = array($attribute => $data);
         }
         $this->_actions[] = array(
@@ -147,15 +156,15 @@ class HTML_AJAX_Action extends HTML_AJAX_Response
      * $response->clearAttr('myid', 'class');
      * $response->clearAttr('myid', array('class', 'innerHTML'));
      *
-     * @param   string   $id    id for a specific item on the page <div id="myid"></div>
-     * @param   string|array   $attribute    either an array of attribute/data pairs or a string attribute name
-     * @return  void
+     * @param string       $id        id for a specific item on the page <div id="myid"></div>
+     * @param string|array $attribute either an array of attribute/data pairs or a string attribute name
+     *
+     * @return void
      * @access public
      */
     function clearAttr($id, $attribute)
     {
-        if(!is_array($attribute))
-        {
+        if (!is_array($attribute)) {
             $attribute = array($attribute);
         }
         $this->_actions[] = array(
@@ -180,6 +189,7 @@ class HTML_AJAX_Action extends HTML_AJAX_Response
      * You can send an array of attributes to apply to the new node as well,
      * so you don't have to create it and then assign Attributes.
      *
+     * <code>
      * $response->createNode('myid', 'div');
      * $response->createNode('submit', 'input',
      *   array('id' => 'key',
@@ -187,18 +197,20 @@ class HTML_AJAX_Action extends HTML_AJAX_Response
      *         'type' => 'hidden',
      *         'value' => $id),
      *   'insertBefore');
+     * <code>
      *
-     * @param   string   $id    id for a specific item on the page <div id="myid"></div>
-     * @param   string   $tag    html node to create
-     * @param   array   $attributes    array of attribute -> data to fill the node with
-     * @return  void
+     * @param string $id         id for a specific item on the page <div id="myid"></div>
+     * @param string $tag        html node to create
+     * @param array  $attributes array of attribute -> data to fill the node with
+     * @param string $type       append|prepend|insertBefore|insertAfter default is append
+     *
+     * @return void
      * @access public
      */
     function createNode($id, $tag, $attributes, $type = 'append')
     {
         $types = array('append', 'prepend', 'insertBefore', 'insertAfter');
-        if(!in_array($type, $types))
-        {
+        if (!in_array($type, $types)) {
             $type = 'append';
         }
         settype($attributes, 'array');
@@ -222,10 +234,11 @@ class HTML_AJAX_Action extends HTML_AJAX_Response
      * $response->replaceNode('myid', 'div', array('innerHTML' => 'loading complete'));
      * $response->replaceNode('mydiv', 'form', array('innerHTML' => $form));
      *
-     * @param   string   $id    id for a specific item on the page <div id="myid"></div>
-     * @param   string   $tag    html node to create
-     * @param   array   $attributes    array of attribute -> data to fill the node with
-     * @return  void
+     * @param string $id         id for a specific item on the page <div id="myid"></div>
+     * @param string $tag        html node to create
+     * @param array  $attributes array of attribute -> data to fill the node with
+     *
+     * @return void
      * @access public
      */
     function replaceNode($id, $tag, $attributes)
@@ -246,8 +259,9 @@ class HTML_AJAX_Action extends HTML_AJAX_Response
      * $response->removeNode('myid');
      * $response->removeNode(array('mydiv', 'myform'));
      *
-     * @param   string   $id    id for a specific item on the page <div id="myid"></div>
-     * @return  void
+     * @param string $id id for a specific item on the page <div id="myid"></div>
+     *
+     * @return void
      * @access public
      */
     function removeNode($id)
@@ -266,8 +280,9 @@ class HTML_AJAX_Action extends HTML_AJAX_Response
      * allow you to dynamically add a javascript function for use later on because
      * it is constrined by the eval function
      *
-     * @param   string   $data   string to pass to the alert javascript function
-     * @return  void
+     * @param string $data string to pass to the alert javascript function
+     *
+     * @return void
      * @access public
      */
     function insertScript($data)
@@ -284,8 +299,9 @@ class HTML_AJAX_Action extends HTML_AJAX_Response
      *
      * This will send the data right to the alert javascript function
      *
-     * @param   string   $data   string to pass to the alert javascript function
-     * @return  void
+     * @param string $data string to pass to the alert javascript function
+     *
+     * @return void
      * @access public
      */
     function insertAlert($data)
@@ -303,7 +319,7 @@ class HTML_AJAX_Action extends HTML_AJAX_Response
      * we actually use the json serializer underneath, so we send the actions array
      * to the json serializer and return the data
      *
-     * @return  string   serialized response content
+     * @return string serialized response content
      * @access public
      */
     function getPayload()
@@ -316,8 +332,9 @@ class HTML_AJAX_Action extends HTML_AJAX_Response
      * Adds all the actions from one response object to another, feature request
      * #6635 at pear.php.net
      *
-     * @param   object   $instance    referenced HTML_AJAX_Action object
-     * @return  array
+     * @param object &$instance referenced HTML_AJAX_Action object
+     *
+     * @return array
      * @access public
      */
     function combineActions(&$instance)

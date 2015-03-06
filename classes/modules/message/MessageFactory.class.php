@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 11018 $
- * $Id: MessageFactory.class.php 11018 2013-09-24 23:39:40Z ipso $
- * $Date: 2013-09-24 16:39:40 -0700 (Tue, 24 Sep 2013) $
- */
+
 
 /**
  * @package Modules\Message
@@ -111,7 +107,7 @@ class MessageFactory extends Factory {
 
 	function getParent() {
 		if ( isset($this->data['parent_id']) ) {
-			return $this->data['parent_id'];
+			return (int)$this->data['parent_id'];
 		}
 
 		return FALSE;
@@ -164,7 +160,7 @@ class MessageFactory extends Factory {
 
 	function getObjectType() {
 		if ( isset($this->data['object_type_id']) ) {
-			return $this->data['object_type_id'];
+			return (int)$this->data['object_type_id'];
 		}
 
 		return FALSE;
@@ -192,7 +188,7 @@ class MessageFactory extends Factory {
 
 	function getObject() {
 		if ( isset($this->data['object_id']) ) {
-			return $this->data['object_id'];
+			return (int)$this->data['object_id'];
 		}
 
 		return FALSE;
@@ -214,7 +210,7 @@ class MessageFactory extends Factory {
 
 	function getPriority() {
 		if ( isset($this->data['priority_id']) ) {
-			return $this->data['priority_id'];
+			return (int)$this->data['priority_id'];
 		}
 
 		return FALSE;
@@ -246,7 +242,7 @@ class MessageFactory extends Factory {
 
 	function getStatus() {
 		if ( isset($this->data['status_id']) ) {
-			return $this->data['status_id'];
+			return (int)$this->data['status_id'];
 		}
 
 		return FALSE;
@@ -288,7 +284,7 @@ class MessageFactory extends Factory {
 			$epoch = TTDate::getTime();
 		}
 
-		if 	(	$this->Validator->isDate(		'status_date',
+		if	(	$this->Validator->isDate(		'status_date',
 												$epoch,
 												TTi18n::gettext('Incorrect Date')) ) {
 
@@ -311,7 +307,7 @@ class MessageFactory extends Factory {
 	function setSubject($text) {
 		$text = trim($text);
 
-		if 	(	strlen($text) == 0
+		if	(	strlen($text) == 0
 				OR
 				$this->Validator->isLength(		'subject',
 												$text,
@@ -337,7 +333,7 @@ class MessageFactory extends Factory {
 	function setBody($text) {
 		$text = trim($text);
 
-		if 	(	$this->Validator->isLength(		'body',
+		if	(	$this->Validator->isLength(		'body',
 												$text,
 												TTi18n::gettext('Invalid Body length'),
 												5,
@@ -366,7 +362,7 @@ class MessageFactory extends Factory {
 	function setRequireAck($bool) {
 		$this->data['require_ack'] = $this->toBool($bool);
 
-		return true;
+		return TRUE;
 	}
 
 	function getAck() {
@@ -380,7 +376,7 @@ class MessageFactory extends Factory {
 			$this->setAckBy();
 		}
 
-		return true;
+		return TRUE;
 	}
 
 	function getAckDate() {
@@ -397,7 +393,7 @@ class MessageFactory extends Factory {
 			$epoch = TTDate::getTime();
 		}
 
-		if 	(	$this->Validator->isDate(		'ack_date',
+		if	(	$this->Validator->isDate(		'ack_date',
 												$epoch,
 												TTi18n::gettext('Invalid Acknowledge Date') ) ) {
 
@@ -456,7 +452,7 @@ class MessageFactory extends Factory {
 				switch ( $this->getObjectType() ) {
 					case 5:
 					case 100:
-						Debug::Text('Email Object Type... Parent ID: '. $this->getParent(), __FILE__, __LINE__, __METHOD__,10);
+						Debug::Text('Email Object Type... Parent ID: '. $this->getParent(), __FILE__, __LINE__, __METHOD__, 10);
 						if ( $this->getParent() == 0 ) {
 							$user_ids[] = $obj->getId();
 						} else {
@@ -467,7 +463,7 @@ class MessageFactory extends Factory {
 
 								$user_ids[] = $m_obj->getCreatedBy();
 							}
-							Debug::Text('cEmail Object Type... Parent ID: '. $this->getParent(), __FILE__, __LINE__, __METHOD__,10);
+							Debug::Text('cEmail Object Type... Parent ID: '. $this->getParent(), __FILE__, __LINE__, __METHOD__, 10);
 						}
 						break;
 					case 40:
@@ -477,14 +473,14 @@ class MessageFactory extends Factory {
 						//Get all users who have contributed to the thread.
 						$mlf = TTnew( 'MessageListFactory' );
 						$mlf->getMessagesInThreadById( $this->getId() );
-						Debug::Text(' Messages In Thread: '. $mlf->getRecordCount() , __FILE__, __LINE__, __METHOD__,10);
+						Debug::Text(' Messages In Thread: '. $mlf->getRecordCount(), __FILE__, __LINE__, __METHOD__, 10);
 						if ( $mlf->getRecordCount() > 0 ) {
 							foreach( $mlf as $m_obj ) {
 								$user_ids[] = $m_obj->getCreatedBy();
 							}
 						}
 						unset($mlf, $m_obj);
-						//Debug::Arr($user_ids, 'User IDs in Thread: ', __FILE__, __LINE__, __METHOD__,10);
+						//Debug::Arr($user_ids, 'User IDs in Thread: ', __FILE__, __LINE__, __METHOD__, 10);
 
 						//Only alert direct supervisor to request at this point. Because we need to take into account
 						//if the request was authorized or not to determine if we should email the next higher level in the hierarchy.
@@ -501,13 +497,13 @@ class MessageFactory extends Factory {
 						if ( isset($current_user) AND is_object( $current_user ) AND isset($user_ids) AND is_array($user_ids) ) {
 							$user_ids = array_unique( $user_ids );
 							$current_user_key = array_search($current_user->getId(), $user_ids );
-							Debug::Text(' Current User Key: '. $current_user_key, __FILE__, __LINE__, __METHOD__,10);
+							Debug::Text(' Current User Key: '. $current_user_key, __FILE__, __LINE__, __METHOD__, 10);
 							if ( $current_user_key !== FALSE ) {
-								Debug::Text(' Removing Current User From Recipient List...'. $current_user->getId() , __FILE__, __LINE__, __METHOD__,10);
+								Debug::Text(' Removing Current User From Recipient List...'. $current_user->getId(), __FILE__, __LINE__, __METHOD__, 10);
 								unset($user_ids[$current_user_key]);
 							}
 						} else {
-							Debug::Text(' Current User Object not available...', __FILE__, __LINE__, __METHOD__,10);
+							Debug::Text(' Current User Object not available...', __FILE__, __LINE__, __METHOD__, 10);
 						}
 						unset($current_user, $current_user_key);
 
@@ -520,7 +516,7 @@ class MessageFactory extends Factory {
 
 			if ( isset($user_ids) AND is_array($user_ids) ) {
 				//Get user preferences and determine if they accept email notifications.
-				Debug::Arr($user_ids, 'Recipient User Ids: ', __FILE__, __LINE__, __METHOD__,10);
+				Debug::Arr($user_ids, 'Recipient User Ids: ', __FILE__, __LINE__, __METHOD__, 10);
 
 				$uplf = TTnew( 'UserPreferenceListFactory' );
 				$uplf->getByUserId( $user_ids );
@@ -538,7 +534,7 @@ class MessageFactory extends Factory {
 					}
 
 					if ( isset($retarr) ) {
-						Debug::Arr($retarr, 'Recipient Email Addresses: ', __FILE__, __LINE__, __METHOD__,10);
+						Debug::Arr($retarr, 'Recipient Email Addresses: ', __FILE__, __LINE__, __METHOD__, 10);
 						return $retarr;
 
 					}
@@ -550,23 +546,23 @@ class MessageFactory extends Factory {
 	}
 
 	function emailMessage() {
-		Debug::Text('emailMessage: ', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('emailMessage: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		$email_to_arr = $this->getEmailMessageAddresses();
 		if ( $email_to_arr == FALSE ) {
 			return FALSE;
 		}
 
-		$from = $reply_to = 'DoNotReply@'. Misc::getHostName( FALSE );
+		$from = $reply_to = '"'. APPLICATION_NAME .' - '. TTi18n::gettext('Message') .'"<DoNotReply@'. Misc::getEmailDomain() .'>';
 
 		global $current_user, $config_vars;
 		if ( is_object($current_user) AND $current_user->getWorkEmail() != '' ) {
 			$reply_to = $current_user->getWorkEmail();
 		}
-		Debug::Text('From: '. $from .' Reply-To: '. $reply_to, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('From: '. $from .' Reply-To: '. $reply_to, __FILE__, __LINE__, __METHOD__, 10);
 
 		$to = array_shift( $email_to_arr );
-		Debug::Text('To: '. $to, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('To: '. $to, __FILE__, __LINE__, __METHOD__, 10);
 		if ( is_array($email_to_arr) AND count($email_to_arr) > 0 ) {
 			$bcc = implode(',', $email_to_arr);
 		} else {
@@ -574,18 +570,13 @@ class MessageFactory extends Factory {
 		}
 
 		$email_subject = TTi18n::gettext('New message waiting in').' '. APPLICATION_NAME;
-		$email_body  = TTi18n::gettext('*DO NOT REPLY TO THIS EMAIL - PLEASE USE THE LINK BELOW INSTEAD*')."\n\n";
-		$email_body  .= TTi18n::gettext('You have a new message waiting for you in').' '. APPLICATION_NAME."\n";
+		$email_body	 = TTi18n::gettext('*DO NOT REPLY TO THIS EMAIL - PLEASE USE THE LINK BELOW INSTEAD*')."\n\n";
+		$email_body	 .= TTi18n::gettext('You have a new message waiting for you in').' '. APPLICATION_NAME."\n";
 		if ( $this->getSubject() != '' ) {
 			$email_body .= TTi18n::gettext('Subject:').' '. $this->getSubject()."\n";
 		}
 
-		$protocol = 'http';
-		if ( isset($config_vars['other']['force_ssl']) AND $config_vars['other']['force_ssl'] == 1 ) {
-			$protocol .= 's';
-		}
-
-		$email_body .= TTi18n::gettext('Link').': <a href="'. $protocol .'://'. Misc::getHostName().Environment::getDefaultInterfaceBaseURL().'">'. APPLICATION_NAME .' '. TTi18n::getText('Login') .'</a>';
+		$email_body .= TTi18n::gettext('Link').': <a href="'. Misc::getURLProtocol() .'://'. Misc::getHostName().Environment::getDefaultInterfaceBaseURL().'">'. APPLICATION_NAME .' '. TTi18n::getText('Login') .'</a>';
 
 		//Define subject/body variables here.
 		$search_arr = array(
@@ -599,19 +590,19 @@ class MessageFactory extends Factory {
 							);
 
 		$subject = str_replace( $search_arr, $replace_arr, $email_subject );
-		Debug::Text('Subject: '. $subject, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Subject: '. $subject, __FILE__, __LINE__, __METHOD__, 10);
 
 		$headers = array(
-							'From'    => $from,
+							'From'	  => $from,
 							'Subject' => $subject,
 							'Bcc'	  => $bcc,
 							'Reply-To' => $reply_to,
 							'Return-Path' => $reply_to,
 							'Errors-To' => $reply_to,
-						 );
+						);
 
 		$body = '<pre>'.str_replace( $search_arr, $replace_arr, $email_body ).'</pre>';
-		Debug::Text('Body: '. $body, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Body: '. $body, __FILE__, __LINE__, __METHOD__, 10);
 
 		$mail = new TTMail();
 		$mail->setTo( $to );
@@ -623,7 +614,7 @@ class MessageFactory extends Factory {
 		$retval = $mail->Send();
 
 		if ( $retval == TRUE ) {
-			TTLog::addEntry( $this->getId(), 500,  TTi18n::getText('Email Message to').': '. $to .' Bcc: '. $headers['Bcc'], NULL, $this->getTable() );
+			TTLog::addEntry( $this->getId(), 500, TTi18n::getText('Email Message to').': '. $to .' Bcc: '. $headers['Bcc'], NULL, $this->getTable() );
 			return TRUE;
 		}
 

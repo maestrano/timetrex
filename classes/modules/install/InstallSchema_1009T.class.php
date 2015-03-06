@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2095 $
- * $Id: InstallSchema_1007A.class.php 2095 2008-09-01 07:04:25Z ipso $
- * $Date: 2008-09-01 00:04:25 -0700 (Mon, 01 Sep 2008) $
- */
+
 
 /**
  * @package Modules\Install
@@ -45,7 +41,7 @@
 class InstallSchema_1009T extends InstallSchema_Base {
 
 	function preInstall() {
-		Debug::text('preInstall: '. $this->getVersion() , __FILE__, __LINE__, __METHOD__,9);
+		Debug::text('preInstall: '. $this->getVersion(), __FILE__, __LINE__, __METHOD__, 9);
 
 		return TRUE;
 	}
@@ -54,7 +50,7 @@ class InstallSchema_1009T extends InstallSchema_Base {
 	function postInstall() {
 		global $config_vars;
 
-		Debug::text('postInstall: '. $this->getVersion(), __FILE__, __LINE__, __METHOD__,9);
+		Debug::text('postInstall: '. $this->getVersion(), __FILE__, __LINE__, __METHOD__, 9);
 
 		$sslf = TTnew( 'SystemSettingListFactory' );
 
@@ -72,7 +68,7 @@ class InstallSchema_1009T extends InstallSchema_Base {
 		$obj->setName( 'tax_data_version' );
 		$obj->setValue( $tax_data_version );
 		if ( $obj->isValid() ) {
-			Debug::text('Setting Tax Data Version to: '. $tax_data_version, __FILE__, __LINE__, __METHOD__,9);
+			Debug::text('Setting Tax Data Version to: '. $tax_data_version, __FILE__, __LINE__, __METHOD__, 9);
 			$obj->Save();
 		}
 
@@ -90,7 +86,7 @@ class InstallSchema_1009T extends InstallSchema_Base {
 		$obj->setName( 'tax_engine_version' );
 		$obj->setValue( $tax_engine_version );
 		if ( $obj->isValid() ) {
-			Debug::text('Setting Tax Engine Version to: '. $tax_engine_version, __FILE__, __LINE__, __METHOD__,9);
+			Debug::text('Setting Tax Engine Version to: '. $tax_engine_version, __FILE__, __LINE__, __METHOD__, 9);
 			$obj->Save();
 		}
 

@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2286 $
- * $Id: CA.class.php 2286 2008-12-12 23:12:41Z ipso $
- * $Date: 2008-12-12 15:12:41 -0800 (Fri, 12 Dec 2008) $
- */
+
 
 include_once( 'US.class.php' );
 
@@ -477,7 +473,7 @@ class GovernmentForms_US_1099MISC extends GovernmentForms_US {
 		return $value;
 	}
 	function filterCompanyAddress( $value ) {
-		Debug::Text('Filtering company address: '. $value, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Filtering company address: '. $value, __FILE__, __LINE__, __METHOD__, 10);
 
 		//Combine company address for multicell display.
 		$retarr[] = $this->company_address1;
@@ -528,7 +524,7 @@ class GovernmentForms_US_1099MISC extends GovernmentForms_US {
 				$this->template_index[$tp] = $pdf->ImportPage($tp);
 			}
 		}
-		Debug::Arr($this->template_index, 'Template Index ', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Arr($this->template_index, 'Template Index ', __FILE__, __LINE__, __METHOD__, 10);
 
 		if ( $this->year == ''  ) {
 			$this->year = $this->getYear();
@@ -551,7 +547,7 @@ class GovernmentForms_US_1099MISC extends GovernmentForms_US {
 
 			foreach( $form_template_pages as $form_template_page ) {
 				//Set the template used.
-				Debug::Text('Template Page: '. $form_template_page, __FILE__, __LINE__, __METHOD__,10);
+				Debug::Text('Template Page: '. $form_template_page, __FILE__, __LINE__, __METHOD__, 10);
 				$template_schema[0]['template_page'] = $form_template_page;
 
 				if ( $this->getType() == 'government' AND count($records) > 1 ) {
@@ -560,7 +556,7 @@ class GovernmentForms_US_1099MISC extends GovernmentForms_US {
 																	array( 'template_page' => $form_template_page, 'x'=> 0, 'y' => 400) //Place two templates on the same page.
 																);
 				} else {
-					Debug::Text('zTemplate Page: '. $form_template_page .' C: '. count($records) .' B: '. $this->getShowBackground() .' D: '. $this->getType() .' X: '. $this->_type, __FILE__, __LINE__, __METHOD__,10);
+					Debug::Text('zTemplate Page: '. $form_template_page .' C: '. count($records) .' B: '. $this->getShowBackground() .' D: '. $this->getType() .' X: '. $this->_type, __FILE__, __LINE__, __METHOD__, 10);
 				}
 
 				$e=0;
@@ -583,7 +579,7 @@ class GovernmentForms_US_1099MISC extends GovernmentForms_US {
 						}
 					}
 
-					if ( $employees_per_page == 1 OR ( $employees_per_page == 2 AND  $e % $employees_per_page != 0 ) ) {
+					if ( $employees_per_page == 1 OR ( $employees_per_page == 2 AND $e % $employees_per_page != 0 ) ) {
 						$this->resetTemplatePage();
 						//if ( $this->getShowInstructionPage() == TRUE ) {
 						//	$this->addPage( array('template_page' => 2) );

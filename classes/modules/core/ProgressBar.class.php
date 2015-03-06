@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2490 $
- * $Id: SharedMemory.class.php 2490 2009-04-24 22:13:40Z ipso $
- * $Date: 2009-04-24 15:13:40 -0700 (Fri, 24 Apr 2009) $
- */
+
 
 /**
  * @package Core
@@ -50,6 +46,7 @@ class ProgressBar {
 	protected $obj = NULL;
 
 	var $default_key = NULL;
+	private $key_prefix = 'progress_bar_';
 
 	var $update_iteration = 1; //This is how often we actually update the progress bar, even if the function is called more often.
 
@@ -66,9 +63,34 @@ class ProgressBar {
 	function getDefaultKey() {
 		return $this->default_key;
 	}
+	
+	function error( $key, $msg = NULL ) {
+		Debug::text('error: \''. $key .' Key: '. $key .'('.microtime(TRUE).') Message: '. $msg, __FILE__, __LINE__, __METHOD__, 9);
 
-	function start( $key, $total_iterations = 100, $update_iteration = NULL, $msg = NULL )  {
-		Debug::text('start: \''. $key .'\' Iterations: '. $total_iterations .' Update Iterations: '. $update_iteration .' Key: '. $key .'('.microtime(TRUE).') Message: '. $msg, __FILE__, __LINE__, __METHOD__,9);
+		if ( $key == '' ) {
+			$key = $this->getDefaultKey();
+			if ( $key == '' ) {
+				return FALSE;
+			}
+		}
+
+		if (  $msg == '' ) {
+			$msg = TTi18n::getText('Processing...');
+		}
+
+		$epoch = microtime(TRUE);
+
+		$progress_bar_arr = $this->obj->get( $this->key_prefix.$key );
+		$progress_bar_arr['status_id'] = 9999;
+		$progress_bar_arr['message'] = $msg;
+
+		$this->obj->set( $this->key_prefix.$key, $progress_bar_arr );
+
+		return TRUE;
+	}
+
+	function start( $key, $total_iterations = 100, $update_iteration = NULL, $msg = NULL ) {
+		Debug::text('start: \''. $key .'\' Iterations: '. $total_iterations .' Update Iterations: '. $update_iteration .' Key: '. $key .'('.microtime(TRUE).') Message: '. $msg, __FILE__, __LINE__, __METHOD__, 9);
 
 		if ( $key == '' ) {
 			$key = $this->getDefaultKey();
@@ -94,20 +116,21 @@ class ProgressBar {
 		$epoch = microtime(TRUE);
 
 		$progress_bar_arr = array(
-					 'start_time' => $epoch,
-					 'current_iteration' => 0,
-					 'total_iterations' => $total_iterations,
-					 'last_update_time' => $epoch,
-					 'message' => $msg,
-					 );
+					'status_id' => 10,
+					'start_time' => $epoch,
+					'current_iteration' => 0,
+					'total_iterations' => $total_iterations,
+					'last_update_time' => $epoch,
+					'message' => $msg,
+					);
 
-		$this->obj->set( $key, $progress_bar_arr );
+		$this->obj->set( $this->key_prefix.$key, $progress_bar_arr );
 
 		return TRUE;
 	}
 
 	function delete( $key ) {
-		return $this->stop( $key );
+		return $this->stop( $this->key_prefix.$key );
 	}
 	function stop( $key ) {
 		if ( $key == '' ) {
@@ -117,9 +140,9 @@ class ProgressBar {
 			}
 		}
 
-		//Debug::text('stop: '. $key, __FILE__, __LINE__, __METHOD__,9);
+		//Debug::text('stop: '. $key, __FILE__, __LINE__, __METHOD__, 9);
 
-		return $this->obj->delete( $key );
+		return $this->obj->delete( $this->key_prefix.$key );
 	}
 
 	function set( $key, $current_iteration, $msg = NULL ) {
@@ -132,10 +155,10 @@ class ProgressBar {
 
 		//Add quick IF statement to short circuit any work unless we meet the update_iteration, ie: every X calls do we actually do anything.
 		//When processing long batches though, we need to update every iteration for the first 10 iterations so we can get an accruate estimated time for completion.
-		if ( $current_iteration <= 10 OR $current_iteration % $this->update_iteration == 0 ) {
-			//Debug::text('set: '. $key .' Iteration: '. $current_iteration, __FILE__, __LINE__, __METHOD__,9);
+		if ( $current_iteration <= 10 OR ( $current_iteration % $this->update_iteration ) == 0 ) {
+			//Debug::text('set: '. $key .' Iteration: '. $current_iteration, __FILE__, __LINE__, __METHOD__, 9);
 
-			$progress_bar_arr = $this->obj->get( $key );
+			$progress_bar_arr = $this->obj->get( $this->key_prefix.$key );
 
 			if ( $progress_bar_arr != FALSE
 					AND is_array( $progress_bar_arr )
@@ -158,7 +181,7 @@ class ProgressBar {
 				$progress_bar_arr['message'] = $msg;
 			}
 
-			return $this->obj->set( $key, $progress_bar_arr );
+			return $this->obj->set( $this->key_prefix.$key, $progress_bar_arr );
 		}
 
 		return TRUE;
@@ -172,21 +195,21 @@ class ProgressBar {
 			}
 		}
 
-		$retval = $this->obj->get( $key );
-		//Debug::text('get: '. $key .'('.microtime(TRUE).')', __FILE__, __LINE__, __METHOD__,9);
-		//Debug::Arr($retval, 'get: '. $key .'('.microtime(TRUE).')', __FILE__, __LINE__, __METHOD__,9);
+		$retval = $this->obj->get( $this->key_prefix.$key );
+		//Debug::text('get: '. $key .'('.microtime(TRUE).')', __FILE__, __LINE__, __METHOD__, 9);
+		//Debug::Arr($retval, 'get: '. $key .'('.microtime(TRUE).')', __FILE__, __LINE__, __METHOD__, 9);
 
 		return $retval;
 	}
 
 	function test( $key, $total_iterations = 10 ) {
-		Debug::text('testProgressBar: '. $key .' Iterations: '. $total_iterations, __FILE__, __LINE__, __METHOD__,9);
+		Debug::text('testProgressBar: '. $key .' Iterations: '. $total_iterations, __FILE__, __LINE__, __METHOD__, 9);
 
 		$this->start( $key, $total_iterations );
 
-		for($i=1; $i <= $total_iterations; $i++ ) {
+		for($i = 1; $i <= $total_iterations; $i++ ) {
 			$this->set( $key, $i);
-			sleep(rand(1,2));
+			sleep(rand(1, 2));
 		}
 
 		$this->stop( $key );

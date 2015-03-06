@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2286 $
- * $Id: CA.class.php 2286 2008-12-12 23:12:41Z ipso $
- * $Date: 2008-12-12 15:12:41 -0800 (Fri, 12 Dec 2008) $
- */
+
 
 include_once( 'US.class.php' );
 
@@ -565,7 +561,7 @@ class GovernmentForms_US_W3 extends GovernmentForms_US {
 	}
 
 	function filterCompanyAddress( $value ) {
-		Debug::Text('Filtering company address: '. $value, __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Text('Filtering company address: '. $value, __FILE__, __LINE__, __METHOD__, 10);
 
 		//Combine company address for multicell display.
 		$retarr[] = $this->company_address1;
@@ -603,7 +599,7 @@ class GovernmentForms_US_W3 extends GovernmentForms_US {
 			$template_page = NULL;
 
 			foreach( $template_schema as $field => $schema ) {
-				Debug::text('Drawing Cell... Field: '. $field, __FILE__, __LINE__, __METHOD__, 10);
+				//Debug::text('Drawing Cell... Field: '. $field, __FILE__, __LINE__, __METHOD__, 10);
 				$this->Draw( $this->$field, $schema );
 			}
 		}

@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,14 +33,10 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2196 $
- * $Id: APIEthnicGroup.class.php 2196 2008-10-14 16:08:54Z ipso $
- * $Date: 2008-10-14 09:08:54 -0700 (Tue, 14 Oct 2008) $
- */
+
 
 /**
- * @package API_APIEthnicGroup
+ * @package API\Users
  */
 class APIEthnicGroup extends APIFactory {
 	protected $main_class = 'EthnicGroupFactory';
@@ -59,8 +55,8 @@ class APIEthnicGroup extends APIFactory {
 	 */
 	function getOptions( $name, $parent = NULL ) {
 		if ( $name == 'columns'
-				AND ( !$this->getPermissionObject()->Check('user','enabled')
-					OR !( $this->getPermissionObject()->Check('user','view') OR $this->getPermissionObject()->Check('user','view_own') OR $this->getPermissionObject()->Check('user','view_child') ) ) ) {
+				AND ( !$this->getPermissionObject()->Check('user', 'enabled')
+					OR !( $this->getPermissionObject()->Check('user', 'view') OR $this->getPermissionObject()->Check('user', 'view_own') OR $this->getPermissionObject()->Check('user', 'view_child') ) ) ) {
 			$name = 'list_columns';
 		}
 
@@ -74,7 +70,7 @@ class APIEthnicGroup extends APIFactory {
 	function getEthnicGroupDefaultData() {
 		$company_obj = $this->getCurrentCompanyObject();
 
-		Debug::Text('Getting ethnic group default data...', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Getting ethnic group default data...', __FILE__, __LINE__, __METHOD__, 10);
 
 		$data = array(
 						'company_id' => $company_obj->getId(),
@@ -89,8 +85,8 @@ class APIEthnicGroup extends APIFactory {
 	 * @return array
 	 */
 	function getEthnicGroup( $data = NULL, $disable_paging = FALSE ) {
-		if ( !$this->getPermissionObject()->Check('user','enabled')
-				OR !( $this->getPermissionObject()->Check('user','view') OR $this->getPermissionObject()->Check('user','view_own') OR $this->getPermissionObject()->Check('user','view_child') ) ) {
+		if ( !$this->getPermissionObject()->Check('user', 'enabled')
+				OR !( $this->getPermissionObject()->Check('user', 'view') OR $this->getPermissionObject()->Check('user', 'view_own') OR $this->getPermissionObject()->Check('user', 'view_child') ) ) {
 			//return $this->getPermissionObject()->PermissionDenied();
 			$data['filter_columns'] = $this->handlePermissionFilterColumns( (isset($data['filter_columns'])) ? $data['filter_columns'] : NULL, Misc::trimSortPrefix( $this->getOptions('list_columns') ) );
 		}
@@ -145,9 +141,9 @@ class APIEthnicGroup extends APIFactory {
 			return $this->returnHandler( FALSE );
 		}
 
-		if ( !$this->getPermissionObject()->Check('user','enabled')
-				OR !( $this->getPermissionObject()->Check('user','edit') OR $this->getPermissionObject()->Check('user','edit_own') OR $this->getPermissionObject()->Check('user','edit_child') OR $this->getPermissionObject()->Check('user','add') ) ) {
-			return  $this->getPermissionObject()->PermissionDenied();
+		if ( !$this->getPermissionObject()->Check('user', 'enabled')
+				OR !( $this->getPermissionObject()->Check('user', 'edit') OR $this->getPermissionObject()->Check('user', 'edit_own') OR $this->getPermissionObject()->Check('user', 'edit_child') OR $this->getPermissionObject()->Check('user', 'add') ) ) {
+			return	$this->getPermissionObject()->PermissionDenied();
 		}
 
 		if ( $validate_only == TRUE ) {
@@ -170,11 +166,11 @@ class APIEthnicGroup extends APIFactory {
 					if ( $lf->getRecordCount() == 1 ) {
 						//Object exists, check edit permissions
 						if (
-							  $validate_only == TRUE
-							  OR
+							$validate_only == TRUE
+							OR
 								(
-								$this->getPermissionObject()->Check('user','edit')
-									OR ( $this->getPermissionObject()->Check('user','edit_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE )
+								$this->getPermissionObject()->Check('user', 'edit')
+									OR ( $this->getPermissionObject()->Check('user', 'edit_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE )
 								) ) {
 
 							Debug::Text('Row Exists, getting current data: ', $row['id'], __FILE__, __LINE__, __METHOD__, 10);
@@ -189,7 +185,7 @@ class APIEthnicGroup extends APIFactory {
 					}
 				} else {
 					//Adding new object, check ADD permissions.
-					$primary_validator->isTrue( 'permission', $this->getPermissionObject()->Check('user','add'), TTi18n::gettext('Add permission denied') );
+					$primary_validator->isTrue( 'permission', $this->getPermissionObject()->Check('user', 'add'), TTi18n::gettext('Add permission denied') );
 				}
 				Debug::Arr($row, 'Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
@@ -197,10 +193,10 @@ class APIEthnicGroup extends APIFactory {
 				if ( $is_valid == TRUE ) { //Check to see if all permission checks passed before trying to save data.
 					Debug::Text('Setting object data...', __FILE__, __LINE__, __METHOD__, 10);
 
-					$lf->setObjectFromArray( $row );
-
 					//Force Company ID to current company.
-					$lf->setCompany( $this->getCurrentCompanyObject()->getId() );
+					$row['company_id'] = $this->getCurrentCompanyObject()->getId();
+
+					$lf->setObjectFromArray( $row );
 
 					$is_valid = $lf->isValid();
 					if ( $is_valid == TRUE ) {
@@ -260,16 +256,16 @@ class APIEthnicGroup extends APIFactory {
 			return $this->returnHandler( FALSE );
 		}
 
-		if ( !$this->getPermissionObject()->Check('user','enabled')
-				OR !( $this->getPermissionObject()->Check('user','delete') OR $this->getPermissionObject()->Check('user','delete_own') OR $this->getPermissionObject()->Check('user','delete_child') ) ) {
-			return  $this->getPermissionObject()->PermissionDenied();
+		if ( !$this->getPermissionObject()->Check('user', 'enabled')
+				OR !( $this->getPermissionObject()->Check('user', 'delete') OR $this->getPermissionObject()->Check('user', 'delete_own') OR $this->getPermissionObject()->Check('user', 'delete_child') ) ) {
+			return	$this->getPermissionObject()->PermissionDenied();
 		}
 
 		Debug::Text('Received data for: '. count($data) .' Ethnic Groups', __FILE__, __LINE__, __METHOD__, 10);
 		Debug::Arr($data, 'Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		$total_records = count($data);
-        $validator_stats = array('total_records' => $total_records, 'valid_records' => 0 );
+		$validator_stats = array('total_records' => $total_records, 'valid_records' => 0 );
 		if ( is_array($data) ) {
 			foreach( $data as $key => $id ) {
 				$primary_validator = new Validator();
@@ -280,8 +276,8 @@ class APIEthnicGroup extends APIFactory {
 					$lf->getByIdAndCompanyId( $id, $this->getCurrentCompanyObject()->getId() );
 					if ( $lf->getRecordCount() == 1 ) {
 						//Object exists, check edit permissions
-						if ( $this->getPermissionObject()->Check('user','delete')
-								OR ( $this->getPermissionObject()->Check('user','delete_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE ) ) {
+						if ( $this->getPermissionObject()->Check('user', 'delete')
+								OR ( $this->getPermissionObject()->Check('user', 'delete_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE ) ) {
 							Debug::Text('Record Exists, deleting record: ', $id, __FILE__, __LINE__, __METHOD__, 10);
 							$lf = $lf->getCurrent();
 						} else {

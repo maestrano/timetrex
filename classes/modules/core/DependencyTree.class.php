@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2095 $
- * $Id: DependencyTree.class.php 2095 2008-09-01 07:04:25Z ipso $
- * $Date: 2008-09-01 00:04:25 -0700 (Mon, 01 Sep 2008) $
- */
+
 
 /**
  * @package Core
@@ -51,8 +47,8 @@ class DependencyTree {
 	var $raw_data = NULL;
 	var $raw_data_order = array();
 
-	protected $provide_id_raw_data= array();
-	protected $require_id_raw_data= array();
+	protected $provide_id_raw_data = array();
+	protected $require_id_raw_data = array();
 
 	protected $provide_ids = NULL;
 
@@ -98,7 +94,7 @@ class DependencyTree {
 
 		$this->raw_data[$id] = $dtn;
 		if($this->tree_ordering) {
-			array_push($this->raw_data_order,$dtn);
+			array_push($this->raw_data_order, $dtn);
 		}
 
 		unset($dtn);
@@ -160,7 +156,7 @@ class DependencyTree {
 			}
 		}
 
-		//Debug::Arr($this->raw_data, 'With Valid Require Ids', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($this->raw_data, 'With Valid Require Ids', __FILE__, __LINE__, __METHOD__, 10);
 
 		return TRUE;
 	}
@@ -185,27 +181,27 @@ class DependencyTree {
 
 
 	// returns TRUE if parent depends on child (either directly or indirectly), else FALSE
-	function dependsOn( $parent, $child, $marked_edges = array(), $level=0 ) {
-		//Debug::Text("Parent: ". $parent->getId() .' Child: '. $child->getId(). ' level: '.$level , __FILE__, __LINE__, __METHOD__,10);
+	function dependsOn( $parent, $child, $marked_edges = array(), $level = 0 ) {
+		//Debug::Text("Parent: ". $parent->getId() .' Child: '. $child->getId(). ' level: '.$level, __FILE__, __LINE__, __METHOD__, 10);
 
 		$cache_lookup = $this->getCacheDependsOn( $parent, $child );
 		if ( $cache_lookup !== NULL ) {
-			//Debug::Text(".........Returning Cache Data!", __FILE__, __LINE__, __METHOD__,10);
+			//Debug::Text(".........Returning Cache Data!", __FILE__, __LINE__, __METHOD__, 10);
 			return $cache_lookup;
 		}
 
 		if ( is_array( $parent->getRequires() ) ) {
 			foreach ( $parent->getRequires() as $require_id ) {
-				//Debug::Text("Parent require check: ". $require_id." l=$level", __FILE__, __LINE__, __METHOD__,10);
+				//Debug::Text("Parent require check: ". $require_id." l=$level", __FILE__, __LINE__, __METHOD__, 10);
 				if ( in_array( $require_id, $child->getProvides() ) ) {
-					//Debug::Text("bReturning TRUE! l=$level", __FILE__, __LINE__, __METHOD__,10);
+					//Debug::Text("bReturning TRUE! l=$level", __FILE__, __LINE__, __METHOD__, 10);
 
 					$this->setCacheDependsOn( $parent, $child, TRUE );
 					return TRUE;
 				} else {
 					if( isset($this->provide_id_raw_data[$require_id]) ) {
 						foreach($this->provide_id_raw_data[$require_id] as $obj) { // (we already know obj provides this req id...)
-							//Debug::Text("Recursing... Parent ID: ". $obj->getId()." l=$level", __FILE__, __LINE__, __METHOD__,10);
+							//Debug::Text("Recursing... Parent ID: ". $obj->getId()." l=$level", __FILE__, __LINE__, __METHOD__, 10);
 
 							if( !isset($marked_edges[$parent->getId()][$obj->getId()]) ) {
 								$marked_edges[$parent->getId()][$obj->getId()] = TRUE;
@@ -213,7 +209,7 @@ class DependencyTree {
 								$retval = $this->dependsOn( $obj, $child, $marked_edges, $level+1); // pass by reference probably not necessary? ($marked_edges)
 
 								if ( $retval === TRUE ) {
-									//Debug::Text("bReturning TRUE! l=$level", __FILE__, __LINE__, __METHOD__,10);
+									//Debug::Text("bReturning TRUE! l=$level", __FILE__, __LINE__, __METHOD__, 10);
 									$this->setCacheDependsOn( $parent, $child, TRUE );
 
 									return TRUE;
@@ -226,7 +222,7 @@ class DependencyTree {
 			}
 
 			// at this point we have exhausted all our edges. we could be at a dead end or hit a circular reference with no further edges to travel.
-			//Debug::Text("bReturning FALSE! l=$level", __FILE__, __LINE__, __METHOD__,10);
+			//Debug::Text("bReturning FALSE! l=$level", __FILE__, __LINE__, __METHOD__, 10);
 			$this->setCacheDependsOn( $parent, $child, FALSE );
 		}
 
@@ -237,17 +233,17 @@ class DependencyTree {
 
 	// debugging sort
 	private function sort($a, $b) {
-		$ret=$this->xsort($a,$b);
+		$ret = $this->xsort($a, $b);
 
-		//Debug::Text("ret: $ret", __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Text("ret: $ret", __FILE__, __LINE__, __METHOD__, 10);
 		//print $a->getId()." and ".$b->getId()." ret = $ret\n";
 		return $ret;
 	}
 
 	// 2nov2006 changing the sort functionality to depth-based
 	private function xsort($a, $b) {
-		//Debug::Arr($a, 'A: ', __FILE__, __LINE__, __METHOD__,10);
-		//Debug::Arr($b, 'B: ', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($a, 'A: ', __FILE__, __LINE__, __METHOD__, 10);
+		//Debug::Arr($b, 'B: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		// first compare if nodes are in the same tree
 		if ( $this->tree_ordering ) {
@@ -259,16 +255,16 @@ class DependencyTree {
 		}
 
 		// sort by depth first
-		$d_a=$a->getDepth();
-		$d_b=$b->getDepth();
+		$d_a = $a->getDepth();
+		$d_b = $b->getDepth();
 		if($d_a < $d_b) { return -1; }
 		if($d_a > $d_b) { return 1; }
 
 		// if depth is the same, then they are either: different graphs, same graph but in a circular reference loop (or just another branch.)
 		// sort by order, if ==, then sort by id.
 
-		$o_a=$a->getOrder();
-		$o_b=$b->getOrder();
+		$o_a = $a->getOrder();
+		$o_b = $b->getOrder();
 		if($o_a < $o_b) { return -1; }
 		if($o_a > $o_b) { return 1; }
 
@@ -296,8 +292,8 @@ class DependencyTree {
 					foreach($this->provide_id_raw_data[$require_id] as $obj) { // (we already know obj provides this req id...)
 						if($node->getId() != $obj->getId()) {
 							if( !isset($marked_edges[$node->getId()][$obj->getId()]) ) {
-								$marked_edges[$node->getId()][$obj->getId()]=TRUE;
-								$marked_edges[$obj->getId()][$node->getId()]=TRUE;
+								$marked_edges[$node->getId()][$obj->getId()] = TRUE;
+								$marked_edges[$obj->getId()][$node->getId()] = TRUE;
 								$this->markTreeNumber($obj, $tree_number, $marked_edges);
 							}
 						}
@@ -313,8 +309,8 @@ class DependencyTree {
 					foreach($this->require_id_raw_data[$provide_id] as $obj) { // (we already know obj provides this req id...)
 						if($node->getId() != $obj->getId()) {
 							if( !isset($marked_edges[$node->getId()][$obj->getId()]) ) {
-								$marked_edges[$node->getId()][$obj->getId()]=TRUE;
-								$marked_edges[$obj->getId()][$node->getId()]=TRUE;
+								$marked_edges[$node->getId()][$obj->getId()] = TRUE;
+								$marked_edges[$obj->getId()][$node->getId()] = TRUE;
 								$this->markTreeNumber($obj, $tree_number, $marked_edges);
 							}
 						}
@@ -326,21 +322,21 @@ class DependencyTree {
 	}
 
 	// get an object's depth by traversing all its parents (recursively) ontul there are no edges left. the count of edges is the 'depth'.
-	function _findDepth($obj,&$marked_edges=array(),$depth=0) {
+	function _findDepth($obj, &$marked_edges = array(), $depth = 0) {
 		if(is_array($obj->getRequires())) {
 			foreach($obj->getRequires() as $req_id) {
 				if( isset($this->provide_id_raw_data[$req_id]) ) {
 					foreach($this->provide_id_raw_data[$req_id] as $node) { // (we already know obj provides this req id...)
 						if( !isset($marked_edges[$node->getId()][$obj->getId()]) ) {
-							$marked_edges[$node->getId()][$obj->getId()]=TRUE;
-							$this->_findDepth($node,$marked_edges,$depth+1);
+							$marked_edges[$node->getId()][$obj->getId()] = TRUE;
+							$this->_findDepth($node, $marked_edges, ( $depth + 1 ) );
 						}
 					}
 				}
 			}
 		}
 
-		if($depth==0) {
+		if($depth == 0) {
 			return count($marked_edges);
 		}
 	}
@@ -357,15 +353,15 @@ class DependencyTree {
 			// now number the trees so that the algorithm knows how to sort them properly
 			// eg the list of nodes might have 5 in one tree, and another unconnected tree with 3 nodes.
 			// this needs to be handled properly.
-			$treenumber=0;
+			$treenumber = 0;
 			foreach($this->raw_data_order as $obj) {
 				if($obj->getTreeNumber() === NULL) {
-					$this->markTreeNumber($obj,$treenumber++);
+					$this->markTreeNumber($obj, $treenumber++);
 				}
 			}
 		}
 
-		//Debug::Arr($this, 'Before - Raw Data: ', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($this, 'Before - Raw Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		// mark all depths first.
 		foreach($this->raw_data as $obj) {
@@ -374,15 +370,15 @@ class DependencyTree {
 
 		usort( $this->raw_data, array($this, "sort") );
 
-		//Debug::Arr($this->cache, 'dependency cache', __FILE__, __LINE__, __METHOD__,10);
-		//Debug::Arr($this->provide_id_raw_data, 'provides, raw', __FILE__, __LINE__, __METHOD__,10);
-		//Debug::Arr($this, 'After - Raw Data: ', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($this->cache, 'dependency cache', __FILE__, __LINE__, __METHOD__, 10);
+		//Debug::Arr($this->provide_id_raw_data, 'provides, raw', __FILE__, __LINE__, __METHOD__, 10);
+		//Debug::Arr($this, 'After - Raw Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		foreach( $this->raw_data as $id => $obj ) {
 			$retarr[] = $obj->getId();
 		}
 
-		#Debug::Arr($retarr, 'Dependency Tree Final Result!!', __FILE__, __LINE__, __METHOD__,10);
+		#Debug::Arr($retarr, 'Dependency Tree Final Result!!', __FILE__, __LINE__, __METHOD__, 10);
 
 		return $retarr;
 	}
@@ -415,7 +411,7 @@ class DependencyTreeNode {
 	}
 
 	function setDepth($arg) {
-		$this->data['depth']=(int)$arg;
+		$this->data['depth'] = (int)$arg;
 		return FALSE;
 	}
 	function getDepth() {

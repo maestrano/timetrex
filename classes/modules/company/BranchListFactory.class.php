@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 9714 $
- * $Id: BranchListFactory.class.php 9714 2013-04-27 17:50:36Z ipso $
- * $Date: 2013-04-27 10:50:36 -0700 (Sat, 27 Apr 2013) $
- */
+
 
 /**
  * @package Modules\Company
@@ -46,7 +42,7 @@ class BranchListFactory extends BranchFactory implements IteratorAggregate {
 
 	function getAll($limit = NULL, $page = NULL, $where = NULL, $order = NULL) {
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					WHERE deleted = 0';
 		$query .= $this->getWhereSQL( $where );
@@ -69,7 +65,7 @@ class BranchListFactory extends BranchFactory implements IteratorAggregate {
 						);
 
 			$query = '
-						select 	*
+						select	*
 						from	'. $this->getTable() .'
 						where	id = ?
 							AND deleted = 0';
@@ -78,25 +74,10 @@ class BranchListFactory extends BranchFactory implements IteratorAggregate {
 
 			$this->ExecuteSQL( $query, $ph );
 
-			$this->saveCache($this->rs,$id);
+			$this->saveCache($this->rs, $id);
 		}
 
 		return $this;
-	}
-
-	static function getNameById( $id ) {
-		if ( $id == '') {
-			return FALSE;
-		}
-
-		$lf = new BranchListFactory();
-		$lf = $lf->getById( $id );
-		if ( $lf->getRecordCount() > 0 ) {
-			$obj = $lf->getCurrent();
-			return $obj->getName();
-		}
-
-		return FALSE;
 	}
 
 	function getByCompanyId($id, $limit = NULL, $page = NULL, $where = NULL, $order = NULL) {
@@ -116,7 +97,7 @@ class BranchListFactory extends BranchFactory implements IteratorAggregate {
 					);
 
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					where	company_id = ?
 						AND deleted = 0';
@@ -142,8 +123,8 @@ class BranchListFactory extends BranchFactory implements IteratorAggregate {
 					);
 
 		$query = '
-					select 	*
-					from 	'. $this->getTable() .'
+					select	*
+					from	'. $this->getTable() .'
 					where	company_id = ?
 						AND	status_id = ?
 						AND deleted = 0';
@@ -171,8 +152,8 @@ class BranchListFactory extends BranchFactory implements IteratorAggregate {
 					);
 
 		$query = '
-					select 	*
-					from 	'. $this->getTable() .'
+					select	*
+					from	'. $this->getTable() .'
 					where	company_id = ? ';
 
 		//isset() returns false on NULL.
@@ -203,8 +184,8 @@ class BranchListFactory extends BranchFactory implements IteratorAggregate {
 					);
 
 		$query = '
-					select 	*
-					from 	'. $this->getTable() .'
+					select	*
+					from	'. $this->getTable() .'
 					where	company_id = ?
 						AND	id = ?
 						AND deleted = 0';
@@ -230,7 +211,7 @@ class BranchListFactory extends BranchFactory implements IteratorAggregate {
 					);
 
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					where	manual_id = ?
 						AND company_id = ?
@@ -269,8 +250,8 @@ class BranchListFactory extends BranchFactory implements IteratorAggregate {
 					);
 
 		$query = '
-					select 	a.*
-					from 	'. $this->getTable() .' as a
+					select	a.*
+					from	'. $this->getTable() .' as a
 					where	a.company_id = ?
 						AND a.status_id = ?
 					';
@@ -279,7 +260,7 @@ class BranchListFactory extends BranchFactory implements IteratorAggregate {
 			//Append the same date twice for created and updated.
 			$ph[] = $date;
 			$ph[] = $date;
-			$query  .=	' AND ( a.created_date >= ? OR a.updated_date >= ? )';
+			$query	.=	' AND ( a.created_date >= ? OR a.updated_date >= ? )';
 			unset($date_filter);
 		}
 
@@ -320,8 +301,8 @@ class BranchListFactory extends BranchFactory implements IteratorAggregate {
 
 		//Make sure we return distinct rows so there aren't duplicates.
 		$query = '
-					select 	distinct a.*
-					from 	'. $this->getTable() .' as a
+					select	distinct a.*
+					from	'. $this->getTable() .' as a
 
 					where	a.company_id = ?
 						AND a.status_id = ?
@@ -333,11 +314,11 @@ class BranchListFactory extends BranchFactory implements IteratorAggregate {
 			//Append the same date twice for created and updated.
 			$ph[] = (int)$date;
 			$ph[] = (int)$date;
-			$query  .=	' 		AND ( a.created_date >= ? OR a.updated_date >= ? ) ';
+			$query	.=	'		AND ( a.created_date >= ? OR a.updated_date >= ? ) ';
 		}
 
 		if ( isset($valid_ids) AND is_array($valid_ids) AND count($valid_ids) > 0 ) {
-			$query  .=	' OR a.id in ('. $this->getListSQL($valid_ids, $ph) .') ';
+			$query	.=	' OR a.id in ('. $this->getListSQL($valid_ids, $ph) .') ';
 		}
 
 		$query .= '	)
@@ -362,7 +343,7 @@ class BranchListFactory extends BranchFactory implements IteratorAggregate {
 					);
 
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .' as a
 					where	company_id = ?
 						AND id = ( select id
@@ -437,7 +418,7 @@ class BranchListFactory extends BranchFactory implements IteratorAggregate {
 
 		//INCLUDE Deleted rows in this query.
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					where
 							company_id = ?
@@ -450,11 +431,11 @@ class BranchListFactory extends BranchFactory implements IteratorAggregate {
 
 		$this->ExecuteSQL( $query, $ph );
 		if ( $this->getRecordCount() > 0 ) {
-			Debug::text('Rows have been modified: '. $this->getRecordCount(), __FILE__, __LINE__, __METHOD__,10);
+			Debug::text('Rows have been modified: '. $this->getRecordCount(), __FILE__, __LINE__, __METHOD__, 10);
 
 			return TRUE;
 		}
-		Debug::text('Rows have NOT been modified', __FILE__, __LINE__, __METHOD__,10);
+		Debug::text('Rows have NOT been modified', __FILE__, __LINE__, __METHOD__, 10);
 		return FALSE;
 	}
 
@@ -473,8 +454,8 @@ class BranchListFactory extends BranchFactory implements IteratorAggregate {
 		$additional_order_fields = array('status_id');
 
 		$sort_column_aliases = array(
-									 'status' => 'status_id',
-									 );
+									'status' => 'status_id',
+									);
 
 		$order = $this->getColumnsFromAliases( $order, $sort_column_aliases );
 		if ( $order == NULL ) {
@@ -485,14 +466,14 @@ class BranchListFactory extends BranchFactory implements IteratorAggregate {
 			if ( !isset($order['status_id']) ) {
 				$order = Misc::prependArray( array('status_id' => 'asc'), $order );
 			}
-			//Always sort by last name,first name after other columns
+			//Always sort by last name, first name after other columns
 			if ( !isset($order['name']) ) {
 				$order['name'] = 'asc';
 			}
 			$strict = TRUE;
 		}
-		//Debug::Arr($order,'Order Data:', __FILE__, __LINE__, __METHOD__,10);
-		//Debug::Arr($filter_data,'Filter Data:', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($order, 'Order Data:', __FILE__, __LINE__, __METHOD__, 10);
+		//Debug::Arr($filter_data, 'Filter Data:', __FILE__, __LINE__, __METHOD__, 10);
 
 		$uf = new UserFactory();
 
@@ -501,14 +482,14 @@ class BranchListFactory extends BranchFactory implements IteratorAggregate {
 					);
 
 		$query = '
-					select 	a.*,
+					select	a.*,
 							y.first_name as created_by_first_name,
 							y.middle_name as created_by_middle_name,
 							y.last_name as created_by_last_name,
 							z.first_name as updated_by_first_name,
 							z.middle_name as updated_by_middle_name,
 							z.last_name as updated_by_last_name
-					from 	'. $this->getTable() .' as a
+					from	'. $this->getTable() .' as a
 						LEFT JOIN '. $uf->getTable() .' as y ON ( a.created_by = y.id AND y.deleted = 0 )
 						LEFT JOIN '. $uf->getTable() .' as z ON ( a.updated_by = z.id AND z.deleted = 0 )
 					where	a.company_id = ?';
@@ -517,7 +498,7 @@ class BranchListFactory extends BranchFactory implements IteratorAggregate {
 		$query .= ( isset($filter_data['id']) ) ? $this->getWhereClauseSQL( 'a.id', $filter_data['id'], 'numeric_list', $ph ) : NULL;
 		$query .= ( isset($filter_data['exclude_id']) ) ? $this->getWhereClauseSQL( 'a.id', $filter_data['exclude_id'], 'not_numeric_list', $ph ) : NULL;
 
-		if ( isset($filter_data['status']) AND trim($filter_data['status']) != '' AND !isset($filter_data['status_id']) ) {
+		if ( isset($filter_data['status']) AND !is_array($filter_data['status']) AND trim($filter_data['status']) != '' AND !isset($filter_data['status_id']) ) {
 			$filter_data['status_id'] = Option::getByFuzzyValue( $filter_data['status'], $this->getOptions('status') );
 		}
 		$query .= ( isset($filter_data['status_id']) ) ? $this->getWhereClauseSQL( 'a.status_id', $filter_data['status_id'], 'numeric_list', $ph ) : NULL;
@@ -527,7 +508,7 @@ class BranchListFactory extends BranchFactory implements IteratorAggregate {
 		$query .= ( isset($filter_data['country']) ) ?$this->getWhereClauseSQL( 'a.country', $filter_data['country'], 'upper_text_list', $ph ) : NULL;
 		$query .= ( isset($filter_data['province']) ) ? $this->getWhereClauseSQL( 'a.province', $filter_data['province'], 'upper_text_list', $ph ) : NULL;
 		$query .= ( isset($filter_data['city']) ) ? $this->getWhereClauseSQL( 'a.city', $filter_data['city'], 'text', $ph ) : NULL;
-		$query .= ( isset($filter_data['manual_id']) ) ? $this->getWhereClauseSQL( 'a.manual_id', $this->Validator->stripNon32bitInteger( $filter_data['manual_id'] ), 'numeric', $ph ) : NULL;
+		$query .= ( isset($filter_data['manual_id']) ) ? $this->getWhereClauseSQL( 'a.manual_id', $filter_data['manual_id'], 'numeric', $ph ) : NULL;
 		$query .= ( isset($filter_data['work_phone']) ) ? $this->getWhereClauseSQL( 'a.work_phone', $filter_data['work_phone'], 'phone', $ph ) : NULL;
 		$query .= ( isset($filter_data['fax_phone']) ) ? $this->getWhereClauseSQL( 'a.work_phone', $filter_data['fax_phone'], 'phone', $ph ) : NULL;
 		$query .= ( isset($filter_data['address1']) ) ? $this->getWhereClauseSQL( 'a.address1', $filter_data['address1'], 'text', $ph ) : NULL;
@@ -535,35 +516,31 @@ class BranchListFactory extends BranchFactory implements IteratorAggregate {
 		$query .= ( isset($filter_data['postal_code']) ) ? $this->getWhereClauseSQL( 'a.postal_code', $filter_data['postal_code'], 'text', $ph ) : NULL;
 
 		$query .= ( isset($filter_data['tag']) ) ? $this->getWhereClauseSQL( 'a.id', array( 'company_id' => $company_id, 'object_type_id' => 110, 'tag' => $filter_data['tag'] ), 'tag', $ph ) : NULL;
-        
-        $query .= ( isset($filter_data['created_date']) ) ? $this->getWhereClauseSQL( 'a.created_date', $filter_data['created_date'], 'date_range', $ph ) : NULL;
 
-        $query .= ( isset($filter_data['updated_date']) ) ? $this->getWhereClauseSQL( 'a.updated_date', $filter_data['updated_date'], 'date_range', $ph ) : NULL;
-        
-        /*
-        $query .= ( isset($filter_data['created_by']) AND is_array($filter_data['created_by']) ) ? $this->getWhereClauseSQL( 'a.created_by', $filter_data['created_by'], 'numeric_list', $ph ) : NULL;
-        
-        $query .= ( isset($filter_data['updated_by']) AND is_array($filter_data['updated_by']) ) ? $this->getWhereClauseSQL( 'a.updated_by', $filter_data['updated_by'], 'numeric_list', $ph ) : NULL;
-                
+		$query .= ( isset($filter_data['created_date']) ) ? $this->getWhereClauseSQL( 'a.created_date', $filter_data['created_date'], 'date_range', $ph ) : NULL;
+		$query .= ( isset($filter_data['updated_date']) ) ? $this->getWhereClauseSQL( 'a.updated_date', $filter_data['updated_date'], 'date_range', $ph ) : NULL;
+
+		/*
+		$query .= ( isset($filter_data['created_by']) AND is_array($filter_data['created_by']) ) ? $this->getWhereClauseSQL( 'a.created_by', $filter_data['created_by'], 'numeric_list', $ph ) : NULL;
+
+		$query .= ( isset($filter_data['updated_by']) AND is_array($filter_data['updated_by']) ) ? $this->getWhereClauseSQL( 'a.updated_by', $filter_data['updated_by'], 'numeric_list', $ph ) : NULL;
+
 		if ( isset($filter_data['created_by']) AND !is_array($filter_data['created_by']) AND trim($filter_data['created_by']) != '' ) {
 			$ph[] = $ph[] = $this->handleSQLSyntax(strtolower(trim($filter_data['created_by'])));
-			$query  .=	' AND (lower(y.first_name) LIKE ? OR lower(y.last_name) LIKE ? ) ';
+			$query	.=	' AND (lower(y.first_name) LIKE ? OR lower(y.last_name) LIKE ? ) ';
 		}
 		if ( isset($filter_data['updated_by']) AND !is_array($filter_data['updated_by']) AND trim($filter_data['updated_by']) != '' ) {
 			$ph[] = $ph[] = $this->handleSQLSyntax(strtolower(trim($filter_data['updated_by'])));
-			$query  .=	' AND (lower(z.first_name) LIKE ? OR lower(z.last_name) LIKE ? ) ';
+			$query	.=	' AND (lower(z.first_name) LIKE ? OR lower(z.last_name) LIKE ? ) ';
 		}
-        */
-        $query .= ( isset($filter_data['created_by']) ) ? $this->getWhereClauseSQL( array('a.created_by','y.first_name','y.last_name'), $filter_data['created_by'], 'user_id_or_name', $ph ) : NULL;
-        
-        $query .= ( isset($filter_data['updated_by']) ) ? $this->getWhereClauseSQL( array('a.updated_by','z.first_name','z.last_name'), $filter_data['updated_by'], 'user_id_or_name', $ph ) : NULL;
-        
-		$query .= 	'
-						AND a.deleted = 0
-					';
+		*/
+		$query .= ( isset($filter_data['created_by']) ) ? $this->getWhereClauseSQL( array('a.created_by', 'y.first_name', 'y.last_name'), $filter_data['created_by'], 'user_id_or_name', $ph ) : NULL;
+		$query .= ( isset($filter_data['updated_by']) ) ? $this->getWhereClauseSQL( array('a.updated_by', 'z.first_name', 'z.last_name'), $filter_data['updated_by'], 'user_id_or_name', $ph ) : NULL;
+
+		$query .=	' AND a.deleted = 0 ';
 		$query .= $this->getWhereSQL( $where );
 		$query .= $this->getSortSQL( $order, $strict, $additional_order_fields );
-        
+
 		$this->ExecuteSQL( $query, $ph, $limit, $page );
 
 		return $this;

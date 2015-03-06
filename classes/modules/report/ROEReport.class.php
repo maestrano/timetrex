@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2095 $
- * $Id: Sort.class.php 2095 2008-09-01 07:04:25Z ipso $
- * $Date: 2008-09-01 00:04:25 -0700 (Mon, 01 Sep 2008) $
- */
+
 
 /**
  * @package Modules\Report
@@ -57,9 +53,9 @@ class ROEReport extends Report {
 
 	protected function _checkPermissions( $user_id, $company_id ) {
 
-		if ( $this->getPermissionObject()->Check('report','enabled', $user_id, $company_id )
-				//AND $this->getPermissionObject()->Check('report','view_roe', $user_id, $company_id )
-				AND $this->getPermissionObject()->Check('roe','view', $user_id, $company_id )
+		if ( $this->getPermissionObject()->Check('report', 'enabled', $user_id, $company_id )
+				//AND $this->getPermissionObject()->Check('report', 'view_roe', $user_id, $company_id )
+				AND $this->getPermissionObject()->Check('roe', 'view', $user_id, $company_id )
 			) {
 			return TRUE;
 		}
@@ -84,7 +80,7 @@ class ROEReport extends Report {
 										'template',
 										'time_period',
 										'columns',
-							   );
+								);
 
 				break;
 			case 'setup_fields':
@@ -101,30 +97,30 @@ class ROEReport extends Report {
 										'-2060-default_branch_id' => TTi18n::gettext('Default Branch'),
 										'-2070-default_department_id' => TTi18n::gettext('Default Department'),
 
-                                        '-2080-code_id' => TTi18n::gettext('Reason'),
-                                        '-2090-pay_period_type_id' => TTi18n::gettext('Pay Period Type'),
-                                        
-                                        '-3000-custom_filter' => TTi18n::gettext('Custom Filter'),
+										'-2080-code_id' => TTi18n::gettext('Reason'),
+										'-2090-pay_period_type_id' => TTi18n::gettext('Pay Period Type'),
+
+										'-3000-custom_filter' => TTi18n::gettext('Custom Filter'),
 
 										'-5000-columns' => TTi18n::gettext('Display Columns'),
 										'-5010-group' => TTi18n::gettext('Group By'),
 										'-5020-sub_total' => TTi18n::gettext('SubTotal By'),
 										'-5030-sort' => TTi18n::gettext('Sort By'),
-							   );
+								);
 				break;
 			case 'time_period':
 				$retval = TTDate::getTimePeriodOptions();
 				break;
 			case 'date_columns':
-                $retval = array_merge(
-                    					TTDate::getReportDateOptions( 'first', TTi18n::gettext('First Day Worked(Or first day since last ROE)'), 16, FALSE ),
-                    					TTDate::getReportDateOptions( 'last', TTi18n::gettext('Last Day For Which Paid'), 16, FALSE ),
-                    					TTDate::getReportDateOptions( 'pay_period_end', TTi18n::gettext('Final Pay Period Ending Date'), 17, FALSE ),
-                                        TTDate::getReportDateOptions( 'recall', TTi18n::gettext('Expected Date of Recall'), 17, FALSE )
+				$retval = array_merge(
+										TTDate::getReportDateOptions( 'first', TTi18n::gettext('First Day Worked(Or first day since last ROE)'), 16, FALSE ),
+										TTDate::getReportDateOptions( 'last', TTi18n::gettext('Last Day For Which Paid'), 16, FALSE ),
+										TTDate::getReportDateOptions( 'pay_period_end', TTi18n::gettext('Final Pay Period Ending Date'), 17, FALSE ),
+										TTDate::getReportDateOptions( 'recall', TTi18n::gettext('Expected Date of Recall'), 17, FALSE )
 				);
 				$retval = array();
 				break;
-            case 'report_custom_column':
+			case 'report_custom_column':
 				if ( getTTProductEdition() >= TT_PRODUCT_PROFESSIONAL ) {
 					$rcclf = TTnew( 'ReportCustomColumnListFactory' );
 					// Because the Filter type is just only a filter criteria and not need to be as an option of Display Columns, Group By, Sub Total, Sort By dropdowns.
@@ -134,14 +130,14 @@ class ROEReport extends Report {
 						$retval = Misc::addSortPrefix( $custom_column_labels, 9500 );
 					}
 				}
-                break; 
-            case 'report_custom_filters':
+				break;
+			case 'report_custom_filters':
 				if ( getTTProductEdition() >= TT_PRODUCT_PROFESSIONAL ) {
 					$rcclf = TTnew( 'ReportCustomColumnListFactory' );
 					$retval = $rcclf->getByCompanyIdAndTypeIdAndFormatIdAndScriptArray( $this->getUserObject()->getCompany(), $rcclf->getOptions('filter_column_type_ids'), NULL, 'ROEReport', 'custom_column' );
 				}
-                break;
-            case 'report_dynamic_custom_column':
+				break;
+			case 'report_dynamic_custom_column':
 				if ( getTTProductEdition() >= TT_PRODUCT_PROFESSIONAL ) {
 					$rcclf = TTnew( 'ReportCustomColumnListFactory' );
 					$report_dynamic_custom_column_labels = $rcclf->getByCompanyIdAndTypeIdAndFormatIdAndScriptArray( $this->getUserObject()->getCompany(), $rcclf->getOptions('display_column_type_ids'), $rcclf->getOptions('dynamic_format_ids'), 'ROEReport', 'custom_column' );
@@ -149,8 +145,8 @@ class ROEReport extends Report {
 						$retval = Misc::addSortPrefix( $report_dynamic_custom_column_labels, 9700 );
 					}
 				}
-                break;
-            case 'report_static_custom_column':
+				break;
+			case 'report_static_custom_column':
 				if ( getTTProductEdition() >= TT_PRODUCT_PROFESSIONAL ) {
 					$rcclf = TTnew( 'ReportCustomColumnListFactory' );
 					$report_static_custom_column_labels = $rcclf->getByCompanyIdAndTypeIdAndFormatIdAndScriptArray( $this->getUserObject()->getCompany(), $rcclf->getOptions('display_column_type_ids'), $rcclf->getOptions('static_format_ids'), 'ROEReport', 'custom_column' );
@@ -158,13 +154,13 @@ class ROEReport extends Report {
 						$retval = Misc::addSortPrefix( $report_static_custom_column_labels, 9700 );
 					}
 				}
-                break;
-            case 'formula_columns':
-                $retval = TTMath::formatFormulaColumns( array_merge( array_diff( $this->getOptions('static_columns'), (array)$this->getOptions('report_static_custom_column') ), $this->getOptions('dynamic_columns') ) );
-                break; 
-            case 'filter_columns':
-                $retval = TTMath::formatFormulaColumns( array_merge( $this->getOptions('static_columns'), $this->getOptions('dynamic_columns'), (array)$this->getOptions('report_dynamic_custom_column') ) );
-                break;
+				break;
+			case 'formula_columns':
+				$retval = TTMath::formatFormulaColumns( array_merge( array_diff( $this->getOptions('static_columns'), (array)$this->getOptions('report_static_custom_column') ), $this->getOptions('dynamic_columns') ) );
+				break;
+			case 'filter_columns':
+				$retval = TTMath::formatFormulaColumns( array_merge( $this->getOptions('static_columns'), $this->getOptions('dynamic_columns'), (array)$this->getOptions('report_dynamic_custom_column') ) );
+				break;
 			case 'static_columns':
 				$retval = array(
 										//Static Columns - Aggregate functions can't be used on these.
@@ -184,19 +180,19 @@ class ROEReport extends Report {
 										'-1100-default_department' => TTi18n::gettext('Default Department'),
 										'-1110-currency' => TTi18n::gettext('Currency'),
 
-                                        '-1120-code' => TTi18n::gettext('Reason'),
-                                        '-1130-pay_period_type' => TTi18n::gettext('Pay Period Type'),
-                                        //'-1140-first_date' => TTi18n::gettext('First Day Worked(Or first day since last ROE)'),
-                                        //'-1150-last_date' => TTi18n::gettext('Last Day For Which Paid'),
-                                        //'-1160-pay_period_end_date' => TTi18n::gettext('Final Pay Period Ending Date'),
-                                        //'-1170-recall_date' => TTi18n::gettext('Expected Date of Recall'),
-                                        '-1180-serial' => TTi18n::gettext('Serial No'),
-                                        '-1190-comments' => TTi18n::gettext('Comments'),
+										'-1120-code' => TTi18n::gettext('Reason'),
+										'-1130-pay_period_type' => TTi18n::gettext('Pay Period Type'),
+										//'-1140-first_date' => TTi18n::gettext('First Day Worked(Or first day since last ROE)'),
+										//'-1150-last_date' => TTi18n::gettext('Last Day For Which Paid'),
+										//'-1160-pay_period_end_date' => TTi18n::gettext('Final Pay Period Ending Date'),
+										//'-1170-recall_date' => TTi18n::gettext('Expected Date of Recall'),
+										'-1180-serial' => TTi18n::gettext('Serial No'),
+										'-1190-comments' => TTi18n::gettext('Comments'),
 
 										'-1400-permission_control' => TTi18n::gettext('Permission Group'),
 										'-1410-pay_period_schedule' => TTi18n::gettext('Pay Period Schedule'),
 										'-1420-policy_group' => TTi18n::gettext('Policy Group'),
-							   );
+								);
 
 				$retval = array_merge( $retval, $this->getOptions('date_columns'), (array)$this->getOptions('report_static_custom_column') );
 				ksort($retval);
@@ -204,7 +200,7 @@ class ROEReport extends Report {
 			case 'dynamic_columns':
 				$retval = array(
 										//Dynamic - Aggregate functions can be used
-                                        '-2100-insurable_earnings' => TTi18n::gettext('Insurable Earnings (Box 15B)'),
+										'-2100-insurable_earnings' => TTi18n::gettext('Insurable Earnings (Box 15B)'),
 										'-2110-vacation_pay' => TTi18n::gettext('Vacation Pay (Box 17A)'),
 
 							);
@@ -248,7 +244,7 @@ class ROEReport extends Report {
 										'-1030-by_branch' => TTi18n::gettext('by Branch'),
 										'-1040-by_department' => TTi18n::gettext('by Department'),
 										'-1050-by_branch_by_department' => TTi18n::gettext('by Branch/Department'),
-							   );
+								);
 
 				break;
 			case 'template_config':
@@ -269,14 +265,14 @@ class ROEReport extends Report {
 
 							break;
 						default:
-							Debug::Text(' Parsing template name: '. $template, __FILE__, __LINE__, __METHOD__,10);
+							Debug::Text(' Parsing template name: '. $template, __FILE__, __LINE__, __METHOD__, 10);
 							$retval['-1010-time_period']['time_period'] = 'last_year';
 
 							//Parse template name, and use the keywords separated by '+' to determine settings.
 							$template_keywords = explode('+', $template );
 							if ( is_array($template_keywords) ) {
 								foreach( $template_keywords as $template_keyword ) {
-									Debug::Text(' Keyword: '. $template_keyword, __FILE__, __LINE__, __METHOD__,10);
+									Debug::Text(' Keyword: '. $template_keyword, __FILE__, __LINE__, __METHOD__, 10);
 
 									switch( $template_keyword ) {
 										//Columns
@@ -356,7 +352,7 @@ class ROEReport extends Report {
 					$retval['-5040-sort'] = $retval['sort'];
 					unset($retval['sort']);
 				}
-				Debug::Arr($retval, ' Template Config for: '. $template, __FILE__, __LINE__, __METHOD__,10);
+				Debug::Arr($retval, ' Template Config for: '. $template, __FILE__, __LINE__, __METHOD__, 10);
 
 				break;
 			default:
@@ -408,40 +404,40 @@ class ROEReport extends Report {
 
 		$this->user_ids = array_unique( $this->user_ids ); //Used to get the total number of employees.
 
-		//Debug::Arr($this->user_ids, 'User IDs: ', __FILE__, __LINE__, __METHOD__,10);
-		//Debug::Arr($this->form_data, 'Form Raw Data: ', __FILE__, __LINE__, __METHOD__,10);
-		//Debug::Arr($this->tmp_data, 'Tmp Raw Data: ', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($this->user_ids, 'User IDs: ', __FILE__, __LINE__, __METHOD__, 10);
+		//Debug::Arr($this->form_data, 'Form Raw Data: ', __FILE__, __LINE__, __METHOD__, 10);
+		//Debug::Arr($this->tmp_data, 'Tmp Raw Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		//Get user data for joining.
 		$ulf = TTnew( 'UserListFactory' );
 		$ulf->getAPISearchByCompanyIdAndArrayCriteria( $this->getUserObject()->getCompany(), $filter_data );
-		Debug::Text(' User Total Rows: '. $ulf->getRecordCount(), __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text(' User Total Rows: '. $ulf->getRecordCount(), __FILE__, __LINE__, __METHOD__, 10);
 		$this->getProgressBarObject()->start( $this->getAMFMessageID(), $ulf->getRecordCount(), NULL, TTi18n::getText('Retrieving Data...') );
 		foreach ( $ulf as $key => $u_obj ) {
 			$this->tmp_data['user'][$u_obj->getId()] = (array)$u_obj->getObjectAsArray(); //Don't pass $this->getColumnDataConfig() here as no columns are sent from Flex so it breaks the report.
 			$this->getProgressBarObject()->set( $this->getAMFMessageID(), $key );
 		}
-        //Debug::Arr($this->tmp_data['user'], 'User Raw Data: ', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($this->tmp_data['user'], 'User Raw Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
-        //Get ROE data for joining
-        $rlf = TTnew( 'ROEListFactory' );
-        $rlf->getAPISearchByCompanyIdAndArrayCriteria( $this->getUserObject()->getCompany(), $filter_data );
-        Debug::Text(' ROE Total Rows: '. $rlf->getRecordCount(), __FILE__, __LINE__, __METHOD__,10);
-        $this->getProgressBarObject()->start( $this->getAMFMessageID(), $rlf->getRecordCount(), NULL, TTi18n::getText('Retrieving Data...') );
-        foreach( $rlf as $key => $r_obj ) {
-            $this->tmp_data['roe'][$r_obj->getUser()] = (array)$r_obj->getObjectAsArray(); //Don't pass $this->getColumnDataConfig() here as no columns are sent from Flex so it breaks the report.
-            if ( $r_obj->isPayPeriodWithNoEarnings() == TRUE ) {
-                $this->tmp_data['roe'][$r_obj->getUser()]['pay_period_earnings'] = $r_obj->getInsurableEarningsByPayPeriod();
-            }
-            //Box 17A, Vacation pay in last pay period
-            $vacation_pay = $r_obj->getLastPayPeriodVacationEarnings();
+		//Get ROE data for joining
+		$rlf = TTnew( 'ROEListFactory' );
+		$rlf->getAPISearchByCompanyIdAndArrayCriteria( $this->getUserObject()->getCompany(), $filter_data );
+		Debug::Text(' ROE Total Rows: '. $rlf->getRecordCount(), __FILE__, __LINE__, __METHOD__, 10);
+		$this->getProgressBarObject()->start( $this->getAMFMessageID(), $rlf->getRecordCount(), NULL, TTi18n::getText('Retrieving Data...') );
+		foreach( $rlf as $key => $r_obj ) {
+			$this->tmp_data['roe'][$r_obj->getUser()] = (array)$r_obj->getObjectAsArray(); //Don't pass $this->getColumnDataConfig() here as no columns are sent from Flex so it breaks the report.
+			if ( $r_obj->isPayPeriodWithNoEarnings() == TRUE ) {
+				$this->tmp_data['roe'][$r_obj->getUser()]['pay_period_earnings'] = $r_obj->getInsurableEarningsByPayPeriod( '15c' );
+			}
+			//Box 17A, Vacation pay in last pay period
+			$vacation_pay = $r_obj->getLastPayPeriodVacationEarnings();
 			if ( $vacation_pay > 0 ) {
 				$this->tmp_data['roe'][$r_obj->getUser()]['vacation_pay'] = $vacation_pay;
 			}
 
-            $this->getProgressBarObject()->set( $this->getAMFMessageID(), $key );
-        }
-        //Debug::Arr($this->tmp_data['roe'], 'ROE Raw Data: ', __FILE__, __LINE__, __METHOD__,10);
+			$this->getProgressBarObject()->set( $this->getAMFMessageID(), $key );
+		}
+		//Debug::Arr($this->tmp_data['roe'], 'ROE Raw Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		return TRUE;
 	}
@@ -451,30 +447,30 @@ class ROEReport extends Report {
 		$this->getProgressBarObject()->start( $this->getAMFMessageID(), count($this->tmp_data['roe']), NULL, TTi18n::getText('Pre-Processing Data...') );
 
 		//Merge time data with user data
-		$key=0;
+		$key = 0;
 		if ( isset($this->tmp_data['roe']) ) {
 			foreach( $this->tmp_data['roe'] as $user_id => $row ) {
 
-                $process_data = array();
-                if ( isset($row['first_date']) ) {
+				$process_data = array();
+				if ( isset($row['first_date']) ) {
 					$first_date_columns = TTDate::getReportDates( 'first', TTDate::parseDateTime( $row['first_date'] ), FALSE, $this->getUserObject() );
 				} else {
 					$first_date_columns = array();
 				}
 
-                if ( isset($row['last_date']) ) {
+				if ( isset($row['last_date']) ) {
 					$last_date_columns = TTDate::getReportDates( 'last', TTDate::parseDateTime( $row['last_date'] ), FALSE, $this->getUserObject() );
 				} else {
 					$last_date_columns = array();
 				}
 
-                if ( isset($row['pay_period_end_date']) ) {
+				if ( isset($row['pay_period_end_date']) ) {
 					$pay_period_end_date_columns = TTDate::getReportDates( 'pay_period_end', TTDate::parseDateTime( $row['pay_period_end_date'] ), FALSE, $this->getUserObject() );
 				} else {
 					$pay_period_end_date_columns = array();
 				}
 
-                if ( isset($row['recall_date']) ) {
+				if ( isset($row['recall_date']) ) {
 					$recall_date_columns = TTDate::getReportDates( 'recall', TTDate::parseDateTime( $row['recall_date'] ), FALSE, $this->getUserObject() );
 				} else {
 					$recall_date_columns = array();
@@ -483,12 +479,12 @@ class ROEReport extends Report {
 
 				if ( isset($this->tmp_data['user'][$user_id]) ) {
 
-                    if ( is_array( $this->tmp_data['user'][$user_id] ) ) {
-                        $process_data = array_merge( $process_data, $this->tmp_data['user'][$user_id] );
-                    }
-                    if ( is_array( $row ) ) {
-                        $process_data = array_merge( $process_data, $row );
-                    }
+					if ( is_array( $this->tmp_data['user'][$user_id] ) ) {
+						$process_data = array_merge( $process_data, $this->tmp_data['user'][$user_id] );
+					}
+					if ( is_array( $row ) ) {
+						$process_data = array_merge( $process_data, $row );
+					}
 					$this->data[] = array_merge( $process_data, $first_date_columns, $last_date_columns, $pay_period_end_date_columns, $recall_date_columns );
 
 					$this->getProgressBarObject()->set( $this->getAMFMessageID(), $key );
@@ -497,7 +493,7 @@ class ROEReport extends Report {
 			}
 			unset($this->tmp_data, $row, $first_date_columns, $last_date_columns, $pay_period_end_date_columns, $recall_date_columns, $process_data);
 		}
-		//Debug::Arr($this->data, 'preProcess Data: ', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($this->data, 'preProcess Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		$this->form_data = $this->data; //Copy data to Form Data so group/sort doesn't affect it.
 
@@ -505,43 +501,43 @@ class ROEReport extends Report {
 	}
 
 	function _outputPDFForm( $format = NULL ) {
-        // Always display the background.
+		// Always display the background.
 		$show_background = TRUE;
-		Debug::Text('Generating Form... Format: '. $format, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Generating Form... Format: '. $format, __FILE__, __LINE__, __METHOD__, 10);
 
 		$setup_data = $this->getFormConfig();
 		$filter_data = $this->getFilterConfig();
-		//Debug::Arr($setup_data, 'Setup Data: ', __FILE__, __LINE__, __METHOD__,10);
-		//Debug::Arr($filter_data, 'Filter Data: ', __FILE__, __LINE__, __METHOD__,10);
-		//Debug::Arr($this->data, 'Data: ', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($setup_data, 'Setup Data: ', __FILE__, __LINE__, __METHOD__, 10);
+		//Debug::Arr($filter_data, 'Filter Data: ', __FILE__, __LINE__, __METHOD__, 10);
+		//Debug::Arr($this->data, 'Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		//$last_row = count($this->form_data)-1;
 		//$total_row = $last_row+1;
 
 		$current_company = $this->getUserObject()->getCompanyObject();
 		if ( !is_object($current_company) ) {
-			Debug::Text('Invalid company object...', __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text('Invalid company object...', __FILE__, __LINE__, __METHOD__, 10);
 			return FALSE;
 		}
 
 		$roe = $this->getROEObject();
-        $roe->setShowBackground( $show_background );
-        //$roe->setDebug( TRUE );
+		$roe->setShowBackground( $show_background );
+		//$roe->setDebug( TRUE );
 		//$roe->setType( $form_type );
 		$roe->business_number = $current_company->getBusinessNumber();
 		$roe->company_name = $current_company->getName();
-        $roe->company_address1 = $current_company->getAddress1();
-        $roe->company_address2 = $current_company->getAddress2();
-        $roe->company_city = $current_company->getCity();
-        $roe->company_province = $current_company->getProvince();
-        $roe->company_postal_code = $current_company->getPostalCode();
-        $roe->company_work_phone = $current_company->getWorkPhone();
-        $roe->english = TRUE;
+		$roe->company_address1 = $current_company->getAddress1();
+		$roe->company_address2 = $current_company->getAddress2();
+		$roe->company_city = $current_company->getCity();
+		$roe->company_province = $current_company->getProvince();
+		$roe->company_postal_code = $current_company->getPostalCode();
+		$roe->company_work_phone = $current_company->getWorkPhone();
+		$roe->english = TRUE;
 
-		$i=0;
+		$i = 0;
 		foreach($this->form_data as $row) {
 			if ( !isset($row['user_id']) ) {
-				Debug::Text('User ID not set!', __FILE__, __LINE__, __METHOD__,10);
+				Debug::Text('User ID not set!', __FILE__, __LINE__, __METHOD__, 10);
 				continue;
 			}
 
@@ -556,52 +552,50 @@ class ROEReport extends Report {
 							'first_name' => $user_obj->getFirstName(),
 							'middle_name' => $user_obj->getMiddleName(),
 							'last_name' => $user_obj->getLastName(),
-                            'employee_full_name' => $user_obj->getFullName(FALSE),
+							'employee_full_name' => $user_obj->getFullName(FALSE),
 							'employee_address1' => $user_obj->getAddress1(),
 							'employee_address2' => $user_obj->getAddress2(),
 							'employee_city' => $user_obj->getCity(),
 							'employee_province' => $user_obj->getProvince(),
 							'employee_postal_code' => $user_obj->getPostalCode(),
-                            'title' => ( is_object( $title_obj ) ) ?  $title_obj->getName() : NULL,
+							'title' => ( is_object( $title_obj ) ) ?  $title_obj->getName() : NULL,
 							'sin' => $user_obj->getSIN(),
 
-                            'pay_period_type' => $row['pay_period_type'],
-                            'pay_period_type_id' => $row['pay_period_type_id'],
-                            'code_id' => $row['code_id'],
-                            'first_date' => TTDate::parseDateTime( $row['first_date'] ),
-                            'last_date' => TTDate::parseDateTime( $row['last_date'] ),
-                            'pay_period_end_date' => TTDate::parseDateTime( $row['pay_period_end_date'] ),
-                            'recall_date' => TTDate::parseDateTime( $row['recall_date'] ),
-                            'insurable_hours' => $row['insurable_hours'],
-                            'insurable_earnings' => $row['insurable_earnings'],
-                            'vacation_pay' => $row['vacation_pay'],
-                            'serial' => $row['serial'],
-                            'comments' => $row['comments'],
-                            'created_date' => TTDate::parseDateTime( $row['created_date'] ),
+							'pay_period_type' => $row['pay_period_type'],
+							'pay_period_type_id' => $row['pay_period_type_id'],
+							'code_id' => $row['code_id'],
+							'first_date' => TTDate::parseDateTime( $row['first_date'] ),
+							'last_date' => TTDate::parseDateTime( $row['last_date'] ),
+							'pay_period_end_date' => TTDate::parseDateTime( $row['pay_period_end_date'] ),
+							'recall_date' => TTDate::parseDateTime( $row['recall_date'] ),
+							'insurable_hours' => $row['insurable_hours'],
+							'insurable_earnings' => $row['insurable_earnings'],
+							'vacation_pay' => $row['vacation_pay'],
+							'serial' => $row['serial'],
+							'comments' => $row['comments'],
+							'created_date' => TTDate::parseDateTime( $row['created_date'] ),
 							);
 
 			}
 
-            $ulf->getById( (int)$row['created_by_id'] );
-            if ( $ulf->getRecordCount() == 1 ) {
-                $user_obj = $ulf->getCurrent();
+			$ulf->getById( (int)$row['created_by_id'] );
+			if ( $ulf->getRecordCount() == 1 ) {
+				$user_obj = $ulf->getCurrent();
 
-                $ee_data['created_user_first_name'] = $user_obj->getFirstName();
-                $ee_data['created_user_middle_name'] = $user_obj->getMiddleName();
-                $ee_data['created_user_last_name'] = $user_obj->getLastName();
-                $ee_data['created_user_full_name'] = $user_obj->getFullName(FALSE);
-                $ee_data['created_user_work_phone'] = $user_obj->getWorkPhone();
+				$ee_data['created_user_first_name'] = $user_obj->getFirstName();
+				$ee_data['created_user_middle_name'] = $user_obj->getMiddleName();
+				$ee_data['created_user_last_name'] = $user_obj->getLastName();
+				$ee_data['created_user_full_name'] = $user_obj->getFullName(FALSE);
+				$ee_data['created_user_work_phone'] = $user_obj->getWorkPhone();
+			}
 
+			if ( isset( $row['pay_period_earnings'] ) AND is_array( $row['pay_period_earnings'] ) ) {
+				foreach( $row['pay_period_earnings'] as $pay_period_earning ) {
+					$ee_data['pay_period_earnings'][] = Misc::MoneyFormat( $pay_period_earning['amount'], FALSE );
+				}
+			}
 
-            }
-
-            if ( isset( $row['pay_period_earnings'] ) AND is_array( $row['pay_period_earnings'] ) ) {
-                foreach( $row['pay_period_earnings'] as $pay_period_earning ) {
-                    $ee_data['pay_period_earnings'][] = Misc::MoneyFormat( $pay_period_earning['amount'], FALSE );
-                }
-            }
-
-            $roe->addRecord( $ee_data );
+			$roe->addRecord( $ee_data );
 			unset($ee_data);
 
 			$i++;
@@ -628,7 +622,7 @@ class ROEReport extends Report {
 	//Short circuit this function, as no postprocessing is required for exporting the data.
 	function _postProcess( $format = NULL ) {
 		if ( ( $format == 'pdf_form' OR $format == 'pdf_form_government' ) OR ( $format == 'pdf_form_print' OR $format == 'pdf_form_print_government' ) OR $format == 'efile_xml' ) {
-			Debug::Text('Skipping postProcess! Format: '. $format, __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text('Skipping postProcess! Format: '. $format, __FILE__, __LINE__, __METHOD__, 10);
 			return TRUE;
 		} else {
 			return parent::_postProcess( $format );

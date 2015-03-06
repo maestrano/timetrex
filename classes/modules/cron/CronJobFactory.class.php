@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 9984 $
- * $Id: CronJobFactory.class.php 9984 2013-05-23 22:58:29Z ipso $
- * $Date: 2013-05-23 15:58:29 -0700 (Thu, 23 May 2013) $
- */
+
 
 /**
  * @package Modules\Cron
@@ -115,7 +111,7 @@ class CronJobFactory extends Factory {
 		if (	$this->Validator->isLength(	'name',
 											$name,
 											TTi18n::gettext('Name is invalid'),
-											1,250)
+											1, 250)
 						) {
 
 			$this->data['name'] = $name;
@@ -159,7 +155,7 @@ class CronJobFactory extends Factory {
 		if (	$this->Validator->isLength(	'minute',
 											$value,
 											TTi18n::gettext('Minute is invalid'),
-											1,250)
+											1, 250)
 						) {
 
 			$this->data['minute'] = $value;
@@ -183,7 +179,7 @@ class CronJobFactory extends Factory {
 		if (	$this->Validator->isLength(	'hour',
 											$value,
 											TTi18n::gettext('Hour is invalid'),
-											1,250)
+											1, 250)
 						) {
 
 			$this->data['hour'] = $value;
@@ -207,7 +203,7 @@ class CronJobFactory extends Factory {
 		if (	$this->Validator->isLength(	'day_of_month',
 											$value,
 											TTi18n::gettext('Day of Month is invalid'),
-											1,250)
+											1, 250)
 						) {
 
 			$this->data['day_of_month'] = $value;
@@ -231,7 +227,7 @@ class CronJobFactory extends Factory {
 		if (	$this->Validator->isLength(	'month',
 											$value,
 											TTi18n::gettext('Month is invalid'),
-											1,250)
+											1, 250)
 						) {
 
 			$this->data['month'] = $value;
@@ -255,7 +251,7 @@ class CronJobFactory extends Factory {
 		if (	$this->Validator->isLength(	'day_of_week',
 											$value,
 											TTi18n::gettext('Day of Week is invalid'),
-											1,250)
+											1, 250)
 						) {
 
 			$this->data['day_of_week'] = $value;
@@ -279,7 +275,7 @@ class CronJobFactory extends Factory {
 		if (	$this->Validator->isLength(	'command',
 											$value,
 											TTi18n::gettext('Command is invalid'),
-											1,250)
+											1, 250)
 						) {
 
 			$this->data['command'] = $value;
@@ -304,7 +300,7 @@ class CronJobFactory extends Factory {
 	function setLastRunDate($epoch) {
 		$epoch = trim($epoch);
 
-		if 	(	$this->Validator->isDate(		'last_run',
+		if	(	$this->Validator->isDate(		'last_run',
 												$epoch,
 												TTi18n::gettext('Incorrect last run'))
 			) {
@@ -350,7 +346,7 @@ class CronJobFactory extends Factory {
 			$last_run_date = (int)$this->getLastRunDate();
 		}
 
-		Debug::text(' Name: '. $this->getName() .' Current Epoch: '. TTDate::getDate('DATE+TIME', $epoch) .' Last Run Date: '. TTDate::getDate('DATE+TIME', $last_run_date) , __FILE__, __LINE__, __METHOD__,10);
+		Debug::text(' Name: '. $this->getName() .' Current Epoch: '. TTDate::getDate('DATE+TIME', $epoch) .' Last Run Date: '. TTDate::getDate('DATE+TIME', $last_run_date), __FILE__, __LINE__, __METHOD__, 10);
 		return Cron::isScheduledToRun( $this->getMinute(), $this->getHour(), $this->getDayOfMonth(), $this->getMonth(), $this->getDayOfWeek(), $epoch, $last_run_date );
 	}
 
@@ -362,7 +358,7 @@ class CronJobFactory extends Factory {
 		//Check job last updated date, if its more then 12hrs and its still in the "running" status,
 		//chances are its an orphan. Change status.
 		//if ( $this->getStatus() != 10 AND $this->getLastRunDate() < time()-(12*3600) ) {
-		if ( $this->getStatus() != 10 AND $this->getUpdatedDate() > 0 AND $this->getUpdatedDate() < time()-(6*3600) ) {
+		if ( $this->getStatus() != 10 AND $this->getUpdatedDate() > 0 AND $this->getUpdatedDate() < (time() - ( 6 * 3600 )) ) {
 			Debug::text('ERROR: Job has been running for more then 6 hours! Asssuming its an orphan, marking as ready for next run.', __FILE__, __LINE__, __METHOD__, 10);
 			$this->setStatus(10);
 			$this->Save(FALSE);
@@ -371,7 +367,7 @@ class CronJobFactory extends Factory {
 		}
 
 		if ( !is_executable( $php_cli ) ) {
-			Debug::text('ERROR: PHP CLI is not executable: '. $php_cli , __FILE__, __LINE__, __METHOD__, 10);
+			Debug::text('ERROR: PHP CLI is not executable: '. $php_cli, __FILE__, __LINE__, __METHOD__, 10);
 			return FALSE;
 		}
 
@@ -406,11 +402,11 @@ class CronJobFactory extends Factory {
 
 				$start_time = microtime(TRUE);
 				exec($command, $output, $retcode);
-				Debug::Arr($output, 'Time: '. (microtime(TRUE)-$start_time) .'s - Command RetCode: '. $retcode .' Output: ', __FILE__, __LINE__, __METHOD__, 10);
+				Debug::Arr($output, 'Time: '. (microtime(TRUE) - $start_time) .'s - Command RetCode: '. $retcode .' Output: ', __FILE__, __LINE__, __METHOD__, 10);
 
-				TTLog::addEntry( $this->getId(), 500,  TTi18n::getText('Executing Cron Job').': '. $this->getID() .' '.  TTi18n::getText('Command').': '. $command .' '.  TTi18n::getText('Return Code').': '. $retcode, NULL, $this->getTable() );
+				TTLog::addEntry( $this->getId(), 500, TTi18n::getText('Executing Cron Job').': '. $this->getID() .' '.	TTi18n::getText('Command').': '. $command .' '.	 TTi18n::getText('Return Code').': '. $retcode, NULL, $this->getTable() );
 			} else {
-				Debug::text('WARNING: File does not exist, skipping: '. $script , __FILE__, __LINE__, __METHOD__, 10);
+				Debug::text('WARNING: File does not exist, skipping: '. $script, __FILE__, __LINE__, __METHOD__, 10);
 			}
 
 			$this->setStatus(10); //Ready
@@ -464,7 +460,7 @@ class CronJobFactory extends Factory {
 
 	function addLog( $log_action ) {
 		if ( $this->getExecuteFlag() == FALSE ) {
-			return TTLog::addEntry( $this->getId(), $log_action,  TTi18n::getText('Cron Job'), NULL, $this->getTable() );
+			return TTLog::addEntry( $this->getId(), $log_action, TTi18n::getText('Cron Job'), NULL, $this->getTable() );
 		}
 
 		return TRUE;

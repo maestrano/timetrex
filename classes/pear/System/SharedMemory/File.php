@@ -116,7 +116,7 @@ class System_SharedMemory_File extends System_SharedMemory_Common
             return array();
         }
 
-        $fp = fopen($name, 'rb');
+        $fp = @fopen($name, 'rb');
         if (is_resource($fp)) {
             flock ($fp, LOCK_SH);
 

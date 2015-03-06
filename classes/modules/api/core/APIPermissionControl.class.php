@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2196 $
- * $Id: APIPermissionControl.class.php 2196 2008-10-14 16:08:54Z ipso $
- * $Date: 2008-10-14 09:08:54 -0700 (Tue, 14 Oct 2008) $
- */
+
 
 /**
  * @package API\Core
@@ -59,8 +55,8 @@ class APIPermissionControl extends APIFactory {
 	 */
 	function getOptions( $name, $parent = NULL ) {
 		if ( $name == 'columns'
-				AND ( !$this->getPermissionObject()->Check('permission','enabled')
-					OR !( $this->getPermissionObject()->Check('permission','view') OR $this->getPermissionObject()->Check('permission','view_own') OR $this->getPermissionObject()->Check('permission','view_child') ) ) ) {
+				AND ( !$this->getPermissionObject()->Check('permission', 'enabled')
+					OR !( $this->getPermissionObject()->Check('permission', 'view') OR $this->getPermissionObject()->Check('permission', 'view_own') OR $this->getPermissionObject()->Check('permission', 'view_child') ) ) ) {
 			$name = 'list_columns';
 		}
 
@@ -74,7 +70,7 @@ class APIPermissionControl extends APIFactory {
 	function getPermissionControlDefaultData() {
 		$company_obj = $this->getCurrentCompanyObject();
 
-		Debug::Text('Getting PermissionControl default data...', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Getting PermissionControl default data...', __FILE__, __LINE__, __METHOD__, 10);
 
 		$data = array(
 						'company_id' => $company_obj->getId(),
@@ -88,7 +84,7 @@ class APIPermissionControl extends APIFactory {
 	 * @return array
 	 */
 	function getPermissionOptions() {
-		Debug::Text('Getting Permission Options...', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Getting Permission Options...', __FILE__, __LINE__, __METHOD__, 10);
 
 		$product_edition = $this->getCurrentCompanyObject()->getProductEdition();
 
@@ -123,8 +119,8 @@ class APIPermissionControl extends APIFactory {
 	 * @return array
 	 */
 	function getPermissionControl( $data = NULL, $disable_paging = FALSE ) {
-		if ( !$this->getPermissionObject()->Check('permission','enabled')
-				OR !( $this->getPermissionObject()->Check('permission','view') OR $this->getPermissionObject()->Check('permission','view_own') OR $this->getPermissionObject()->Check('permission','view_child')  ) ) {
+		if ( !$this->getPermissionObject()->Check('permission', 'enabled')
+				OR !( $this->getPermissionObject()->Check('permission', 'view') OR $this->getPermissionObject()->Check('permission', 'view_own') OR $this->getPermissionObject()->Check('permission', 'view_child')	 ) ) {
 			//Rather then permission denied, restrict to just 'list_view' columns.
 			//return $this->getPermissionObject()->PermissionDenied();
 			$data['filter_columns'] = $this->handlePermissionFilterColumns( (isset($data['filter_columns'])) ? $data['filter_columns'] : NULL, Misc::trimSortPrefix( $this->getOptions('list_columns') ) );
@@ -134,15 +130,15 @@ class APIPermissionControl extends APIFactory {
 		$data['filter_data']['permission_children_ids'] = $this->getPermissionObject()->getPermissionChildren( 'permission', 'view' );
 
 		$data['filter_data']['level'] = $this->getPermissionObject()->getLevel(); //Make sure we only display permissions below the current users level.
-		Debug::Text('Using Permission Level <= '. $data['filter_data']['level'] , __FILE__, __LINE__, __METHOD__, 10);
+		Debug::Text('Using Permission Level <= '. $data['filter_data']['level'], __FILE__, __LINE__, __METHOD__, 10);
 
 		//When creating new companies, we need to be able to get the permission groups before we can login as that company,
 		//So allow a different company_id to be specified in those cases.
-		if ( $this->getPermissionObject()->Check('company','view') == FALSE ) {
-			if ( $this->getPermissionObject()->Check('company','view_child') ) {
+		if ( $this->getPermissionObject()->Check('company', 'view') == FALSE ) {
+			if ( $this->getPermissionObject()->Check('company', 'view_child') ) {
 				$data['filter_data']['company_id'] = $this->getCurrentCompanyObject()->getId();
 			}
-			if ( $this->getPermissionObject()->Check('company','view_own') ) {
+			if ( $this->getPermissionObject()->Check('company', 'view_own') ) {
 				$data['filter_data']['company_id'] = $this->getCurrentCompanyObject()->getId();
 			}
 		}
@@ -197,9 +193,9 @@ class APIPermissionControl extends APIFactory {
 			return $this->returnHandler( FALSE );
 		}
 
-		if ( !$this->getPermissionObject()->Check('permission','enabled')
-				OR !( $this->getPermissionObject()->Check('permission','edit') OR $this->getPermissionObject()->Check('permission','edit_own') OR $this->getPermissionObject()->Check('permission','edit_child') OR $this->getPermissionObject()->Check('permission','add') ) ) {
-			return  $this->getPermissionObject()->PermissionDenied();
+		if ( !$this->getPermissionObject()->Check('permission', 'enabled')
+				OR !( $this->getPermissionObject()->Check('permission', 'edit') OR $this->getPermissionObject()->Check('permission', 'edit_own') OR $this->getPermissionObject()->Check('permission', 'edit_child') OR $this->getPermissionObject()->Check('permission', 'add') ) ) {
+			return	$this->getPermissionObject()->PermissionDenied();
 		}
 
 		if ( $validate_only == TRUE ) {
@@ -223,11 +219,11 @@ class APIPermissionControl extends APIFactory {
 					if ( $lf->getRecordCount() == 1 ) {
 						//Object exists, check edit permissions
 						if (
-							  $validate_only == TRUE
-							  OR
+							$validate_only == TRUE
+							OR
 								(
-								$this->getPermissionObject()->Check('permission','edit')
-									OR ( $this->getPermissionObject()->Check('permission','edit_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE )
+								$this->getPermissionObject()->Check('permission', 'edit')
+									OR ( $this->getPermissionObject()->Check('permission', 'edit_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE )
 								) ) {
 
 							Debug::Text('Row Exists, getting current data: ', $row['id'], __FILE__, __LINE__, __METHOD__, 10);
@@ -242,7 +238,7 @@ class APIPermissionControl extends APIFactory {
 					}
 				} else {
 					//Adding new object, check ADD permissions.
-					$primary_validator->isTrue( 'permission', $this->getPermissionObject()->Check('permission','add'), TTi18n::gettext('Add permission denied') );
+					$primary_validator->isTrue( 'permission', $this->getPermissionObject()->Check('permission', 'add'), TTi18n::gettext('Add permission denied') );
 
 					//Because this class has sub-classes that depend on it, when adding a new record we need to make sure the ID is set first,
 					//so the sub-classes can depend on it. We also need to call Save( TRUE, TRUE ) to force a lookup on isNew()
@@ -258,10 +254,10 @@ class APIPermissionControl extends APIFactory {
 				if ( $is_valid == TRUE ) { //Check to see if all permission checks passed before trying to save data.
 					Debug::Text('Setting object data...', __FILE__, __LINE__, __METHOD__, 10);
 
-					$lf->setObjectFromArray( $row );
-
 					//Force Company ID to current company.
-					$lf->setCompany( $this->getCurrentCompanyObject()->getId() );
+					$row['company_id'] = $this->getCurrentCompanyObject()->getId();
+
+					$lf->setObjectFromArray( $row );
 
 					$is_valid = $lf->isValid();
 					if ( $is_valid == TRUE ) {
@@ -321,16 +317,16 @@ class APIPermissionControl extends APIFactory {
 			return $this->returnHandler( FALSE );
 		}
 
-		if ( !$this->getPermissionObject()->Check('permission','enabled')
-				OR !( $this->getPermissionObject()->Check('permission','delete') OR $this->getPermissionObject()->Check('permission','delete_own') OR $this->getPermissionObject()->Check('permission','delete_child') ) ) {
-			return  $this->getPermissionObject()->PermissionDenied();
+		if ( !$this->getPermissionObject()->Check('permission', 'enabled')
+				OR !( $this->getPermissionObject()->Check('permission', 'delete') OR $this->getPermissionObject()->Check('permission', 'delete_own') OR $this->getPermissionObject()->Check('permission', 'delete_child') ) ) {
+			return	$this->getPermissionObject()->PermissionDenied();
 		}
 
 		Debug::Text('Received data for: '. count($data) .' PermissionControls', __FILE__, __LINE__, __METHOD__, 10);
 		Debug::Arr($data, 'Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		$total_records = count($data);
-        $validator_stats = array('total_records' => $total_records, 'valid_records' => 0 );
+		$validator_stats = array('total_records' => $total_records, 'valid_records' => 0 );
 		if ( is_array($data) ) {
 			foreach( $data as $key => $id ) {
 				$primary_validator = new Validator();
@@ -342,8 +338,8 @@ class APIPermissionControl extends APIFactory {
 					$lf->getByIdAndCompanyId( $id, $this->getCurrentCompanyObject()->getId() );
 					if ( $lf->getRecordCount() == 1 ) {
 						//Object exists, check edit permissions
-						if ( $this->getPermissionObject()->Check('permission','delete')
-								OR ( $this->getPermissionObject()->Check('permission','delete_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE ) ) {
+						if ( $this->getPermissionObject()->Check('permission', 'delete')
+								OR ( $this->getPermissionObject()->Check('permission', 'delete_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE ) ) {
 							Debug::Text('Record Exists, deleting record: ', $id, __FILE__, __LINE__, __METHOD__, 10);
 							$lf = $lf->getCurrent();
 						} else {
@@ -422,7 +418,7 @@ class APIPermissionControl extends APIFactory {
 		if ( is_array( $src_rows ) AND count($src_rows) > 0 ) {
 			Debug::Arr($src_rows, 'SRC Rows: ', __FILE__, __LINE__, __METHOD__, 10);
 			foreach( $src_rows as $key => $row ) {
-				unset($src_rows[$key]['id'],$src_rows[$key]['user']); //Clear fields that can't be copied, don't copy users either.
+				unset($src_rows[$key]['id'], $src_rows[$key]['user']); //Clear fields that can't be copied, don't copy users either.
 				$src_rows[$key]['name'] = Misc::generateCopyName( $row['name'] ); //Generate unique name
 			}
 			//Debug::Arr($src_rows, 'bSRC Rows: ', __FILE__, __LINE__, __METHOD__, 10);

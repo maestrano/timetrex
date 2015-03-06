@@ -318,6 +318,7 @@ class fileupload {
 			$this->file['error']    = (isset($_FILES[$filename]['error']))    ? $_FILES[$filename]['error'] : '';
 			$this->file['size']     = (isset($_FILES[$filename]['size']))     ? $_FILES[$filename]['size'] : '';
 			
+			Debug::Arr($this->file, 'File Upload Data: ', __FILE__, __LINE__, __METHOD__, 10); //Use to help debug mime types.
 			if ($this->do_upload($this->file)) {
 				$this->file_array = $this->file;
 				return $this->file['name']; // success; return single filename
@@ -483,7 +484,8 @@ class fileupload {
 		$file_array['name']      = $file_array['basename'] . $file_array['extension'];
 		
 		// text files, convert non-unix line breaks to unix
-		$this->clean_line_breaks($file_array['tmp_name'], $file_array['type']);
+		//This corrupts LibreOffice file uploading, not sure why its even needed?
+		//$this->clean_line_breaks($file_array['tmp_name'], $file_array['type']);
 		
 		return TRUE;
 	}

@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,19 +33,15 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 5166 $
- * $Id: Option.class.php 5166 2011-08-26 23:01:36Z ipso $
- * $Date: 2011-08-26 16:01:36 -0700 (Fri, 26 Aug 2011) $
- */
+
 
 /**
  * @package Core
  */
 class Option {
 	static function getByKey($key, $options, $false = FALSE ) {
-		if ( isset($options[$key]) ){
-			//Debug::text('Returning Value: '. $options[$key] , __FILE__, __LINE__, __METHOD__, 9);
+		if ( isset($options[$key]) ) {
+			//Debug::text('Returning Value: '. $options[$key], __FILE__, __LINE__, __METHOD__, 9);
 
 			return $options[$key];
 		}
@@ -56,7 +52,7 @@ class Option {
 
 	static function getByValue($value, $options, $value_is_translated = TRUE ) {
 		// I18n: Calling gettext on the value here enables a match with the translated value in the relevant factory.
-		//       BUT... such string comparisons are messy and we really should be using getByKey for most everything.
+		//		 BUT... such string comparisons are messy and we really should be using getByKey for most everything.
 		//		 Exceptions can be made by passing false for $value_is_translated.
 		if ( $value_is_translated == TRUE ) {
 			$value = TTi18n::gettext( $value );
@@ -71,8 +67,8 @@ class Option {
 
 		$flipped_options = array_flip($options);
 
-		if ( isset($flipped_options[$value]) ){
-			//Debug::text('Returning Key: '. $flipped_options[$value] , __FILE__, __LINE__, __METHOD__, 9);
+		if ( isset($flipped_options[$value]) ) {
+			//Debug::text('Returning Key: '. $flipped_options[$value], __FILE__, __LINE__, __METHOD__, 9);
 
 			return $flipped_options[$value];
 		}
@@ -82,7 +78,7 @@ class Option {
 
 	static function getByFuzzyValue($value, $options, $value_is_translated = TRUE ) {
 		// I18n: Calling gettext on the value here enables a match with the translated value in the relevant factory.
-		//       BUT... such string comparisons are messy and we really should be using getByKey for most everything.
+		//		 BUT... such string comparisons are messy and we really should be using getByKey for most everything.
 		//		 Exceptions can be made by passing false for $value_is_translated.
 		if ( $value_is_translated == TRUE ) {
 			$value = TTi18n::gettext( $value );
@@ -96,7 +92,7 @@ class Option {
 		}
 
 		$retarr = Misc::findClosestMatch( $value, $options, 10, FALSE );
-		Debug::Arr($retarr, 'RetArr: ', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($retarr, 'RetArr: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		/*
 		//Convert SQL search value ie: 'test%test%' to a regular expression.
@@ -145,9 +141,9 @@ class Option {
 
 		if ( is_numeric($bitmask) AND is_array($options) ) {
 			foreach( $options as $key => $value ) {
-				//Debug::Text('Checking Bitmask: '. $bitmask .' mod '. $key .' != 0', __FILE__, __LINE__, __METHOD__,10);
+				//Debug::Text('Checking Bitmask: '. $bitmask .' mod '. $key .' != 0', __FILE__, __LINE__, __METHOD__, 10);
 				if ( ($bitmask & (int)$key) !== 0 ) {
-					//Debug::Text('Found Bit: '. $key, __FILE__, __LINE__, __METHOD__,10);
+					//Debug::Text('Found Bit: '. $key, __FILE__, __LINE__, __METHOD__, 10);
 					$retarr[] = $key;
 				}
 			}
@@ -167,7 +163,7 @@ class Option {
 				if ( isset($options[$key]) ) {
 					$retval |= $key;
 				} else {
-					Debug::Text('Key is not a valid bitmask int: '. $key, __FILE__, __LINE__, __METHOD__,10);
+					Debug::Text('Key is not a valid bitmask int: '. $key, __FILE__, __LINE__, __METHOD__, 10);
 				}
 			}
 		}

@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2196 $
- * $Id: APICompanyGenericTag.class.php 2196 2008-10-14 16:08:54Z ipso $
- * $Date: 2008-10-14 09:08:54 -0700 (Tue, 14 Oct 2008) $
- */
+
 
 /**
  * @package API\Company
@@ -52,13 +48,13 @@ class APISetupPresets extends APIFactory {
 	}
 
 	function createPresets( $data ) {
-		if ( !$this->getPermissionObject()->Check('pay_period_schedule','enabled')
-				OR !( $this->getPermissionObject()->Check('pay_period_schedule','edit') OR $this->getPermissionObject()->Check('pay_period_schedule','edit_own') OR $this->getPermissionObject()->Check('pay_period_schedule','edit_child') OR $this->getPermissionObject()->Check('pay_period_schedule','add') ) ) {
-			return  $this->getPermissionObject()->PermissionDenied();
+		if ( !$this->getPermissionObject()->Check('pay_period_schedule', 'enabled')
+				OR !( $this->getPermissionObject()->Check('pay_period_schedule', 'edit') OR $this->getPermissionObject()->Check('pay_period_schedule', 'edit_own') OR $this->getPermissionObject()->Check('pay_period_schedule', 'edit_child') OR $this->getPermissionObject()->Check('pay_period_schedule', 'add') ) ) {
+			return	$this->getPermissionObject()->PermissionDenied();
 		}
 
 		if ( is_array($data) ) {
-			$this->getProgressBarObject()->start( $this->getAMFMessageID(), count($data)+1, NULL, TTi18n::getText('Creating policies...') );
+			$this->getProgressBarObject()->start( $this->getAMFMessageID(), ( count($data) + 1 ), NULL, TTi18n::getText('Creating policies...') );
 
 			$this->getMainClassObject()->setCompany( $this->getCurrentCompanyObject()->getId() );
 			$this->getMainClassObject()->setUser( $this->getCurrentUserObject()->getId() );
@@ -66,7 +62,7 @@ class APISetupPresets extends APIFactory {
 			$this->getMainClassObject()->createPresets();
 
 			$already_processed_country = array();
-			$i=1;
+			$i = 1;
 			foreach( $data as $location ) {
 				if ( isset($location['country']) AND isset($location['province']) ) {
 					if ( $location['province'] == '00' ) {
@@ -78,7 +74,7 @@ class APISetupPresets extends APIFactory {
 					}
 
 					$this->getMainClassObject()->createPresets( $location['country'], $location['province'] );
-					Debug::text('Creating presets for Country: '. $location['country'] .' Province: '. $location['province'], __FILE__, __LINE__, __METHOD__,9);
+					Debug::text('Creating presets for Country: '. $location['country'] .' Province: '. $location['province'], __FILE__, __LINE__, __METHOD__, 9);
 
 					$already_processed_country[] = $location['country'];
 				}
@@ -96,9 +92,20 @@ class APISetupPresets extends APIFactory {
 			$ppslf->getByCompanyId( $this->getCurrentCompanyObject()->getId() );
 			if ( $ppslf->getRecordCount() == 1 ) {
 				$pps_obj = $ppslf->getCurrent();
-				$pps_obj->setUser( $this->getCurrentUserObject()->getId() );
 
-				Debug::text('Assigning current user to pay period schedule: '. $pps_obj->getID(), __FILE__, __LINE__, __METHOD__,9);
+				//In case the user runs the quick start wizard after they are already setup, assign all users to the only existing pay period schedule.
+				$user_ids = array();
+				$ulf = TTNew('UserListFactory');
+				$ulf->getByCompanyId(  $this->getCurrentCompanyObject()->getId() );
+				if ( $ulf->getRecordCount() > 0 ) {
+					foreach( $ulf as $u_obj ) {
+						$user_ids[] = $u_obj->getId();
+					}
+				}
+				$pps_obj->setUser( $user_ids );
+				unset($user_ids);
+
+				Debug::text('Assigning current user to pay period schedule: '. $pps_obj->getID(), __FILE__, __LINE__, __METHOD__, 9);
 				if ( $pps_obj->isValid() ) {
 					$pps_obj->Save();
 				}

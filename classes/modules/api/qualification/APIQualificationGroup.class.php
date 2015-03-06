@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,14 +33,10 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2196 $
- * $Id: APIQualificationGroup.class.php 2196 2008-10-14 16:08:54Z ipso $
- * $Date: 2008-10-14 09:08:54 -0700 (Tue, 14 Oct 2008) $
- */
+
 
 /**
- * @package API_APIQualificationGroup
+ * @package API\Qualification
  */
 class APIQualificationGroup extends APIFactory {
 	protected $main_class = 'QualificationGroupFactory';
@@ -59,8 +55,8 @@ class APIQualificationGroup extends APIFactory {
 	 */
 	function getOptions( $name, $parent = NULL ) {
 		if ( $name == 'columns'
-				AND ( !$this->getPermissionObject()->Check('qualification','enabled')
-					OR !( $this->getPermissionObject()->Check('qualification','view') OR $this->getPermissionObject()->Check('qualification','view_own') OR $this->getPermissionObject()->Check('qualification','view_child') ) ) ) {
+				AND ( !$this->getPermissionObject()->Check('qualification', 'enabled')
+					OR !( $this->getPermissionObject()->Check('qualification', 'view') OR $this->getPermissionObject()->Check('qualification', 'view_own') OR $this->getPermissionObject()->Check('qualification', 'view_child') ) ) ) {
 			$name = 'list_columns';
 		}
 
@@ -74,11 +70,11 @@ class APIQualificationGroup extends APIFactory {
 	function getQualificationGroupDefaultData() {
 		$company_obj = $this->getCurrentCompanyObject();
 
-		Debug::Text('Getting QualificationGroup default data...', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Getting QualificationGroup default data...', __FILE__, __LINE__, __METHOD__, 10);
 
 		$data = array(
 						'company_id' => $company_obj->getId(),
-                        'parent_id' => 0,
+						'parent_id' => 0,
 						'name' => NULL,
 					);
 
@@ -90,13 +86,11 @@ class APIQualificationGroup extends APIFactory {
 	 * @param array $data filter data
 	 * @return array
 	 */
-	function getQualificationGroup( $data = NULL, $disable_paging = FALSE, $mode = 'flat' ) {	 
-		if ( !$this->getPermissionObject()->Check('qualification','enabled')
-				OR !( $this->getPermissionObject()->Check('qualification','view') OR $this->getPermissionObject()->Check('qualification','view_own') OR $this->getPermissionObject()->Check('qualification','view_child') ) ) {
-			//return $this->getPermissionObject()->PermissionDenied();
-			$data['filter_columns'] = $this->handlePermissionFilterColumns( (isset($data['filter_columns'])) ? $data['filter_columns'] : NULL, Misc::trimSortPrefix( $this->getOptions('list_columns') ) );
-		     
-        }
+	function getQualificationGroup( $data = NULL, $disable_paging = FALSE, $mode = 'flat' ) {	
+		if ( !$this->getPermissionObject()->Check('qualification', 'enabled')
+				OR !( $this->getPermissionObject()->Check('qualification', 'view') OR $this->getPermissionObject()->Check('qualification', 'view_own') OR $this->getPermissionObject()->Check('qualification', 'view_child') ) ) {
+			return $this->getPermissionObject()->PermissionDenied();
+		}
 		$data = $this->initializeFilterAndPager( $data, $disable_paging );
 
 		$data['filter_data']['permission_children_ids'] = $this->getPermissionObject()->getPermissionChildren( 'qualification', 'view' );
@@ -104,17 +98,17 @@ class APIQualificationGroup extends APIFactory {
 		$qglf = TTnew( 'QualificationGroupListFactory' );
 
 		if ( $mode == 'flat' ) {
-		   
+		
 			$qglf->getAPISearchByCompanyIdAndArrayCriteria( $this->getCurrentCompanyObject()->getId(), $data['filter_data'], $data['filter_items_per_page'], $data['filter_page'], NULL, $data['filter_sort'] );
 			Debug::Text('Record Count: '. $qglf->getRecordCount(), __FILE__, __LINE__, __METHOD__, 10);
-            
+
 			if ( $qglf->getRecordCount() > 0 ) {
 				$this->getProgressBarObject()->start( $this->getAMFMessageID(), $qglf->getRecordCount() );
 
 				$this->setPagerObject( $qglf );
 
 				foreach( $qglf as $ug_obj ) {
-					$retarr[] = $ug_obj->getObjectAsArray( $data['filter_columns'], $data['filter_data']['permission_children_ids']  );
+					$retarr[] = $ug_obj->getObjectAsArray( $data['filter_columns'], $data['filter_data']['permission_children_ids']	 );
 
 					$this->getProgressBarObject()->set( $this->getAMFMessageID(), $qglf->getCurrentRow() );
 				}
@@ -133,7 +127,7 @@ class APIQualificationGroup extends APIFactory {
 				Debug::Arr($retarr, ' Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 				//There seems to be a bug with Flex here that if getQualification() and getQualificationGroup() are called at the same time
-				//if this function returns an array with the keys out of order (1, 5, 10, rather then 0,1,3,4,5) Flex just sees
+				//if this function returns an array with the keys out of order (1, 5, 10, rather then 0, 1, 3, 4, 5) Flex just sees
 				//some empty object.
 				//Not sure why this is happening with just this function, but the workaround for now is to call getQualificationGroup()
 				//in a separate call to the server.
@@ -177,49 +171,49 @@ class APIQualificationGroup extends APIFactory {
 			return $this->returnHandler( FALSE );
 		}
 
-		if ( !$this->getPermissionObject()->Check('qualification','enabled')
-				OR !( $this->getPermissionObject()->Check('qualification','edit') OR $this->getPermissionObject()->Check('qualification','edit_own') OR $this->getPermissionObject()->Check('qualification','edit_child') OR $this->getPermissionObject()->Check('qualification','add') ) ) {
-			return  $this->getPermissionObject()->PermissionDenied();
+		if ( !$this->getPermissionObject()->Check('qualification', 'enabled')
+				OR !( $this->getPermissionObject()->Check('qualification', 'edit') OR $this->getPermissionObject()->Check('qualification', 'edit_own') OR $this->getPermissionObject()->Check('qualification', 'edit_child') OR $this->getPermissionObject()->Check('qualification', 'add') ) ) {
+			return	$this->getPermissionObject()->PermissionDenied();
 		}
 
 		if ( $validate_only == TRUE ) {
 			Debug::Text('Validating Only!', __FILE__, __LINE__, __METHOD__, 10);
-            $permission_children_ids = FALSE;
+			$permission_children_ids = FALSE;
 		} else {
-            //Get Permission Hierarchy Children first, as this can be used for viewing, or editing.
+			//Get Permission Hierarchy Children first, as this can be used for viewing, or editing.
 			$permission_children_ids = $this->getPermissionChildren();
 		}
 
 		extract( $this->convertToMultipleRecords($data) );
-        
+
 		Debug::Text('Received data for: '. $total_records .' QualificationGroups', __FILE__, __LINE__, __METHOD__, 10);
 		Debug::Arr($data, 'Data: ', __FILE__, __LINE__, __METHOD__, 10);
-        
+
 		$validator_stats = array('total_records' => $total_records, 'valid_records' => 0 );
 		if ( is_array($data) ) {
 			foreach( $data as $key => $row ) {
 				$primary_validator = new Validator();
 				$lf = TTnew( 'QualificationGroupListFactory' );
 				$lf->StartTransaction();
-                
+
 				if ( isset($row['id']) AND $row['id'] > 0 ) {
 					//Modifying existing object.
-					//Get QualificationGroup object, so we can only modify just changed data for specific records if needed.                    
+					//Get QualificationGroup object, so we can only modify just changed data for specific records if needed.
 					$lf->getByIdAndCompanyId( $row['id'], $this->getCurrentCompanyObject()->getId() );
-                    
+
 					if ( $lf->getRecordCount() == 1 ) {
 						//Object exists, check edit permissions
 						if (
-							  $validate_only == TRUE
-							  OR
+							$validate_only == TRUE
+							OR
 								(
-								$this->getPermissionObject()->Check('qualification','edit')
-									OR ( $this->getPermissionObject()->Check('qualification','edit_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy() ) === TRUE )
-                                    OR ( $this->getPermissionObject()->Check('qualification','edit_child') AND $this->getPermissionObject()->isChild( $lf->getCurrent()->getCreatedBy(), $permission_children_ids ) === TRUE )
+								$this->getPermissionObject()->Check('qualification', 'edit')
+									OR ( $this->getPermissionObject()->Check('qualification', 'edit_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy() ) === TRUE )
+									OR ( $this->getPermissionObject()->Check('qualification', 'edit_child') AND $this->getPermissionObject()->isChild( $lf->getCurrent()->getCreatedBy(), $permission_children_ids ) === TRUE )
 								) ) {
 
 							Debug::Text('Row Exists, getting current data: ', $row['id'], __FILE__, __LINE__, __METHOD__, 10);
-							$lf = $lf->getCurrent(); 
+							$lf = $lf->getCurrent();
 							$row = array_merge( $lf->getObjectAsArray(), $row );
 						} else {
 							$primary_validator->isTrue( 'permission', FALSE, TTi18n::gettext('Edit permission denied') );
@@ -230,18 +224,18 @@ class APIQualificationGroup extends APIFactory {
 					}
 				} else {
 					//Adding new object, check ADD permissions.
-					$primary_validator->isTrue( 'permission', $this->getPermissionObject()->Check('qualification','add'), TTi18n::gettext('Add permission denied') );
+					$primary_validator->isTrue( 'permission', $this->getPermissionObject()->Check('qualification', 'add'), TTi18n::gettext('Add permission denied') );
 				}
 				Debug::Arr($row, 'Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 				$is_valid = $primary_validator->isValid();
 				if ( $is_valid == TRUE ) { //Check to see if all permission checks passed before trying to save data.
 					Debug::Text('Setting object data...', __FILE__, __LINE__, __METHOD__, 10);
-                    //Force Company ID to current company.
-                    $row['company_id'] = $this->getCurrentCompanyObject()->getId();  
-                    
-					$lf->setObjectFromArray( $row ); 
-                    
+					//Force Company ID to current company.
+					$row['company_id'] = $this->getCurrentCompanyObject()->getId();
+
+					$lf->setObjectFromArray( $row );
+
 					$is_valid = $lf->isValid();
 					if ( $is_valid == TRUE ) {
 						Debug::Text('Saving data...', __FILE__, __LINE__, __METHOD__, 10);
@@ -300,18 +294,18 @@ class APIQualificationGroup extends APIFactory {
 			return $this->returnHandler( FALSE );
 		}
 
-		if ( !$this->getPermissionObject()->Check('qualification','enabled')
-				OR !( $this->getPermissionObject()->Check('qualification','delete') OR $this->getPermissionObject()->Check('qualification','delete_own') OR $this->getPermissionObject()->Check('qualification','delete_child') ) ) {
-			return  $this->getPermissionObject()->PermissionDenied();
+		if ( !$this->getPermissionObject()->Check('qualification', 'enabled')
+				OR !( $this->getPermissionObject()->Check('qualification', 'delete') OR $this->getPermissionObject()->Check('qualification', 'delete_own') OR $this->getPermissionObject()->Check('qualification', 'delete_child') ) ) {
+			return	$this->getPermissionObject()->PermissionDenied();
 		}
-        
-        $permission_children_ids = $this->getPermissionChildren();
+
+		$permission_children_ids = $this->getPermissionChildren();
 
 		Debug::Text('Received data for: '. count($data) .' QualificationGroups', __FILE__, __LINE__, __METHOD__, 10);
 		Debug::Arr($data, 'Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		$total_records = count($data);
-        $validator_stats = array('total_records' => $total_records, 'valid_records' => 0 );
+		$validator_stats = array('total_records' => $total_records, 'valid_records' => 0 );
 		if ( is_array($data) ) {
 			foreach( $data as $key => $id ) {
 				$primary_validator = new Validator();
@@ -323,9 +317,9 @@ class APIQualificationGroup extends APIFactory {
 					$lf->getByIdAndCompanyId( $id, $this->getCurrentCompanyObject()->getId() );
 					if ( $lf->getRecordCount() == 1 ) {
 						//Object exists, check edit permissions
-						if ( $this->getPermissionObject()->Check('qualification','delete')
-								OR ( $this->getPermissionObject()->Check('qualification','delete_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy() ) === TRUE )
-                                OR ( $this->getPermissionObject()->Check('qualification','delete_child') AND $this->getPermissionObject()->isChild( $lf->getCurrent()->getCreatedBy(), $permission_children_ids ) === TRUE ) ) {
+						if ( $this->getPermissionObject()->Check('qualification', 'delete')
+								OR ( $this->getPermissionObject()->Check('qualification', 'delete_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy() ) === TRUE )
+								OR ( $this->getPermissionObject()->Check('qualification', 'delete_child') AND $this->getPermissionObject()->isChild( $lf->getCurrent()->getCreatedBy(), $permission_children_ids ) === TRUE ) ) {
 							Debug::Text('Record Exists, deleting record: ', $id, __FILE__, __LINE__, __METHOD__, 10);
 							$lf = $lf->getCurrent();
 						} else {
@@ -404,7 +398,7 @@ class APIQualificationGroup extends APIFactory {
 		if ( is_array( $src_rows ) AND count($src_rows) > 0 ) {
 			Debug::Arr($src_rows, 'SRC Rows: ', __FILE__, __LINE__, __METHOD__, 10);
 			foreach( $src_rows as $key => $row ) {
-				unset($src_rows[$key]['id'],$src_rows[$key]['manual_id'] ); //Clear fields that can't be copied
+				unset($src_rows[$key]['id'], $src_rows[$key]['manual_id'] ); //Clear fields that can't be copied
 				$src_rows[$key]['name'] = Misc::generateCopyName( $row['name'] ); //Generate unique name
 			}
 			//Debug::Arr($src_rows, 'bSRC Rows: ', __FILE__, __LINE__, __METHOD__, 10);
@@ -414,14 +408,14 @@ class APIQualificationGroup extends APIFactory {
 
 		return $this->returnHandler( FALSE );
 	}
-    
-    /**
+
+	/**
 	 * Change parent of one or more groups to another group.
 	 * @param array $src_id source Group ID
 	 * @param int $dst_id destination Group ID
 	 * @return array
 	 */
-	function dragNdropQualificationGroup( $src_id, $dst_id )	{
+	function dragNdropQualificationGroup( $src_id, $dst_id ) {
 		if ( !is_array($src_id) ) {
 			$src_id = array($src_id);
 		}

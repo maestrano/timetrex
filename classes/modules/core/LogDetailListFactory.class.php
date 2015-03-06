@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 3725 $
- * $Id: LogListFactory.class.php 3725 2010-07-28 21:16:05Z ipso $
- * $Date: 2010-07-28 14:16:05 -0700 (Wed, 28 Jul 2010) $
- */
+
 
 /**
  * @package Core
@@ -46,7 +42,7 @@ class LogDetailListFactory extends LogDetailFactory implements IteratorAggregate
 
 	function getAll($limit = NULL, $page = NULL, $where = NULL, $order = NULL) {
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 				';
 		$query .= $this->getWhereSQL( $where );
@@ -67,7 +63,7 @@ class LogDetailListFactory extends LogDetailFactory implements IteratorAggregate
 					);
 
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					where	id = ?
 					';
@@ -97,7 +93,7 @@ class LogDetailListFactory extends LogDetailFactory implements IteratorAggregate
 					);
 
 		$query = '
-					select 	a.*
+					select	a.*
 					from	'. $this->getTable() .' as a
 						LEFT JOIN  '. $lf->getTable() .' as lf on a.system_log_id = lf.id
 						LEFT JOIN  '. $uf->getTable() .' as uf on lf.user_id = uf.id
@@ -124,7 +120,7 @@ class LogDetailListFactory extends LogDetailFactory implements IteratorAggregate
 					);
 
 		$query = '
-					select 	a.*
+					select	a.*
 					from	'. $this->getTable() .' as a
 						LEFT JOIN  '. $lf->getTable() .' as lf on a.system_log_id = lf.id
 						LEFT JOIN  '. $uf->getTable() .' as uf on lf.user_id = uf.id
@@ -163,7 +159,7 @@ class LogDetailListFactory extends LogDetailFactory implements IteratorAggregate
 					);
 
 		$query = '
-					select 	a.*
+					select	a.*
 					from	'. $this->getTable() .' as a
 						LEFT JOIN  '. $lf->getTable() .' as lf on a.system_log_id = lf.id
 						LEFT JOIN  '. $uf->getTable() .' as uf on lf.user_id = uf.id

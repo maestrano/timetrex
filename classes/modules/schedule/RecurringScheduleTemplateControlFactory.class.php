@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 9521 $
- * $Id: RecurringScheduleTemplateControlFactory.class.php 9521 2013-04-08 23:09:52Z ipso $
- * $Date: 2013-04-08 16:09:52 -0700 (Mon, 08 Apr 2013) $
- */
+
 
 /**
  * @package Modules\Schedule
@@ -55,6 +51,8 @@ class RecurringScheduleTemplateControlFactory extends Factory {
 										'-1030-name' => TTi18n::gettext('Name'),
 										'-1040-description' => TTi18n::gettext('Description'),
 
+										'-1900-in_use' => TTi18n::gettext('In Use'),
+										
 										'-2000-created_by' => TTi18n::gettext('Created By'),
 										'-2010-created_date' => TTi18n::gettext('Created Date'),
 										'-2020-updated_by' => TTi18n::gettext('Updated By'),
@@ -91,6 +89,7 @@ class RecurringScheduleTemplateControlFactory extends Factory {
 										'company_id' => 'Company',
 										'name' => 'Name',
 										'description' => 'Description',
+										'in_use' => FALSE,
 										'deleted' => 'Deleted',
 										);
 		return $variable_function_map;
@@ -98,7 +97,7 @@ class RecurringScheduleTemplateControlFactory extends Factory {
 
 	function getCompany() {
 		if ( isset($this->data['company_id']) ) {
-			return $this->data['company_id'];
+			return (int)$this->data['company_id'];
 		}
 
 		return FALSE;
@@ -139,7 +138,7 @@ class RecurringScheduleTemplateControlFactory extends Factory {
 		if (	$this->Validator->isLength(	'name',
 											$name,
 											TTi18n::gettext('Name is invalid'),
-											2,50)
+											2, 50)
 						) {
 
 			$this->data['name'] = $name;
@@ -163,7 +162,7 @@ class RecurringScheduleTemplateControlFactory extends Factory {
 		if (	$this->Validator->isLength(	'description',
 											$description,
 											TTi18n::gettext('Description is invalid'),
-											0,255) ) {
+											0, 255) ) {
 
 			$this->data['description'] = $description;
 
@@ -206,6 +205,9 @@ class RecurringScheduleTemplateControlFactory extends Factory {
 
 					$function = 'get'.$function_stub;
 					switch( $variable ) {
+						case 'in_use':
+							$data[$variable] = $this->getColumn( $variable );
+							break;
 						default:
 							if ( method_exists( $this, $function ) ) {
 								$data[$variable] = $this->$function();
@@ -223,7 +225,7 @@ class RecurringScheduleTemplateControlFactory extends Factory {
 	}
 
 	function addLog( $log_action ) {
-		return TTLog::addEntry( $this->getId(), $log_action,  TTi18n::getText('Recurring Schedule Template'), NULL, $this->getTable(), $this );
+		return TTLog::addEntry( $this->getId(), $log_action, TTi18n::getText('Recurring Schedule Template').': '. $this->getName(), NULL, $this->getTable(), $this );
 	}
 }
 ?>

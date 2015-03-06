@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,27 +33,24 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 1665 $
- * $Id: CTPayrollDeductionTest.php 1665 2008-01-18 23:34:53Z ipso $
- * $Date: 2008-01-18 15:34:53 -0800 (Fri, 18 Jan 2008) $
- */
+
 require_once('PHPUnit/Framework/TestCase.php');
 
+/**
+ * @group CRPayrollDeductionTest
+ */
 class CRPayrollDeductionTest extends PHPUnit_Framework_TestCase {
-
-    public $company_id = 1;
-
-    public function __construct() {
-        global $db, $cache;
-
-		require_once( Environment::getBasePath().'/classes/payroll_deduction/PayrollDeduction.class.php');
-
-		TTDate::setTimeZone('PST');
-    }
+    public $company_id = NULL;
 
     public function setUp() {
         Debug::text('Running setUp(): ', __FILE__, __LINE__, __METHOD__,10);
+
+		require_once( Environment::getBasePath().'/classes/payroll_deduction/PayrollDeduction.class.php');
+
+		$this->company_id = PRIMARY_COMPANY_ID;
+
+		TTDate::setTimeZone('Etc/GMT+8'); //Force to non-DST timezone. 'PST' isnt actually valid.
+
         return TRUE;
     }
 

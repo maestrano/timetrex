@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2095 $
- * $Id: Sort.class.php 2095 2008-09-01 07:04:25Z ipso $
- * $Date: 2008-09-01 00:04:25 -0700 (Mon, 01 Sep 2008) $
- */
+
 
 /**
  * @package Core
@@ -64,8 +60,8 @@ class Group {
 				}
 			}
 		}
-		//Debug::Arr( $group_by_cols, 'Group By Columns: ', __FILE__, __LINE__, __METHOD__,10);
-		//Debug::Arr( $aggregate_cols, 'Aggregate Columns: ', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr( $group_by_cols, 'Group By Columns: ', __FILE__, __LINE__, __METHOD__, 10);
+		//Debug::Arr( $aggregate_cols, 'Aggregate Columns: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		//Sort the array by group_by_col first, ONLY if subtotal mode, because order matters for merging the subtotal rows back into the main array.
 		//The array should be sorted before subtotaling is done though, so we either need to pass the final sorting array here, or don't sort at all.
@@ -76,7 +72,7 @@ class Group {
 		$retarr = array();
 		$row_map = array();
 		if ( is_array($array) ) {
-			$i=0;
+			$i = 0;
 			foreach ( $array as $row ) {
 				if ( !is_array($row) ) {
 					continue;
@@ -97,7 +93,7 @@ class Group {
 						}
 					}
 				}
-				//Debug::Text('Group By Key Val: '. $group_by_key_val, __FILE__, __LINE__, __METHOD__,10);
+				//Debug::Text('Group By Key Val: '. $group_by_key_val, __FILE__, __LINE__, __METHOD__, 10);
 
 				if ( !isset($retarr[$group_by_key_val]) ) {
 					$retarr[$group_by_key_val] = array();
@@ -109,7 +105,7 @@ class Group {
 				$row_map[$group_by_key_val] = $i.'_';
 
 				foreach ( $row as $key => $val ) {
-					//Debug::text(' aKey: '. $key .' Value: '. $val , __FILE__, __LINE__, __METHOD__,10);
+					//Debug::text(' aKey: '. $key .' Value: '. $val, __FILE__, __LINE__, __METHOD__, 10);
 					if ( isset($group_by_cols[$key]) ) {
 						//Only include a single key => value pair for the grouped columns to save memory.
 						//If we are subtotaling, ignore all static columns.
@@ -119,9 +115,7 @@ class Group {
 						}
 					} elseif ( isset($aggregate_cols[$key]) ) {
 						$retarr[$group_by_key_val][$key][] = $val;
-					} else {
-						//Ignore data that isn't in grouping or aggregate.
-					}
+					} // else { //Ignore data that isn't in grouping or aggregate.
 				}
 
 				$i++;
@@ -129,7 +123,7 @@ class Group {
 		}
 
 		//Substitude group_by_key_val with sparse row values so we know where to insert totals within the main array if sub-totaling.
-		//Debug::Arr($row_map, ' Row Map: ' , __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($row_map, ' Row Map: ', __FILE__, __LINE__, __METHOD__, 10);
 		if ( $subtotal == 1 ) {
 			if ( is_array($retarr) AND is_array($row_map) ) {
 				foreach ( $row_map as $key => $count ) {
@@ -143,12 +137,12 @@ class Group {
 		if ( is_array($retarr) AND count($aggregate_cols) > 0 ) {
 			foreach ( $retarr as $i => $row ) {
 				foreach ( $row as $key => $val) {
-					//Debug::text(' bKey: '. $key .' Value: '. $val , __FILE__, __LINE__, __METHOD__,10);
+					//Debug::text(' bKey: '. $key .' Value: '. $val, __FILE__, __LINE__, __METHOD__, 10);
 					if ( isset($aggregate_cols[$key]) ) {
-						//Debug::Arr($aggregate_cols[$key], 'Aggregate MetaData: ' , __FILE__, __LINE__, __METHOD__,10);
-						//Debug::Arr($val, 'Aggregate Data: ' , __FILE__, __LINE__, __METHOD__,10);
+						//Debug::Arr($aggregate_cols[$key], 'Aggregate MetaData: ', __FILE__, __LINE__, __METHOD__, 10);
+						//Debug::Arr($val, 'Aggregate Data: ', __FILE__, __LINE__, __METHOD__, 10);
 						$retarr[$i][$key] = self::aggregate( $val, $aggregate_cols[$key] );
-						//Debug::Arr($retarr[$i][$key] , 'Aggregate Result: ' , __FILE__, __LINE__, __METHOD__,10);
+						//Debug::Arr($retarr[$i][$key], 'Aggregate Result: ', __FILE__, __LINE__, __METHOD__, 10);
 					}
 				}
 			}
@@ -171,14 +165,18 @@ class Group {
 				break;
 			case 'average':
 			case 'avg':
-				$retarr = array_sum($array) / count($array);
+				$retarr = ( array_sum($array) / count($array) );
 				break;
 			case 'minimum':
 			case 'min':
 				$retarr = min($array);
 				break;
+			case 'min_not_null':
+				$retarr = self::MinNotNull($array);
+				break;
 			case 'maximum':
 			case 'max':
+			case 'max_not_null':
 				$retarr = max($array);
 				break;
 			case 'first':
@@ -193,10 +191,15 @@ class Group {
 				$retarr = count($array);
 				break;
 		}
-		//Debug::Arr($array, 'Aggregate Raw Data: ' , __FILE__, __LINE__, __METHOD__,10);
-		//Debug::Arr($retarr, 'Aggregate Result: Aggregate: '. $type , __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($array, 'Aggregate Raw Data: ', __FILE__, __LINE__, __METHOD__, 10);
+		//Debug::Arr($retarr, 'Aggregate Result: Aggregate: '. $type, __FILE__, __LINE__, __METHOD__, 10);
 
 		return $retarr;
 	}
+
+	static function MinNotNull( $values ) {
+		return @min( array_diff( array_map('intval', $values), array(0) ) ); //If array() OR array(0) is passed in it could cause a PHP warning for min()
+	}
+
 }
 ?>

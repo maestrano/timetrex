@@ -145,13 +145,13 @@
 								<td class="cellRightEditTable">
 									{if $install_obj->checkGETTEXT() == 0}
 										<span class="">{t}OK{/t}
-									{elseif $install_obj->checkGETTEXT() == 1}
+									{elseif $install_obj->checkGETTEXT() > 0}
 										<span class="tblDataWarning">{t}Warning: Not Installed. (GETTEXT extension must be enabled){/t}
 									{/if}
 									</span>
 								</td>
 							</tr>
-
+							{*
 							<tr>
 								<td class="cellLeftEditTable">
 									{t}CALENDAR Enabled:{/t}
@@ -165,6 +165,7 @@
 									</span>
 								</td>
 							</tr>
+							*}
 
 							<tr>
 								<td class="cellLeftEditTable">
@@ -189,6 +190,20 @@
 										<span class="">{t}OK{/t}
 									{elseif $install_obj->checkGD() == 1}
 										<span class="tblDataError">{t}Warning: Not Installed. (GD extension must be enabled){/t}
+									{/if}
+									</span>
+								</td>
+							</tr>
+
+							<tr>
+								<td class="cellLeftEditTable">
+									{t}JSON Enabled:{/t}
+								</td>
+								<td class="cellRightEditTable">
+									{if $install_obj->checkJSON() == 0}
+										<span class="">{t}OK{/t}
+									{elseif $install_obj->checkJSON() == 1}
+										<span class="tblDataError">{t}Warning: Not Installed. (JSON extension must be enabled){/t}
 									{/if}
 									</span>
 								</td>
@@ -224,6 +239,19 @@
 								</td>
 							</tr>
 
+							<tr>
+								<td class="cellLeftEditTable">
+									{t}ZIP Enabled:{/t}
+								</td>
+								<td class="cellRightEditTable">
+									{if $install_obj->checkZIP() == 0}
+										<span class="">{t}OK{/t}
+									{elseif $install_obj->checkZIP() == 1}
+										<span class="tblDataError">{t}Warning: Not Installed. (ZIP extension must be enabled){/t}
+									{/if}
+									</span>
+								</td>
+							</tr>
 							<tr>
 								<td class="cellLeftEditTable">
 									{t}MAIL Enabled:{/t}
@@ -277,6 +305,17 @@
 									</span>
 								</td>
 							</tr>
+						</table>
+					</td>
+					<td valign="top">
+						<table class="editTable">
+							<tr>
+								<td colspan="2" class="cellLeftEditTable">
+									<div align="center">
+										{t}Other Requirements{/t}
+									</div>
+								</td>
+							</tr>
 
 							<tr>
 								<td class="cellLeftEditTable">
@@ -291,15 +330,60 @@
 									</span>
 								</td>
 							</tr>
-						</table>
-					</td>
-					<td valign="top">
-						<table class="editTable">
+
 							<tr>
-								<td colspan="2" class="cellLeftEditTable">
-									<div align="center">
-										{t}Other Requirements{/t}
-									</div>
+								<td class="cellLeftEditTable">
+									{t}Base URL:{/t}
+								</td>
+								<td class="cellRightEditTable">
+									{if $install_obj->checkBaseURL() == 0}
+										<span class="">{t}OK{/t}
+									{else}
+										<span class="tblDataError"><b>{t escape="no" 1=$install_obj->getRecommendedBaseURL()}Warning: base_url in timetrex.ini.php is incorrect, perhaps it should be "%1" instead.{/t}</b>
+									{/if}
+									</span>
+								</td>
+							</tr>
+
+							<tr>
+								<td class="cellLeftEditTable">
+									{t}PHP Open BaseDir:{/t}
+								</td>
+								<td class="cellRightEditTable">
+									{if $install_obj->checkPHPOpenBaseDir() == 0}
+										<span class="">{t}OK{/t}
+									{else}
+										<span class="tblDataError"><b>{t escape="no" 1=$install_obj->getPHPOpenBaseDir() 2=$install_obj->getPHPCLIDirectory()}Warning: PHP open_basedir setting (%1) does not include directory of PHP CLI binary (%2).{/t}</b>
+									{/if}
+									</span>
+								</td>
+							</tr>
+
+							<tr>
+								<td class="cellLeftEditTable">
+									{t}PHP CLI Executable:{/t}
+								</td>
+								<td class="cellRightEditTable">
+									{if $install_obj->checkPHPCLIBinary() == 0}
+										<span class="">{t}OK{/t}
+									{else}
+										<span class="tblDataError"><b>{t escape="no" 1=$install_obj->getPHPCLI()}Warning: PHP CLI (%1) does not exist or is not executable.{/t}</b>
+									{/if}
+									</span>
+								</td>
+							</tr>
+
+							<tr>
+								<td class="cellLeftEditTable">
+									{t}PHP CLI Requirements:{/t}
+								</td>
+								<td class="cellRightEditTable">
+									{if $install_obj->checkPHPCLIRequirements() == 0}
+										<span class="">{t}OK{/t}
+									{else}
+										<span class="tblDataError"><b>{t escape="no" 1=$install_obj->getPHPCLIRequirementsCommand()}Warning: PHP CLI requirements failed while executing <br>"%1"<br> Likely caused by having two PHP.INI files with different settings.{/t}</b>
+									{/if}
+									</span>
 								</td>
 							</tr>
 

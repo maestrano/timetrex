@@ -43,7 +43,7 @@ if (!function_exists('http_build_query')) {
  * @author     David Coallier <davidc@php.net>
  * @copyright  2005 Arpad Ray
  * @license    http://www.opensource.org/licenses/lgpl-license.php  LGPL
- * @version    Release: 0.5.2
+ * @version    Release: 0.5.6
  * @link       http://pear.php.net/package/HTML_AJAX
  */
 class HTML_AJAX_Serializer_Urlencoded

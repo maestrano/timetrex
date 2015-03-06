@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 1246 $
- * $Id: InstallSchema_1001B.class.php 1246 2007-09-14 23:47:42Z ipso $
- * $Date: 2007-09-14 16:47:42 -0700 (Fri, 14 Sep 2007) $
- */
+
 
 /**
  * @package Modules\Install
@@ -45,28 +41,28 @@
 class InstallSchema_1055A extends InstallSchema_Base {
 
 	function preInstall() {
-		Debug::text('preInstall: '. $this->getVersion() , __FILE__, __LINE__, __METHOD__,9);
+		Debug::text('preInstall: '. $this->getVersion(), __FILE__, __LINE__, __METHOD__, 9);
 
 		return TRUE;
 	}
 
 	function postInstall() {
-		Debug::text('postInstall: '. $this->getVersion(), __FILE__, __LINE__, __METHOD__,9);
+		Debug::text('postInstall: '. $this->getVersion(), __FILE__, __LINE__, __METHOD__, 9);
 
 		//Make sure Medicare Employer uses the same include/exclude accounts as Medicare Employee.
 		$clf = TTnew( 'CompanyListFactory' );
 		$clf->getAll();
 		if ( $clf->getRecordCount() > 0 ) {
 			foreach( $clf as $c_obj ) {
-				Debug::text('Company: '. $c_obj->getName(), __FILE__, __LINE__, __METHOD__,9);
+				Debug::text('Company: '. $c_obj->getName(), __FILE__, __LINE__, __METHOD__, 9);
 				if ( $c_obj->getStatus() != 30 AND $c_obj->getCountry() == 'US' ) {
 					//Get PayStub Link accounts
 					$pseallf = TTnew( 'PayStubEntryAccountLinkListFactory' );
 					$pseallf->getByCompanyId( $c_obj->getID() );
-					if  ( $pseallf->getRecordCount() > 0 ) {
+					if	( $pseallf->getRecordCount() > 0 ) {
 						$psea_obj = $pseallf->getCurrent();
 					} else {
-						Debug::text('Failed getting PayStubEntryLink for Company ID: '. $company_id , __FILE__, __LINE__, __METHOD__, 10);
+						Debug::text('Failed getting PayStubEntryLink for Company ID: '. $company_id, __FILE__, __LINE__, __METHOD__, 10);
 						continue;
 					}
 
@@ -77,31 +73,31 @@ class InstallSchema_1055A extends InstallSchema_Base {
 					$cdlf->getByCompanyIdAndName($c_obj->getID(), 'Medicare - Employee' );
 					if ( $cdlf->getRecordCount() == 1 ) {
 						$cd_obj = $cdlf->getCurrent();
-						Debug::text('Found Medicare Employee Tax / Deduction, ID: '. $c_obj->getID(), __FILE__, __LINE__, __METHOD__,9);
+						Debug::text('Found Medicare Employee Tax / Deduction, ID: '. $c_obj->getID(), __FILE__, __LINE__, __METHOD__, 9);
 						$include_pay_stub_accounts = $cd_obj->getIncludePayStubEntryAccount();
 						$exclude_pay_stub_accounts = $cd_obj->getExcludePayStubEntryAccount();
 					} else {
-						Debug::text('Failed to find Medicare Employee Tax / Deduction for Company: '. $c_obj->getName(), __FILE__, __LINE__, __METHOD__,9);
+						Debug::text('Failed to find Medicare Employee Tax / Deduction for Company: '. $c_obj->getName(), __FILE__, __LINE__, __METHOD__, 9);
 					}
 					unset($cdlf, $cd_obj);
 
-                    //Debug::Arr($include_pay_stub_accounts, 'Include Pay Stub Accounts: '. $c_obj->getName(), __FILE__, __LINE__, __METHOD__,9);
-                    //Debug::Arr($exclude_pay_stub_accounts, 'Exclude Pay Stub Accounts: '. $c_obj->getName(), __FILE__, __LINE__, __METHOD__,9);
+					//Debug::Arr($include_pay_stub_accounts, 'Include Pay Stub Accounts: '. $c_obj->getName(), __FILE__, __LINE__, __METHOD__, 9);
+					//Debug::Arr($exclude_pay_stub_accounts, 'Exclude Pay Stub Accounts: '. $c_obj->getName(), __FILE__, __LINE__, __METHOD__, 9);
 
 					$cdlf = TTnew( 'CompanyDeductionListFactory' );
 					$cdlf->getByCompanyIdAndName($c_obj->getID(), 'Medicare - Employer' );
 					if ( $cdlf->getRecordCount() == 1 ) {
 						$cd_obj = $cdlf->getCurrent();
-						Debug::text('Found Medicare Employer Tax / Deduction, ID: '. $c_obj->getID(), __FILE__, __LINE__, __METHOD__,9);
+						Debug::text('Found Medicare Employer Tax / Deduction, ID: '. $c_obj->getID(), __FILE__, __LINE__, __METHOD__, 9);
 
-						Debug::text('Medicare Employer Tax / Deduction Matches... Adjusting specific formula Percent...', __FILE__, __LINE__, __METHOD__,9);
+						Debug::text('Medicare Employer Tax / Deduction Matches... Adjusting specific formula Percent...', __FILE__, __LINE__, __METHOD__, 9);
 						if ( $include_pay_stub_accounts !== FALSE ) {
-							Debug::text('Matching Include/Exclude accounts with Medicare Employee Entry...', __FILE__, __LINE__, __METHOD__,9);
+							Debug::text('Matching Include/Exclude accounts with Medicare Employee Entry...', __FILE__, __LINE__, __METHOD__, 9);
 							//Match include accounts with employee entry.
 							$cd_obj->setIncludePayStubEntryAccount( $include_pay_stub_accounts );
 							$cd_obj->setExcludePayStubEntryAccount( $exclude_pay_stub_accounts );
 						} else {
-							Debug::text('NOT Matching Include/Exclude accounts with Medicare Employee Entry...', __FILE__, __LINE__, __METHOD__,9);
+							Debug::text('NOT Matching Include/Exclude accounts with Medicare Employee Entry...', __FILE__, __LINE__, __METHOD__, 9);
 							$cd_obj->setIncludePayStubEntryAccount( array( $psea_obj->getTotalGross() ));
 						}
 
@@ -110,7 +106,7 @@ class InstallSchema_1055A extends InstallSchema_Base {
 							$cd_obj->Save();
 						}
 					} else {
-						Debug::text('Failed to find Medicare Employer Tax / Deduction for Company: '. $c_obj->getName(), __FILE__, __LINE__, __METHOD__,9);
+						Debug::text('Failed to find Medicare Employer Tax / Deduction for Company: '. $c_obj->getName(), __FILE__, __LINE__, __METHOD__, 9);
 					}
 				}
 			}

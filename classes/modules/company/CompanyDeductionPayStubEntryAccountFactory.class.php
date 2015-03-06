@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 8371 $
- * $Id: CompanyDeductionPayStubEntryAccountFactory.class.php 8371 2012-11-22 21:18:57Z ipso $
- * $Date: 2012-11-22 13:18:57 -0800 (Thu, 22 Nov 2012) $
- */
+
 
 /**
  * @package Modules\Company
@@ -81,7 +77,7 @@ class CompanyDeductionPayStubEntryAccountFactory extends Factory {
 
 	function getCompanyDeduction() {
 		if ( isset($this->data['company_deduction_id']) ) {
-			return $this->data['company_deduction_id'];
+			return (int)$this->data['company_deduction_id'];
 		}
 
 		return FALSE;
@@ -89,7 +85,7 @@ class CompanyDeductionPayStubEntryAccountFactory extends Factory {
 	function setCompanyDeduction($id) {
 		$id = trim($id);
 
-		Debug::Text('ID: '. $id, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('ID: '. $id, __FILE__, __LINE__, __METHOD__, 10);
 		$cdlf = TTnew( 'CompanyDeductionListFactory' );
 
 		if (	$id != 0
@@ -109,7 +105,7 @@ class CompanyDeductionPayStubEntryAccountFactory extends Factory {
 
 	function getType() {
 		if ( isset($this->data['type_id']) ) {
-			return $this->data['type_id'];
+			return (int)$this->data['type_id'];
 		}
 
 		return FALSE;
@@ -138,7 +134,7 @@ class CompanyDeductionPayStubEntryAccountFactory extends Factory {
 
 	function getPayStubEntryAccount() {
 		if ( isset($this->data['pay_stub_entry_account_id']) ) {
-			return $this->data['pay_stub_entry_account_id'];
+			return (int)$this->data['pay_stub_entry_account_id'];
 		}
 
 		return FALSE;
@@ -146,7 +142,7 @@ class CompanyDeductionPayStubEntryAccountFactory extends Factory {
 	function setPayStubEntryAccount($id) {
 		$id = trim($id);
 
-		Debug::Text('ID: '. $id, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('ID: '. $id, __FILE__, __LINE__, __METHOD__, 10);
 		$psealf = TTnew( 'PayStubEntryAccountListFactory' );
 
 		if (
@@ -215,7 +211,7 @@ class CompanyDeductionPayStubEntryAccountFactory extends Factory {
 		$obj = $this->getPayStubEntryAccountObject();
 		if ( is_object($obj) ) {
 			$type = Option::getByKey($this->getType(), Misc::TrimSortPrefix( $this->getOptions('type') ) );
-			return TTLog::addEntry( $this->getCompanyDeduction(), $log_action,  $type .' '. TTi18n::getText('Pay Stub Account').': '. $obj->getName(), NULL, $this->getTable() );
+			return TTLog::addEntry( $this->getCompanyDeduction(), $log_action, $type .' '. TTi18n::getText('Pay Stub Account').': '. $obj->getName(), NULL, $this->getTable() );
 		}
 	}
 }

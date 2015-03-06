@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,21 +33,14 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 9521 $
- * $Id: RecurringPayStubAmendmentFactory.class.php 9521 2013-04-08 23:09:52Z ipso $
- * $Date: 2013-04-08 16:09:52 -0700 (Mon, 08 Apr 2013) $
- */
+
 
 /**
- * @package Modules_Pay_Stub\Amendment
+ * @package Modules\PayStubAmendment
  */
 class RecurringPayStubAmendmentFactory extends Factory {
 	protected $table = 'recurring_ps_amendment';
 	protected $pk_sequence_name = 'recurring_ps_amendment_id_seq'; //PK Sequence name
-/*
-*/
-
 
 	function _getFactoryOptions( $name ) {
 
@@ -97,10 +90,10 @@ class RecurringPayStubAmendmentFactory extends Factory {
 										);
 				break;
 			case 'pay_stub_account_type':
-				$retval = array(10,20,30,50,60,65);
+				$retval = array(10, 20, 30, 50, 60, 65);
 				break;
 			case 'percent_pay_stub_account_type':
-				$retval = array(10,20,30,40,50,60,65);
+				$retval = array(10, 20, 30, 40, 50, 60, 65);
 				break;
 			case 'columns':
 				$retval = array(
@@ -183,7 +176,7 @@ class RecurringPayStubAmendmentFactory extends Factory {
 
 	function getCompany() {
 		if ( isset($this->data['company_id']) ) {
-			return $this->data['company_id'];
+			return (int)$this->data['company_id'];
 		}
 
 		return FALSE;
@@ -191,7 +184,7 @@ class RecurringPayStubAmendmentFactory extends Factory {
 	function setCompany($id) {
 		$id = trim($id);
 
-		Debug::Text('Company ID: '. $id, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Company ID: '. $id, __FILE__, __LINE__, __METHOD__, 10);
 		$clf = TTnew( 'CompanyListFactory' );
 
 		if ( $this->Validator->isResultSetWithRows(	'company',
@@ -217,7 +210,7 @@ class RecurringPayStubAmendmentFactory extends Factory {
 		//day boundary and have issues with pay period end date.
 		//$epoch = TTDate::getBeginDayEpoch( $epoch ) + (43200-1);
 
-		if 	(	$this->Validator->isDate(		'start_date',
+		if	(	$this->Validator->isDate(		'start_date',
 												$epoch,
 												TTi18n::gettext('Incorrect start date')) ) {
 
@@ -242,10 +235,10 @@ class RecurringPayStubAmendmentFactory extends Factory {
 		//Add 12 hours to effective date, because we won't want it to be a
 		//day boundary and have issues with pay period end date.
 		if ( $epoch != '' ) {
-			$epoch = TTDate::getBeginDayEpoch( $epoch ) + (43200-1);
+			$epoch = ( TTDate::getBeginDayEpoch( $epoch ) + (43200 - 1) );
 		}
 
-		if 	(	$epoch == ''
+		if	(	$epoch == ''
 				OR
 				$this->Validator->isDate(		'end_date',
 												$epoch,
@@ -261,7 +254,7 @@ class RecurringPayStubAmendmentFactory extends Factory {
 
 	function getFrequency() {
 		if ( isset($this->data['frequency_id']) ) {
-			return $this->data['frequency_id'];
+			return (int)$this->data['frequency_id'];
 		}
 
 		return FALSE;
@@ -297,7 +290,7 @@ class RecurringPayStubAmendmentFactory extends Factory {
 	function setName($text) {
 		$text = trim($text);
 
-		if 	(	strlen($text) == 0
+		if	(	strlen($text) == 0
 				OR
 				$this->Validator->isLength(		'name',
 												$text,
@@ -323,7 +316,7 @@ class RecurringPayStubAmendmentFactory extends Factory {
 	function setDescription($text) {
 		$text = trim($text);
 
-		if 	(	strlen($text) == 0
+		if	(	strlen($text) == 0
 				OR
 				$this->Validator->isLength(		'description',
 												$text,
@@ -364,12 +357,11 @@ class RecurringPayStubAmendmentFactory extends Factory {
 				$ids = array(-1);
 			}
 
+			$tmp_ids = array();
 			if ( !$this->isNew() ) {
 				//If needed, delete mappings first.
 				$rpsaulf = TTnew( 'RecurringPayStubAmendmentUserListFactory' );
 				$rpsaulf->getByRecurringPayStubAmendment( $this->getId() );
-
-				$tmp_ids = array();
 				foreach ($rpsaulf as $obj) {
 					$id = $obj->getUser();
 					Debug::text('Recurring Schedule ID: '. $obj->getRecurringPayStubAmendment() .' ID: '. $id, __FILE__, __LINE__, __METHOD__, 10);
@@ -476,7 +468,7 @@ class RecurringPayStubAmendmentFactory extends Factory {
 
 	function getStatus() {
 		if ( isset($this->data['status_id']) ) {
-			return $this->data['status_id'];
+			return (int)$this->data['status_id'];
 		}
 
 		return FALSE;
@@ -504,7 +496,7 @@ class RecurringPayStubAmendmentFactory extends Factory {
 
 	function getType() {
 		if ( isset($this->data['type_id']) ) {
-			return $this->data['type_id'];
+			return (int)$this->data['type_id'];
 		}
 
 		return FALSE;
@@ -568,7 +560,7 @@ class RecurringPayStubAmendmentFactory extends Factory {
 											0,
 											4)
 				) ) {
-			Debug::text('Setting Rate to: '. $value, __FILE__, __LINE__, __METHOD__,10);
+			Debug::text('Setting Rate to: '. $value, __FILE__, __LINE__, __METHOD__, 10);
 			//Must round to 2 decimals otherwise discreptancy can occur when generating pay stubs.
 			//$this->data['rate'] = Misc::MoneyFormat( $value, FALSE );
 			$this->data['rate'] = $value;
@@ -637,7 +629,7 @@ class RecurringPayStubAmendmentFactory extends Factory {
 	function setAmount($value) {
 		$value = trim($value);
 
-		Debug::text('Amount: '. $value .' Name: '. $this->getPayStubEntryNameId() , __FILE__, __LINE__, __METHOD__,10);
+		Debug::text('Amount: '. $value .' Name: '. $this->getPayStubEntryNameId(), __FILE__, __LINE__, __METHOD__, 10);
 
 		if ($value == NULL OR $value == '') {
 			return FALSE;
@@ -683,7 +675,7 @@ class RecurringPayStubAmendmentFactory extends Factory {
 	function setPercentAmount($value) {
 		$value = trim($value);
 
-		Debug::text('Amount: '. $value .' Name: '. $this->getPayStubEntryNameId() , __FILE__, __LINE__, __METHOD__,10);
+		Debug::text('Amount: '. $value .' Name: '. $this->getPayStubEntryNameId(), __FILE__, __LINE__, __METHOD__, 10);
 
 		if ($value == NULL OR $value == '') {
 			return FALSE;
@@ -703,7 +695,7 @@ class RecurringPayStubAmendmentFactory extends Factory {
 
 	function getPercentAmountEntryNameId() {
 		if ( isset($this->data['percent_amount_entry_name_id']) ) {
-			return $this->data['percent_amount_entry_name_id'];
+			return (int)$this->data['percent_amount_entry_name_id'];
 		}
 
 		return FALSE;
@@ -736,7 +728,7 @@ class RecurringPayStubAmendmentFactory extends Factory {
 	function setPayStubAmendmentDescription($text) {
 		$text = trim($text);
 
-		if 	(	strlen($text) == 0
+		if	(	strlen($text) == 0
 				OR
 				$this->Validator->isLength(		'ps_amendment_description',
 												$text,
@@ -759,14 +751,14 @@ class RecurringPayStubAmendmentFactory extends Factory {
 
 		//Due to Cron running late, we want to still be able to insert
 		//Recurring PS amendments up to two days after the end date.
-		if ( ( $this->getEndDate() == '' AND $epoch >= $this->getStartDate() )
-				OR ( $this->getEndDate() != ''
-					AND ( $epoch >= $this->getStartDate() AND $epoch <= ($this->getEndDate()+(86400*2)) ) ) ) {
-			Debug::text('IN TimeFrame: '. TTDate::getDATE('DATE+TIME', $epoch), __FILE__, __LINE__, __METHOD__,10);
+		if ( ( ( $this->getEndDate() == 0 OR $this->getEndDate() == '' ) AND $epoch >= $this->getStartDate() )
+				OR ( ( $this->getEndDate() != 0 AND $this->getEndDate() != '' )
+					AND ( $epoch >= $this->getStartDate() AND $epoch <= ($this->getEndDate() + (86400 * 2)) ) ) ) {
+			Debug::text('IN TimeFrame: '. TTDate::getDATE('DATE+TIME', $epoch), __FILE__, __LINE__, __METHOD__, 10);
 			return TRUE;
 		}
 
-		Debug::text('Not in TimeFrame: '. TTDate::getDATE('DATE+TIME', $epoch), __FILE__, __LINE__, __METHOD__,10);
+		Debug::text('Not in TimeFrame: '. TTDate::getDATE('DATE+TIME', $epoch), __FILE__, __LINE__, __METHOD__, 10);
 		return FALSE;
 	}
 
@@ -780,7 +772,7 @@ class RecurringPayStubAmendmentFactory extends Factory {
 
 		$ulf = TTnew( 'UserListFactory' );
 
-		Debug::text('Recurring PS Amendment ID: '. $this->getId() .' Frequency: '. $this->getFrequency(), __FILE__, __LINE__, __METHOD__,10);
+		Debug::text('Recurring PS Amendment ID: '. $this->getId() .' Frequency: '. $this->getFrequency(), __FILE__, __LINE__, __METHOD__, 10);
 
 		$this->StartTransaction();
 
@@ -795,7 +787,7 @@ class RecurringPayStubAmendmentFactory extends Factory {
 			$user_ids = $this->getUser();
 		}
 		unset($tmp_user_ids);
-		Debug::text('Total User IDs: '. count($user_ids), __FILE__, __LINE__, __METHOD__,10);
+		Debug::text('Total User IDs: '. count($user_ids), __FILE__, __LINE__, __METHOD__, 10);
 
 		if ( is_array($user_ids) AND count($user_ids) > 0 ) {
 
@@ -807,26 +799,26 @@ class RecurringPayStubAmendmentFactory extends Factory {
 					$pplf = TTnew( 'PayPeriodListFactory' );
 					//FIXME: Get all non-closed pay periods AFTER the start date.
 					$pplf->getByUserIdListAndNotStatusAndStartDateAndEndDate($user_ids, 20, $this->getStartDate(), $this->getEndDate() ); //All non-closed pay periods
-					Debug::text('Found Open Pay Periods: '. $pplf->getRecordCount(), __FILE__, __LINE__, __METHOD__,10);
+					Debug::text('Found Open Pay Periods: '. $pplf->getRecordCount(), __FILE__, __LINE__, __METHOD__, 10);
 					foreach($pplf as $pay_period_obj) {
-						Debug::text('Working on Pay Period: '. $pay_period_obj->getId(), __FILE__, __LINE__, __METHOD__,10);
+						Debug::text('Working on Pay Period: '. $pay_period_obj->getId(), __FILE__, __LINE__, __METHOD__, 10);
 
 						//If near the end of a pay period, or a pay period is already ended, add PS amendment if
 						//it does not already exist.
 						if ( $epoch >= $pay_period_obj->getEndDate()
 								AND $this->checkTimeFrame($epoch) ) {
-							Debug::text('After end of pay period. Start Date: '. TTDate::getDate('DATE+TIME', $pay_period_obj->getStartDate() ) .' End Date: '. TTDate::getDate('DATE+TIME', $pay_period_obj->getEndDate() ) , __FILE__, __LINE__, __METHOD__,10);
+							Debug::text('After end of pay period. Start Date: '. TTDate::getDate('DATE+TIME', $pay_period_obj->getStartDate() ) .' End Date: '. TTDate::getDate('DATE+TIME', $pay_period_obj->getEndDate() ), __FILE__, __LINE__, __METHOD__, 10);
 
 							$psalf = TTnew( 'PayStubAmendmentListFactory' );
 
 							//Loop through each user of this Pay Period Schedule adding PS amendments if they don't already exist.
 							$pay_period_schedule_users = $pay_period_obj->getPayPeriodScheduleObject()->getUser();
-							Debug::text(' Pay Period Schedule Users: '. count($pay_period_schedule_users), __FILE__, __LINE__, __METHOD__,10);
+							Debug::text(' Pay Period Schedule Users: '. count($pay_period_schedule_users), __FILE__, __LINE__, __METHOD__, 10);
 
 							foreach( $pay_period_schedule_users as $user_id ) {
 								//Make sure schedule user is in the PS amendment user list and user is active.
-								Debug::text(' Pay Period Schedule User: '. $user_id, __FILE__, __LINE__, __METHOD__,10);
-								//Debug::Arr($user_ids, ' Recurring PS Amendment Selected Users: ', __FILE__, __LINE__, __METHOD__,10);
+								Debug::text(' Pay Period Schedule User: '. $user_id, __FILE__, __LINE__, __METHOD__, 10);
+								//Debug::Arr($user_ids, ' Recurring PS Amendment Selected Users: ', __FILE__, __LINE__, __METHOD__, 10);
 
 								if ( $ulf->getById( $user_id )->getCurrent()->getStatus() == 10
 										AND in_array( $user_id, $user_ids ) ) {
@@ -834,7 +826,7 @@ class RecurringPayStubAmendmentFactory extends Factory {
 									//Check to see if the amendment was added already.
 									if ( $psalf->getByUserIdAndRecurringPayStubAmendmentIdAndStartDateAndEndDate( $user_id, $this->getId(), $pay_period_obj->getStartDate(), $pay_period_obj->getEndDate() )->getRecordCount() == 0 ) {
 										//No amendment, good to insert one
-										Debug::text('Inserting Recurring PS Amendment for User: '. $user_id, __FILE__, __LINE__, __METHOD__,10);
+										Debug::text('Inserting Recurring PS Amendment for User: '. $user_id, __FILE__, __LINE__, __METHOD__, 10);
 
 										$psaf = TTnew( 'PayStubAmendmentFactory' );
 										$psaf->setUser( $user_id );
@@ -863,10 +855,10 @@ class RecurringPayStubAmendmentFactory extends Factory {
 										}
 									} else {
 										//Amendment already inserted!
-										Debug::text('Recurring PS Amendment already inserted for User: '. $user_id, __FILE__, __LINE__, __METHOD__,10);
+										Debug::text('Recurring PS Amendment already inserted for User: '. $user_id, __FILE__, __LINE__, __METHOD__, 10);
 									}
 								} else {
-									Debug::text('Skipping User because they are INACTIVE or are not on the Recurring PS Amendment User List - ID: '. $user_id, __FILE__, __LINE__, __METHOD__,10);
+									Debug::text('Skipping User because they are INACTIVE or are not on the Recurring PS Amendment User List - ID: '. $user_id, __FILE__, __LINE__, __METHOD__, 10);
 									//continue;
 
 								}
@@ -874,7 +866,7 @@ class RecurringPayStubAmendmentFactory extends Factory {
 							}
 
 						} else {
-							Debug::text('Not in TimeFrame, not inserting amendments: Epoch: '. $epoch .' Pay Period End Date: '. $pay_period_obj->getEndDate(), __FILE__, __LINE__, __METHOD__,10);
+							Debug::text('Not in TimeFrame, not inserting amendments: Epoch: '. $epoch .' Pay Period End Date: '. $pay_period_obj->getEndDate(), __FILE__, __LINE__, __METHOD__, 10);
 						}
 					}
 					break;
@@ -900,28 +892,28 @@ class RecurringPayStubAmendmentFactory extends Factory {
 
 							//$start_date = TTDate::getBeginYearEpoch($epoch);
 							//$end_date = TTDate::getEndYearEpoch($epoch);
-							$start_date = TTDate::getBeginDayEpoch( ( $epoch-( 86400*365 ) ) );
+							$start_date = TTDate::getBeginDayEpoch( ( $epoch - ( 86400 * 365 ) ) );
 							$end_date = TTDate::getEndDayEpoch( $epoch );
 							break;
 					}
-					Debug::text('Trigger Date: '. TTDate::getDate('DATE', $trigger_date), __FILE__, __LINE__, __METHOD__,10);
+					Debug::text('Trigger Date: '. TTDate::getDate('DATE', $trigger_date), __FILE__, __LINE__, __METHOD__, 10);
 
 					if ( $epoch >= $trigger_date
 							AND $this->checkTimeFrame($epoch) ) {
-							Debug::text('Within timeframe... Start Date: '. TTDate::getDate('DATE+TIME', $start_date ) .' End Date: '. TTDate::getDate('DATE+TIME', $end_date ) , __FILE__, __LINE__, __METHOD__,10);
+							Debug::text('Within timeframe... Start Date: '. TTDate::getDate('DATE+TIME', $start_date ) .' End Date: '. TTDate::getDate('DATE+TIME', $end_date ), __FILE__, __LINE__, __METHOD__, 10);
 
 						foreach( $user_ids as $user_id ) {
 							//Make sure schedule user is in the PS amendment user list and user is active.
 							if ( $ulf->getById( $user_id )->getCurrent()->getStatus() != 10
 									AND !in_array( $user_id, $user_ids ) ) {
-								Debug::text('Skipping User because they are INACTIVE or are not on the Recurring PS Amendment User List - ID: '. $user_id, __FILE__, __LINE__, __METHOD__,10);
+								Debug::text('Skipping User because they are INACTIVE or are not on the Recurring PS Amendment User List - ID: '. $user_id, __FILE__, __LINE__, __METHOD__, 10);
 								continue;
 							}
 
 							$psalf = TTnew( 'PayStubAmendmentListFactory' );
 							if ( $psalf->getByUserIdAndRecurringPayStubAmendmentIdAndStartDateAndEndDate( $user_id, $this->getId(), $start_date, $end_date )->getRecordCount() == 0 ) {
 								//No amendment, good to insert one
-								Debug::text('Inserting Recurring PS Amendment for User: '. $user_id, __FILE__, __LINE__, __METHOD__,10);
+								Debug::text('Inserting Recurring PS Amendment for User: '. $user_id, __FILE__, __LINE__, __METHOD__, 10);
 
 								$psaf = TTnew( 'PayStubAmendmentFactory' );
 								$psaf->setUser( $user_id );
@@ -950,7 +942,7 @@ class RecurringPayStubAmendmentFactory extends Factory {
 								}
 							} else {
 								//Amendment already inserted!
-								Debug::text('Recurring PS Amendment already inserted for User: '. $user_id, __FILE__, __LINE__, __METHOD__,10);
+								Debug::text('Recurring PS Amendment already inserted for User: '. $user_id, __FILE__, __LINE__, __METHOD__, 10);
 							}
 						}
 					}
@@ -986,8 +978,8 @@ class RecurringPayStubAmendmentFactory extends Factory {
 			if ( $this->getRate() !== NULL AND $this->getUnits() !== NULL
 					AND $this->getRate() != 0 AND $this->getUnits() != 0
 					AND $this->getRate() != '' AND $this->getUnits() != ''
-					AND ( round( $this->getRate() * $this->getUnits(),2 ) ) != round( $this->getAmount(), 2) ) {
-				Debug::text('Validate: Rate: '. $this->getRate() .' Units: '. $this->getUnits() .' Amount: '. $this->getAmount() .' Calc: Rate: '. $this->getRate() .' Units: '. $this->getUnits() .' Total: '. ( $this->getRate() * $this->getUnits() ), __FILE__, __LINE__, __METHOD__,10);
+					AND ( round( ( $this->getRate() * $this->getUnits() ), 2 ) ) != round( $this->getAmount(), 2) ) {
+				Debug::text('Validate: Rate: '. $this->getRate() .' Units: '. $this->getUnits() .' Amount: '. $this->getAmount() .' Calc: Rate: '. $this->getRate() .' Units: '. $this->getUnits() .' Total: '. ( $this->getRate() * $this->getUnits() ), __FILE__, __LINE__, __METHOD__, 10);
 				$this->Validator->isTrue(		'amount',
 												FALSE,
 												TTi18n::gettext('Invalid Amount, calculation is incorrect'));
@@ -1007,7 +999,7 @@ class RecurringPayStubAmendmentFactory extends Factory {
 	function preSave() {
 		if ( $this->getFrequency() == 40 ) {
 			if ( TTDate::getDayOfMonth( $this->getStartDate() ) > 28 ) {
-				Debug::text(' Start Date is After the 28th, making the 28th: ', __FILE__, __LINE__, __METHOD__,10);
+				Debug::text(' Start Date is After the 28th, making the 28th: ', __FILE__, __LINE__, __METHOD__, 10);
 				$this->setStartDate( TTDate::getDateOfNextDayOfMonth( $this->getStartDate(), strtotime('28-Feb-05') ) );
 			}
 		}
@@ -1033,7 +1025,7 @@ class RecurringPayStubAmendmentFactory extends Factory {
 
 	function postSave() {
 		if ( isset($this->first_insert) AND $this->first_insert == TRUE ) {
-			Debug::text('First Insert... Creating PS amendments', __FILE__, __LINE__, __METHOD__,10);
+			Debug::text('First Insert... Creating PS amendments', __FILE__, __LINE__, __METHOD__, 10);
 			//Immediately generate PS amendments
 			$this->createPayStubAmendments();
 		}
@@ -1112,7 +1104,7 @@ class RecurringPayStubAmendmentFactory extends Factory {
 	}
 
 	function addLog( $log_action ) {
-		return TTLog::addEntry( $this->getId(), $log_action,  TTi18n::getText('Recurring Pay Stub Amendment'), NULL, $this->getTable(), $this );
+		return TTLog::addEntry( $this->getId(), $log_action, TTi18n::getText('Recurring Pay Stub Amendment'), NULL, $this->getTable(), $this );
 	}
 }
 ?>

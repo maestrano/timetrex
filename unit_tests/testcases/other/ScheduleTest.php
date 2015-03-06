@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,28 +33,24 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 676 $
- * $Id: PayStubCalculationTest.php 676 2007-03-07 23:47:29Z ipso $
- * $Date: 2007-03-07 15:47:29 -0800 (Wed, 07 Mar 2007) $
- */
+
 require_once('PHPUnit/Framework/TestCase.php');
 
+/**
+ * @group Schedule
+ */
 class ScheduleTest extends PHPUnit_Framework_TestCase {
-
 	protected $company_id = NULL;
 	protected $user_id = NULL;
 	protected $pay_period_schedule_id = NULL;
 	protected $pay_period_objs = NULL;
 	protected $pay_stub_account_link_arr = NULL;
 
-    public function __construct() {
-        global $db, $cache, $profiler;
-    }
-
     public function setUp() {
 		global $dd;
         Debug::text('Running setUp(): ', __FILE__, __LINE__, __METHOD__,10);
+
+		TTDate::setTimeZone('PST8PDT', TRUE); //Due to being a singleton and PHPUnit resetting the state, always force the timezone to be set.
 
 		$dd = new DemoData();
 		$dd->setEnableQuickPunch( FALSE ); //Helps prevent duplicate punch IDs and validation failures.
@@ -78,7 +74,8 @@ class ScheduleTest extends PHPUnit_Framework_TestCase {
 
 		$this->user_id = $dd->createUser( $this->company_id, 100 );
 
-		//$this->absence_policy_id = $dd->createAbsencePolicy( $this->company_id, 10 );
+		$this->policy_ids['pay_formula_policy'][100] = $dd->createPayFormulaPolicy( $this->company_id, 100 ); //Reg 1.0x
+		$this->policy_ids['pay_code'][100] = $dd->createPayCode( $this->company_id, 100, $this->policy_ids['pay_formula_policy'][100] ); //Regular
 
 		$this->assertGreaterThan( 0, $this->company_id );
 		$this->assertGreaterThan( 0, $this->user_id );
@@ -214,7 +211,7 @@ class ScheduleTest extends PHPUnit_Framework_TestCase {
 
 	}
 
-	function createPayPeriods() {
+	function createPayPeriods( $initial_date = FALSE ) {
 		$max_pay_periods = 35;
 
 		$ppslf = new PayPeriodScheduleListFactory();
@@ -222,25 +219,28 @@ class ScheduleTest extends PHPUnit_Framework_TestCase {
 		if ( $ppslf->getRecordCount() > 0 ) {
 			$pps_obj = $ppslf->getCurrent();
 
-
 			for ( $i = 0; $i < $max_pay_periods; $i++ ) {
 				if ( $i == 0 ) {
-					//$end_date = TTDate::getBeginYearEpoch( strtotime('01-Jan-07') );
-					$end_date = TTDate::getBeginWeekEpoch( ( TTDate::getBeginYearEpoch( time() )-(86400*(7*6) ) ) );
+					if ( $initial_date !== FALSE ) {
+						$end_date = $initial_date;
+					} else {
+						//$end_date = TTDate::getBeginYearEpoch( strtotime('01-Jan-07') );
+						$end_date = TTDate::getBeginWeekEpoch( ( TTDate::getBeginYearEpoch( time() )-(86400*(7*6) ) ) );
+					}
 				} else {
 					$end_date = $end_date + ( (86400*14) );
 				}
 
 				Debug::Text('I: '. $i .' End Date: '. TTDate::getDate('DATE+TIME', $end_date) , __FILE__, __LINE__, __METHOD__,10);
 
-				$pps_obj->createNextPayPeriod( $end_date , (86400*3600) );
+				$pps_obj->createNextPayPeriod( $end_date , (86400*3600), FALSE ); //Don't import punches, as that causes deadlocks when running tests in parallel.
 			}
 
 		}
 
 		return TRUE;
 	}
-
+	
 	function createMealPolicy( $type_id ) {
 		$mpf = TTnew( 'MealPolicyFactory' );
 
@@ -257,6 +257,8 @@ class ScheduleTest extends PHPUnit_Framework_TestCase {
 				break;
 		}
 
+		$mpf->setPayCode( $this->policy_ids['pay_code'][100] );
+		
 		if ( $mpf->isValid() ) {
 			$insert_id = $mpf->Save();
 			Debug::Text('Meal Policy ID: '. $insert_id, __FILE__, __LINE__, __METHOD__,10);
@@ -274,13 +276,13 @@ class ScheduleTest extends PHPUnit_Framework_TestCase {
 
 		$spf->setCompany( $this->company_id );
 		$spf->setName( 'Schedule Policy' );
-		$spf->setMealPolicyID( $meal_policy_id );
-		$spf->setOverTimePolicyID( 0 );
 		$spf->setAbsencePolicyID( 0 );
 		$spf->setStartStopWindow( (3600*2) );
 
 		if ( $spf->isValid() ) {
-			$insert_id = $spf->Save();
+			$insert_id = $spf->Save(FALSE);
+
+			$spf->setMealPolicy( $meal_policy_id );
 			Debug::Text('Schedule Policy ID: '. $insert_id, __FILE__, __LINE__, __METHOD__,10);
 
 			return $insert_id;
@@ -374,218 +376,6 @@ class ScheduleTest extends PHPUnit_Framework_TestCase {
 		- Spanning DST.
 
 	*/
-/*
-	//DST time should be recorded based on the time the employee actually works, therefore one hour more on this day.
-	function testDSTFall() {
-		global $dd;
-
-		$this->createPayPeriodSchedule( 10 );
-		$this->createPayPeriods();
-		$this->getAllPayPeriods();
-
-		$date_epoch = strtotime('02-Nov'); //Use current year
-		$date_stamp = TTDate::getDate('DATE', $date_epoch );
-
-		$date_epoch2 = strtotime('03-Nov'); //Use current year
-		$date_stamp2 = TTDate::getDate('DATE', $date_epoch2 );
-
-		$dd->createPunchPair( 	$this->user_id,
-								strtotime($date_stamp.' 10:00PM'),
-								strtotime($date_stamp2.' 1:00AM'),
-								array(
-											'in_type_id' => 10,
-											'out_type_id' => 10,
-											'branch_id' => 0,
-											'department_id' => 0,
-											'job_id' => 0,
-											'job_item_id' => 0,
-										),
-								TRUE
-								);
-
-		$dd->createPunchPair( 	$this->user_id,
-								strtotime($date_stamp2.' 1:30AM'),
-								strtotime($date_stamp2.' 6:30AM'),
-								array(
-											'in_type_id' => 10,
-											'out_type_id' => 10,
-											'branch_id' => 0,
-											'department_id' => 0,
-											'job_id' => 0,
-											'job_item_id' => 0,
-										),
-								TRUE
-								);
-
-		$punch_arr = $this->getPunchDataArray( TTDate::getBeginDayEpoch($date_epoch), TTDate::getEndDayEpoch($date_epoch) );
-		//print_r($punch_arr);
-		$this->assertEquals( 2, count($punch_arr[$date_epoch]) );
-		$this->assertEquals( $date_epoch, $punch_arr[$date_epoch][0]['date_stamp'] );
-		$this->assertEquals( $date_epoch, $punch_arr[$date_epoch][1]['date_stamp'] );
-
-		$this->assertEquals( $punch_arr[$date_epoch][0]['shift_data']['punches'][0]['punch_control_id'], $punch_arr[$date_epoch][1]['shift_data']['punches'][0]['punch_control_id'] ); //Make sure punch_control_id from both shifts DO match.
-
-
-		$udt_arr = $this->getUserDateTotalArray( $date_epoch, $date_epoch );
-		//Total Time
-		$this->assertEquals( 10, $udt_arr[$date_epoch][0]['status_id'] );
-		$this->assertEquals( 10, $udt_arr[$date_epoch][0]['type_id'] );
-		$this->assertEquals( (9*3600), $udt_arr[$date_epoch][0]['total_time'] );
-
-		return TRUE;
-	}
-	//DST time should be recorded based on the time the employee actually works, therefore one hour more on this day.
-	function testDSTFallB() {
-		global $dd;
-
-		$this->createPayPeriodSchedule( 10 );
-		$this->createPayPeriods();
-		$this->getAllPayPeriods();
-
-		$date_epoch = strtotime('02-Nov'); //Use current year
-		$date_stamp = TTDate::getDate('DATE', $date_epoch );
-
-		$date_epoch2 = strtotime('03-Nov'); //Use current year
-		$date_stamp2 = TTDate::getDate('DATE', $date_epoch2 );
-
-		$dd->createPunchPair( 	$this->user_id,
-								strtotime($date_stamp.' 10:00PM'),
-								strtotime($date_stamp2.' 6:00AM'),
-								array(
-											'in_type_id' => 10,
-											'out_type_id' => 10,
-											'branch_id' => 0,
-											'department_id' => 0,
-											'job_id' => 0,
-											'job_item_id' => 0,
-										),
-								TRUE
-								);
-
-		$punch_arr = $this->getPunchDataArray( TTDate::getBeginDayEpoch($date_epoch), TTDate::getEndDayEpoch($date_epoch) );
-		//print_r($punch_arr);
-		$this->assertEquals( 1, count($punch_arr[$date_epoch]) );
-		$this->assertEquals( $date_epoch, $punch_arr[$date_epoch][0]['date_stamp'] );
-		//$this->assertEquals( $date_epoch, $punch_arr[$date_epoch][1]['date_stamp'] );
-
-		//$this->assertEquals( $punch_arr[$date_epoch][0]['shift_data']['punches'][0]['punch_control_id'], $punch_arr[$date_epoch][1]['shift_data']['punches'][0]['punch_control_id'] ); //Make sure punch_control_id from both shifts DO match.
-
-
-		$udt_arr = $this->getUserDateTotalArray( $date_epoch, $date_epoch );
-		//Total Time
-		$this->assertEquals( 10, $udt_arr[$date_epoch][0]['status_id'] );
-		$this->assertEquals( 10, $udt_arr[$date_epoch][0]['type_id'] );
-		$this->assertEquals( (9*3600), $udt_arr[$date_epoch][0]['total_time'] );
-
-		return TRUE;
-	}
-
-	//DST time should be recorded based on the time the employee actually works, therefore one hour less on this day.
-	function testDSTSpring() {
-		global $dd;
-
-		$this->createPayPeriodSchedule( 10 );
-		$this->createPayPeriods();
-		$this->getAllPayPeriods();
-
-		$date_epoch = strtotime('09-Mar'); //Use current year
-		$date_stamp = TTDate::getDate('DATE', $date_epoch );
-
-		$date_epoch2 = strtotime('10-Mar'); //Use current year
-		$date_stamp2 = TTDate::getDate('DATE', $date_epoch2 );
-
-		$dd->createPunchPair( 	$this->user_id,
-								strtotime($date_stamp.' 10:00PM'),
-								strtotime($date_stamp2.' 1:00AM'),
-								array(
-											'in_type_id' => 10,
-											'out_type_id' => 10,
-											'branch_id' => 0,
-											'department_id' => 0,
-											'job_id' => 0,
-											'job_item_id' => 0,
-										),
-								TRUE
-								);
-
-		$dd->createPunchPair( 	$this->user_id,
-								strtotime($date_stamp2.' 1:30AM'),
-								strtotime($date_stamp2.' 6:30AM'),
-								array(
-											'in_type_id' => 10,
-											'out_type_id' => 10,
-											'branch_id' => 0,
-											'department_id' => 0,
-											'job_id' => 0,
-											'job_item_id' => 0,
-										),
-								TRUE
-								);
-
-		$punch_arr = $this->getPunchDataArray( TTDate::getBeginDayEpoch($date_epoch), TTDate::getEndDayEpoch($date_epoch) );
-		//print_r($punch_arr);
-		$this->assertEquals( 2, count($punch_arr[$date_epoch]) );
-		$this->assertEquals( $date_epoch, $punch_arr[$date_epoch][0]['date_stamp'] );
-		$this->assertEquals( $date_epoch, $punch_arr[$date_epoch][1]['date_stamp'] );
-
-		$this->assertEquals( $punch_arr[$date_epoch][0]['shift_data']['punches'][0]['punch_control_id'], $punch_arr[$date_epoch][1]['shift_data']['punches'][0]['punch_control_id'] ); //Make sure punch_control_id from both shifts DO match.
-
-
-		$udt_arr = $this->getUserDateTotalArray( $date_epoch, $date_epoch );
-		//Total Time
-		$this->assertEquals( 10, $udt_arr[$date_epoch][0]['status_id'] );
-		$this->assertEquals( 10, $udt_arr[$date_epoch][0]['type_id'] );
-		$this->assertEquals( (7*3600), $udt_arr[$date_epoch][0]['total_time'] );
-
-		return TRUE;
-	}
-	//DST time should be recorded based on the time the employee actually works, therefore one hour less on this day.
-	function testDSTSpringB() {
-		global $dd;
-
-		$this->createPayPeriodSchedule( 10 );
-		$this->createPayPeriods();
-		$this->getAllPayPeriods();
-
-		$date_epoch = strtotime('09-Mar'); //Use current year
-		$date_stamp = TTDate::getDate('DATE', $date_epoch );
-
-		$date_epoch2 = strtotime('10-Mar'); //Use current year
-		$date_stamp2 = TTDate::getDate('DATE', $date_epoch2 );
-
-		$dd->createPunchPair( 	$this->user_id,
-								strtotime($date_stamp.' 10:00PM'),
-								strtotime($date_stamp2.' 6:00AM'),
-								array(
-											'in_type_id' => 10,
-											'out_type_id' => 10,
-											'branch_id' => 0,
-											'department_id' => 0,
-											'job_id' => 0,
-											'job_item_id' => 0,
-										),
-								TRUE
-								);
-
-		$punch_arr = $this->getPunchDataArray( TTDate::getBeginDayEpoch($date_epoch), TTDate::getEndDayEpoch($date_epoch) );
-		//print_r($punch_arr);
-		$this->assertEquals( 1, count($punch_arr[$date_epoch]) );
-		$this->assertEquals( $date_epoch, $punch_arr[$date_epoch][0]['date_stamp'] );
-		//$this->assertEquals( $date_epoch, $punch_arr[$date_epoch][1]['date_stamp'] );
-
-		//$this->assertEquals( $punch_arr[$date_epoch][0]['shift_data']['punches'][0]['punch_control_id'], $punch_arr[$date_epoch][1]['shift_data']['punches'][0]['punch_control_id'] ); //Make sure punch_control_id from both shifts DO match.
-
-
-		$udt_arr = $this->getUserDateTotalArray( $date_epoch, $date_epoch );
-		//Total Time
-		$this->assertEquals( 10, $udt_arr[$date_epoch][0]['status_id'] );
-		$this->assertEquals( 10, $udt_arr[$date_epoch][0]['type_id'] );
-		$this->assertEquals( (7*3600), $udt_arr[$date_epoch][0]['total_time'] );
-
-		return TRUE;
-	}
-*/
-
 	function testScheduleA() {
 		global $dd;
 
@@ -630,7 +420,7 @@ class ScheduleTest extends PHPUnit_Framework_TestCase {
 		$date_epoch = TTDate::getBeginWeekEpoch( time() ); //Use current year
 		$date_stamp = TTDate::getDate('DATE', $date_epoch );
 
-		$date_epoch2 = TTDate::getBeginWeekEpoch( time() )+86400; //Use current year
+		$date_epoch2 = TTDate::getBeginWeekEpoch( time() )+(86400*1.5); //Use current year, handle DST.
 		$date_stamp2 = TTDate::getDate('DATE', $date_epoch2 );
 
 
@@ -661,13 +451,13 @@ class ScheduleTest extends PHPUnit_Framework_TestCase {
 		global $dd;
 
 		$this->createPayPeriodSchedule( 10 );
-		$this->createPayPeriods();
+		$this->createPayPeriods( strtotime('01-Jan-2013') );
 		$this->getAllPayPeriods();
 
-		$date_epoch = strtotime('02-Nov'); //Use current year
+		$date_epoch = strtotime('02-Nov-2013'); //Use current year
 		$date_stamp = TTDate::getDate('DATE', $date_epoch );
 
-		$date_epoch2 = strtotime('03-Nov'); //Use current year
+		$date_epoch2 = strtotime('03-Nov-2013'); //Use current year
 		$date_stamp2 = TTDate::getDate('DATE', $date_epoch2 );
 
 		$schedule_id = $this->createSchedule( $this->user_id, $date_epoch, array(
@@ -695,13 +485,13 @@ class ScheduleTest extends PHPUnit_Framework_TestCase {
 		global $dd;
 
 		$this->createPayPeriodSchedule( 10 );
-		$this->createPayPeriods();
+		$this->createPayPeriods( strtotime('01-Jan-2013') );
 		$this->getAllPayPeriods();
 
-		$date_epoch = strtotime('09-Mar'); //Use current year
+		$date_epoch = strtotime('09-Mar-2013'); //Use current year
 		$date_stamp = TTDate::getDate('DATE', $date_epoch );
 
-		$date_epoch2 = strtotime('10-Mar'); //Use current year
+		$date_epoch2 = strtotime('10-Mar-2013'); //Use current year
 		$date_stamp2 = TTDate::getDate('DATE', $date_epoch2 );
 
 		$schedule_id = $this->createSchedule( $this->user_id, $date_epoch, array(

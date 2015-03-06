@@ -3,6 +3,7 @@
 <head>
 	<title>{$APPLICATION_NAME} - Login</title>
 	<link rel="stylesheet" type="text/css" href="{$BASE_URL}global.css.php">
+	<meta name="referrer" content="never"> {* Don't send referrer to prevent password reset link from leaking. *}
 </head>
 
 <div id="container">

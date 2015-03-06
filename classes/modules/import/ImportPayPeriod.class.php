@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 3387 $
- * $Id: ImportBranch.class.php 3387 2010-03-04 17:42:17Z ipso $
- * $Date: 2010-03-04 09:42:17 -0800 (Thu, 04 Mar 2010) $
- */
+
 
 
 /**
@@ -55,7 +51,7 @@ class ImportPayPeriod extends Import {
 		switch( $name ) {
 			case 'columns':
 				$ppf = TTNew('PayPeriodFactory');
-				$retval = Misc::arrayIntersectByKey( array('pay_period_schedule_id','start_date','end_date','transaction_date'), Misc::trimSortPrefix( $ppf->getOptions('columns') ) );
+				$retval = Misc::arrayIntersectByKey( array('pay_period_schedule', 'start_date', 'end_date', 'transaction_date'), Misc::trimSortPrefix( $ppf->getOptions('columns') ) );
 				break;
 			case 'column_aliases':
 				//Used for converting column names after they have been parsed.
@@ -85,7 +81,7 @@ class ImportPayPeriod extends Import {
 
 
 	function _preParseRow( $row_number, $raw_row ) {
-		$retval = $this->getObject()->getPayPeriodDefaultData();
+		$retval = $this->getObject()->stripReturnHandler( $this->getObject()->getPayPeriodDefaultData() );
 
 		return $retval;
 	}

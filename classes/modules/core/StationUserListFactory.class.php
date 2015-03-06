@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 11018 $
- * $Id: StationUserListFactory.class.php 11018 2013-09-24 23:39:40Z ipso $
- * $Date: 2013-09-24 16:39:40 -0700 (Tue, 24 Sep 2013) $
- */
+
 
 /**
  * @package Core
@@ -46,7 +42,7 @@ class StationUserListFactory extends StationUserFactory implements IteratorAggre
 
 	function getAll($limit = NULL, $page = NULL, $where = NULL, $order = NULL) {
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable();
 		$query .= $this->getWhereSQL( $where );
 		$query .= $this->getSortSQL( $order );
@@ -66,7 +62,7 @@ class StationUserListFactory extends StationUserFactory implements IteratorAggre
 					);
 
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					where	id = ?
 					';
@@ -90,7 +86,7 @@ class StationUserListFactory extends StationUserFactory implements IteratorAggre
 					);
 
 		$query = '
-					select 	a.*
+					select	a.*
 					from	'. $this->getTable() .' as a,
 							'. $sf->getTable() .' as b
 					where	b.id = a.station_id
@@ -114,7 +110,7 @@ class StationUserListFactory extends StationUserFactory implements IteratorAggre
 					);
 
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					where	station_id = ?
 					';
@@ -141,8 +137,8 @@ class StationUserListFactory extends StationUserFactory implements IteratorAggre
 					);
 
 		$query = '
-					select 	*
-					from 	'. $this->getTable() .'
+					select	*
+					from	'. $this->getTable() .'
 					where	station_id = ?
 						AND	id = ?';
 		$query .= $this->getSortSQL( $order );
@@ -162,7 +158,7 @@ class StationUserListFactory extends StationUserFactory implements IteratorAggre
 					);
 
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					where	user_id = ?';
 		$query .= $this->getWhereSQL( $where );
@@ -188,8 +184,8 @@ class StationUserListFactory extends StationUserFactory implements IteratorAggre
 					);
 
 		$query = '
-					select 	*
-					from 	'. $this->getTable() .'
+					select	*
+					from	'. $this->getTable() .'
 					where	user_id = ?
 						AND	id = ?';
 		$query .= $this->getSortSQL( $order );
@@ -214,8 +210,8 @@ class StationUserListFactory extends StationUserFactory implements IteratorAggre
 					);
 
 		$query = '
-					select 	*
-					from 	'. $this->getTable() .'
+					select	*
+					from	'. $this->getTable() .'
 					where	station_id = ?
 						AND	user_id = ?';
 		$query .= $this->getSortSQL( $order );

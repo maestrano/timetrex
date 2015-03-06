@@ -1,0 +1,232 @@
+.search-panel {
+    float: left;
+    width: 100%;
+}
+
+.search-panel .search-panel-tab-bar {
+    background: none;
+    padding-top: 0px;
+    padding-left: 0px;
+    padding-right: 1px;
+    border: none;
+}
+
+.search-panel .search-flag {
+    left: 3px;
+    position: absolute;
+    top: 5px;
+}
+
+.search-panel .search-panel-tab {
+    margin: 7px;
+    float: left
+}
+
+.search-panel .search-panel-tab-collapse {
+    overflow: hidden;
+    height: 0;
+}
+
+/*Tab's left offset'*/
+.search-panel .search-panel-tab-bar-label {
+    padding-left: 30px;
+    padding-top: 0px;
+    background: none repeat scroll 0 0 transparent;
+    border: medium none;
+
+}
+
+/*table Default style*/
+.search-panel .search-panel-tab-bar-label .ui-state-default {
+    border: 1px solid #BDBDBD;
+    background: none;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    font-size: 12px;
+}
+
+/*No Selected tab font style*/
+.search-panel .ui-state-default a, .search-panel .ui-state-default a:link, .search-panel .ui-state-default a:visited {
+    color: #3b3b3b;
+}
+
+/*Selected tab style*/
+
+.search-panel .ui-state-active {
+    background: none repeat scroll 0 0 #E9E9E9;
+    color: #204175;
+    font-weight: bold;
+}
+
+/*Selected tab font style*/
+.search-panel .ui-state-active a, .search-panel .ui-state-active a:link, .search-panel .ui-state-active a:visited {
+    /*color: #a40000;*/
+
+}
+
+.search-panel .active-label {
+    color: #a40000 !important;
+}
+
+.search-panel .ui-tabs .ui-tabs-nav li.ui-tabs-selected {
+    cursor: pointer;
+    margin-bottom: 0;
+    padding-bottom: 1px;
+    background: #ffffff !important;
+}
+
+/*Current table div style*/
+.search-panel .search-panel-tab-outside {
+    background: none repeat scroll 0 0 #EAEAEA;
+    border: 1px solid #BDBDBD;
+    border-radius: 10px;
+    float: left;
+    margin-bottom: 2px;
+    width: 100%;
+    border-bottom-left-radius: 0px;
+
+}
+
+.search-panel .search-panel-tab-outside-collapse {
+    height: 0px;
+}
+
+.search-panel .ui-tabs-panel {
+    padding: 0px;
+}
+
+.search-panel .ui-tabs .ui-tabs-nav li a {
+    float: left;
+    padding: 0.5em 1.8em;
+    text-decoration: none;
+}
+
+.search-panel .refresh-btn {
+    width: 18px;
+    height: 18px;
+    background: url("../../../../images/refresh_icon.png");
+    border: none;
+    cursor: pointer;
+    right: 5px;
+    position: absolute;
+    top: 5px;
+
+}
+
+.search-panel .refresh-btn:focus {
+    outline: 0;
+}
+
+@-webkit-keyframes rotateAnimation {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes rotateAnimation {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.search-panel .search-refresh-rotate {
+    animation-name: rotateAnimation;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+
+    -webkit-animation-name: rotateAnimation;
+    -webkit-animation-duration: 2s;
+    -webkit-animation-iteration-count: infinite;
+    -webkit-animation-timing-function: linear;
+
+}
+
+.search-panel .collapse-btn {
+    width: 24px;
+    height: 24px;
+    background: url("images/collapse.png");
+    border: none;
+    cursor: pointer;
+    left: 5px;
+    position: absolute;
+    top: 5px;
+
+}
+
+.search-panel .expend-btn {
+    width: 24px;
+    height: 24px;
+    background: url("images/expand.png");
+    border: none;
+    cursor: pointer;
+    left: 5px;
+    position: absolute;
+    top: 5px;
+}
+
+.search-panel .layout-selector-div {
+    left: 550px;
+    position: absolute;
+    top: 8px;
+    display: none;
+}
+
+.search-panel .current-view-label {
+    font-weight: bold;
+    color: #34628d;
+}
+
+.search-panel .layout-selector {
+    position: relative;
+    top: -3px;
+}
+
+.search-panel .search-panel-tab .first-column {
+    float: left;
+}
+
+.search-panel .search-panel-tab .second-column {
+    float: left;
+}
+
+.search-panel .search-panel-tab .third-column {
+    float: left;
+}
+
+.search-panel .previous-saved-layout-div {
+    display: inline;
+}
+
+.search-panel .search-btn-div {
+    position: relative;
+    float: left;
+    border: 1px solid #BDBDBD;
+    border-top: none;
+    border-radius: 6px;
+    border-top-right-radius: 0px;
+    border-top-left-radius: 0px;
+    padding: 3px;
+    margin-bottom: 5px;
+    margin-top: -3px;
+    background: #EAEAEA;
+}
+
+.search-panel .search-panel-tab-bar .search-panel-tab-bar-label .ui-state-hover {
+    background: none !important;
+    font-weight: bold;
+    color: #000000;
+}
+
+.search-panel .station-location {
+    position: relative;
+    top: 5px;
+    left: 2px;
+    cursor: pointer;
+}

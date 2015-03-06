@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 7166 $
- * $Id: UserSettingListFactory.class.php 7166 2012-06-26 22:32:24Z ipso $
- * $Date: 2012-06-27 06:32:24 +0800 (Wed, 27 Jun 2012) $
- */
+
 
 /**
  * @package Core
@@ -46,7 +42,7 @@ class UserSettingListFactory extends UserSettingFactory implements IteratorAggre
 
 	function getAll($limit = NULL, $page = NULL, $where = NULL, $order = NULL) {
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					';
 		$query .= $this->getWhereSQL( $where );
@@ -63,11 +59,11 @@ class UserSettingListFactory extends UserSettingFactory implements IteratorAggre
 		}
 
 		$ph = array(
-					'id' => $id,
+					'id' => $id, 
 					);
 
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					where	id = ?
 					';
@@ -91,7 +87,7 @@ class UserSettingListFactory extends UserSettingFactory implements IteratorAggre
 					);
 
 		$query = '
-					select 	a.*
+					select	a.*
 					from	'. $this->getTable() .' as a
 					LEFT JOIN '. $uf->getTable() .' as uf ON a.user_id = uf.id
 					where	uf.company_id = ?
@@ -104,11 +100,11 @@ class UserSettingListFactory extends UserSettingFactory implements IteratorAggre
 		return $this;
 	}
 
-	function getByUserIdAndName($user_id, $name) {	    
-        if ( $user_id == '' ) {
-            return FALSE;
-        }
-        
+	function getByUserIdAndName($user_id, $name) {		
+		if ( $user_id == '' ) {
+			return FALSE;
+		}
+		
 		if ( $name == '') {
 			return FALSE;
 		}
@@ -116,22 +112,22 @@ class UserSettingListFactory extends UserSettingFactory implements IteratorAggre
 		$cache_id = $user_id.$name;
 
 		$ph = array(
-                    'user_id' => $user_id,
-					'name' => $name,                    
+					'user_id' => $user_id, 
+					'name' => $name, 
 					);
 
 		$this->rs = $this->getCache($cache_id);
 		if ( $this->rs === FALSE ) {
 			$query = '
-						select 	*
-						from 	'. $this->getTable() .'
+						select	*
+						from	'. $this->getTable() .'
 						where	user_id = ?
 							AND	name = ?
 							AND deleted = 0';
 
 			$this->ExecuteSQL( $query, $ph );
 
-			$this->saveCache($this->rs,$cache_id);
+			$this->saveCache($this->rs, $cache_id);
 		}
 		
 		return $this;

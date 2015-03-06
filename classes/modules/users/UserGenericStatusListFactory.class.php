@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 11018 $
- * $Id: UserGenericStatusListFactory.class.php 11018 2013-09-24 23:39:40Z ipso $
- * $Date: 2013-09-24 16:39:40 -0700 (Tue, 24 Sep 2013) $
- */
+
 
 /**
  * @package Modules\Users
@@ -46,7 +42,7 @@ class UserGenericStatusListFactory extends UserGenericStatusFactory implements I
 
 	function getAll($limit = NULL, $page = NULL, $where = NULL, $order = NULL) {
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					WHERE deleted = 0';
 		$query .= $this->getWhereSQL( $where );
@@ -67,7 +63,7 @@ class UserGenericStatusListFactory extends UserGenericStatusFactory implements I
 					);
 
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					where	id = ?
 						AND deleted = 0';
@@ -79,7 +75,7 @@ class UserGenericStatusListFactory extends UserGenericStatusFactory implements I
 		return $this;
 	}
 
-    function getByCompanyId($company_id, $where = NULL, $order = NULL) {
+	function getByCompanyId($company_id, $where = NULL, $order = NULL) {
 		if ( $company_id == '') {
 			return FALSE;
 		}
@@ -91,7 +87,7 @@ class UserGenericStatusListFactory extends UserGenericStatusFactory implements I
 					);
 
 		$query = '
-					select 	a.*
+					select	a.*
 					from	'. $this->getTable() .' as a
 						LEFT JOIN  '. $uf->getTable() .' as b on a.user_id = b.id
 					where	b.company_id = ?
@@ -99,12 +95,12 @@ class UserGenericStatusListFactory extends UserGenericStatusFactory implements I
 		$query .= $this->getWhereSQL( $where );
 		$query .= $this->getSortSQL( $order );
 
-		$this->ExecuteSQL($query,$ph);
+		$this->ExecuteSQL($query, $ph);
 
 		return $this;
 	}
 
-    function getByIdAndCompanyId($id, $company_id, $where = NULL, $order = NULL) {
+	function getByIdAndCompanyId($id, $company_id, $where = NULL, $order = NULL) {
 		if ( $id == '') {
 			return FALSE;
 		}
@@ -121,7 +117,7 @@ class UserGenericStatusListFactory extends UserGenericStatusFactory implements I
 					);
 
 		$query = '
-					select 	a.*
+					select	a.*
 					from	'. $this->getTable() .' as a
 						LEFT JOIN  '. $uf->getTable() .' as b on a.user_id = b.id
 					where	a.id = ?
@@ -130,7 +126,7 @@ class UserGenericStatusListFactory extends UserGenericStatusFactory implements I
 		$query .= $this->getWhereSQL( $where );
 		$query .= $this->getSortSQL( $order );
 
-		$this->ExecuteSQL($query,$ph);
+		$this->ExecuteSQL($query, $ph);
 
 		return $this;
 	}
@@ -145,19 +141,14 @@ class UserGenericStatusListFactory extends UserGenericStatusFactory implements I
 					);
 
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					where	user_id = ?
-						AND deleted = 0';
+							AND deleted = 0';
 		$query .= $this->getWhereSQL( $where );
 		$query .= $this->getSortSQL( $order );
 
-		if ($limit == NULL) {
-			//Run query without limit
-			$this->rs = $this->db->SelectLimit($query, $ph);
-		} else {
-			$this->rs = $this->db->PageExecute($query, $limit, $page, $ph);
-		}
+		$this->ExecuteSQL( $query, $ph, $limit, $page );
 
 		return $this;
 	}
@@ -184,7 +175,7 @@ class UserGenericStatusListFactory extends UserGenericStatusFactory implements I
 					);
 
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					where	user_id = ?
 						AND batch_id = ?
@@ -192,12 +183,7 @@ class UserGenericStatusListFactory extends UserGenericStatusFactory implements I
 		$query .= $this->getWhereSQL( $where );
 		$query .= $this->getSortSQL( $order );
 
-		if ($limit == NULL) {
-			//Run query without limit
-			$this->rs = $this->db->SelectLimit($query, $ph);
-		} else {
-			$this->rs = $this->db->PageExecute($query, $limit, $page, $ph);
-		}
+		$this->ExecuteSQL( $query, $ph, $limit, $page );
 
 		return $this;
 	}
@@ -217,7 +203,7 @@ class UserGenericStatusListFactory extends UserGenericStatusFactory implements I
 					);
 
 		$query = '
-					select 	status_id,count(*) as total
+					select	status_id, count(*) as total
 					from	'. $this->getTable() .'
 					where	user_id = ?
 						AND batch_id = ?
@@ -230,7 +216,7 @@ class UserGenericStatusListFactory extends UserGenericStatusFactory implements I
 
 		$total = 0;
 		foreach( $result as $row ) {
-			$total = $total + $row['total'];
+			$total = ( $total + $row['total'] );
 		}
 		$retarr['total'] = $total;
 
@@ -241,7 +227,7 @@ class UserGenericStatusListFactory extends UserGenericStatusFactory implements I
 								);
 
 		foreach( $result as $row ) {
-			$retarr['status'][$row['status_id']] = array('total' => $row['total'], 'percent' => round( ($row['total'] / $total) * 100, 1 ) );
+			$retarr['status'][$row['status_id']] = array('total' => $row['total'], 'percent' => round( ( ($row['total'] / $total) * 100 ), 1 ) );
 		}
 
 		if ( isset($retarr) ) {

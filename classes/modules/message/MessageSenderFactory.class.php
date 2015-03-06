@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 3351 $
- * $Id: MessageFactory.class.php 3351 2010-02-18 17:22:09Z ipso $
- * $Date: 2010-02-18 09:22:09 -0800 (Thu, 18 Feb 2010) $
- */
+
 
 /**
  * @package Modules\Message
@@ -48,7 +44,7 @@ class MessageSenderFactory extends Factory {
 	protected $obj_handler = NULL;
 
 	function getUser() {
-		return $this->data['user_id'];
+		return (int)$this->data['user_id'];
 	}
 	function setUser($id) {
 		$id = trim($id);
@@ -70,7 +66,7 @@ class MessageSenderFactory extends Factory {
 
 	function getParent() {
 		if ( isset($this->data['parent_id']) ) {
-			return $this->data['parent_id'];
+			return (int)$this->data['parent_id'];
 		}
 
 		return FALSE;
@@ -99,7 +95,7 @@ class MessageSenderFactory extends Factory {
 
 	function getMessageControl() {
 		if ( isset($this->data['message_control_id']) ) {
-			return $this->data['message_control_id'];
+			return (int)$this->data['message_control_id'];
 		}
 
 		return FALSE;

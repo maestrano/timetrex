@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,14 +33,10 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 9761 $
- * $Id: Done.php 9761 2013-05-03 23:06:47Z ipso $
- * $Date: 2013-05-03 16:06:47 -0700 (Fri, 03 May 2013) $
- */
+
 require_once('../../includes/global.inc.php');
 
-$authenticate=FALSE;
+$authenticate = FALSE;
 require_once(Environment::getBasePath() .'includes/Interface.inc.php');
 
 $authentication->Logout(); //Logout during the install process.
@@ -66,8 +62,9 @@ if ( $install_obj->isInstallMode() == FALSE ) {
 }
 
 //Disable installer now that we're done.
-$data['installer_enabled'] = 'FALSE';
-$install_obj->writeConfigFile( $data );
+$tmp_config_data['other']['installer_enabled'] = 'FALSE';
+$tmp_config_data['other']['default_interface'] = 'html5';
+$install_obj->writeConfigFile( $tmp_config_data );
 
 //Reset new_version flag.
 $sslf = TTnew( 'SystemSettingListFactory' );
@@ -97,24 +94,40 @@ if ( $obj->isValid() ) {
 	$obj->Save();
 }
 
+//Reset auto_upgrade_failed flag, as they likely just upgraded to the latest version.
+$sslf = new SystemSettingListFactory();
+$sslf->getByName('auto_upgrade_failed');
+if ( $sslf->getRecordCount() == 1 ) {
+	$obj = $sslf->getCurrent();
+} else {
+	$obj = new SystemSettingListFactory();
+}
+$obj->setName( 'auto_upgrade_failed' );
+$obj->setValue( 0 );
+if ( $obj->isValid() ) {
+	$obj->Save();
+}
+
 $action = Misc::findSubmitButton();
 switch ($action) {
 	case 'back':
-		Debug::Text('Back', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Back', __FILE__, __LINE__, __METHOD__, 10);
 
 		Redirect::Page( URLBuilder::getURL(NULL, 'User.php') );
 		break;
 
 	case 'next':
-		Debug::Text('Next', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Next', __FILE__, __LINE__, __METHOD__, 10);
 
-		Redirect::Page( URLBuilder::getURL(NULL, '../Login.php') );
+		//Redirect::Page( URLBuilder::getURL(NULL, '../Login.php') );
+		Redirect::Page( URLBuilder::getURL(NULL, '/') );
 		break;
 	default:
 		break;
 }
 
 $cache->clean(); //Clear all cache.
+$install_obj->cleanOrphanFiles();
 
 $handle = @fopen('http://www.timetrex.com/'.URLBuilder::getURL( array('v' => $install_obj->getFullApplicationVersion(), 'page' => 'done'), 'pre_install.php'), "r");
 @fclose($handle);

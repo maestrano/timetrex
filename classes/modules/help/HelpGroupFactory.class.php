@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 8371 $
- * $Id: HelpGroupFactory.class.php 8371 2012-11-22 21:18:57Z ipso $
- * $Date: 2012-11-22 13:18:57 -0800 (Thu, 22 Nov 2012) $
- */
+
 
 /**
  * @package Modules\Help
@@ -46,7 +42,7 @@ class HelpGroupFactory extends Factory {
 	protected $table = 'help_group';
 	protected $pk_sequence_name = 'help_group_id_seq'; //PK Sequence name
 	function getHelpGroupControl() {
-		return $this->data['help_group_control_id'];
+		return (int)$this->data['help_group_control_id'];
 	}
 	function setHelpGroupControl($id) {
 		$id = trim($id);
@@ -66,7 +62,7 @@ class HelpGroupFactory extends Factory {
 	}
 
 	function getHelp() {
-		return $this->data['help_id'];
+		return (int)$this->data['help_id'];
 	}
 	function setHelp($id) {
 		$id = trim($id);

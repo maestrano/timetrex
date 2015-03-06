@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2196 $
- * $Id: APIPremiumPolicy.class.php 2196 2008-10-14 16:08:54Z ipso $
- * $Date: 2008-10-14 09:08:54 -0700 (Tue, 14 Oct 2008) $
- */
+
 
 /**
  * @package API\Policy
@@ -59,8 +55,8 @@ class APIPremiumPolicy extends APIFactory {
 	 */
 	function getOptions( $name, $parent = NULL ) {
 		if ( $name == 'columns'
-				AND ( !$this->getPermissionObject()->Check('premium_policy','enabled')
-					OR !( $this->getPermissionObject()->Check('premium_policy','view') OR $this->getPermissionObject()->Check('premium_policy','view_own') OR $this->getPermissionObject()->Check('premium_policy','view_child') ) ) ) {
+				AND ( !$this->getPermissionObject()->Check('premium_policy', 'enabled')
+					OR !( $this->getPermissionObject()->Check('premium_policy', 'view') OR $this->getPermissionObject()->Check('premium_policy', 'view_own') OR $this->getPermissionObject()->Check('premium_policy', 'view_child') ) ) ) {
 			$name = 'list_columns';
 		}
 
@@ -74,13 +70,29 @@ class APIPremiumPolicy extends APIFactory {
 	function getPremiumPolicyDefaultData() {
 		$company_obj = $this->getCurrentCompanyObject();
 
-		Debug::Text('Getting premium policy default data...', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Getting premium policy default data...', __FILE__, __LINE__, __METHOD__, 10);
 
 		$data = array(
 						'company_id' => $company_obj->getId(),
+						'type_id' => 10,
+
 						'include_holiday_type_id' => 10,
-						'rate' => '1.00',
-						'accrual_rate' => '1.00',
+						'include_partial_punch' => TRUE,
+						'include_meal_policy' => TRUE,
+						'include_break_policy' => TRUE,
+						'branch_selection_type_id' => 10,
+						'department_selection_type_id' => 10,
+						'job_group_selection_type_id' => 10,
+						'job_selection_type_id' => 10,
+						'job_item_group_selection_type_id' => 10,
+						'job_item_selection_type_id' => 10,
+						'sun' => TRUE,
+						'mon' => TRUE,
+						'tue' => TRUE,
+						'wed' => TRUE,
+						'thu' => TRUE,
+						'fri' => TRUE,
+						'sat' => TRUE,
 					);
 
 		return $this->returnHandler( $data );
@@ -92,8 +104,8 @@ class APIPremiumPolicy extends APIFactory {
 	 * @return array
 	 */
 	function getPremiumPolicy( $data = NULL, $disable_paging = FALSE ) {
-		if ( !$this->getPermissionObject()->Check('premium_policy','enabled')
-				OR !( $this->getPermissionObject()->Check('premium_policy','view') OR $this->getPermissionObject()->Check('premium_policy','view_own') OR $this->getPermissionObject()->Check('premium_policy','view_child')  ) ) {
+		if ( !$this->getPermissionObject()->Check('premium_policy', 'enabled')
+				OR !( $this->getPermissionObject()->Check('premium_policy', 'view') OR $this->getPermissionObject()->Check('premium_policy', 'view_own') OR $this->getPermissionObject()->Check('premium_policy', 'view_child')	 ) ) {
 			//return $this->getPermissionObject()->PermissionDenied();
 			$data['filter_columns'] = $this->handlePermissionFilterColumns( (isset($data['filter_columns'])) ? $data['filter_columns'] : NULL, Misc::trimSortPrefix( $this->getOptions('list_columns') ) );
 		}
@@ -147,9 +159,9 @@ class APIPremiumPolicy extends APIFactory {
 			return $this->returnHandler( FALSE );
 		}
 
-		if ( !$this->getPermissionObject()->Check('premium_policy','enabled')
-				OR !( $this->getPermissionObject()->Check('premium_policy','edit') OR $this->getPermissionObject()->Check('premium_policy','edit_own') OR $this->getPermissionObject()->Check('premium_policy','edit_child') OR $this->getPermissionObject()->Check('premium_policy','add') ) ) {
-			return  $this->getPermissionObject()->PermissionDenied();
+		if ( !$this->getPermissionObject()->Check('premium_policy', 'enabled')
+				OR !( $this->getPermissionObject()->Check('premium_policy', 'edit') OR $this->getPermissionObject()->Check('premium_policy', 'edit_own') OR $this->getPermissionObject()->Check('premium_policy', 'edit_child') OR $this->getPermissionObject()->Check('premium_policy', 'add') ) ) {
+			return	$this->getPermissionObject()->PermissionDenied();
 		}
 
 		if ( $validate_only == TRUE ) {
@@ -173,11 +185,11 @@ class APIPremiumPolicy extends APIFactory {
 					if ( $lf->getRecordCount() == 1 ) {
 						//Object exists, check edit permissions
 						if (
-							  $validate_only == TRUE
-							  OR
+							$validate_only == TRUE
+							OR
 								(
-								$this->getPermissionObject()->Check('premium_policy','edit')
-									OR ( $this->getPermissionObject()->Check('premium_policy','edit_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE )
+								$this->getPermissionObject()->Check('premium_policy', 'edit')
+									OR ( $this->getPermissionObject()->Check('premium_policy', 'edit_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE )
 								) ) {
 
 							Debug::Text('Row Exists, getting current data: ', $row['id'], __FILE__, __LINE__, __METHOD__, 10);
@@ -192,7 +204,7 @@ class APIPremiumPolicy extends APIFactory {
 					}
 				} else {
 					//Adding new object, check ADD permissions.
-					$primary_validator->isTrue( 'permission', $this->getPermissionObject()->Check('premium_policy','add'), TTi18n::gettext('Add permission denied') );
+					$primary_validator->isTrue( 'permission', $this->getPermissionObject()->Check('premium_policy', 'add'), TTi18n::gettext('Add permission denied') );
 
 					//Because this class has sub-classes that depend on it, when adding a new record we need to make sure the ID is set first,
 					//so the sub-classes can depend on it. We also need to call Save( TRUE, TRUE ) to force a lookup on isNew()
@@ -204,10 +216,14 @@ class APIPremiumPolicy extends APIFactory {
 				if ( $is_valid == TRUE ) { //Check to see if all permission checks passed before trying to save data.
 					Debug::Text('Setting object data...', __FILE__, __LINE__, __METHOD__, 10);
 
+					//Force Company ID to current company.
+					$row['company_id'] = $this->getCurrentCompanyObject()->getId();
+
 					$lf->setObjectFromArray( $row, $validate_only );
 
-					//Force Company ID to current company.
-					$lf->setCompany( $this->getCurrentCompanyObject()->getId() );
+					if ( $validate_only == TRUE ) {
+						$lf->validate_only = TRUE;
+					}
 
 					$is_valid = $lf->isValid();
 					if ( $is_valid == TRUE ) {
@@ -267,16 +283,16 @@ class APIPremiumPolicy extends APIFactory {
 			return $this->returnHandler( FALSE );
 		}
 
-		if ( !$this->getPermissionObject()->Check('premium_policy','enabled')
-				OR !( $this->getPermissionObject()->Check('premium_policy','delete') OR $this->getPermissionObject()->Check('premium_policy','delete_own') OR $this->getPermissionObject()->Check('premium_policy','delete_child') ) ) {
-			return  $this->getPermissionObject()->PermissionDenied();
+		if ( !$this->getPermissionObject()->Check('premium_policy', 'enabled')
+				OR !( $this->getPermissionObject()->Check('premium_policy', 'delete') OR $this->getPermissionObject()->Check('premium_policy', 'delete_own') OR $this->getPermissionObject()->Check('premium_policy', 'delete_child') ) ) {
+			return	$this->getPermissionObject()->PermissionDenied();
 		}
 
 		Debug::Text('Received data for: '. count($data) .' PremiumPolicys', __FILE__, __LINE__, __METHOD__, 10);
 		Debug::Arr($data, 'Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		$total_records = count($data);
-        $validator_stats = array('total_records' => $total_records, 'valid_records' => 0 );
+		$validator_stats = array('total_records' => $total_records, 'valid_records' => 0 );
 		if ( is_array($data) ) {
 			foreach( $data as $key => $id ) {
 				$primary_validator = new Validator();
@@ -288,8 +304,8 @@ class APIPremiumPolicy extends APIFactory {
 					$lf->getByIdAndCompanyId( $id, $this->getCurrentCompanyObject()->getId() );
 					if ( $lf->getRecordCount() == 1 ) {
 						//Object exists, check edit permissions
-						if ( $this->getPermissionObject()->Check('premium_policy','delete')
-								OR ( $this->getPermissionObject()->Check('premium_policy','delete_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE ) ) {
+						if ( $this->getPermissionObject()->Check('premium_policy', 'delete')
+								OR ( $this->getPermissionObject()->Check('premium_policy', 'delete_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE ) ) {
 							Debug::Text('Record Exists, deleting record: ', $id, __FILE__, __LINE__, __METHOD__, 10);
 							$lf = $lf->getCurrent();
 						} else {
@@ -368,7 +384,7 @@ class APIPremiumPolicy extends APIFactory {
 		if ( is_array( $src_rows ) AND count($src_rows) > 0 ) {
 			Debug::Arr($src_rows, 'SRC Rows: ', __FILE__, __LINE__, __METHOD__, 10);
 			foreach( $src_rows as $key => $row ) {
-				unset($src_rows[$key]['id'],$src_rows[$key]['manual_id'] ); //Clear fields that can't be copied
+				unset($src_rows[$key]['id'], $src_rows[$key]['manual_id'] ); //Clear fields that can't be copied
 				$src_rows[$key]['name'] = Misc::generateCopyName( $row['name'] ); //Generate unique name
 			}
 			//Debug::Arr($src_rows, 'bSRC Rows: ', __FILE__, __LINE__, __METHOD__, 10);

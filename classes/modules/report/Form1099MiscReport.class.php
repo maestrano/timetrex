@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2095 $
- * $Id: Sort.class.php 2095 2008-09-01 07:04:25Z ipso $
- * $Date: 2008-09-01 00:04:25 -0700 (Mon, 01 Sep 2008) $
- */
+
 
 /**
  * @package Modules\Report
@@ -56,15 +52,15 @@ class Form1099MiscReport extends Report {
 	}
 
 	protected function _checkPermissions( $user_id, $company_id ) {
-		if ( $this->getPermissionObject()->Check('report','enabled', $user_id, $company_id )
-				AND $this->getPermissionObject()->Check('report','view_form1099misc', $user_id, $company_id ) ) {
+		if ( $this->getPermissionObject()->Check('report', 'enabled', $user_id, $company_id )
+				AND $this->getPermissionObject()->Check('report', 'view_form1099misc', $user_id, $company_id ) ) {
 			return TRUE;
 		}
 
 		return FALSE;
 	}
-    
-    protected function _validateConfig() {
+
+	protected function _validateConfig() {
 		$config = $this->getConfig();
 
 		//Make sure some time period is selected.
@@ -92,7 +88,7 @@ class Form1099MiscReport extends Report {
 										'template',
 										'time_period',
 										'columns',
-							   );
+								);
 
 				break;
 			case 'setup_fields':
@@ -108,7 +104,7 @@ class Form1099MiscReport extends Report {
 										'-2050-exclude_user_id' => TTi18n::gettext('Employee Exclude'),
 										'-2060-default_branch_id' => TTi18n::gettext('Default Branch'),
 										'-2070-default_department_id' => TTi18n::gettext('Default Department'),
-                                        '-2100-custom_filter' => TTi18n::gettext('Custom Filter'),
+										'-2100-custom_filter' => TTi18n::gettext('Custom Filter'),
 
 										'-4020-exclude_ytd_adjustment' => TTi18n::gettext('Exclude YTD Adjustments'),
 
@@ -116,16 +112,16 @@ class Form1099MiscReport extends Report {
 										'-5010-group' => TTi18n::gettext('Group By'),
 										'-5020-sub_total' => TTi18n::gettext('SubTotal By'),
 										'-5030-sort' => TTi18n::gettext('Sort By'),
-							   );
+								);
 				break;
 			case 'time_period':
-				$retval = TTDate::getTimePeriodOptions();
+				$retval = TTDate::getTimePeriodOptions( FALSE ); //Exclude Pay Period options.
 				break;
 			case 'date_columns':
 				//$retval = TTDate::getReportDateOptions( NULL, TTi18n::getText('Date'), 13, TRUE );
 				$retval = array();
 				break;
-            case 'report_custom_column':
+			case 'report_custom_column':
 				if ( getTTProductEdition() >= TT_PRODUCT_PROFESSIONAL ) {
 					$rcclf = TTnew( 'ReportCustomColumnListFactory' );
 					// Because the Filter type is just only a filter criteria and not need to be as an option of Display Columns, Group By, Sub Total, Sort By dropdowns.
@@ -135,14 +131,14 @@ class Form1099MiscReport extends Report {
 						$retval = Misc::addSortPrefix( $custom_column_labels, 9500 );
 					}
 				}
-                break; 
-            case 'report_custom_filters':
+				break;
+			case 'report_custom_filters':
 				if ( getTTProductEdition() >= TT_PRODUCT_PROFESSIONAL ) {
 					$rcclf = TTnew( 'ReportCustomColumnListFactory' );
 					$retval = $rcclf->getByCompanyIdAndTypeIdAndFormatIdAndScriptArray( $this->getUserObject()->getCompany(), $rcclf->getOptions('filter_column_type_ids'), NULL, 'Form1099MiscReport', 'custom_column' );
 				}
-                break;
-            case 'report_dynamic_custom_column':
+				break;
+			case 'report_dynamic_custom_column':
 				if ( getTTProductEdition() >= TT_PRODUCT_PROFESSIONAL ) {
 					$rcclf = TTnew( 'ReportCustomColumnListFactory' );
 					$report_dynamic_custom_column_labels = $rcclf->getByCompanyIdAndTypeIdAndFormatIdAndScriptArray( $this->getUserObject()->getCompany(), $rcclf->getOptions('display_column_type_ids'), $rcclf->getOptions('dynamic_format_ids'), 'Form1099MiscReport', 'custom_column' );
@@ -150,8 +146,8 @@ class Form1099MiscReport extends Report {
 						$retval = Misc::addSortPrefix( $report_dynamic_custom_column_labels, 9700 );
 					}
 				}
-                break;
-            case 'report_static_custom_column':
+				break;
+			case 'report_static_custom_column':
 				if ( getTTProductEdition() >= TT_PRODUCT_PROFESSIONAL ) {
 					$rcclf = TTnew( 'ReportCustomColumnListFactory' );
 					$report_static_custom_column_labels = $rcclf->getByCompanyIdAndTypeIdAndFormatIdAndScriptArray( $this->getUserObject()->getCompany(), $rcclf->getOptions('display_column_type_ids'), $rcclf->getOptions('static_format_ids'), 'Form1099MiscReport', 'custom_column' );
@@ -159,13 +155,13 @@ class Form1099MiscReport extends Report {
 						$retval = Misc::addSortPrefix( $report_static_custom_column_labels, 9700 );
 					}
 				}
-                break;
-            case 'formula_columns':
-                $retval = TTMath::formatFormulaColumns( array_merge( array_diff( $this->getOptions('static_columns'), (array)$this->getOptions('report_static_custom_column') ), $this->getOptions('dynamic_columns') ) );
-                break; 
-            case 'filter_columns':
-                $retval = TTMath::formatFormulaColumns( array_merge( $this->getOptions('static_columns'), $this->getOptions('dynamic_columns'), (array)$this->getOptions('report_dynamic_custom_column') ) );
-                break;
+				break;
+			case 'formula_columns':
+				$retval = TTMath::formatFormulaColumns( array_merge( array_diff( $this->getOptions('static_columns'), (array)$this->getOptions('report_static_custom_column') ), $this->getOptions('dynamic_columns') ) );
+				break;
+			case 'filter_columns':
+				$retval = TTMath::formatFormulaColumns( array_merge( $this->getOptions('static_columns'), $this->getOptions('dynamic_columns'), (array)$this->getOptions('report_dynamic_custom_column') ) );
+				break;
 			case 'static_columns':
 				$retval = array(
 										//Static Columns - Aggregate functions can't be used on these.
@@ -194,7 +190,7 @@ class Form1099MiscReport extends Report {
 										'-1400-permission_control' => TTi18n::gettext('Permission Group'),
 										'-1410-pay_period_schedule' => TTi18n::gettext('Pay Period Schedule'),
 										'-1420-policy_group' => TTi18n::gettext('Policy Group'),
-							   );
+								);
 
 				$retval = array_merge( $retval, $this->getOptions('date_columns'), (array)$this->getOptions('report_static_custom_column') );
 				ksort($retval);
@@ -244,7 +240,7 @@ class Form1099MiscReport extends Report {
 										//'-1070-by_month_by_branch' => TTi18n::gettext('by Month/Branch'),
 										//'-1080-by_month_by_department' => TTi18n::gettext('by Month/Department'),
 										//'-1090-by_month_by_branch_by_department' => TTi18n::gettext('by Month/Branch/Department'),
-							   );
+								);
 
 				break;
 			case 'template_config':
@@ -265,14 +261,14 @@ class Form1099MiscReport extends Report {
 
 							break;
 						default:
-							Debug::Text(' Parsing template name: '. $template, __FILE__, __LINE__, __METHOD__,10);
+							Debug::Text(' Parsing template name: '. $template, __FILE__, __LINE__, __METHOD__, 10);
 							$retval['-1010-time_period']['time_period'] = 'last_year';
 
 							//Parse template name, and use the keywords separated by '+' to determine settings.
 							$template_keywords = explode('+', $template );
 							if ( is_array($template_keywords) ) {
 								foreach( $template_keywords as $template_keyword ) {
-									Debug::Text(' Keyword: '. $template_keyword, __FILE__, __LINE__, __METHOD__,10);
+									Debug::Text(' Keyword: '. $template_keyword, __FILE__, __LINE__, __METHOD__, 10);
 
 									switch( $template_keyword ) {
 										//Columns
@@ -414,7 +410,7 @@ class Form1099MiscReport extends Report {
 					$retval['-5040-sort'] = $retval['sort'];
 					unset($retval['sort']);
 				}
-				Debug::Arr($retval, ' Template Config for: '. $template, __FILE__, __LINE__, __METHOD__,10);
+				Debug::Arr($retval, ' Template Config for: '. $template, __FILE__, __LINE__, __METHOD__, 10);
 
 				break;
 			default:
@@ -476,7 +472,7 @@ class Form1099MiscReport extends Report {
 		//Figure out state/locality wages/taxes.
 		//
 		$cdlf = TTnew( 'CompanyDeductionListFactory' );
-		$cdlf->getByCompanyIdAndStatusIdAndTypeId( $this->getUserObject()->getCompany(), $rcclf->getOptions('display_column_type_ids'), 10 );
+		$cdlf->getByCompanyIdAndStatusIdAndTypeId( $this->getUserObject()->getCompany(), array(10, 20), 10 );
 		if ( $cdlf->getRecordCount() > 0 ) {
 			foreach( $cdlf as $cd_obj ) {
 				$tax_deductions[$cd_obj->getId()] = array(
@@ -495,9 +491,9 @@ class Form1099MiscReport extends Report {
 										);
 				$tax_deduction_pay_stub_account_id_map[$cd_obj->getPayStubEntryAccount()][] = $cd_obj->getId();
 			}
-			Debug::Arr($tax_deductions, 'Tax Deductions: ', __FILE__, __LINE__, __METHOD__,10);
+			Debug::Arr($tax_deductions, 'Tax Deductions: ', __FILE__, __LINE__, __METHOD__, 10);
 		} else {
-			Debug::Text('No Tax Deductions: ', __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text('No Tax Deductions: ', __FILE__, __LINE__, __METHOD__, 10);
 		}
 
 		$pself = TTnew( 'PayStubEntryListFactory' );
@@ -531,9 +527,9 @@ class Form1099MiscReport extends Report {
 
 			if ( isset($this->tmp_data['pay_stub_entry']) AND is_array($this->tmp_data['pay_stub_entry']) ) {
 				foreach($this->tmp_data['pay_stub_entry'] as $user_id => $data_b) {
-					$this->tmp_data['pay_stub_entry'][$user_id]['l4'] 		= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['l4']['include_pay_stub_entry_account'], 					$form_data['l4']['exclude_pay_stub_entry_account'] );
-					$this->tmp_data['pay_stub_entry'][$user_id]['l6'] 		= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['l6']['include_pay_stub_entry_account'], 					$form_data['l6']['exclude_pay_stub_entry_account'] );
-					$this->tmp_data['pay_stub_entry'][$user_id]['l7'] 		= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['l7']['include_pay_stub_entry_account'], 					$form_data['l7']['exclude_pay_stub_entry_account'] );
+					$this->tmp_data['pay_stub_entry'][$user_id]['l4']		= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['l4']['include_pay_stub_entry_account'], $form_data['l4']['exclude_pay_stub_entry_account'] );
+					$this->tmp_data['pay_stub_entry'][$user_id]['l6']		= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['l6']['include_pay_stub_entry_account'], $form_data['l6']['exclude_pay_stub_entry_account'] );
+					$this->tmp_data['pay_stub_entry'][$user_id]['l7']		= Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['l7']['include_pay_stub_entry_account'], $form_data['l7']['exclude_pay_stub_entry_account'] );
 
 					if ( is_array($data_b['psen_ids']) ) {
 						foreach( $data_b['psen_ids'] as $psen_id => $psen_amount ) {
@@ -542,7 +538,7 @@ class Form1099MiscReport extends Report {
 									$tax_deduction_arr = $tax_deductions[$tax_deduction_id];
 
 									//determine how many district/states currently exist for this employee.
-									foreach( range('a','z') as $z ) {
+									foreach( range('a', 'z') as $z ) {
 										if ( !isset($this->tmp_data['pay_stub_entry'][$user_id]['l16'.$z]) ) {
 											$state_id = $z;
 											break;
@@ -550,14 +546,14 @@ class Form1099MiscReport extends Report {
 									}
 
 									//Found Tax/Deduction associated with this pay stub account.
-									Debug::Text('Found User ID: '. $user_id .' in Tax Deduction Name: '. $tax_deduction_arr['name'] .'('.$tax_deduction_arr['id'].') Pay Stub Entry Account ID: '. $psen_id .' Calculation ID: '. $tax_deduction_arr['calculation_id'], __FILE__, __LINE__, __METHOD__,10);
+									Debug::Text('Found User ID: '. $user_id .' in Tax Deduction Name: '. $tax_deduction_arr['name'] .'('.$tax_deduction_arr['id'].') Pay Stub Entry Account ID: '. $psen_id .' Calculation ID: '. $tax_deduction_arr['calculation_id'], __FILE__, __LINE__, __METHOD__, 10);
 									if ( $tax_deduction_arr['calculation_id'] == 200 AND $tax_deduction_arr['province'] != '' ) {
 										//State Wages/Taxes
 										$this->tmp_data['pay_stub_entry'][$user_id]['l17'. $state_id .'_state'] = $tax_deduction_arr['province'];
 										$this->tmp_data['pay_stub_entry'][$user_id]['l18'. $state_id] = Misc::calculateMultipleColumns( $data_b['psen_ids'], $tax_deduction_arr['include'], $tax_deduction_arr['exclude'] );
 										$this->tmp_data['pay_stub_entry'][$user_id]['l16'. $state_id] = Misc::calculateMultipleColumns( $data_b['psen_ids'], array($tax_deduction_arr['pay_stub_entry_account_id']) );
 									} else {
-										Debug::Text('Not State or Local income tax: '. $tax_deduction_arr['id'] .' Calculation: '. $tax_deduction_arr['calculation_id'] .' District: '. $tax_deduction_arr['district'] .' UserValue5: '.$tax_deduction_arr['user_value5'] .' CompanyValue1: '. $tax_deduction_arr['company_value1'], __FILE__, __LINE__, __METHOD__,10);
+										Debug::Text('Not State or Local income tax: '. $tax_deduction_arr['id'] .' Calculation: '. $tax_deduction_arr['calculation_id'] .' District: '. $tax_deduction_arr['district'] .' UserValue5: '.$tax_deduction_arr['user_value5'] .' CompanyValue1: '. $tax_deduction_arr['company_value1'], __FILE__, __LINE__, __METHOD__, 10);
 									}
 									unset($tax_deduction_arr);
 								}
@@ -572,14 +568,14 @@ class Form1099MiscReport extends Report {
 
 		$this->user_ids = array_unique( $this->user_ids ); //Used to get the total number of employees.
 
-		//Debug::Arr($this->tmp_data['user'], 'User Raw Data: ', __FILE__, __LINE__, __METHOD__,10);
-		//Debug::Arr($this->user_ids, 'User IDs: ', __FILE__, __LINE__, __METHOD__,10);
-		//Debug::Arr($this->tmp_data, 'Tmp Raw Data: ', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($this->tmp_data['user'], 'User Raw Data: ', __FILE__, __LINE__, __METHOD__, 10);
+		//Debug::Arr($this->user_ids, 'User IDs: ', __FILE__, __LINE__, __METHOD__, 10);
+		//Debug::Arr($this->tmp_data, 'Tmp Raw Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		//Get user data for joining.
 		$ulf = TTnew( 'UserListFactory' );
 		$ulf->getAPISearchByCompanyIdAndArrayCriteria( $this->getUserObject()->getCompany(), $filter_data );
-		Debug::Text(' User Total Rows: '. $ulf->getRecordCount(), __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text(' User Total Rows: '. $ulf->getRecordCount(), __FILE__, __LINE__, __METHOD__, 10);
 		$this->getProgressBarObject()->start( $this->getAMFMessageID(), $ulf->getRecordCount(), NULL, TTi18n::getText('Retrieving Data...') );
 		foreach ( $ulf as $key => $u_obj ) {
 			$this->tmp_data['user'][$u_obj->getId()] = (array)$u_obj->getObjectAsArray( $this->getColumnDataConfig() );
@@ -594,12 +590,12 @@ class Form1099MiscReport extends Report {
 		$this->getProgressBarObject()->start( $this->getAMFMessageID(), count($this->tmp_data['pay_stub_entry']), NULL, TTi18n::getText('Pre-Processing Data...') );
 
 		//Merge time data with user data
-		$key=0;
+		$key = 0;
 		if ( isset($this->tmp_data['pay_stub_entry']) ) {
 			foreach( $this->tmp_data['pay_stub_entry'] as $user_id => $row ) {
 				if ( isset($this->tmp_data['user'][$user_id]) ) {
 					$date_columns = TTDate::getReportDates( NULL, $row['date_stamp'], FALSE, $this->getUserObject(), array('pay_period_start_date' => $row['pay_period_start_date'], 'pay_period_end_date' => $row['pay_period_end_date'], 'pay_period_transaction_date' => $row['pay_period_transaction_date']) );
-					$processed_data  = array(
+					$processed_data	 = array(
 											'user_id' => $user_id,
 											);
 
@@ -611,7 +607,7 @@ class Form1099MiscReport extends Report {
 			}
 			unset($this->tmp_data, $row, $date_columns, $processed_data, $level_1, $level_2, $level_3);
 		}
-		//Debug::Arr($this->data, 'preProcess Data: ', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($this->data, 'preProcess Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		$this->form_data = $this->data; //Copy data to Form Data so group/sort doesn't affect it.
 
@@ -623,21 +619,21 @@ class Form1099MiscReport extends Report {
 		if ( $format == 'pdf_form_print' OR $format == 'pdf_form_print_government' ) {
 			$show_background = FALSE;
 		}
-		Debug::Text('Generating Form... Format: '. $format, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Generating Form... Format: '. $format, __FILE__, __LINE__, __METHOD__, 10);
 
 		$setup_data = $this->getFormConfig();
 		$filter_data = $this->getFilterConfig();
-		//Debug::Arr($filter_data, 'Filter Data: ', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($filter_data, 'Filter Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		$current_company = $this->getUserObject()->getCompanyObject();
 		if ( !is_object($current_company) ) {
-			Debug::Text('Invalid company object...', __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text('Invalid company object...', __FILE__, __LINE__, __METHOD__, 10);
 			return FALSE;
 		}
 
 		$current_user = $this->getUserObject();
 		if ( !is_object($current_user) ) {
-			Debug::Text('Invalid user object...', __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text('Invalid user object...', __FILE__, __LINE__, __METHOD__, 10);
 			return FALSE;
 		}
 
@@ -652,7 +648,7 @@ class Form1099MiscReport extends Report {
 		} else {
 			$form_type = 'employee';
 		}
-		Debug::Text('Form Type: '. $form_type, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Form Type: '. $form_type, __FILE__, __LINE__, __METHOD__, 10);
 
 		$f1099m->setType( $form_type );
 		$f1099m->year = TTDate::getYear( $filter_data['end_date'] );
@@ -667,11 +663,11 @@ class Form1099MiscReport extends Report {
 		$f1099m->company_zip_code = ( isset($setup_data['postal_code']) AND $setup_data['postal_code'] != '' ) ? $setup_data['postal_code'] : $current_company->getPostalCode();
 
 		if ( isset($this->form_data) AND count($this->form_data) > 0 ) {
-			$i=0;
-			$n=1;
+			$i = 0;
+			$n = 1;
 			foreach((array)$this->form_data as $row) {
 				if ( !isset($row['user_id']) ) {
-					Debug::Text('User ID not set!', __FILE__, __LINE__, __METHOD__,10);
+					Debug::Text('User ID not set!', __FILE__, __LINE__, __METHOD__, 10);
 					continue;
 				}
 
@@ -698,7 +694,7 @@ class Form1099MiscReport extends Report {
 								'l7' => $row['l7'],
 								);
 
-					foreach( range('a','z') as $z ) {
+					foreach( range('a', 'z') as $z ) {
 						//State income tax
 						if ( isset($row['l16'.$z]) ) {
 							if ( isset($setup_data['state'][$row['l17'.$z.'_state']]) ) {
@@ -728,7 +724,7 @@ class Form1099MiscReport extends Report {
 			$mime_type = 'applications/octet-stream'; //Force file to download.
 		} else {
 			$output_format = 'PDF';
-			$file_name = $this->file_name;
+			$file_name = $this->file_name.'.pdf';
 			$mime_type = $this->file_mime_type;
 		}
 
@@ -740,7 +736,7 @@ class Form1099MiscReport extends Report {
 	//Short circuit this function, as no postprocessing is required for exporting the data.
 	function _postProcess( $format = NULL ) {
 		if ( ( $format == 'pdf_form' OR $format == 'pdf_form_government' ) OR ( $format == 'pdf_form_print' OR $format == 'pdf_form_print_government' ) OR $format == 'efile_xml' ) {
-			Debug::Text('Skipping postProcess! Format: '. $format, __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text('Skipping postProcess! Format: '. $format, __FILE__, __LINE__, __METHOD__, 10);
 			return TRUE;
 		} else {
 			return parent::_postProcess( $format );

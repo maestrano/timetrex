@@ -22,8 +22,9 @@ echo "Session ID: $TIMETREX_SESSION_ID<br>\n";
 //
 $user_obj = new TimeTrexClientAPI( 'User' );
 $result = $user_obj->getUser(
-									array('filter_data' => 	array(
-																'id' => array(1023,11353)
+									array('filter_data' => array(
+																//'id' => array(1023,11353)
+																'user_name' => 'john.doe567',
 															)
 									)
 								);
@@ -157,24 +158,26 @@ Array
 //
 //Update data for the second employee, mark their status as Terminated and update Termination Date
 //
-$user_data[1]['status_id'] = 20; //Terminated
-$user_data[1]['termination_date'] = '01-Jul-09';
+if ( isset($user_data[1]) ) {
+	$user_data[1]['status_id'] = 20; //Terminated
+	$user_data[1]['termination_date'] = '01-Jul-09';
 
-$result = $user_obj->setUser( $user_data[1] );
-if ( $result->isValid() === TRUE ) {
-	echo "Employee data saved successfully.<br>\n";
-} else {
-	echo "Employee save failed.<br>\n";
-	print $result; //Show error messages
+	$result = $user_obj->setUser( $user_data[1] );
+	if ( $result->isValid() === TRUE ) {
+		echo "Employee data saved successfully.<br>\n";
+	} else {
+		echo "Employee save failed.<br>\n";
+		print $result; //Show error messages
+	}
 }
 
 //
 //Update employee record in a single operation. Several records can be updated in a single operation as well.
 //
 $user_data = array(
-				   'id' => 11353,
-				   'termination_date' => '02-Jul-09'
-				   );
+					'id' => 11353,
+					'termination_date' => '02-Jul-09'
+					);
 
 $result = $user_obj->setUser( $user_data );
 if ( $result->isValid() === TRUE ) {

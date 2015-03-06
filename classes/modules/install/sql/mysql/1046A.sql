@@ -43,29 +43,29 @@ alter table department add column other_id5 varchar(250);
 update pay_period_schedule set timesheet_verify_before_end_date = timesheet_verify_before_end_date*86400, timesheet_verify_before_transaction_date = timesheet_verify_before_transaction_date*86400 where ( timesheet_verify_before_end_date < 1000 AND timesheet_verify_before_end_date > -1000 ) AND ( timesheet_verify_before_transaction_date < 1000 AND timesheet_verify_before_transaction_date > -1000) AND deleted = 0;
 	
 CREATE TABLE company_generic_tag (
-    id serial NOT NULL,
-    company_id integer NOT NULL,
-    object_type_id integer NOT NULL,
-    name varchar(250) NOT NULL,
-    name_metaphone varchar(250),
-    description varchar(250),
-    created_date integer,
-    created_by integer,
-    updated_date integer,
-    updated_by integer,
-    deleted_date integer,
-    deleted_by integer,
-    deleted integer DEFAULT 0 NOT NULL
+	id serial NOT NULL,
+	company_id integer NOT NULL,
+	object_type_id integer NOT NULL,
+	name varchar(250) NOT NULL,
+	name_metaphone varchar(250),
+	description varchar(250),
+	created_date integer,
+	created_by integer,
+	updated_date integer,
+	updated_by integer,
+	deleted_date integer,
+	deleted_by integer,
+	deleted integer DEFAULT 0 NOT NULL
 ) Engine=InnoDB;
 CREATE UNIQUE INDEX company_generic_tag_id ON company_generic_tag(id);
 CREATE INDEX company_generic_tag_company_id ON company_generic_tag(company_id);
 CREATE INDEX company_generic_tag_company_id_object_type_id ON company_generic_tag(company_id,object_type_id);
 
 CREATE TABLE company_generic_tag_map (
-    id serial NOT NULL,
-    object_type_id integer NOT NULL,
-    object_id integer NULL,
-    tag_id integer NULL
+	id serial NOT NULL,
+	object_type_id integer NOT NULL,
+	object_id integer NULL,
+	tag_id integer NULL
 ) Engine=InnoDB;
 CREATE UNIQUE INDEX company_generic_tag_map_id ON company_generic_tag(id);
 CREATE INDEX company_generic_tag_map_object_type_id_object_id ON company_generic_tag_map(object_type_id,object_id);

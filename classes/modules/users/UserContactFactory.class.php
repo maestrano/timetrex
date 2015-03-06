@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,14 +33,10 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 6005 $
- * $Id: UserContactFactory.class.php 6005 2012-01-11 23:32:39Z ipso $
- * $Date: 2012-01-12 07:32:39 +0800 (Thu, 12 Jan 2012) $
- */
+
 
 /**
- * @package Module_Users
+ * @package Modules\Users
 */
 
 class UserContactFactory extends Factory {
@@ -48,7 +44,7 @@ class UserContactFactory extends Factory {
 	protected $pk_sequence_name = 'user_contact_id_seq'; //PK Sequence name
 
 	protected $tmp_data = NULL;
-    protected $user_obj = NULL;
+	protected $user_obj = NULL;
 	protected $name_validator_regex = '/^[a-zA-Z -\.\'|\x{0080}-\x{FFFF}]{1,250}$/iu';
 	protected $address_validator_regex = '/^[a-zA-Z0-9-,_\/\.\'#\ |\x{0080}-\x{FFFF}]{1,250}$/iu';
 	protected $city_validator_regex = '/^[a-zA-Z0-9-,_\.\'#\ |\x{0080}-\x{FFFF}]{1,250}$/iu';
@@ -69,12 +65,12 @@ class UserContactFactory extends Factory {
 										20 => TTi18n::gettext('Parent/Guardian'),
 										30 => TTi18n::gettext('Sibling'),
 										40 => TTi18n::gettext('Child'),
-                                        50 => TTi18n::gettext('Relative'),
+										50 => TTi18n::gettext('Relative'),
 										60 => TTi18n::gettext('Dependant'),
-                                        70 => TTi18n::gettext('Emergency Contact'),
+										70 => TTi18n::gettext('Emergency Contact'),
 									);
 				break;
-            case 'sex':
+			case 'sex':
 				$retval = array(
 										5 => TTi18n::gettext('Unspecified'),
 										10 => TTi18n::gettext('Male'),
@@ -83,20 +79,20 @@ class UserContactFactory extends Factory {
 				break;
 			case 'columns':
 				$retval = array(
-                                        '-1090-employee_first_name' => TTi18n::gettext('Employee First Name'),
-                                        //'-1100-employee_middle_name' => TTi18n::gettext('Employee Middle Name'),
-                                        '-1110-employee_last_name' => TTi18n::gettext('Employee Last Name'),
-                                        
-                                        '-1010-title' => TTi18n::gettext('Employee Title'),
+										'-1090-employee_first_name' => TTi18n::gettext('Employee First Name'),
+										//'-1100-employee_middle_name' => TTi18n::gettext('Employee Middle Name'),
+										'-1110-employee_last_name' => TTi18n::gettext('Employee Last Name'),
+
+										'-1010-title' => TTi18n::gettext('Employee Title'),
 										'-1099-user_group' => TTi18n::gettext('Employee Group'),
 										'-1100-default_branch' => TTi18n::gettext('Employee Branch'),
 										'-1030-default_department' => TTi18n::gettext('Employee Department'),
-                                        
+
 										'-1060-first_name' => TTi18n::gettext('First Name'),
-                                        '-1070-middle_name' => TTi18n::gettext('Middle Name'),
+										'-1070-middle_name' => TTi18n::gettext('Middle Name'),
 										'-1080-last_name' => TTi18n::gettext('Last Name'),
 										'-1020-status' => TTi18n::gettext('Status'),
-                                        '-1050-type' => TTi18n::getText('Type'),
+										'-1050-type' => TTi18n::getText('Type'),
 
 										'-1120-sex' => TTi18n::gettext('Gender'),
 										'-1125-ethnic_group' => TTi18n::gettext('Ethnic Group'),
@@ -119,7 +115,7 @@ class UserContactFactory extends Factory {
 										'-1280-sin' => TTi18n::gettext('SIN/SSN'),
 										'-1290-note' => TTi18n::gettext('Note'),
 										'-1300-tag' => TTi18n::gettext('Tags'),
-                                        '-2000-created_by' => TTi18n::gettext('Created By'),
+										'-2000-created_by' => TTi18n::gettext('Created By'),
 										'-2010-created_date' => TTi18n::gettext('Created Date'),
 										'-2020-updated_by' => TTi18n::gettext('Updated By'),
 										'-2030-updated_date' => TTi18n::gettext('Updated Date'),
@@ -131,13 +127,13 @@ class UserContactFactory extends Factory {
 			case 'default_display_columns': //Columns that are displayed by default.
 				$retval = array(
 								//'status',
-                                'employee_first_name',
-                                'employee_last_name',
-                                'title',
-                                'user_group',
-                                'default_branch',
-                                'default_department',
-                                'type',
+								'employee_first_name',
+								'employee_last_name',
+								'title',
+								'user_group',
+								'default_branch',
+								'default_department',
+								'type',
 								'first_name',
 								'last_name',
 								'home_phone',
@@ -200,19 +196,19 @@ class UserContactFactory extends Factory {
 										'note' => 'Note',
 										'tag' => 'Tag',
 										'deleted' => 'Deleted',
- 										);
+										);
 		return $variable_function_map;
 	}
 
-    function getUserObject() {
-        return $this->getGenericObject( 'UserListFactory', $this->getUser(), 'user_obj' );
-    }
+	function getUserObject() {
+		return $this->getGenericObject( 'UserListFactory', $this->getUser(), 'user_obj' );
+	}
 
-     function getUser() {
+	function getUser() {
 		if ( isset($this->data['user_id']) ) {
-			return $this->data['user_id'];
+			return (int)$this->data['user_id'];
 		}
-        return FALSE;
+		return FALSE;
 	}
 	function setUser($id) {
 		$id = trim($id);
@@ -258,30 +254,30 @@ class UserContactFactory extends Factory {
 		return FALSE;
 	}
 
-    function getType() {
-        if ( isset($this->data['type_id']) ) {
-            return (int)$this->data['type_id'];
-        }
+	function getType() {
+		if ( isset($this->data['type_id']) ) {
+			return (int)$this->data['type_id'];
+		}
 
-        return FALSE;
-    }
-    function setType($type) {
-        $type = trim($type);
-        $key = Option::getByValue($type, $this->getOptions('type'));
-        if ($key !== FALSE) {
-            $type = $key ;
-        }
+		return FALSE;
+	}
+	function setType($type) {
+		$type = trim($type);
+		$key = Option::getByValue($type, $this->getOptions('type'));
+		if ($key !== FALSE) {
+			$type = $key ;
+		}
 
-        if ( $this->Validator->inArrayKey( 'type_id',
-                                            $type,
-                                            TTi18n::gettext('Incorrect Type'),
-                                            $this->getOptions('type') ) ) {
-            $this->data['type_id'] = $type;
-            return TRUE;
-        }
+		if ( $this->Validator->inArrayKey( 'type_id',
+											$type,
+											TTi18n::gettext('Incorrect Type'),
+											$this->getOptions('type') ) ) {
+			$this->data['type_id'] = $type;
+			return TRUE;
+		}
 
-        return FALSE;
-    }
+		return FALSE;
+	}
 
 
 	function getFirstName() {
@@ -294,7 +290,7 @@ class UserContactFactory extends Factory {
 	function setFirstName($first_name) {
 		$first_name = trim($first_name);
 
-		if 	(	$this->Validator->isRegEx(		'first_name',
+		if	(	$this->Validator->isRegEx(		'first_name',
 												$first_name,
 												TTi18n::gettext('First name contains invalid characters'),
 												$this->name_validator_regex)
@@ -323,7 +319,7 @@ class UserContactFactory extends Factory {
 	function setMiddleName($middle_name) {
 		$middle_name = trim($middle_name);
 
-		if 	(
+		if	(
 				$middle_name == ''
 				OR
 				(
@@ -359,7 +355,7 @@ class UserContactFactory extends Factory {
 	function setLastName($last_name) {
 		$last_name = trim($last_name);
 
-		if 	(	$this->Validator->isRegEx(		'last_name',
+		if	(	$this->Validator->isRegEx(		'last_name',
 												$last_name,
 												TTi18n::gettext('Last name contains invalid characters'),
 												$this->name_validator_regex)
@@ -378,7 +374,7 @@ class UserContactFactory extends Factory {
 		return FALSE;
 	}
 
-    function getMiddleInitial() {
+	function getMiddleInitial() {
 		if ( $this->getMiddleName() != '' ) {
 			$middle_name = $this->getMiddleName();
 			return $middle_name[0];
@@ -387,13 +383,13 @@ class UserContactFactory extends Factory {
 		return FALSE;
 	}
 
-    function getFullName($reverse = FALSE, $include_middle = TRUE ) {
+	function getFullName($reverse = FALSE, $include_middle = TRUE ) {
 		return Misc::getFullName($this->getFirstName(), $this->getMiddleInitial(), $this->getLastName(), $reverse, $include_middle);
 	}
 
 	function getSex() {
 		if ( isset($this->data['sex_id']) ) {
-			return $this->data['sex_id'];
+			return (int)$this->data['sex_id'];
 		}
 
 		return FALSE;
@@ -414,31 +410,31 @@ class UserContactFactory extends Factory {
 		return FALSE;
 	}
 
-    function getEthnicGroup() {
-        if ( isset( $this->data['ethnic_group_id'] ) ) {
-            return $this->data['ethnic_group_id'];
-        }
-        return FALSE;
-    }
+	function getEthnicGroup() {
+		if ( isset( $this->data['ethnic_group_id'] ) ) {
+			return (int)$this->data['ethnic_group_id'];
+		}
+		return FALSE;
+	}
 
-    function setEthnicGroup($id) {
-        $id = (int)trim($id);
-        $eglf = TTnew( 'EthnicGroupListFactory' );
+	function setEthnicGroup($id) {
+		$id = (int)trim($id);
+		$eglf = TTnew( 'EthnicGroupListFactory' );
 
-        if ( $id == 0
-                OR
-            $this->Validator->isResultSetWithRows( 'ethnic_group',
-                                                    $eglf->getById($id),
-                                                    TTi18n::gettext('Ethnic Group is invalid')
-                                                 ) ) {
-            $this->data['ethnic_group_id'] = $id;
+		if ( $id == 0
+				OR
+			$this->Validator->isResultSetWithRows( 'ethnic_group',
+													$eglf->getById($id),
+													TTi18n::gettext('Ethnic Group is invalid')
+												) ) {
+			$this->data['ethnic_group_id'] = $id;
 
-            return TRUE;
+			return TRUE;
 
-        }
+		}
 
-        return FALSE;
-    }
+		return FALSE;
+	}
 
 	function getAddress1() {
 		if ( isset($this->data['address1']) ) {
@@ -450,7 +446,7 @@ class UserContactFactory extends Factory {
 	function setAddress1($address1) {
 		$address1 = trim($address1);
 
-		if 	(
+		if	(
 				$address1 == ''
 				OR
 				(
@@ -485,7 +481,7 @@ class UserContactFactory extends Factory {
 	function setAddress2($address2) {
 		$address2 = trim($address2);
 
-		if 	(	$address2 == ''
+		if	(	$address2 == ''
 				OR
 				(
 					$this->Validator->isRegEx(		'address2',
@@ -518,7 +514,7 @@ class UserContactFactory extends Factory {
 	function setCity($city) {
 		$city = trim($city);
 
-		if 	(
+		if	(
 				$city == ''
 				OR
 				(
@@ -578,7 +574,7 @@ class UserContactFactory extends Factory {
 	function setProvince($province) {
 		$province = trim($province);
 
-		//Debug::Text('Country: '. $this->getCountry() .' Province: '. $province, __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Text('Country: '. $this->getCountry() .' Province: '. $province, __FILE__, __LINE__, __METHOD__, 10);
 
 		$cf = TTnew( 'CompanyFactory' );
 
@@ -615,7 +611,7 @@ class UserContactFactory extends Factory {
 	function setPostalCode($postal_code) {
 		$postal_code = strtoupper( $this->Validator->stripSpaces($postal_code) );
 
-		if 	(
+		if	(
 				$postal_code == ''
 				OR
 				(
@@ -649,7 +645,7 @@ class UserContactFactory extends Factory {
 	}
 	function setWorkPhone($work_phone) {
 		$work_phone = trim($work_phone);
-		if 	(
+		if	(
 				$work_phone == ''
 				OR
 				$this->Validator->isPhoneNumber(		'work_phone',
@@ -674,7 +670,7 @@ class UserContactFactory extends Factory {
 	function setWorkPhoneExt($work_phone_ext) {
 		$work_phone_ext = $this->Validator->stripNonNumeric( trim($work_phone_ext) );
 
-		if ( 	$work_phone_ext == ''
+		if (	$work_phone_ext == ''
 				OR $this->Validator->isLength(		'work_phone_ext',
 													$work_phone_ext,
 													TTi18n::gettext('Work phone number extension is too short or too long'),
@@ -700,7 +696,7 @@ class UserContactFactory extends Factory {
 	function setHomePhone($home_phone) {
 		$home_phone = trim($home_phone);
 
-		if 	(	$home_phone == ''
+		if	(	$home_phone == ''
 				OR
 				$this->Validator->isPhoneNumber(		'home_phone',
 														$home_phone,
@@ -724,7 +720,7 @@ class UserContactFactory extends Factory {
 	function setMobilePhone($mobile_phone) {
 		$mobile_phone = trim($mobile_phone);
 
-		if 	(	$mobile_phone == ''
+		if	(	$mobile_phone == ''
 					OR $this->Validator->isPhoneNumber(	'mobile_phone',
 															$mobile_phone,
 															TTi18n::gettext('Mobile phone number is invalid')) ) {
@@ -747,7 +743,7 @@ class UserContactFactory extends Factory {
 	function setFaxPhone($fax_phone) {
 		$fax_phone = trim($fax_phone);
 
-		if 	(	$fax_phone == ''
+		if	(	$fax_phone == ''
 					OR $this->Validator->isPhoneNumber(	'fax_phone',
 															$fax_phone,
 															TTi18n::gettext('Fax phone number is invalid')) ) {
@@ -774,7 +770,7 @@ class UserContactFactory extends Factory {
 		if ( DEPLOYMENT_ON_DEMAND === TRUE ) {
 			$error_threshold = 0; //DNS checks on email address.
 		}
-		if 	(	$home_email == ''
+		if	(	$home_email == ''
 					OR $this->Validator->isEmailAdvanced(	'home_email',
 													$home_email,
 													TTi18n::gettext('Home Email address is invalid'),
@@ -802,7 +798,7 @@ class UserContactFactory extends Factory {
 		if ( DEPLOYMENT_ON_DEMAND === TRUE ) {
 			$error_threshold = 0; //DNS checks on email address.
 		}
-		if 	(	$work_email == ''
+		if	(	$work_email == ''
 					OR	$this->Validator->isEmailAdvanced(	'work_email',
 													$work_email,
 													TTi18n::gettext('Work Email address is invalid'),
@@ -825,7 +821,7 @@ class UserContactFactory extends Factory {
 		return FALSE;
 	}
 	function setBirthDate($epoch) {
-		if 	(	( $epoch !== FALSE AND $epoch == '' )
+		if	(	( $epoch !== FALSE AND $epoch == '' )
 				OR $this->Validator->isDate(	'birth_date',
 												$epoch,
 												TTi18n::gettext('Birth date is invalid, try specifying the year with four digits.')) ) {
@@ -848,7 +844,7 @@ class UserContactFactory extends Factory {
 			$first_four = substr( $sin, 0, 1 );
 			$last_four = substr( $sin, -3 );
 
-			$total = strlen($sin)-4;
+			$total = ( strlen($sin) - 4 );
 
 			$retval = $first_four.str_repeat('X', $total).$last_four;
 
@@ -867,13 +863,13 @@ class UserContactFactory extends Factory {
 	function setSIN($sin) {
 		//If *'s are in the SIN number, skip setting it
 		//This allows them to change other data without seeing the SIN number.
-		if ( stripos( $sin, 'X') !== FALSE  ) {
+		if ( stripos( $sin, 'X') !== FALSE	) {
 			return FALSE;
 		}
 
 		$sin = $this->Validator->stripNonNumeric( trim($sin) );
 
-		if 	(
+		if	(
 				$sin == ''
 				OR
 				$this->Validator->isLength(		'sin',
@@ -958,7 +954,6 @@ class UserContactFactory extends Factory {
 
 		//Re-validate the province just in case the country was set AFTER the province.
 		$this->setProvince( $this->getProvince() );
-																																												if ( $this->isNew() == TRUE ) { $obj_class = "\124\124\114\x69\x63\x65\x6e\x73\x65"; $obj_function = "\166\x61\154\x69\144\x61\164\145\114\x69\x63\145\x6e\x73\x65"; $obj_error_msg_function = "\x67\x65\x74\x46\x75\154\154\105\162\x72\x6f\x72\115\x65\x73\163\141\x67\x65"; @$obj = new $obj_class; $retval = $obj->{$obj_function}(); if ( $retval !== TRUE ) { $this->Validator->isTrue( 'lic_obj', FALSE, $obj->{$obj_error_msg_function}($retval) ); } }
 		return TRUE;
 	}
 
@@ -987,8 +982,8 @@ class UserContactFactory extends Factory {
 	function postSave( ) {
 		$this->removeCache( $this->getId() );
 
-	    if ( $this->getDeleted() == FALSE ) {
-            Debug::text('Setting Tags...', __FILE__, __LINE__, __METHOD__, 10);
+		if ( $this->getDeleted() == FALSE ) {
+			Debug::text('Setting Tags...', __FILE__, __LINE__, __METHOD__, 10);
 			CompanyGenericTagMapFactory::setTags( $this->getUserObject()->getCompany(), 230, $this->getID(), $this->getTag() );
 		}
 
@@ -999,7 +994,7 @@ class UserContactFactory extends Factory {
 		return Misc::getMapURL( $this->getAddress1(), $this->getAddress2(), $this->getCity(), $this->getProvince(), $this->getPostalCode(), $this->getCountry() );
 	}
 
-	//Support setting created_by,updated_by especially for importing data.
+	//Support setting created_by, updated_by especially for importing data.
 	//Make sure data is set based on the getVariableToFunctionMap order.
 	function setObjectFromArray( $data ) {
 		if ( is_array( $data ) ) {
@@ -1041,20 +1036,20 @@ class UserContactFactory extends Factory {
 
 					$function = 'get'.$function_stub;
 					switch( $variable ) {
-					    case 'employee_first_name':
-                        case 'employee_last_name':
-                        case 'title':
+						case 'employee_first_name':
+						case 'employee_last_name':
+						case 'title':
 						case 'user_group':
 						case 'ethnic_group':
-                        case 'default_branch':
+						case 'default_branch':
 						case 'default_department':
-                            $data[$variable] = $this->getColumn( $variable );
-                            break;
+							$data[$variable] = $this->getColumn( $variable );
+							break;
 						case 'full_name':
 							$data[$variable] = $this->getFullName(TRUE);
-                            break;
+							break;
 						case 'status':
-                        case 'type':
+						case 'type':
 						case 'sex':
 							$function = 'get'.$variable;
 							if ( method_exists( $this, $function ) ) {
@@ -1080,7 +1075,7 @@ class UserContactFactory extends Factory {
 				unset($function);
 			}
 			$this->getPermissionColumns( $data, $this->getUser(), $this->getCreatedBy(), $permission_children_ids, $include_columns );
-            
+
 			$this->getCreatedAndUpdatedColumns( $data, $include_columns );
 		}
 
@@ -1088,7 +1083,7 @@ class UserContactFactory extends Factory {
 	}
 
 	function addLog( $log_action ) {
-		return TTLog::addEntry( $this->getId(), $log_action, TTi18n::getText('Employee Contact ').': '. $this->getFullName( FALSE, TRUE ) , NULL, $this->getTable(), $this );
+		return TTLog::addEntry( $this->getId(), $log_action, TTi18n::getText('Employee Contact ').': '. $this->getFullName( FALSE, TRUE ), NULL, $this->getTable(), $this );
 	}
 }
 ?>

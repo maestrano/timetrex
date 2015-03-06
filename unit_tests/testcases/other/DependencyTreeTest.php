@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,23 +33,17 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 11018 $
- * $Id: DependencyTreeTest.php 11018 2013-09-24 23:39:40Z ipso $
- * $Date: 2013-09-24 16:39:40 -0700 (Tue, 24 Sep 2013) $
- */
+
 require_once('PHPUnit/Framework/TestCase.php');
 
+/**
+ * @group DependencyTree
+ */
 class DependencyTreeTest extends PHPUnit_Framework_TestCase {
-
-    public function __construct() {
-        global $db, $cache, $profiler;
-
-		require_once( Environment::getBasePath().'/classes/modules/core/DependencyTree.class.php');
-    }
-
     public function setUp() {
         Debug::text('Running setUp(): ', __FILE__, __LINE__, __METHOD__,10);
+		require_once( Environment::getBasePath().'/classes/modules/core/DependencyTree.class.php');
+
         return TRUE;
     }
 

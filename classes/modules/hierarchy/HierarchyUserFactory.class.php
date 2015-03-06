@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2095 $
- * $Id: PolicyGroupUserFactory.class.php 2095 2008-09-01 07:04:25Z ipso $
- * $Date: 2008-09-01 00:04:25 -0700 (Mon, 01 Sep 2008) $
- */
+
 
 /**
  * @package Modules\Hierarchy
@@ -77,7 +73,7 @@ class HierarchyUserFactory extends Factory {
 
 	function getHierarchyControl() {
 		if ( isset($this->data['hierarchy_control_id']) ) {
-			return $this->data['hierarchy_control_id'];
+			return (int)$this->data['hierarchy_control_id'];
 		}
 
 		return FALSE;
@@ -126,7 +122,7 @@ class HierarchyUserFactory extends Factory {
 					AND a.hierarchy_control_id != ?
 					AND c.deleted = 0
 				';
-		//Debug::Arr($ph,'Query: '. $query, __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($ph, 'Query: '. $query, __FILE__, __LINE__, __METHOD__, 10);
 		$user_id = $this->db->GetOne($query, $ph);
 
 		if ( $user_id === FALSE ) {
@@ -137,7 +133,7 @@ class HierarchyUserFactory extends Factory {
 	}
 	function getUser() {
 		if ( isset($this->data['user_id']) ) {
-			return $this->data['user_id'];
+			return (int)$this->data['user_id'];
 		}
 	}
 	function setUser($id) {
@@ -161,7 +157,7 @@ class HierarchyUserFactory extends Factory {
 				AND
 				$this->Validator->isNotResultSetWithRows(	'user',
 															$hllf->getByHierarchyControlIdAndUserId( $this->getHierarchyControl(), $id ),
-															TTi18n::gettext('Selected employee is assigned as both a superior and subordinate')
+															TTi18n::gettext('Selected Employee is assigned as both a superior and subordinate')
 															)
 */
 				AND	$this->Validator->isTrue(		'user',
@@ -229,7 +225,7 @@ class HierarchyUserFactory extends Factory {
 	function addLog( $log_action ) {
 		$u_obj = $this->getUserObject();
 		if ( is_object($u_obj) ) {
-			return TTLog::addEntry( $this->getHierarchyControl(), $log_action, TTi18n::getText('Suborindate').': '. $u_obj->getFullName( FALSE, TRUE ) , NULL, $this->getTable() );
+			return TTLog::addEntry( $this->getHierarchyControl(), $log_action, TTi18n::getText('Suborindate').': '. $u_obj->getFullName( FALSE, TRUE ), NULL, $this->getTable() );
 		}
 
 		return FALSE;

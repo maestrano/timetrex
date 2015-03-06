@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,73 +33,41 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 4925 $
- * $Id: KPIFactory.class.php 4925 2011-07-04 18:43:18Z ipso $
- * $Date: 2011-07-05 02:43:18 +0800 (Tue, 05 Jul 2011) $
- */
+
 
 /**
- * @package Module_KPI
+ * @package Modules\KPI
  */
-class KPIFactory extends Factory {
+class KPIFactory extends Factory
+{
 	protected $table = 'kpi';
 	protected $pk_sequence_name = 'kpi_id_seq'; //PK Sequence name
-    protected $tmp_data = NULL;
+	protected $tmp_data = NULL;
 	protected $company_obj = NULL;
+
 	function _getFactoryOptions( $name ) {
 
 		$retval = NULL;
-		switch( $name ) {
-            case 'status':
-                $retval = array(
-                                10 => TTi18n::gettext('Enabled (Required)'),
-                                15 => TTi18n::gettext('Enabled (Optional)'),
-                                20 => TTi18n::gettext('Disabled'),
-                            );
-                break;
-            case 'type':
-                $retval = array(
-                                10 => TTi18n::gettext('Scale Rating'),
-                                20 => TTi18n::gettext('Yes/No'),
-                                30 => TTi18n::gettext('Text'),
-                            );
-                break;
+		switch ( $name ) {
+			case 'status':
+				$retval = array( 10 => TTi18n::gettext( 'Enabled (Required)' ), 15 => TTi18n::gettext( 'Enabled (Optional)' ), 20 => TTi18n::gettext( 'Disabled' ), );
+				break;
+			case 'type':
+				$retval = array( 10 => TTi18n::gettext( 'Scale Rating' ), 20 => TTi18n::gettext( 'Yes/No' ), 30 => TTi18n::gettext( 'Text' ), );
+				break;
 			case 'columns':
-				$retval = array(
-										'-1000-name' => TTi18n::gettext('Name'),
-                                        //'-2040-group' => TTi18n::gettext('Group'),
-                                        '-1040-description' => TTi18n::gettext('Description'),
-                                        '-1050-type' => TTi18n::getText('Type'),
-                                        '-4050-minimum_rate' => TTi18n::gettext('Minimum Rating'),
-                                        '-4060-maximum_rate' => TTi18n::gettext('Maximum Rating'),
-                                        '-1010-status' => TTi18n::gettext('Status'),
-
-                                        '-1300-tag' => TTi18n::gettext('Tags'),
-
-										'-2000-created_by' => TTi18n::gettext('Created By'),
-										'-2010-created_date' => TTi18n::gettext('Created Date'),
-										'-2020-updated_by' => TTi18n::gettext('Updated By'),
-										'-2030-updated_date' => TTi18n::gettext('Updated Date'),
-							);
+				$retval = array( '-1000-name' => TTi18n::gettext( 'Name' ), //'-2040-group' => TTi18n::gettext('Group'),
+					'-1040-description' => TTi18n::gettext( 'Description' ), '-1050-type' => TTi18n::getText( 'Type' ), '-4050-minimum_rate' => TTi18n::gettext( 'Minimum Rating' ), '-4060-maximum_rate' => TTi18n::gettext( 'Maximum Rating' ), '-1010-status' => TTi18n::gettext( 'Status' ), '-1300-tag' => TTi18n::gettext( 'Tags' ), '-2000-created_by' => TTi18n::gettext( 'Created By' ), '-2010-created_date' => TTi18n::gettext( 'Created Date' ), '-2020-updated_by' => TTi18n::gettext( 'Updated By' ), '-2030-updated_date' => TTi18n::gettext( 'Updated Date' ), );
 				break;
 			case 'list_columns':
-				$retval = Misc::arrayIntersectByKey( $this->getOptions('default_display_columns'), Misc::trimSortPrefix( $this->getOptions('columns') ) );
+				$retval = Misc::arrayIntersectByKey( $this->getOptions( 'default_display_columns' ), Misc::trimSortPrefix( $this->getOptions( 'columns' ) ) );
 				break;
 			case 'default_display_columns': //Columns that are displayed by default.
-				$retval = array(
-								'name',
-								//'group',
-								'description',
-                                'type',
-								'minimum_rate',
-                                'maximum_rate',
-								);
+				$retval = array( 'name', //'group',
+					'description', 'type', 'minimum_rate', 'maximum_rate', );
 				break;
 			case 'unique_columns': //Columns that are unique, and disabled for mass editing.
-				$retval = array(
-								'name',
-								);
+				$retval = array( 'name', );
 				break;
 		}
 
@@ -107,48 +75,35 @@ class KPIFactory extends Factory {
 	}
 
 	function _getVariableToFunctionMap( $data ) {
-		$variable_function_map = array(
-										'id' => 'ID',
-										'company_id' => 'Company',
-										'name' => 'Name',
-                                        'group_id' => 'Group',
-                                        //'group' => FALSE,
-                                        'type_id' => 'Type',
-                                        'type' => FALSE,
-                                        'tag' => 'Tag',
-                                        'description' => 'Description',
-                                        'minimum_rate' => 'MinimumRate',
-                                        'maximum_rate' => 'MaximumRate',
-                                        'status_id' => 'Status',
-										'status' => FALSE,
-										'deleted' => 'Deleted',
-										);
+
+		$variable_function_map = array( 'id' => 'ID', 'company_id' => 'Company', 'name' => 'Name', 'group_id' => 'Group', //'group' => FALSE,
+			'type_id' => 'Type', 'type' => FALSE, 'tag' => 'Tag', 'description' => 'Description', 'minimum_rate' => 'MinimumRate', 'maximum_rate' => 'MaximumRate', 'status_id' => 'Status', 'status' => FALSE, 'deleted' => 'Deleted', );
+
 		return $variable_function_map;
 	}
 
 	function getCompanyObject() {
+
 		return $this->getGenericObject( 'CompanyListFactory', $this->getCompany(), 'company_obj' );
 	}
 
 	function getCompany() {
-		if ( isset($this->data['company_id']) ) {
-			return $this->data['company_id'];
+
+		if ( isset( $this->data['company_id'] ) ) {
+			return (int)$this->data['company_id'];
 		}
 
 		return FALSE;
 	}
-	function setCompany($id) {
-		$id = trim($id);
 
-		Debug::Text('Company ID: '. $id, __FILE__, __LINE__, __METHOD__,10);
+	function setCompany( $id ) {
+
+		$id = trim( $id );
+		Debug::Text( 'Company ID: ' . $id, __FILE__, __LINE__, __METHOD__, 10 );
 		$clf = TTnew( 'CompanyListFactory' );
-
-		if ( $this->Validator->isResultSetWithRows(	'company',
-													$clf->getByID($id),
-													TTi18n::gettext('Company is invalid')
-													) ) {
+		if ( $this->Validator->isResultSetWithRows( 'company', $clf->getByID( $id ), TTi18n::gettext( 'Company is invalid' ) ) ) {
 			$this->data['company_id'] = $id;
-            Debug::Text('Setting company_id data...    ' . $this->data['company_id'] , __FILE__, __LINE__, __METHOD__, 10);
+			Debug::Text( 'Setting company_id data...	   ' . $this->data['company_id'], __FILE__, __LINE__, __METHOD__, 10 );
 
 			return TRUE;
 		}
@@ -156,47 +111,45 @@ class KPIFactory extends Factory {
 		return FALSE;
 	}
 
-    function getStatus() {
-		if ( isset($this->data['status_id']) ) {
+	function getStatus() {
+
+		if ( isset( $this->data['status_id'] ) ) {
 			return (int)$this->data['status_id'];
 		}
 
 		return FALSE;
 	}
-	function setStatus($status) {
-		$status = trim($status);
 
-		$key = Option::getByValue($status, $this->getOptions('status') );
-		if ($key !== FALSE) {
+	function setStatus( $status ) {
+
+		$status = trim( $status );
+		$key = Option::getByValue( $status, $this->getOptions( 'status' ) );
+		if ( $key !== FALSE ) {
 			$status = $key;
 		}
-
-		if ( $this->Validator->inArrayKey(	'status',
-											$status,
-											TTi18n::gettext('Incorrect Status'),
-											$this->getOptions('status')) ) {
+		if ( $this->Validator->inArrayKey( 'status', $status, TTi18n::gettext( 'Incorrect Status' ), $this->getOptions( 'status' ) ) ) {
 			$this->data['status_id'] = $status;
-            Debug::Text('Setting status_id data...    ' . $this->data['status_id'] , __FILE__, __LINE__, __METHOD__, 10);
+			Debug::Text( 'Setting status_id data...	  ' . $this->data['status_id'], __FILE__, __LINE__, __METHOD__, 10 );
+
 			return TRUE;
 		}
 
 		return FALSE;
 	}
 
-    function getType() {
-		if ( isset($this->data['type_id']) ) {
+	function getType() {
+
+		if ( isset( $this->data['type_id'] ) ) {
 			return (int)$this->data['type_id'];
 		}
+
 		return FALSE;
 	}
 
-	function setType($type_id) {
-		$type_id = trim($type_id);
+	function setType( $type_id ) {
 
-		if (  $this->Validator->inArrayKey(	'type_id',
-                                            $type_id,
-                                            TTi18n::gettext('Type is invalid'),
-											$this->getOptions('type')) ) {
+		$type_id = trim( $type_id );
+		if ( $this->Validator->inArrayKey( 'type_id', $type_id, TTi18n::gettext( 'Type is invalid' ), $this->getOptions( 'type' ) ) ) {
 			$this->data['type_id'] = $type_id;
 
 			return FALSE;
@@ -205,24 +158,20 @@ class KPIFactory extends Factory {
 		return FALSE;
 	}
 
-    function isUniqueName($name) {
+	function isUniqueName( $name ) {
 
-        $ph = array(
-					'company_id' => $this->getCompany(),
-					'name' => trim(strtolower($name)),
-					);
-
-		$query = 'select id from '. $this->table .'
+		$ph = array( 'company_id' => $this->getCompany(), 'name' => trim( strtolower( $name ) ), );
+		$query = 'select id from ' . $this->table . '
 					where company_id = ?
 						AND name = ?
 						AND deleted = 0';
-		$name_id = $this->db->GetOne($query, $ph);
-		Debug::Arr($name_id,'Unique Name: '. $name, __FILE__, __LINE__, __METHOD__,10);
-
+		$name_id = $this->db->GetOne( $query, $ph );
+		Debug::Arr( $name_id, 'Unique Name: ' . $name, __FILE__, __LINE__, __METHOD__, 10 );
 		if ( $name_id === FALSE ) {
 			return TRUE;
-		} else {
-			if ($name_id == $this->getId() ) {
+		}
+		else {
+			if ( $name_id == $this->getId() ) {
 				return TRUE;
 			}
 		}
@@ -231,152 +180,136 @@ class KPIFactory extends Factory {
 	}
 
 	function getName() {
-		if ( isset($this->data['name']) ) {
+
+		if ( isset( $this->data['name'] ) ) {
 			return $this->data['name'];
 		}
 
 		return FALSE;
 	}
-	function setName($name) {
-		$name = trim($name);
 
-		if 	(     $this->Validator->isLength(		'name',
-														$name,
-														TTi18n::gettext('Name is too long, consider using description instead'),
-														3,
-														100)
-					AND
-						$this->Validator->isTrue(		'name',
-														$this->isUniqueName($name),
-														TTi18n::gettext('Name is already taken')
-														)
-			) {
+	function setName( $name ) {
+
+		$name = trim( $name );
+		if ( $this->Validator->isLength( 'name', $name, TTi18n::gettext( 'Name is too long, consider using description instead' ), 3, 100 )
+			AND
+			$this->Validator->isTrue( 'name', $this->isUniqueName( $name ), TTi18n::gettext( 'Name is already taken' ) )
+		) {
 			$this->data['name'] = $name;
+
 			return TRUE;
 		}
 
 		return FALSE;
 	}
 
-    function getGroup() {
-        return CompanyGenericMapListFactory::getArrayByCompanyIDAndObjectTypeIDAndObjectID( $this->getCompany(), 2020, $this->getID() );
-    }
-    function setGroup($ids) {
-		Debug::text('Setting Groups IDs : ', __FILE__, __LINE__, __METHOD__, 10);
-        Debug::Arr($ids,'Setting Group data... ',__FILE__,__LINE__,__METHOD__,10);
-        return CompanyGenericMapFactory::setMapIDs( $this->getCompany(), 2020, $this->getID(), $ids );
+	function getGroup() {
+
+		return CompanyGenericMapListFactory::getArrayByCompanyIDAndObjectTypeIDAndObjectID( $this->getCompany(), 2020, $this->getID() );
+	}
+
+	function setGroup( $ids ) {
+
+		Debug::text( 'Setting Groups IDs : ', __FILE__, __LINE__, __METHOD__, 10 );
+		Debug::Arr( $ids, 'Setting Group data... ', __FILE__, __LINE__, __METHOD__, 10 );
+
+		return CompanyGenericMapFactory::setMapIDs( $this->getCompany(), 2020, $this->getID(), $ids );
 	}
 
 
-    function getDescription() {
-        if ( isset($this->data['description']) ) {
-            return $this->data['description'];
-        }
-        return FALSE;
-    }
-    function setDescription($description) {
-        $description = trim($description);
+	function getDescription() {
 
-        if (  $this->Validator->isLength( 'description',
-                                            $description,
-                                            TTi18n::gettext('Description is invalid'),
-                                            0,255 )  ) {
-                $this->data['description'] = $description;
-                Debug::Text('Setting description data...    ' . $this->data['description'] , __FILE__, __LINE__, __METHOD__, 10);
-                return  TRUE;
-        }
+		if ( isset( $this->data['description'] ) ) {
+			return $this->data['description'];
+		}
 
-        return FALSE;
-    }
+		return FALSE;
+	}
 
-    function getMinimumRate() {
-        if ( isset($this->data['minimum_rate']) ) {
-            return Misc::removeTrailingZeros( $this->data['minimum_rate'], 2);
-        }
-        return FALSE;
-    }
+	function setDescription( $description ) {
 
-    function setMinimumRate($value) {
-        $value = trim($value);
-        
-        $value = $this->Validator->stripNonFloat($value);
-        
-        if (  ( $this->getType() == 10 ) AND (  $this->Validator->isLength(		'minimum_rate',
-												$value,
-												TTi18n::gettext('Invalid  Minimum Rating'),
-												1 )
-                AND
-                ( $this->Validator->isNumeric(	'minimum_rate',
-													$value,
-													TTi18n::gettext('Minimum Rating must only be digits')
-                                         )
-                 AND
-                $this->Validator->isLengthAfterDecimal( 'minimum_rate',
-													   $value,
-													   TTi18n::gettext('Invalid  Minimum Rating '),
-                                                        0,
-                                                        2
-                                        ) ) )
+		$description = trim( $description );
+		if ( $this->Validator->isLength( 'description', $description, TTi18n::gettext( 'Description is invalid' ), 0, 255 ) ) {
+			$this->data['description'] = $description;
+			Debug::Text( 'Setting description data...	' . $this->data['description'], __FILE__, __LINE__, __METHOD__, 10 );
 
-            ) {
-                $this->data['minimum_rate'] = $value;
-                Debug::Text('Setting minimum_rate data...    ' . $this->data['minimum_rate'] , __FILE__, __LINE__, __METHOD__, 10);
-                return  TRUE;
-        }
+			return TRUE;
+		}
 
-        return FALSE;
-    }
+		return FALSE;
+	}
 
-    function getMaximumRate() {
-        if ( isset($this->data['maximum_rate']) ) {
-            return Misc::removeTrailingZeros( $this->data['maximum_rate'], 2);
-        }
-        return FALSE;
-    }
+	function getMinimumRate() {
 
-    function setMaximumRate($value) {
-        $value = trim($value);
-        $value = $this->Validator->stripNonFloat($value);
-        if ( ( $this->getType() == 10 ) AND  (  $this->Validator->isLength(		'maximum_rate',
-												$value,
-												TTi18n::gettext('Invalid  Maximum Rating '),
-												1 )
-                AND
-                ( $this->Validator->isNumeric(	'maximum_rate',
-													$value,
-													TTi18n::gettext('Maximum Rating must only be digits')
-                                         )
-                 AND
-                $this->Validator->isLengthAfterDecimal( 'maximum_rate',
-													   $value,
-													   TTi18n::gettext('Invalid  Maximum Rating '),
-                                                        0,
-                                                        2
-                                        ) ) )
+		if ( isset( $this->data['minimum_rate'] ) ) {
+			return Misc::removeTrailingZeros( $this->data['minimum_rate'], 2 );
+		}
 
-            ) {
-                $this->data['maximum_rate'] = $value;
-                Debug::Text('Setting maximum_rate data...    ' . $this->data['maximum_rate'] , __FILE__, __LINE__, __METHOD__, 10);
-                return  TRUE;
-        }
+		return FALSE;
+	}
 
-        return FALSE;
-    }
+	function setMinimumRate( $value ) {
 
-    function getTag() {
+		$value = trim( $value );
+		$value = $this->Validator->stripNonFloat( $value );
+		if ( ( $this->getType() == 10 ) AND ( $this->Validator->isLength( 'minimum_rate', $value, TTi18n::gettext( 'Invalid  Minimum Rating' ), 1 )
+				AND
+				( $this->Validator->isNumeric( 'minimum_rate', $value, TTi18n::gettext( 'Minimum Rating must only be digits' ) )
+					AND
+					$this->Validator->isLengthAfterDecimal( 'minimum_rate', $value, TTi18n::gettext( 'Invalid	 Minimum Rating ' ), 0, 2 ) ) )
+		) {
+			$this->data['minimum_rate'] = $value;
+			Debug::Text( 'Setting minimum_rate data...	 ' . $this->data['minimum_rate'], __FILE__, __LINE__, __METHOD__, 10 );
+
+			return TRUE;
+		}
+
+		return FALSE;
+	}
+
+	function getMaximumRate() {
+		if ( isset( $this->data['maximum_rate'] ) ) {
+			return Misc::removeTrailingZeros( $this->data['maximum_rate'], 2 );
+		}
+
+		return FALSE;
+	}
+
+	function setMaximumRate( $value ) {
+		$value = trim( $value );
+		$value = $this->Validator->stripNonFloat( $value );
+		if ( ( $this->getType() == 10 ) AND ( $this->Validator->isLength( 'maximum_rate', $value, TTi18n::gettext( 'Invalid Maximum Rating' ), 1 )
+				AND
+				( $this->Validator->isNumeric( 'maximum_rate', $value, TTi18n::gettext( 'Maximum Rating must only be digits' ) )
+					AND
+					$this->Validator->isLengthAfterDecimal( 'maximum_rate', $value, TTi18n::gettext( 'Invalid Maximum Rating' ), 0, 2 ) ) )
+		) {
+			$this->data['maximum_rate'] = $value;
+			Debug::Text( 'Setting maximum_rate data...'. $this->data['maximum_rate'], __FILE__, __LINE__, __METHOD__, 10 );
+
+			return TRUE;
+		}
+
+		return FALSE;
+	}
+
+	function getTag() {
+
 		//Check to see if any temporary data is set for the tags, if not, make a call to the database instead.
 		//postSave() needs to get the tmp_data.
-		if ( isset($this->tmp_data['tags']) ) {
+		if ( isset( $this->tmp_data['tags'] ) ) {
 			return $this->tmp_data['tags'];
-		} elseif (  $this->getCompany() > 0 AND $this->getID() > 0 ) {
+		}
+		elseif ( $this->getCompany() > 0 AND $this->getID() > 0 ) {
 			return CompanyGenericTagMapListFactory::getStringByCompanyIDAndObjectTypeIDAndObjectID( $this->getCompany(), 310, $this->getID() );
 		}
 
 		return FALSE;
 	}
-	function setTag( $tags ) {
-		$tags = trim($tags);
 
+	function setTag( $tags ) {
+
+		$tags = trim( $tags );
 		//Save the tags in temporary memory to be committed in postSave()
 		$this->tmp_data['tags'] = $tags;
 
@@ -386,25 +319,20 @@ class KPIFactory extends Factory {
 
 	function Validate() {
 
-	    if ( $this->getType() == 10 AND $this->getMinimumRate() != '' AND $this->getMaximumRate() != '' ) {
-
-            if ( $this->getMinimumRate() >= $this->getMaximumRate() ) {
-                $this->Validator->isTrue(		'minimum_rate',
-												FALSE,
-												TTi18n::gettext('Minimum Rating should be lesser than Maximum Rating')
-												);
-            }
-	    }
-        if ( $this->getDeleted() == TRUE ){
+		if ( $this->getType() == 10 AND $this->getMinimumRate() != '' AND $this->getMaximumRate() != '' ) {
+			if ( $this->getMinimumRate() >= $this->getMaximumRate() ) {
+				$this->Validator->isTrue( 'minimum_rate', FALSE, TTi18n::gettext( 'Minimum Rating should be lesser than Maximum Rating' ) );
+			}
+		}
+		if ( $this->getDeleted() == TRUE ) {
 			$urlf = TTnew( 'UserReviewListFactory' );
-            $urlf->getByKpiId( $this->getId() );
+			$urlf->getByKpiId( $this->getId() );
 			if ( $urlf->getRecordCount() > 0 ) {
-				$this->Validator->isTRUE(	'in_use',
-											FALSE,
-											TTi18n::gettext('This KPI is in use'));
+				$this->Validator->isTRUE( 'in_use', FALSE, TTi18n::gettext( 'KPI is in use' ) );
 
 			}
 		}
+
 		return TRUE;
 	}
 
@@ -414,26 +342,27 @@ class KPIFactory extends Factory {
 	}
 
 	function postSave() {
-	    $this->removeCache( $this->getId() );
 
-	    if ( $this->getDeleted() == FALSE ) {
-            Debug::text('Setting Tags...', __FILE__, __LINE__, __METHOD__, 10);
+		$this->removeCache( $this->getId() );
+		if ( $this->getDeleted() == FALSE ) {
+			Debug::text( 'Setting Tags...', __FILE__, __LINE__, __METHOD__, 10 );
 			CompanyGenericTagMapFactory::setTags( $this->getCompany(), 310, $this->getID(), $this->getTag() );
 		}
 
 		return TRUE;
 	}
 
-	//Support setting created_by,updated_by especially for importing data.
+	//Support setting created_by, updated_by especially for importing data.
 	//Make sure data is set based on the getVariableToFunctionMap order.
 	function setObjectFromArray( $data ) {
-	    Debug::Arr($data,'setObjectFromArray...',__FILE__,__LINE__,__METHOD__,10);
+
+		Debug::Arr( $data, 'setObjectFromArray...', __FILE__, __LINE__, __METHOD__, 10 );
 		if ( is_array( $data ) ) {
 			$variable_function_map = $this->getVariableToFunctionMap();
-			foreach( $variable_function_map as $key => $function ) {
-				if ( isset($data[$key]) ) {
-					$function = 'set'.$function;
-					switch( $key ) {
+			foreach ( $variable_function_map as $key => $function ) {
+				if ( isset( $data[$key] ) ) {
+					$function = 'set' . $function;
+					switch ( $key ) {
 						default:
 							if ( method_exists( $this, $function ) ) {
 								$this->$function( $data[$key] );
@@ -442,7 +371,6 @@ class KPIFactory extends Factory {
 					}
 				}
 			}
-
 			$this->setCreatedAndUpdatedColumns( $data );
 
 			return TRUE;
@@ -451,28 +379,28 @@ class KPIFactory extends Factory {
 		return FALSE;
 	}
 
-	function getObjectAsArray( $include_columns = NULL, $permission_children_ids = FALSE  ) {
+	function getObjectAsArray( $include_columns = NULL, $permission_children_ids = FALSE ) {
+
 		$variable_function_map = $this->getVariableToFunctionMap();
 		if ( is_array( $variable_function_map ) ) {
-			foreach( $variable_function_map as $variable => $function_stub ) {
-				if ( $include_columns == NULL OR ( isset($include_columns[$variable]) AND $include_columns[$variable] == TRUE ) ) {
-
-					$function = 'get'.$function_stub;
-					switch( $variable ) {
-                        case 'type':
-					    case 'status':
-							$function = 'get'.$variable;
+			foreach ( $variable_function_map as $variable => $function_stub ) {
+				if ( $include_columns == NULL OR ( isset( $include_columns[$variable] ) AND $include_columns[$variable] == TRUE ) ) {
+					$function = 'get' . $function_stub;
+					switch ( $variable ) {
+						case 'type':
+						case 'status':
+							$function = 'get' . $variable;
 							if ( method_exists( $this, $function ) ) {
 								$data[$variable] = Option::getByKey( $this->$function(), $this->getOptions( $variable ) );
 							}
 							break;
-                        /*case 'group':
-                            if ( $this->getColumn( 'map_id' ) == -1 ) {
-                                $data[$variable] = 'All';
-                            } else {
-                                $data[$variable] = $this->getColumn( $variable );
-                            }
-                            break;*/
+						/*case 'group':
+							if ( $this->getColumn( 'map_id' ) == -1 ) {
+								$data[$variable] = 'All';
+							} else {
+								$data[$variable] = $this->getColumn( $variable );
+							}
+							break;*/
 						default:
 							if ( method_exists( $this, $function ) ) {
 								$data[$variable] = $this->$function();
@@ -482,15 +410,17 @@ class KPIFactory extends Factory {
 
 				}
 			}
-            $this->getPermissionColumns( $data, $this->getCreatedBy(), FALSE, $permission_children_ids, $include_columns );
-            
+			$this->getPermissionColumns( $data, $this->getCreatedBy(), FALSE, $permission_children_ids, $include_columns );
 			$this->getCreatedAndUpdatedColumns( $data, $include_columns );
 		}
+
 		return $data;
 	}
 
 	function addLog( $log_action ) {
-		return TTLog::addEntry( $this->getId(), $log_action,  TTi18n::getText('KPI'), NULL, $this->getTable(), $this );
+
+		return TTLog::addEntry( $this->getId(), $log_action, TTi18n::getText( 'KPI' ), NULL, $this->getTable(), $this );
 	}
 }
+
 ?>

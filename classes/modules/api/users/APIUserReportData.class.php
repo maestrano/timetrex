@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2196 $
- * $Id: APIUser.class.php 2196 2008-10-14 16:08:54Z ipso $
- * $Date: 2008-10-14 09:08:54 -0700 (Tue, 14 Oct 2008) $
- */
+
 
 /**
  * @package API\Users
@@ -110,7 +106,7 @@ class APIUserReportData extends APIFactory {
 				$row['company_id'] = $this->getCurrentUserObject()->getCompany();
 
 				if ( !isset($row['user_id'])
-						OR !( $this->getPermissionObject()->Check('user','view') OR ( $this->getPermissionObject()->Check('user','view_child') AND $this->getPermissionObject()->isChild( $row['user_id'], $permission_children_ids ) === TRUE ) ) ) {
+						OR !( $this->getPermissionObject()->Check('user', 'view') OR ( $this->getPermissionObject()->Check('user', 'view_child') AND $this->getPermissionObject()->isChild( $row['user_id'], $permission_children_ids ) === TRUE ) ) ) {
 					//Force user_id to currently logged in user.
 					Debug::Text('Forcing user_id...', __FILE__, __LINE__, __METHOD__, 10);
 					$row['user_id'] = $this->getCurrentUserObject()->getId();
@@ -130,19 +126,21 @@ class APIUserReportData extends APIFactory {
 						//Object doesn't exist.
 						$primary_validator->isTrue( 'id', FALSE, TTi18n::gettext('Edit permission denied, employee does not exist') );
 					}
-				} else {
+				} //else {
 					//Adding new object, check ADD permissions.
-					//$primary_validator->isTrue( 'permission', $this->getPermissionObject()->Check('user','add'), TTi18n::gettext('Add permission denied') );
-				}
+					//$primary_validator->isTrue( 'permission', $this->getPermissionObject()->Check('user', 'add'), TTi18n::gettext('Add permission denied') );
+				//}
 				Debug::Arr($row, 'User Report Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 				$is_valid = $primary_validator->isValid();
 				if ( $is_valid == TRUE ) { //Check to see if all permission checks passed before trying to save data.
-					Debug::Text('Attempting to save User Data...', __FILE__, __LINE__, __METHOD__, 10);
-					$lf->setObjectFromArray( $row );
+					Debug::Text('Attempting to save User Report Data...', __FILE__, __LINE__, __METHOD__, 10);
 
 					//Force Company ID to current company.
-					$lf->setCompany( $this->getCurrentCompanyObject()->getId() );
+					$row['company_id'] = $this->getCurrentCompanyObject()->getId();
+
+					$lf->setObjectFromArray( $row );
+
 					//$lf->setUser( $this->getCurrentUserObject()->getId() ); //Need to be able support copying reports to other users.
 
 					if ( $validate_only == TRUE ) {
@@ -172,7 +170,7 @@ class APIUserReportData extends APIFactory {
 						$validator[$key] = $lf->Validator->getErrorsArray();
 					}
 				} elseif ( $validate_only == TRUE ) {
-					//Always fail transaction when valididate only is used, as  is saved to different tables immediately.
+					//Always fail transaction when valididate only is used, as	is saved to different tables immediately.
 					$lf->FailTransaction();
 				}
 
@@ -222,7 +220,7 @@ class APIUserReportData extends APIFactory {
 		Debug::Arr($data, 'Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		$total_records = count($data);
-        $validator_stats = array('total_records' => $total_records, 'valid_records' => 0 );
+		$validator_stats = array('total_records' => $total_records, 'valid_records' => 0 );
 		if ( is_array($data) ) {
 			foreach( $data as $key => $id ) {
 				$primary_validator = new Validator();
@@ -311,9 +309,9 @@ class APIUserReportData extends APIFactory {
 			Debug::Arr($src_rows, 'SRC Rows: ', __FILE__, __LINE__, __METHOD__, 10);
 			$dst_rows = array();
 
-			$x=0;
+			$x = 0;
 			foreach( $src_rows as $key => $row ) {
-				unset($src_rows[$key]['id'],$src_rows[$key]['created_date'],$src_rows[$key]['created_by']); //Clear fields that can't be copied
+				unset($src_rows[$key]['id'], $src_rows[$key]['created_date'], $src_rows[$key]['created_by']); //Clear fields that can't be copied
 				$src_rows[$key]['name'] = Misc::generateShareName( $this->getCurrentUserObject()->getFullName(), $row['name']); //Generate unique name
 
 				$description = NULL;

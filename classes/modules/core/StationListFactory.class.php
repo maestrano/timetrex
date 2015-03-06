@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 10406 $
- * $Id: StationListFactory.class.php 10406 2013-07-10 16:19:28Z ipso $
- * $Date: 2013-07-10 09:19:28 -0700 (Wed, 10 Jul 2013) $
- */
+
 
 /**
  * @package Core
@@ -46,7 +42,7 @@ class StationListFactory extends StationFactory implements IteratorAggregate {
 
 	function getAll($limit = NULL, $page = NULL, $where = NULL, $order = NULL) {
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					WHERE deleted = 0';
 		$query .= $this->getWhereSQL( $where );
@@ -67,7 +63,7 @@ class StationListFactory extends StationFactory implements IteratorAggregate {
 					);
 
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					where	id = ?
 						AND deleted = 0
@@ -107,7 +103,7 @@ class StationListFactory extends StationFactory implements IteratorAggregate {
 					);
 
 		$query = '
-					select 	a.*,
+					select	a.*,
 							CASE WHEN ( a.updated_date is NULL) THEN TRUE ELSE FALSE END as updated_date_null
 					from	'. $this->getTable() .' as a
 					where	a.company_id = ?
@@ -142,8 +138,8 @@ class StationListFactory extends StationFactory implements IteratorAggregate {
 					);
 
 		$query = '
-					select 	*
-					from 	'. $this->getTable() .'
+					select	*
+					from	'. $this->getTable() .'
 					where	company_id = ?
 						AND	id = ?
 						AND deleted = 0';
@@ -168,8 +164,8 @@ class StationListFactory extends StationFactory implements IteratorAggregate {
 					);
 
 		$query = '
-					select 	*
-					from 	'. $this->getTable() .'
+					select	*
+					from	'. $this->getTable() .'
 					where	company_id = ?
 						AND type_id in ('. $this->getListSQL($type_id, $ph) .')
 						AND deleted = 0';
@@ -193,8 +189,8 @@ class StationListFactory extends StationFactory implements IteratorAggregate {
 						);
 
 			$query = '
-						select 	*
-						from 	'. $this->getTable() .'
+						select	*
+						from	'. $this->getTable() .'
 						where
 							station_id = ?
 							AND deleted = 0';
@@ -202,7 +198,7 @@ class StationListFactory extends StationFactory implements IteratorAggregate {
 
 			$this->ExecuteSQL( $query, $ph );
 
-			$this->saveCache($this->rs,$station_id);
+			$this->saveCache($this->rs, $station_id);
 		}
 
 		return $this;
@@ -223,8 +219,8 @@ class StationListFactory extends StationFactory implements IteratorAggregate {
 					);
 
 		$query = '
-					select 	*
-					from 	'. $this->getTable() .'
+					select	*
+					from	'. $this->getTable() .'
 					where	company_id = ?
 						AND	station_id = ?
 						AND deleted = 0';
@@ -253,8 +249,8 @@ class StationListFactory extends StationFactory implements IteratorAggregate {
 					);
 
 		$query = '
-					select 	*
-					from 	'. $this->getTable() .'
+					select	*
+					from	'. $this->getTable() .'
 					where	station_id = ?
 						AND status_id in ('. $this->getListSQL($status_id, $ph) .')
 						AND type_id in ('. $this->getListSQL($type_id, $ph) .')
@@ -280,8 +276,8 @@ class StationListFactory extends StationFactory implements IteratorAggregate {
 					);
 
 		$query = '
-					select 	*
-					from 	'. $this->getTable() .'
+					select	*
+					from	'. $this->getTable() .'
 					where	company_id = ?
 						AND status_id = 20
 						AND type_id in ('. $this->getListSQL($type_id, $ph) .')
@@ -300,7 +296,7 @@ class StationListFactory extends StationFactory implements IteratorAggregate {
 		return $this;
 	}
 
-	function getByUserIdAndStatusAndType($user_id, $status, $type, $order = NULL) {
+	function getByUserIdAndStatusAndType($user_id, $status, $type) {
 		if ( $user_id == '') {
 			return FALSE;
 		}
@@ -326,6 +322,7 @@ class StationListFactory extends StationFactory implements IteratorAggregate {
 		$ulf = new UserListFactory();
 		$ulf->getById( $user_id );
 		if ( $ulf->getRecordCount() != 1 ) {
+			Debug::text('User ID does not exist: '. $user_id .' returning FALSE!', __FILE__, __LINE__, __METHOD__, 10);
 			return FALSE;
 		}
 
@@ -344,8 +341,8 @@ class StationListFactory extends StationFactory implements IteratorAggregate {
 					);
 /*
 		$query = '
-					select 	a.*
-					from 	'. $this->getTable() .' as a
+					select	a.*
+					from	'. $this->getTable() .' as a
 						LEFT JOIN '. $uf->getTable() .' as z ON z.id = ?
 					where a.company_id = ?
 						AND a.status_id = ?
@@ -380,8 +377,8 @@ class StationListFactory extends StationFactory implements IteratorAggregate {
 */
 		//Optimize query by using EXISTS/NOT EXISTS rather than IN/NOT IN. This cuts the time by about 1/3.
 		$query = '
-					select 	a.*
-					from 	'. $this->getTable() .' as a
+					select	a.*
+					from	'. $this->getTable() .' as a
 						LEFT JOIN '. $uf->getTable() .' as z ON z.id = ?
 					where a.company_id = ?
 						AND a.status_id = ?
@@ -443,6 +440,41 @@ class StationListFactory extends StationFactory implements IteratorAggregate {
 		return $branch_list;
 	}
 
+	function getCountByCompanyIdAndTypeId($company_id, $type_id, $order = NULL) {
+		if ( $company_id == '') {
+			return FALSE;
+		}
+
+		if ( $type_id == '') {
+			return FALSE;
+		}
+
+		$ph = array(
+					//'company_id' => $company_id,
+					);
+
+		//Only include ENABLED stations.
+		$query = '
+					select	company_id,
+							type_id,
+							count(*) as total
+					from	'. $this->getTable() .'
+					where
+							status_id = 20
+							AND type_id in ('. $this->getListSQL($type_id, $ph) .') ';
+							
+		if ( $company_id != '' AND ( isset($company_id[0]) AND !in_array(-1, (array)$company_id) ) ) {
+			$query	.=	' AND company_id in ('. $this->getListSQL($company_id, $ph) .') ';
+		}
+
+		$query .= ' AND deleted = 0 GROUP BY company_id, type_id';
+		$query .= $this->getSortSQL( $order );
+
+		$this->ExecuteSQL( $query, $ph );
+
+		return $this;
+	}
+
 	function getAPISearchByCompanyIdAndArrayCriteria( $company_id, $filter_data, $limit = NULL, $page = NULL, $where = NULL, $order = NULL ) {
 		if ( $company_id == '') {
 			return FALSE;
@@ -458,9 +490,9 @@ class StationListFactory extends StationFactory implements IteratorAggregate {
 		$additional_order_fields = array();
 
 		$sort_column_aliases = array(
-									 'type' => 'type_id',
-									 'status' => 'status_id',
-									 );
+									'type' => 'type_id',
+									'status' => 'status_id',
+									);
 
 		$order = $this->getColumnsFromAliases( $order, $sort_column_aliases );
 		if ( $order == NULL ) {
@@ -473,8 +505,8 @@ class StationListFactory extends StationFactory implements IteratorAggregate {
 			}
 			$strict = TRUE;
 		}
-		//Debug::Arr($order,'Order Data:', __FILE__, __LINE__, __METHOD__,10);
-		//Debug::Arr($filter_data,'Filter Data:', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($order, 'Order Data:', __FILE__, __LINE__, __METHOD__, 10);
+		//Debug::Arr($filter_data, 'Filter Data:', __FILE__, __LINE__, __METHOD__, 10);
 
 		$uf = new UserFactory();
 
@@ -483,14 +515,14 @@ class StationListFactory extends StationFactory implements IteratorAggregate {
 					);
 
 		$query = '
-					select 	a.*,
+					select	a.*,
 							y.first_name as created_by_first_name,
 							y.middle_name as created_by_middle_name,
 							y.last_name as created_by_last_name,
 							z.first_name as updated_by_first_name,
 							z.middle_name as updated_by_middle_name,
 							z.last_name as updated_by_last_name
-					from 	'. $this->getTable() .' as a
+					from	'. $this->getTable() .' as a
 						LEFT JOIN '. $uf->getTable() .' as y ON ( a.created_by = y.id AND y.deleted = 0 )
 						LEFT JOIN '. $uf->getTable() .' as z ON ( a.updated_by = z.id AND z.deleted = 0 )
 					where	a.company_id = ?
@@ -500,12 +532,12 @@ class StationListFactory extends StationFactory implements IteratorAggregate {
 		$query .= ( isset($filter_data['id']) ) ? $this->getWhereClauseSQL( 'a.id', $filter_data['id'], 'numeric_list', $ph ) : NULL;
 		$query .= ( isset($filter_data['exclude_id']) ) ? $this->getWhereClauseSQL( 'a.id', $filter_data['exclude_id'], 'not_numeric_list', $ph ) : NULL;
 
-		if ( isset($filter_data['status']) AND trim($filter_data['status']) != '' AND !isset($filter_data['status_id']) ) {
+		if ( isset($filter_data['status']) AND !is_array($filter_data['status']) AND trim($filter_data['status']) != '' AND !isset($filter_data['status_id']) ) {
 			$filter_data['status_id'] = Option::getByFuzzyValue( $filter_data['status'], $this->getOptions('status') );
 		}
 		$query .= ( isset($filter_data['status_id']) ) ? $this->getWhereClauseSQL( 'a.status_id', $filter_data['status_id'], 'numeric_list', $ph ) : NULL;
 
-		if ( isset($filter_data['type']) AND trim($filter_data['type']) != '' AND !isset($filter_data['type_id']) ) {
+		if ( isset($filter_data['type']) AND !is_array($filter_data['type']) AND trim($filter_data['type']) != '' AND !isset($filter_data['type_id']) ) {
 			$filter_data['type_id'] = Option::getByFuzzyValue( $filter_data['type'], $this->getOptions('type') );
 		}
 		$query .= ( isset($filter_data['type_id']) ) ? $this->getWhereClauseSQL( 'a.type_id', $filter_data['type_id'], 'numeric_list', $ph ) : NULL;
@@ -514,14 +546,10 @@ class StationListFactory extends StationFactory implements IteratorAggregate {
 		$query .= ( isset($filter_data['source']) ) ? $this->getWhereClauseSQL( 'a.source', $filter_data['source'], 'text', $ph ) : NULL;
 		$query .= ( isset($filter_data['description']) ) ? $this->getWhereClauseSQL( 'a.description', $filter_data['description'], 'text', $ph ) : NULL;
 
-		$query .= ( isset($filter_data['created_by']) ) ? $this->getWhereClauseSQL( array('a.created_by','y.first_name','y.last_name'), $filter_data['created_by'], 'user_id_or_name', $ph ) : NULL;
-        
-        $query .= ( isset($filter_data['updated_by']) ) ? $this->getWhereClauseSQL( array('a.updated_by','z.first_name','z.last_name'), $filter_data['updated_by'], 'user_id_or_name', $ph ) : NULL;
-        
+		$query .= ( isset($filter_data['created_by']) ) ? $this->getWhereClauseSQL( array('a.created_by', 'y.first_name', 'y.last_name'), $filter_data['created_by'], 'user_id_or_name', $ph ) : NULL;
+		$query .= ( isset($filter_data['updated_by']) ) ? $this->getWhereClauseSQL( array('a.updated_by', 'z.first_name', 'z.last_name'), $filter_data['updated_by'], 'user_id_or_name', $ph ) : NULL;
 
-		$query .= 	'
-						AND a.deleted = 0
-					';
+		$query .= ' AND a.deleted = 0 ';
 		$query .= $this->getWhereSQL( $where );
 		$query .= $this->getSortSQL( $order, $strict, $additional_order_fields );
 

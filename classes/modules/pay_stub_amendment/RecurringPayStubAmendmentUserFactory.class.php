@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,14 +33,10 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 8561 $
- * $Id: RecurringPayStubAmendmentUserFactory.class.php 8561 2012-12-10 21:10:26Z ipso $
- * $Date: 2012-12-10 13:10:26 -0800 (Mon, 10 Dec 2012) $
- */
+
 
 /**
- * @package Modules_Pay_Stub\Amendment
+ * @package Modules\PayStubAmendment
  */
 class RecurringPayStubAmendmentUserFactory extends Factory {
 	protected $table = 'recurring_ps_amendment_user';
@@ -64,7 +60,7 @@ class RecurringPayStubAmendmentUserFactory extends Factory {
 	}
 
 	function getRecurringPayStubAmendment() {
-		return $this->data['recurring_ps_amendment_id'];
+		return (int)$this->data['recurring_ps_amendment_id'];
 	}
 	function setRecurringPayStubAmendment($id) {
 		$id = trim($id);
@@ -85,7 +81,7 @@ class RecurringPayStubAmendmentUserFactory extends Factory {
 	}
 
 	function getUser() {
-		return $this->data['user_id'];
+		return (int)$this->data['user_id'];
 	}
 	function setUser($id) {
 		$id = trim($id);
@@ -156,7 +152,7 @@ class RecurringPayStubAmendmentUserFactory extends Factory {
 	function addLog( $log_action ) {
 		$u_obj = $this->getUserObject();
 		if ( is_object($u_obj) ) {
-			return TTLog::addEntry( $this->getRecurringPayStubAmendment(), $log_action, TTi18n::getText('Employee').': '. $u_obj->getFullName( FALSE, TRUE ) , NULL, $this->getTable() );
+			return TTLog::addEntry( $this->getRecurringPayStubAmendment(), $log_action, TTi18n::getText('Employee').': '. $u_obj->getFullName( FALSE, TRUE ), NULL, $this->getTable() );
 		}
 
 		return FALSE;

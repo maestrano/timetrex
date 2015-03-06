@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 10143 $
- * $Id: CurrencyFactory.class.php 10143 2013-06-06 15:49:56Z ipso $
- * $Date: 2013-06-06 08:49:56 -0700 (Thu, 06 Jun 2013) $
- */
+
 
 /**
  * @package Core
@@ -302,16 +298,16 @@ class CurrencyFactory extends Factory {
 										'ZM' => 'ZMW',
 										'ZW' => 'ZWD',
 									);
-				break;            
-            case 'round_decimal_places':
-                $retval = array(
-                                        0 => 0,
-                                        1 => 1,
-                                        2 => 2,
-                                        3 => 3,
-                                        4 => 4,
-                            );
-                break;            
+				break;
+			case 'round_decimal_places':
+				$retval = array(
+										0 => 0,
+										1 => 1,
+										2 => 2,
+										3 => 3,
+										4 => 4,
+							);
+				break;
 			case 'columns':
 				$retval = array(
 										'-1000-status' => TTi18n::gettext('Status'),
@@ -325,7 +321,7 @@ class CurrencyFactory extends Factory {
 										'-1070-rate_modify_percent' => TTi18n::gettext('Rate Modify Percent'),
 										'-1080-is_default' => TTi18n::gettext('Default Currency'),
 										'-1090-is_base' => TTi18n::gettext('Base Currency'),
-                                        '-1100-round_decimal_places' => TTi18n::gettext('Round Decimal Places'),
+										'-1100-round_decimal_places' => TTi18n::gettext('Round Decimal Places'),
 
 										'-2000-created_by' => TTi18n::gettext('Created By'),
 										'-2010-created_date' => TTi18n::gettext('Created Date'),
@@ -334,7 +330,7 @@ class CurrencyFactory extends Factory {
 							);
 				break;
 			case 'list_columns':
-				$retval = Misc::arrayIntersectByKey( array('name','iso_code','status'), Misc::trimSortPrefix( $this->getOptions('columns') ) );
+				$retval = Misc::arrayIntersectByKey( array('name', 'iso_code', 'symbol', 'status'), Misc::trimSortPrefix( $this->getOptions('columns') ) );
 				break;
 			case 'default_display_columns': //Columns that are displayed by default.
 				$retval = array(
@@ -375,7 +371,7 @@ class CurrencyFactory extends Factory {
 										'rate_modify_percent' => 'RateModifyPercent',
 										'is_default' => 'Default',
 										'is_base' => 'Base',
-                                        'round_decimal_places' => 'RoundDecimalPlaces',
+										'round_decimal_places' => 'RoundDecimalPlaces',
 										'deleted' => 'Deleted',
 										);
 		return $variable_function_map;
@@ -387,7 +383,7 @@ class CurrencyFactory extends Factory {
 
 	function getCompany() {
 		if ( isset($this->data['company_id']) ) {
-			return $this->data['company_id'];
+			return (int)$this->data['company_id'];
 		}
 
 		return FALSE;
@@ -412,7 +408,7 @@ class CurrencyFactory extends Factory {
 
 	function getStatus() {
 		if ( isset($this->data['status_id']) ) {
-			return $this->data['status_id'];
+			return (int)$this->data['status_id'];
 		}
 
 		return FALSE;
@@ -449,7 +445,7 @@ class CurrencyFactory extends Factory {
 						AND name = ?
 						AND deleted = 0';
 		$name_id = $this->db->GetOne($query, $ph);
-		Debug::Arr($name_id,'Unique Name: '. $name, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Arr($name_id, 'Unique Name: '. $name, __FILE__, __LINE__, __METHOD__, 10);
 
 		if ( $name_id === FALSE ) {
 			return TRUE;
@@ -472,7 +468,7 @@ class CurrencyFactory extends Factory {
 	function setName($name) {
 		$name = trim($name);
 
-		if 	(	$this->Validator->isLength(		'name',
+		if	(	$this->Validator->isLength(		'name',
 												$name,
 												TTi18n::gettext('Name is too short or too long'),
 												2,
@@ -502,7 +498,7 @@ class CurrencyFactory extends Factory {
 	function setISOCode($value) {
 		$value = trim($value);
 
-		if 	(	$this->Validator->inArrayKey(	'iso_code',
+		if	(	$this->Validator->inArrayKey(	'iso_code',
 												$value,
 												TTi18n::gettext('ISO code is invalid'),
 												$this->getISOCodesArray() ) ) {
@@ -550,7 +546,7 @@ class CurrencyFactory extends Factory {
 	function setAutoUpdate($bool) {
 		$this->data['auto_update'] = $this->toBool($bool);
 
-		return true;
+		return TRUE;
 	}
 
 	function getActualRate() {
@@ -595,7 +591,7 @@ class CurrencyFactory extends Factory {
 			$epoch = TTDate::getTime();
 		}
 
-		if 	(	$this->Validator->isDate(		'actual_rate_updated_date',
+		if	(	$this->Validator->isDate(		'actual_rate_updated_date',
 												$epoch,
 												TTi18n::gettext('Incorrect Updated Date') ) ) {
 
@@ -608,7 +604,12 @@ class CurrencyFactory extends Factory {
 	}
 
 	function getPercentModifiedRate( $rate ) {
-		return bcmul( $rate, $this->getRateModifyPercent() );
+		if ( $this->getRateModifyPercent() == 0 ) {
+			$percent = 1;
+		} else {
+			$percent = $this->getRateModifyPercent();
+		}
+		return bcmul( $rate, $percent );
 	}
 	function getRateModifyPercent() {
 		if ( isset($this->data['rate_modify_percent']) ) {
@@ -642,7 +643,7 @@ class CurrencyFactory extends Factory {
 
 		$query = 'select id from '. $this->getTable() .' where company_id = ? AND is_default = 1 AND deleted=0';
 		$id = $this->db->GetOne($query, $ph);
-		Debug::Arr($id,'Unique Currency Default: '. $id, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Arr($id, 'Unique Currency Default: '. $id, __FILE__, __LINE__, __METHOD__, 10);
 
 		if ( $id === FALSE ) {
 			return TRUE;
@@ -660,7 +661,7 @@ class CurrencyFactory extends Factory {
 	}
 	function setDefault($bool) {
 
-		if 	(
+		if	(
 				$bool == TRUE
 				AND
 				$this->Validator->isTrue(		'is_default',
@@ -686,7 +687,7 @@ class CurrencyFactory extends Factory {
 
 		$query = 'select id from '. $this->getTable() .' where company_id = ? AND is_base = 1 AND deleted=0';
 		$id = $this->db->GetOne($query, $ph);
-		Debug::Arr($id,'Unique Currency Base: '. $id, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Arr($id, 'Unique Currency Base: '. $id, __FILE__, __LINE__, __METHOD__, 10);
 
 		if ( $id === FALSE ) {
 			return TRUE;
@@ -704,7 +705,7 @@ class CurrencyFactory extends Factory {
 	}
 	function setBase($bool) {
 
-		if 	(
+		if	(
 				$bool == TRUE
 				AND
 				$this->Validator->isTrue(		'is_base',
@@ -723,19 +724,19 @@ class CurrencyFactory extends Factory {
 		return TRUE;
 	}
 
-	function getSymbol(){
+	function getSymbol() {
 		return TTi18n::getCurrencySymbol( $this->getISOCode() );
 	}
 
 	function getRoundDecimalPlaces() {
-	    if ( isset($this->data['round_decimal_places']) ) {
-            return $this->data['round_decimal_places']; 
+		if ( isset($this->data['round_decimal_places']) ) {
+			return $this->data['round_decimal_places'];
 		}
 
 		return 2;
 	}
-	function setRoundDecimalPlaces( $value ) {    
-        if ( version_compare( APPLICATION_VERSION, 5.5, '>' ) ) {
+	function setRoundDecimalPlaces( $value ) {
+		if ( version_compare( APPLICATION_VERSION, 5.5, '>' ) ) {
 			$value = trim($value);
 
 			if (
@@ -751,7 +752,7 @@ class CurrencyFactory extends Factory {
 		}
 		
 		return FALSE;
-        
+
 	}
 
 	function round( $value ) {
@@ -768,7 +769,7 @@ class CurrencyFactory extends Factory {
 	}
 
 	static function convertCurrency( $src_currency_id, $dst_currency_id, $amount = 1 ) {
-		//Debug::Text('Source Currency: '. $src_currency_id .' Destination Currency: '. $dst_currency_id .' Amount: '. $amount, __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Text('Source Currency: '. $src_currency_id .' Destination Currency: '. $dst_currency_id .' Amount: '. $amount, __FILE__, __LINE__, __METHOD__, 10);
 
 		if ( $src_currency_id == '' ) {
 			return FALSE;
@@ -791,7 +792,7 @@ class CurrencyFactory extends Factory {
 		if ( $clf->getRecordCount() > 0 ) {
 			$src_currency_obj = $clf->getCurrent();
 		} else {
-			Debug::Text('Source currency does not exist.', __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text('Source currency does not exist.', __FILE__, __LINE__, __METHOD__, 10);
 			return FALSE;
 		}
 
@@ -799,7 +800,7 @@ class CurrencyFactory extends Factory {
 		if ( $clf->getRecordCount() > 0 ) {
 			$dst_currency_obj = $clf->getCurrent();
 		} else {
-			Debug::Text('Destination currency does not exist.', __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text('Destination currency does not exist.', __FILE__, __LINE__, __METHOD__, 10);
 			return FALSE;
 		}
 
@@ -826,29 +827,138 @@ class CurrencyFactory extends Factory {
 		*/
 		$base_currency = FALSE;
 
+		Debug::Text('Begin updating Currencies...', __FILE__, __LINE__, __METHOD__, 10);
+		
 		$clf = TTnew( 'CurrencyListFactory' );
 		$clf->getByCompanyId( $company_id );
 		if ( $clf->getRecordCount() > 0 ) {
 			foreach( $clf as $c_obj) {
 				if ( $c_obj->getBase() == TRUE ) {
 					$base_currency = $c_obj->getISOCode();
-				}
-
-				if ( $c_obj->getStatus() == 10 AND $c_obj->getAutoUpdate() == TRUE ) {
-					$active_currencies[] = $c_obj->getISOCode();
+					
+					$manual_currencies[$c_obj->getID()] = $c_obj->getISOCode(); //Make base currency manually updated too.
+				} else {
+					if ( $c_obj->getStatus() == 10 AND $c_obj->getAutoUpdate() == TRUE ) {
+						$active_currencies[$c_obj->getID()] = $c_obj->getISOCode();
+					} elseif ( $c_obj->getStatus() == 10 AND $c_obj->getAutoUpdate() == FALSE ) {
+						$manual_currencies[$c_obj->getID()] = $c_obj->getISOCode();
+					}
 				}
 			}
 		}
 		unset($clf, $c_obj);
 
+		$ttsc = new TimeTrexSoapClient();
+
+		//Fill in any gaps or missing rates prior to today.
+		//Get the earliest pay period date as the absolute earliest to get rates from.
+		//Loop through each currency and get the latest date.
+		//Download rates to fill in the gaps, if rates returned by server don't fill all gaps, manually fill them ourselves.
+		if ( isset($active_currencies) OR isset($manual_currencies) ) {
+			$earliest_pay_period_start_date = time();
+			$pplf = TTNew('PayPeriodListFactory');
+			$pplf->getByCompanyId($company_id, 1, NULL, NULL, array( 'start_date' => 'asc' ) );
+			if ( $pplf->getRecordCount() > 0 ) {
+				$earliest_pay_period_start_date = $pplf->getCurrent()->getStartDate();
+			}
+			unset($pplf);
+			Debug::Text('  Earliest Pay Period Date: '. TTDate::getDATE('DATE', $earliest_pay_period_start_date) .'('. $earliest_pay_period_start_date .')', __FILE__, __LINE__, __METHOD__, 10);
+
+			
+			$crlf = TTNew('CurrencyRateListFactory');
+			if ( isset($active_currencies) ) {
+				Debug::Text('  Processing Auto-Update Currencies... Total: '. count($active_currencies), __FILE__, __LINE__, __METHOD__, 10);
+				foreach( $active_currencies as $active_currency_id => $active_currency_iso_code ) {
+					$crlf->getByCurrencyId( $active_currency_id, 1, NULL, NULL, array('date_stamp' => 'desc' ) );
+					if ( $crlf->getRecordCount() > 0 ) {
+						$latest_currency_rate_date = $crlf->getCurrent()->getDateStamp();
+					} else {
+						$latest_currency_rate_date = $earliest_pay_period_start_date;
+					}
+					Debug::Text('  Latest Currency Rate Date: '. TTDate::getDATE('DATE', $latest_currency_rate_date ) .'('.$latest_currency_rate_date.') Currency ISO: '. $active_currency_iso_code, __FILE__, __LINE__, __METHOD__, 10);
+
+					if ( ( TTDate::getMiddleDayEpoch( time() ) - TTDate::getMiddleDayEpoch( $latest_currency_rate_date ) ) > 86400 ) {
+						$currency_rates = $ttsc->getCurrencyExchangeRatesByDate( $company_id, array( $active_currency_iso_code ), $base_currency, $latest_currency_rate_date, ( TTDate::getMiddleDayEpoch( time() ) - 86400 ) );
+						Debug::Text('Currency Rates for: '. $active_currency_iso_code .' Total: '. count($currency_rates), __FILE__, __LINE__, __METHOD__, 10);
+						//Debug::Arr($currency_rates, 'Currency Rates for: '. $active_currency_iso_code, __FILE__, __LINE__, __METHOD__, 10);
+
+						if ( is_array($currency_rates[$active_currency_iso_code]) ) {
+							foreach( $currency_rates[$active_currency_iso_code] as $date_stamp => $conversion_rate ) {
+								$crf = TTnew('CurrencyRateFactory');
+								$crf->setCurrency( $active_currency_id );
+								$crf->setDateStamp( strtotime( $date_stamp ) );
+								$crf->setConversionRate(  $conversion_rate );
+								Debug::Text('Currency: '. $active_currency_iso_code .' Date: '. $date_stamp .' Rate: Raw: '. $conversion_rate .' Modified: '. $crf->getCurrencyObject()->getPercentModifiedRate( $conversion_rate ), __FILE__, __LINE__, __METHOD__, 10);
+								if ( $crf->isValid() ) {
+									$crf->Save();
+								}
+							}
+						}
+					} else {
+						Debug::Text('  Rates not older than 24hrs, no need to backfill...', __FILE__, __LINE__, __METHOD__, 10);
+					}
+				}
+			} else {
+				Debug::Text('  No Auto-Update Currencies to process...', __FILE__, __LINE__, __METHOD__, 10);
+			}
+			unset($crlf);
+
+			$crlf = TTNew('CurrencyRateListFactory');
+			if ( isset($manual_currencies) ) {
+				Debug::Text('  Processing Manual Currencies... Total: '. count($manual_currencies), __FILE__, __LINE__, __METHOD__, 10);								
+				foreach( $manual_currencies as $active_currency_id => $active_currency_iso_code ) {
+					$crlf->getByCurrencyId( $active_currency_id, 1, NULL, NULL, array('date_stamp' => 'desc' ) );
+					if ( $crlf->getRecordCount() > 0 ) {
+						$latest_currency_rate_date = $crlf->getCurrent()->getDateStamp();
+					} else {
+						$latest_currency_rate_date = $earliest_pay_period_start_date;
+					}
+					Debug::Text('  Latest Currency Rate Date: '. TTDate::getDATE('DATE', $latest_currency_rate_date ) .'('.$latest_currency_rate_date.') Currency ISO: '. $active_currency_iso_code, __FILE__, __LINE__, __METHOD__, 10);
+					$latest_currency_rate_date += 86400; //Start on next day.
+
+					if ( ( TTDate::getMiddleDayEpoch( time() ) - TTDate::getMiddleDayEpoch( $latest_currency_rate_date ) ) >= 86400 ) {
+						$clf = TTnew( 'CurrencyListFactory' );
+						$clf->getByIdAndCompanyId( $active_currency_id, $company_id );
+						if ( $clf->getRecordCount() > 0 ) {
+							$last_conversion_rate = $clf->getCurrent()->getConversionRate();
+							//This updates right to the current date, as we won't be downloading any rates later, and no need to update the currency record itself.
+
+							//As an optimization, do quick inserts if we're more than 30 days old.
+							if ( TTDate::getDays( ( time() - $latest_currency_rate_date ) ) > 30 ) {
+								$crf = TTnew('CurrencyRateFactory');
+								for( $x = TTDate::getMiddleDayEpoch( $latest_currency_rate_date ); $x <= TTDate::getMiddleDayEpoch( time() ); $x += 86400 ) {
+									$crf->db->Execute('INSERT INTO '. $crf->getTable() .' (currency_id,date_stamp,conversion_rate,created_date) VALUES('. $active_currency_id .',\''. $crf->db->BindDate($x) .'\', '. $last_conversion_rate .','. time() .')');
+								}
+							} else {
+								for( $x = TTDate::getMiddleDayEpoch( $latest_currency_rate_date ); $x <= TTDate::getMiddleDayEpoch( time() ); $x += 86400 ) {
+									$crf = TTnew('CurrencyRateFactory');
+									$crf->setCurrency( $active_currency_id );
+									$crf->setDateStamp( $x );
+									$crf->setConversionRate( $last_conversion_rate );
+									Debug::Text('  Currency: '. $active_currency_iso_code .' Date: '. $x .' Rate: Raw: '. $last_conversion_rate, __FILE__, __LINE__, __METHOD__, 10);
+									if ( $crf->isValid() ) {
+										$crf->Save();
+									}
+								}
+							}
+						}
+					}
+					unset($last_conversion_rate);
+				}
+			} else {
+				Debug::Text('  No Manual Currencies to process...', __FILE__, __LINE__, __METHOD__, 10);
+			}
+			unset($crlf);
+		}
+		unset( $active_currency_id, $active_currency_iso_code, $latest_currency_rate_date, $currency_rates );
+	
 		if ( $base_currency != FALSE
 				AND isset($active_currencies)
 				AND is_array($active_currencies)
 				AND count($active_currencies) > 0 ) {
-			$ttsc = new TimeTrexSoapClient();
 			$currency_rates = $ttsc->getCurrencyExchangeRates( $company_id, $active_currencies, $base_currency );
 		} else {
-			Debug::Text('Invalid Currency Data, not getting rates...', __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text('  No auto-update currencies exist, no need to process further...', __FILE__, __LINE__, __METHOD__, 10);
 		}
 
 		if ( isset($currency_rates) AND is_array($currency_rates) AND count($currency_rates) > 0 ) {
@@ -869,21 +979,25 @@ class CurrencyFactory extends Factory {
 						}
 					}
 				} else {
-					Debug::Text('Invalid rate from data feed! Currency: '. $currency .' Rate: '. $rate, __FILE__, __LINE__, __METHOD__,10);
+					Debug::Text('  Invalid rate from data feed! Currency: '. $currency .' Rate: '. $rate, __FILE__, __LINE__, __METHOD__, 10);
 				}
 			}
+			unset($ttsc, $currency_rates, $currency, $rate, $clf, $c_obj);
+
+			Debug::Text('Done updating Currencies...', __FILE__, __LINE__, __METHOD__, 10);
 
 			return TRUE;
 		}
 
-		Debug::Text('Updating Currency Data Failed...', __FILE__, __LINE__, __METHOD__,10);
-
+		Debug::Text('Updating Currency Data Complete...', __FILE__, __LINE__, __METHOD__, 10);
+		unset($ttsc);
+		
 		return FALSE;
 	}
 
 	function Validate() {
 
-		if ( $this->getDeleted() == TRUE ){
+		if ( $this->getDeleted() == TRUE ) {
 			//CHeck to make sure currency isnt in-use by paystubs/employees/wages, if so, don't delete.
 			$invalid = FALSE;
 
@@ -929,17 +1043,32 @@ class CurrencyFactory extends Factory {
 		//CompanyFactory->getEncoding() is used to determine report encodings based on data saved here.
 		$this->removeCache( 'encoding_'.$this->getCompany(), 'company' );
 
+		Debug::Text('Currency modified, update historical rate for today: '. $this->getISOCode() .' Date: '. time() .' Rate: '. $this->getConversionRate(), __FILE__, __LINE__, __METHOD__, 10);
+		$crlf = TTnew('CurrencyRateListFactory');
+		$crlf->getByCurrencyIdAndDateStamp( $this->getID(), time() );
+		if ( $crlf->getRecordCount() > 0 ) {
+			$crf = $crlf->getCurrent();
+		} else {
+			$crf = TTnew('CurrencyRateFactory');
+		}
+		$crf->setCurrency( $this->getID() );
+		$crf->setDateStamp( time() );
+		$crf->setConversionRate( $this->getConversionRate() );
+		if ( $crf->isValid() ) {
+			$crf->Save();
+		}
+
 		return TRUE;
 	}
 
-	//Support setting created_by,updated_by especially for importing data.
+	//Support setting created_by, updated_by especially for importing data.
 	//Make sure data is set based on the getVariableToFunctionMap order.
 	function setObjectFromArray( $data ) {
 		if ( is_array( $data ) ) {
 			$variable_function_map = $this->getVariableToFunctionMap();
-            
+
 			foreach( $variable_function_map as $key => $function ) {
-                
+
 				if ( isset($data[$key]) ) {
 
 					$function = 'set'.$function;
@@ -952,7 +1081,7 @@ class CurrencyFactory extends Factory {
 					}
 				}
 			}
-            
+
 			$this->setCreatedAndUpdatedColumns( $data );
 
 			return TRUE;
@@ -964,7 +1093,7 @@ class CurrencyFactory extends Factory {
 
 	function getObjectAsArray( $include_columns = NULL ) {
 		/*
-		 $include_columns = array(
+		$include_columns = array(
 								'id' => TRUE,
 								'company_id' => TRUE,
 								...
@@ -1004,7 +1133,7 @@ class CurrencyFactory extends Factory {
 	}
 
 	function addLog( $log_action ) {
-		return TTLog::addEntry( $this->getId(), $log_action,  TTi18n::getText('Currency').': '. $this->getISOCode() .' '.  TTi18n::getText('Rate').': '. $this->getConversionRate(), NULL, $this->getTable(), $this );
+		return TTLog::addEntry( $this->getId(), $log_action, TTi18n::getText('Currency').': '. $this->getISOCode() .' '.  TTi18n::getText('Rate').': '. $this->getConversionRate(), NULL, $this->getTable(), $this );
 	}
 
 }
