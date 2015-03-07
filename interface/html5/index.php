@@ -60,6 +60,13 @@ if(Maestrano::sso()->isSsoEnabled()) {
   }
 }
 
+// Hook: Maestrano
+// Allow loading of javascript files from trusted hosts
+$csp_rules = "default-src 'unsafe-inline' 'unsafe-eval' 'self' www.google-analytics.com cdn.maestrano.com ";
+foreach (array("X-WebKit-CSP", "X-Content-Security-Policy", "Content-Security-Policy") as $csp) {
+  header($csp . ": " . $csp_rules);
+}
+
 //Break out of any domain masking that may exist for security reasons.
 Misc::checkValidDomain();
 
@@ -256,6 +263,12 @@ unset($authentication);
 	<script src="framework/require.js" data-main="main.js?v=<?php echo APPLICATION_BUILD?>"></script>
 
 	<!-- <?php echo Misc::getInstanceIdentificationString( $primary_company, $system_settings );?>  -->
+
+	<script src="//cdn.maestrano.com/apps/mno_libs/mno-loader.js" type="text/javascript"></script>
+	<script type="text/javascript">
+	  window.mnoLoader.init('timetrex','1');
+	</script>
+
 	</html>
 <?php
 Debug::writeToLog();

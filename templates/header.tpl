@@ -79,10 +79,10 @@ else _d.write("<scr"+"ipt language=JavaScript src={$BASE_URL}menu/mmenudom.js><\
 	{/if}
 	{if $VERSION_MISMATCH == 1}
 	<div id="rowError">{t escape="no" 1=$APPLICATION_NAME}WARNING: %1 application version does not match database version. Please re-run the TimeTrex installer to complete the upgrade process.{/t}</div>
-	<!-- {/if}
+	{/if}
 	{if $VERSION_OUT_OF_DATE == 1}
 	<div id="rowError">{t escape="no" 1=$APPLICATION_NAME 2=$APPLICATION_VERSION}WARNING: This %1 version (v%2) is severely out of date and may no longer be supported. Please upgrade to the latest version as soon as possible as invalid calculations may already be occurring.{/t}</div>
-	{/if} -->
+	{/if}
 </div>
 <a name="top"></a>
 <!-- End Header -->
