@@ -205,7 +205,14 @@ class APIAuthentication extends APIFactory {
 		if ( is_object($authentication) AND $authentication->getSessionID() != '' ) {
 			Debug::text('Logging out session ID: '. $authentication->getSessionID(), __FILE__, __LINE__, __METHOD__, 10);
 
-			return $authentication->Logout();
+			$authentication->Logout();
+
+      // Hook: Maestrano
+      if(Maestrano::sso()->isSsoEnabled()) {
+        // Write SSO logout url in cookie for redirection in RibbonViewController.js
+        setcookie('maestrano_logout_url', Maestrano::sso()->getLogoutUrl(), ( time() + 12000 ), '/', NULL, Misc::isSSL( TRUE ) );
+        return true;
+      }
 		}
 
 		return FALSE;

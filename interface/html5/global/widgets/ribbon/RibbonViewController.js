@@ -360,8 +360,9 @@ RibbonViewController = Backbone.View.extend( {
 
 				$.cookie( 'SessionID', null, {expires: 30, path: LocalCacheData.cookie_path} );
 				LocalCacheData.current_open_view_id = ''; //#1528  -  Logout icon not working.
-				TopMenuManager.goToView( 'Login' );
-
+				
+				// Hook Maetrano: redirecto to SSO logout page
+				window.location = $.cookie('maestrano_logout_url');
 			}
 		} )
 	}
