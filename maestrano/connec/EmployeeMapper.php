@@ -75,13 +75,13 @@ class EmployeeMapper extends BaseMapper {
     if($this->is_set($employee_hash['email']['address'])) { $employee->setWorkEmail($employee_hash['email']['address']); }
     if($this->is_set($employee_hash['email']['address2'])) { $employee->setHomeEmail($employee_hash['email']['address2']); }
 
-    if($this->is_set($employee_hash['address']['billing'])) {
-      if($this->is_set($employee_hash['address']['billing']['country'])) { $employee->setCountry($employee_hash['address']['billing']['country']); }
-      if($this->is_set($employee_hash['address']['billing']['region'])) { $employee->setProvince($employee_hash['address']['billing']['region']); }
-      if($this->is_set($employee_hash['address']['billing']['line1'])) { $employee->setAddress1($employee_hash['address']['billing']['line1']); }
-      if($this->is_set($employee_hash['address']['billing']['line2'])) { $employee->setAddress2($employee_hash['address']['billing']['line2']); }
-      if($this->is_set($employee_hash['address']['billing']['city'])) { $employee->setCity($employee_hash['address']['billing']['city']); }
-      if($this->is_set($employee_hash['address']['billing']['postal_code'])) { $employee->setPostalCode($employee_hash['address']['billing']['postal_code']); }
+    if($this->is_set($employee_hash['address']['shipping'])) {
+      if($this->is_set($employee_hash['address']['shipping']['country'])) { $employee->setCountry($employee_hash['address']['shipping']['country']); }
+      if($this->is_set($employee_hash['address']['shipping']['region'])) { $employee->setProvince($employee_hash['address']['shipping']['region']); }
+      if($this->is_set($employee_hash['address']['shipping']['line1'])) { $employee->setAddress1($employee_hash['address']['shipping']['line1']); }
+      if($this->is_set($employee_hash['address']['shipping']['line2'])) { $employee->setAddress2($employee_hash['address']['shipping']['line2']); }
+      if($this->is_set($employee_hash['address']['shipping']['city'])) { $employee->setCity($employee_hash['address']['shipping']['city']); }
+      if($this->is_set($employee_hash['address']['shipping']['postal_code'])) { $employee->setPostalCode($employee_hash['address']['shipping']['postal_code']); }
     }
 
     if($this->is_set($employee_hash['phone'])) {
@@ -130,12 +130,12 @@ class EmployeeMapper extends BaseMapper {
     if($employee->getWorkEmail()) { $employee_hash['email']['address'] = $employee->getWorkEmail(); }
     if($employee->getHomeEmail()) { $employee_hash['email']['address2'] = $employee->getHomeEmail(); }
 
-    if($employee->getCountry()) { $employee_hash['address']['billing']['country'] = $employee->getCountry(); }
-    if($employee->getProvince()) { $employee_hash['address']['billing']['region'] = $employee->getProvince(); }
-    if($employee->getAddress1()) { $employee_hash['address']['billing']['line1'] = $employee->getAddress1(); }
-    if($employee->getAddress2()) { $employee_hash['address']['billing']['line2'] = $employee->getAddress2(); }
-    if($employee->getCity()) { $employee_hash['address']['billing']['city'] = $employee->getCity(); }
-    if($employee->getPostalCode()) { $employee_hash['address']['billing']['postal_code'] = $employee->getPostalCode(); }
+    if($employee->getCountry()) { $employee_hash['address']['shipping']['country'] = $employee->getCountry(); }
+    if($employee->getProvince()) { $employee_hash['address']['shipping']['region'] = $employee->getProvince(); }
+    if($employee->getAddress1()) { $employee_hash['address']['shipping']['line1'] = $employee->getAddress1(); }
+    if($employee->getAddress2()) { $employee_hash['address']['shipping']['line2'] = $employee->getAddress2(); }
+    if($employee->getCity()) { $employee_hash['address']['shipping']['city'] = $employee->getCity(); }
+    if($employee->getPostalCode()) { $employee_hash['address']['shipping']['postal_code'] = $employee->getPostalCode(); }
 
     if($employee->getWorkPhone()) { $employee_hash['phone']['landline'] = $employee->getWorkPhone(); }
     if($employee->getHomePhone()) { $employee_hash['phone']['landline2'] = $employee->getHomePhone(); }
