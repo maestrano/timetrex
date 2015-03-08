@@ -62,7 +62,7 @@ if(Maestrano::sso()->isSsoEnabled()) {
 
 // Hook: Maestrano
 // Allow loading of javascript files from trusted hosts
-$csp_rules = "default-src 'unsafe-inline' 'unsafe-eval' 'self' www.google-analytics.com cdn.maestrano.com ";
+$csp_rules = "default-src 'unsafe-inline' 'unsafe-eval' 'self' www.google-analytics.com cdn.maestrano.com *.amazonaws.com";
 foreach (array("X-WebKit-CSP", "X-Content-Security-Policy", "Content-Security-Policy") as $csp) {
   header($csp . ": " . $csp_rules);
 }
