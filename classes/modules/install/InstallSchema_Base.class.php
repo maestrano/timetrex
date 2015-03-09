@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 10068 $
- * $Id: InstallSchema_Base.class.php 10068 2013-05-31 00:36:18Z ipso $
- * $Date: 2013-05-30 17:36:18 -0700 (Thu, 30 May 2013) $
- */
+
 
 /**
  * @package Modules\Install
@@ -45,9 +41,19 @@
 class InstallSchema_Base {
 
 	protected $schema_sql_file_name = NULL;
+	protected $schema_failure_state_file = NULL;
 	protected $version = NULL;
 	protected $db = NULL;
 	protected $is_upgrade = FALSE;
+	protected $install_obj = FALSE;
+
+	function __construct( $install_obj = FALSE ) {
+		if ( is_object( $install_obj ) ) {
+			$this->install_obj = $install_obj;
+		}
+
+		return TRUE;
+	}
 
 	function setDatabaseConnection( $db ) {
 		$this->db = $db;
@@ -79,15 +85,15 @@ class InstallSchema_Base {
 	}
 
 	function getSchemaGroup() {
-		$schema_group = substr( $this->getVersion(), -1,1 );
-		Debug::text('Schema: '. $this->getVersion() .' Group: '. $schema_group, __FILE__, __LINE__, __METHOD__,9);
+		$schema_group = substr( $this->getVersion(), -1, 1 );
+		Debug::text('Schema: '. $this->getVersion() .' Group: '. $schema_group, __FILE__, __LINE__, __METHOD__, 9);
 
 		return strtoupper($schema_group);
 	}
 
 	//Copied from Install class.
 	function checkTableExists( $table_name ) {
-		Debug::text('Table Name: '. $table_name, __FILE__, __LINE__, __METHOD__,9);
+		Debug::text('Table Name: '. $table_name, __FILE__, __LINE__, __METHOD__, 9);
 		$db_conn = $this->getDatabaseConnection();
 
 		if ( $db_conn == FALSE ) {
@@ -97,11 +103,11 @@ class InstallSchema_Base {
 		$table_arr = $db_conn->MetaTables();
 
 		if ( in_array($table_name, $table_arr ) ) {
-			Debug::text('Exists - Table Name: '. $table_name, __FILE__, __LINE__, __METHOD__,9);
+			Debug::text('Exists - Table Name: '. $table_name, __FILE__, __LINE__, __METHOD__, 9);
 			return TRUE;
 		}
 
-		Debug::text('Does not Exist - Table Name: '. $table_name, __FILE__, __LINE__, __METHOD__,9);
+		Debug::text('Does not Exist - Table Name: '. $table_name, __FILE__, __LINE__, __METHOD__, 9);
 		return FALSE;
 	}
 
@@ -109,14 +115,14 @@ class InstallSchema_Base {
 	function getSchemaSQLFileData() {
 		//Read SQL data into memory
 		if ( is_readable( $this->getSchemaSQLFilename() ) ) {
-			Debug::text('Schema SQL File is readable: '. $this->getSchemaSQLFilename(), __FILE__, __LINE__, __METHOD__,9);
+			Debug::text('Schema SQL File is readable: '. $this->getSchemaSQLFilename(), __FILE__, __LINE__, __METHOD__, 9);
 			$contents = file_get_contents( $this->getSchemaSQLFilename() );
 
-			Debug::Arr($contents, 'SQL File Data: ', __FILE__, __LINE__, __METHOD__,9);
+			Debug::Arr($contents, 'SQL File Data: ', __FILE__, __LINE__, __METHOD__, 9);
 			return $contents;
 		}
 
-		Debug::text('Schema SQL File is NOT readable, or is empty!', __FILE__, __LINE__, __METHOD__,9);
+		Debug::text('Schema SQL File is NOT readable, or is empty!', __FILE__, __LINE__, __METHOD__, 9);
 
 		return FALSE;
 	}
@@ -129,34 +135,72 @@ class InstallSchema_Base {
 			return FALSE;
 		}
 
+		global $config_vars;
+		if ( isset($config_vars['cache']['dir']) ) {
+			$this->schema_failure_state_file = $config_vars['cache']['dir'] . DIRECTORY_SEPARATOR . 'tt_schema_failure.state';
+		}
+
+		//Save a state file if any SQL query fails, so we can continue on from where it left off.
+		//Only do this for MySQL though, as PostgreSQL has DDL transactions.
+
+		$schema_failure_state = array();
+		if ( file_exists( $this->schema_failure_state_file ) AND strncmp( $this->getDatabaseConnection()->databaseType, 'mysql', 5) == 0 ) {
+			$schema_failure_state = unserialize( file_get_contents( $this->schema_failure_state_file ) );
+			Debug::Arr($schema_failure_state, 'Schema Failure State: '. $this->schema_failure_state_file, __FILE__, __LINE__, __METHOD__, 9);
+		} else {
+			Debug::text('No previous Schema failure state file: '. $this->schema_failure_state_file, __FILE__, __LINE__, __METHOD__, 9);
+		}
+
 		if ( $sql !== FALSE AND strlen($sql) > 0 ) {
-			Debug::text('Schema SQL has data, executing commands!', __FILE__, __LINE__, __METHOD__,9);
+			Debug::text('Schema SQL has data, executing commands!', __FILE__, __LINE__, __METHOD__, 9);
+
+			$i = 0;
 
 			//Split into individual SQL queries, as MySQL apparently doesn't like more then one query
 			//in a single query() call.
 			$split_sql = explode(';', $sql);
 			if ( is_array($split_sql) ) {
-
 				foreach( $split_sql as $sql_line ) {
-				
-					if ( trim($sql_line) != '' ) {
-
-						$retval = $this->getDatabaseConnection()->Execute( $sql_line );
-
-						if ( $retval == FALSE ) {
+					if ( isset($schema_failure_state[$this->getVersion()]) ) {
+						if ( $i < ( $schema_failure_state[$this->getVersion()] ) ) {
+							Debug::text('Skipping already committed SQL command on line: '. $i .' of: '. $this->getVersion(), __FILE__, __LINE__, __METHOD__, 9);
+							$i++;
+							continue;
+						}
+					}
+					
+					//Debug::text('SQL Line: '. trim($sql_line), __FILE__, __LINE__, __METHOD__, 9);
+					if ( trim($sql_line) != '' AND substr( trim($sql_line), 0, 2 ) != '--' ) {
+						try {
+							$retval = $this->getDatabaseConnection()->Execute( $sql_line );
+						} catch ( Exception $e ) {
+							$schema_failure_state = array( $this->getVersion() => $i );
+							Debug::text('SQL Command failed on line: '. $i .' of: '. $this->getVersion(), __FILE__, __LINE__, __METHOD__, 9);
+							@file_put_contents( $this->schema_failure_state_file, serialize( $schema_failure_state ) );
+							throw new DBError($e);
 							return FALSE;
 						}
 					}
+
+					$i++;
 				}
 			}
+
+			//Save state that all schema changes succeeded so they aren't run again even if postInstall fails.
+			$schema_failure_state = array( $this->getVersion() => $i );
+			Debug::text('Schema upgrade succeeded, last line: '. $i .' of: '. $this->getVersion(), __FILE__, __LINE__, __METHOD__, 9);
+			@file_put_contents( $this->schema_failure_state_file, serialize( $schema_failure_state ) );
+		} else {
+			Debug::text('Schema SQL does not have data, not executing commands, continuing...', __FILE__, __LINE__, __METHOD__, 9);
 		}
 
-		Debug::text('Schema SQL does not have data, not executing commands, continuing...', __FILE__, __LINE__, __METHOD__,9);
+		//Clear state file only once postInstall() has completed.
+		
 		return TRUE;
 	}
 
 	private function _postPostInstall() {
-		Debug::text('Modify Schema version in system settings table!', __FILE__, __LINE__, __METHOD__,9);
+		Debug::text('Modify Schema version in system settings table!', __FILE__, __LINE__, __METHOD__, 9);
 		//Modify schema version in system_settings table.
 
 		$sslf = TTnew( 'SystemSettingListFactory' );
@@ -170,7 +214,7 @@ class InstallSchema_Base {
 		$obj->setName( 'schema_version_group_'. $this->getSchemaGroup() );
 		$obj->setValue( $this->getVersion() );
 		if ( $obj->isValid() ) {
-			Debug::text('Setting Schema Version to: '. $this->getVersion() .' Group: '. $this->getSchemaGroup() , __FILE__, __LINE__, __METHOD__,9);
+			Debug::text('Setting Schema Version to: '. $this->getVersion() .' Group: '. $this->getSchemaGroup(), __FILE__, __LINE__, __METHOD__, 9);
 			$obj->Save();
 
 			return TRUE;
@@ -183,12 +227,14 @@ class InstallSchema_Base {
 
 		$this->getDatabaseConnection()->StartTrans();
 
-		Debug::text('Installing Schema Version: '. $this->getVersion(), __FILE__, __LINE__, __METHOD__,9);
+		Debug::text('Installing Schema Version: '. $this->getVersion(), __FILE__, __LINE__, __METHOD__, 9);
 		if ( $this->preInstall() == TRUE ) {
 			if ( $this->_InstallSchema() == TRUE ) {
 				if ( $this->postInstall() == TRUE ) {
 					$retval = $this->_postPostInstall();
 					if ( $retval == TRUE ) {
+						Debug::text('Clearing schema failure state file: '. $this->schema_failure_state_file, __FILE__, __LINE__, __METHOD__, 9);
+						@unlink( $this->schema_failure_state_file ); //Clear state when schema is applied successfully, including postInstall.
 
 						$this->getDatabaseConnection()->CompleteTrans();
 
@@ -202,6 +248,51 @@ class InstallSchema_Base {
 		$this->getDatabaseConnection()->FailTrans();
 
 		return FALSE;
+	}
+
+	function updateCompanyDeductionForTaxYear( $date ) {
+		require_once( Environment::getBasePath(). DIRECTORY_SEPARATOR . 'classes'. DIRECTORY_SEPARATOR .'payroll_deduction'. DIRECTORY_SEPARATOR .'PayrollDeduction.class.php');
+
+		$db_conn = $this->getDatabaseConnection();
+
+		if ( $db_conn == FALSE ) {
+			Debug::text('ERROR: No database connection!', __FILE__, __LINE__, __METHOD__, 9);
+			return FALSE;
+		}
+
+		$clf = TTnew( 'CompanyListFactory' );
+		$clf->getAll();
+		if ( $clf->getRecordCount() > 0 ) {
+			foreach( $clf as $c_obj ) {
+				Debug::text('Company: '. $c_obj->getName(), __FILE__, __LINE__, __METHOD__, 9);
+				if ( $c_obj->getStatus() != 30 ) {
+					$cdlf = TTnew('CompanyDeductionListFactory');
+					$cdlf->getAPISearchByCompanyIdAndArrayCriteria( $c_obj->getID(), array( 'calculation_id' => array(100,200), 'country' => 'CA' ) );
+					if ( $cdlf->getRecordCount() > 0 ) {
+						foreach( $cdlf as $cd_obj ) {
+							$pd_obj = new PayrollDeduction( $cd_obj->getCountry(), $cd_obj->getProvince() );
+							$pd_obj->setDate( $date );
+
+							Debug::text('Updating claim amounts based on Date: '. TTDate::getDate('DATE', $date ), __FILE__, __LINE__, __METHOD__, 9);
+							if ( $cd_obj->getCalculation() == 100 ) { //Federal
+								$pd_obj->setFederalTotalClaimAmount( $cd_obj->getUserValue1() );
+								$claim_amount = $pd_obj->getFederalTotalClaimAmount();
+							} elseif ( $cd_obj->getCalculation() == 200 ) { //Provincial
+								$pd_obj->setProvincialTotalClaimAmount( $cd_obj->getUserValue1() );
+								$claim_amount = $pd_obj->getProvincialTotalClaimAmount();
+							}
+
+							//Use a SQL query instead of modifying the CompanyDeduction class, as that can cause errors when we add columns to the table later on.
+							$query = 'UPDATE '. $cd_obj->getTable() .' set user_value1 = '. (float)$claim_amount .' where id = '. (int)$cd_obj->getId();
+							$db_conn->Execute($query);
+						}
+					}
+				}
+			}
+		}
+
+		Debug::text('Done updating claim amounts...', __FILE__, __LINE__, __METHOD__, 9);
+		return TRUE;
 	}
 }
 ?>

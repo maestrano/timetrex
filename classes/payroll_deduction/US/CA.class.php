@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 8720 $
- * $Id: CA.class.php 8720 2012-12-29 01:06:58Z ipso $
- * $Date: 2012-12-28 17:06:58 -0800 (Fri, 28 Dec 2012) $
- */
+
 
 /**
  * @package PayrollDeduction\US
@@ -51,6 +47,56 @@ class PayrollDeduction_US_CA extends PayrollDeduction_US {
 */
 
 	var $state_options = array(
+								1420099200 => array( //01-Jan-15
+													//Standard Deduction Table
+													'standard_deduction' => array(
+																				//First entry is 0,1 allowance, second is for 2 or more.
+																				'10' => array(3992.00, 3992.00),
+																				'20' => array(3992.00, 3992.00),
+																				'30' => array(3992.00, 7984.00),
+																				'40' => array(7984.00, 7984.00),
+																				),
+													//Exemption Allowance Table
+													'allowance' => array(
+																				'10' => 118.80,
+																				'20' => 118.80,
+																				'30' => 118.80,
+																				'40' => 118.80,
+																				),
+													//Low Income Exemption Table
+													'minimum_income' => array(
+																				//First entry is 0,1 allowance, 2nd is 2 or more.
+																				'10' => array(13267.00, 13267.00),
+																				'20' => array(13267.00, 13267.00),
+																				'30' => array(13267.00, 26533.00),
+																				'40' => array(26533.00, 26533.00),
+																				),
+													),
+								1388563200 => array( //01-Jan-14
+													//Standard Deduction Table
+													'standard_deduction' => array(
+																				//First entry is 0,1 allowance, second is for 2 or more.
+																				'10' => array(3906.00, 3906.00),
+																				'20' => array(3906.00, 3906.00),
+																				'30' => array(3906.00, 7812.00),
+																				'40' => array(7812.00, 7812.00),
+																				),
+													//Exemption Allowance Table
+													'allowance' => array(
+																				'10' => 116.60,
+																				'20' => 116.60,
+																				'30' => 116.60,
+																				'40' => 116.60,
+																				),
+													//Low Income Exemption Table
+													'minimum_income' => array(
+																				//First entry is 0,1 allowance, 2nd is 2 or more.
+																				'10' => array(12997.00, 12997.00),
+																				'20' => array(12997.00, 12997.00),
+																				'30' => array(12997.00, 25994.00),
+																				'40' => array(25994.00, 25994.00),
+																				),
+													),
 								1357027200 => array( //01-Jan-13
 													'standard_deduction' => array(
 																				//First entry is 0,1 allowance, second is for 2 or more.
@@ -65,8 +111,8 @@ class PayrollDeduction_US_CA extends PayrollDeduction_US {
 																				'30' => 114.40,
 																				'40' => 114.40,
 																				),
-                                                    'minimum_income' => array(
-                                                                                //First entry is 0,1 allowance, 2nd is 2 or more.
+													'minimum_income' => array(
+																				//First entry is 0,1 allowance, 2nd is 2 or more.
 																				'10' => array(12769.00, 12769.00),
 																				'20' => array(12769.00, 12769.00),
 																				'30' => array(12769.00, 25537.00),
@@ -87,8 +133,8 @@ class PayrollDeduction_US_CA extends PayrollDeduction_US {
 																				'30' => 112.20,
 																				'40' => 112.20,
 																				),
-                                                    'minimum_income' => array(
-                                                                                //First entry is 0,1 allowance, 2nd is 2 or more.
+													'minimum_income' => array(
+																				//First entry is 0,1 allowance, 2nd is 2 or more.
 																				'10' => array(12527.00, 12527.00),
 																				'20' => array(12527.00, 12527.00),
 																				'30' => array(12527.00, 25054.00),
@@ -213,19 +259,19 @@ class PayrollDeduction_US_CA extends PayrollDeduction_US {
 
 		}
 
-        $minimum_income = 0;
-        if ( isset($retarr['minimum_income']) AND isset($retarr['minimum_income'][$this->getStateFilingStatus()]) ) {
-            $minimum_income_arr = $retarr['minimum_income'][$this->getStateFilingStatus()];
-            if ( $this->getStateAllowance() == 0 OR $this->getStateAllowance() == 1 ) {
-                $minimum_income = $minimum_income_arr[0];
-            } elseif ( $this->getStateAllowance() >= 2 ) {
-                $minimum_income = $minimum_income_arr[1];
-            }
-        }
+		$minimum_income = 0;
+		if ( isset($retarr['minimum_income']) AND isset($retarr['minimum_income'][$this->getStateFilingStatus()]) ) {
+			$minimum_income_arr = $retarr['minimum_income'][$this->getStateFilingStatus()];
+			if ( $this->getStateAllowance() == 0 OR $this->getStateAllowance() == 1 ) {
+				$minimum_income = $minimum_income_arr[0];
+			} elseif ( $this->getStateAllowance() >= 2 ) {
+				$minimum_income = $minimum_income_arr[1];
+			}
+		}
 
-        if ( $this->getAnnualTaxableIncome() <= $minimum_income ) {
-            return 0; //Below minimum income threshold, no withholding.
-        }
+		if ( $this->getAnnualTaxableIncome() <= $minimum_income ) {
+			return 0; //Below minimum income threshold, no withholding.
+		}
 
 		return bcsub( $this->getAnnualTaxableIncome(), $this->getStateStandardDeduction() );
 	}

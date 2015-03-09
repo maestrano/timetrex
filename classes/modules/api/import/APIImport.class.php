@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 3387 $
- * $Id: ImportBase.class.php 3387 2010-03-04 17:42:17Z ipso $
- * $Date: 2010-03-04 09:42:17 -0800 (Thu, 04 Mar 2010) $
- */
+
 
 
 /**
@@ -55,9 +51,9 @@ class APIImport extends APIFactory {
 			$this->import_obj = new $this->main_class;
 			$this->import_obj->company_id = $this->getCurrentCompanyObject()->getID();
 			$this->import_obj->user_id = $this->getCurrentUserObject()->getID();
-			Debug::Text('Setting main class: '. $this->main_class .' Company ID: '. $this->import_obj->company_id, __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text('Setting main class: '. $this->main_class .' Company ID: '. $this->import_obj->company_id, __FILE__, __LINE__, __METHOD__, 10);
 		} else {
-			Debug::Text('NOT Setting main class... Company ID: '. $this->getCurrentCompanyObject()->getID(), __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text('NOT Setting main class... Company ID: '. $this->getCurrentCompanyObject()->getID(), __FILE__, __LINE__, __METHOD__, 10);
 		}
 
 		return TRUE;
@@ -75,19 +71,24 @@ class APIImport extends APIFactory {
 						'-1030-department' => TTi18n::getText('Departments'),
 						'-1050-userwage' => TTi18n::getText('Employee Wages'),
 						'-1060-payperiod' => TTi18n::getText('Pay Periods'),
-						'-1100-punch' => TTi18n::getText('Punches'),
 						'-1200-paystubamendment' => TTi18n::getText('Pay Stub Amendments'),
 						'-1300-accrual' => TTi18n::getText('Accruals'),
-					 );
+					);
 
 		//Get company data so we know if its professional edition or not.
-		if ( $this->getCurrentCompanyObject()->getProductEdition() == 20 ) {
+		if ( $this->getCurrentCompanyObject()->getProductEdition() >= 15 ) {
+			$retarr += array(
+							'-1100-punch' => TTi18n::getText('Punches'),
+							'-1150-schedule' => TTi18n::getText('Scheduled Shifts'),
+					);
+		}
+
+		if ( $this->getCurrentCompanyObject()->getProductEdition() >= 20 ) {
 			$retarr += array(
 							'-1500-client' => TTi18n::getText('Clients'),
 							'-1600-job' => TTi18n::getText('Jobs'),
 							'-1605-jobitem' => TTi18n::getText('Tasks'),
 					);
-
 		}
 
 		return $this->returnHandler( $retarr );
@@ -120,7 +121,7 @@ class APIImport extends APIFactory {
 	}
 
 	function getRawData( $limit = NULL ) {
-		if ( $this->getImportObject()->getRawDataFromFile() == FALSE ) {
+		if ( !is_object( $this->getImportObject() ) OR $this->getImportObject()->getRawDataFromFile() == FALSE ) {
 			$this->returnFileValidationError();
 		}
 
@@ -144,6 +145,11 @@ class APIImport extends APIFactory {
 		}
 
 		if ( is_array($import_options) AND $this->getImportObject()->setImportOptions( $import_options ) == FALSE ) {
+			return $this->returnHandler( FALSE );
+		}
+
+		if ( Misc::isSystemLoadValid() == FALSE ) { //Check system load as the user could ask to calculate decades worth at a time.
+			Debug::Text('ERROR: System load exceeded, preventing new imports from starting...', __FILE__, __LINE__, __METHOD__, 10);
 			return $this->returnHandler( FALSE );
 		}
 

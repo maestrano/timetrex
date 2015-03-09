@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 9521 $
- * $Id: MealPolicyFactory.class.php 9521 2013-04-08 23:09:52Z ipso $
- * $Date: 2013-04-08 16:09:52 -0700 (Mon, 08 Apr 2013) $
- */
+
 
 /**
  * @package Modules\Policy
@@ -47,6 +43,7 @@ class MealPolicyFactory extends Factory {
 	protected $pk_sequence_name = 'meal_policy_id_seq'; //PK Sequence name
 
 	protected $company_obj = NULL;
+	protected $pay_code_obj = NULL;
 
 
 	function _getFactoryOptions( $name ) {
@@ -70,6 +67,7 @@ class MealPolicyFactory extends Factory {
 				$retval = array(
 										'-1010-type' => TTi18n::gettext('Type'),
 										'-1020-name' => TTi18n::gettext('Name'),
+										'-1025-description' => TTi18n::gettext('Description'),
 										'-1030-amount' => TTi18n::gettext('Meal Time'),
 										'-1040-trigger_time' => TTi18n::gettext('Active After'),
 
@@ -80,6 +78,8 @@ class MealPolicyFactory extends Factory {
 										//'-1090-maximum_punch_time' => TTi18n::gettext('Maximum Punch Time'),
 
 										'-1100-include_lunch_punch_time' => TTi18n::gettext('Include Lunch Punch'),
+
+										'-1900-in_use' => TTi18n::gettext('In Use'),
 
 										'-2000-created_by' => TTi18n::gettext('Created By'),
 										'-2010-created_date' => TTi18n::gettext('Created Date'),
@@ -93,6 +93,7 @@ class MealPolicyFactory extends Factory {
 			case 'default_display_columns': //Columns that are displayed by default.
 				$retval = array(
 								'name',
+								'description',
 								'type',
 								'amount',
 								'updated_date',
@@ -121,6 +122,7 @@ class MealPolicyFactory extends Factory {
 										'type_id' => 'Type',
 										'type' => FALSE,
 										'name' => 'Name',
+										'description' => 'Description',
 										'trigger_time' => 'TriggerTime',
 										'amount' => 'Amount',
 										'auto_detect_type_id' => 'AutoDetectType',
@@ -130,25 +132,29 @@ class MealPolicyFactory extends Factory {
 										'minimum_punch_time' => 'MinimumPunchTime',
 										'maximum_punch_time' => 'MaximumPunchTime',
 										'include_lunch_punch_time' => 'IncludeLunchPunchTime',
+
+										'pay_code_id' => 'PayCode',
+										'pay_code' => FALSE,
+										'pay_formula_policy_id' => 'PayFormulaPolicy',
+										'pay_formula_policy' => FALSE,
+
+										'in_use' => FALSE,
 										'deleted' => 'Deleted',
 										);
 		return $variable_function_map;
 	}
 
 	function getCompanyObject() {
-		if ( is_object($this->company_obj) ) {
-			return $this->company_obj;
-		} else {
-			$clf = TTnew( 'CompanyListFactory' );
-			$this->company_obj = $clf->getById( $this->getCompany() )->getCurrent();
+		return $this->getGenericObject( 'CompanyListFactory', $this->getCompany(), 'company_obj' );
+	}
 
-			return $this->company_obj;
-		}
+	function getPayCodeObject() {
+		return $this->getGenericObject( 'PayCodeListFactory', $this->getPayCode(), 'pay_code_obj' );
 	}
 
 	function getCompany() {
 		if ( isset($this->data['company_id']) ) {
-			return $this->data['company_id'];
+			return (int)$this->data['company_id'];
 		}
 
 		return FALSE;
@@ -156,7 +162,7 @@ class MealPolicyFactory extends Factory {
 	function setCompany($id) {
 		$id = trim($id);
 
-		Debug::Text('Company ID: '. $id, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Company ID: '. $id, __FILE__, __LINE__, __METHOD__, 10);
 		$clf = TTnew( 'CompanyListFactory' );
 
 		if ( $this->Validator->isResultSetWithRows(	'company',
@@ -174,7 +180,7 @@ class MealPolicyFactory extends Factory {
 
 	function getType() {
 		if ( isset($this->data['type_id']) ) {
-			return $this->data['type_id'];
+			return (int)$this->data['type_id'];
 		}
 
 		return FALSE;
@@ -208,7 +214,7 @@ class MealPolicyFactory extends Factory {
 
 		$query = 'select id from '. $this->getTable() .' where company_id = ? AND lower(name) = ? AND deleted=0';
 		$id = $this->db->GetOne($query, $ph);
-		Debug::Arr($id,'Unique: '. $name, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Arr($id, 'Unique: '. $name, __FILE__, __LINE__, __METHOD__, 10);
 
 		if ( $id === FALSE ) {
 			return TRUE;
@@ -232,7 +238,7 @@ class MealPolicyFactory extends Factory {
 		if (	$this->Validator->isLength(	'name',
 											$name,
 											TTi18n::gettext('Name is too short or too long'),
-											2,50)
+											2, 50)
 				AND
 				$this->Validator->isTrue(	'name',
 											$this->isUniqueName($name),
@@ -240,6 +246,30 @@ class MealPolicyFactory extends Factory {
 						) {
 
 			$this->data['name'] = $name;
+
+			return TRUE;
+		}
+
+		return FALSE;
+	}
+
+	function getDescription() {
+		if ( isset($this->data['description']) ) {
+			return $this->data['description'];
+		}
+
+		return FALSE;
+	}
+	function setDescription($description) {
+		$description = trim($description);
+
+		if (	$description == ''
+				OR $this->Validator->isLength(	'description',
+												$description,
+												TTi18n::gettext('Description is invalid'),
+												1, 250) ) {
+
+			$this->data['description'] = $description;
 
 			return TRUE;
 		}
@@ -257,11 +287,11 @@ class MealPolicyFactory extends Factory {
 	function setTriggerTime($int) {
 		$int = trim($int);
 
-		if  ( empty($int) ){
+		if	( empty($int) ) {
 			$int = 0;
 		}
 
-		if 	(	$this->Validator->isNumeric(		'trigger_time',
+		if	(	$this->Validator->isNumeric(		'trigger_time',
 													$int,
 													TTi18n::gettext('Incorrect Trigger Time')) ) {
 			$this->data['trigger_time'] = $int;
@@ -282,7 +312,7 @@ class MealPolicyFactory extends Factory {
 	function setAmount($value) {
 		$value = trim($value);
 
-		if 	(	$this->Validator->isNumeric(		'amount',
+		if	(	$this->Validator->isNumeric(		'amount',
 													$value,
 													TTi18n::gettext('Incorrect Deduction Amount')) ) {
 
@@ -296,7 +326,7 @@ class MealPolicyFactory extends Factory {
 
 	function getAutoDetectType() {
 		if ( isset($this->data['auto_detect_type_id']) ) {
-			return $this->data['auto_detect_type_id'];
+			return (int)$this->data['auto_detect_type_id'];
 		}
 
 		return FALSE;
@@ -332,7 +362,7 @@ class MealPolicyFactory extends Factory {
 	function setStartWindow($value) {
 		$value = (int)trim($value);
 
-		if 	(	$value == 0
+		if	(	$value == 0
 				OR
 				$this->Validator->isNumeric(		'start_window',
 													$value,
@@ -356,7 +386,7 @@ class MealPolicyFactory extends Factory {
 	function setWindowLength($value) {
 		$value = (int)trim($value);
 
-		if 	(	$value == 0
+		if	(	$value == 0
 				OR
 				$this->Validator->isNumeric(		'window_length',
 													$value,
@@ -380,7 +410,7 @@ class MealPolicyFactory extends Factory {
 	function setMinimumPunchTime($value) {
 		$value = (int)trim($value);
 
-		if 	(	$value == 0
+		if	(	$value == 0
 				OR
 				$this->Validator->isNumeric(		'minimum_punch_time',
 													$value,
@@ -404,7 +434,7 @@ class MealPolicyFactory extends Factory {
 	function setMaximumPunchTime($value) {
 		$value = (int)trim($value);
 
-		if 	(	$value == 0
+		if	(	$value == 0
 				OR
 				$this->Validator->isNumeric(		'maximum_punch_time',
 													$value,
@@ -432,8 +462,8 @@ class MealPolicyFactory extends Factory {
 							If they don't take a lunch, it doesn't include any time.
 
 		If not enabled for:
-		  Auto-Deduct: Always deducts the amount.
-		  Auto-Inlcyde: Always includes the amount.
+		Auto-Deduct: Always deducts the amount.
+		Auto-Inlcyde: Always includes the amount.
 	*/
 	function getIncludeLunchPunchTime() {
 		if ( isset($this->data['include_lunch_punch_time']) ) {
@@ -448,16 +478,80 @@ class MealPolicyFactory extends Factory {
 		return TRUE;
 	}
 
-	function Validate() {
-		if ( $this->getDeleted() == TRUE ){
-			//Check to make sure there are no hours using this meal policy.
-			$udtlf = TTnew( 'UserDateTotalListFactory' );
-			$udtlf->getByMealPolicyId( $this->getId() );
-			if ( $udtlf->getRecordCount() > 0 ) {
-				$this->Validator->isTRUE(	'in_use',
-											FALSE,
-											TTi18n::gettext('This meal policy is in use'));
+	function getPayCode() {
+		if ( isset($this->data['pay_code_id']) ) {
+			return (int)$this->data['pay_code_id'];
+		}
 
+		return FALSE;
+	}
+	function setPayCode($id) {
+		$id = trim($id);
+
+		if ( $id == '' OR empty($id) ) {
+			$id = 0;
+		}
+
+		$pclf = TTnew( 'PayCodeListFactory' );
+
+		if (	$id == 0
+				OR
+				$this->Validator->isResultSetWithRows(	'pay_code_id',
+														$pclf->getById($id),
+														TTi18n::gettext('Invalid Pay Code')
+														) ) {
+			$this->data['pay_code_id'] = $id;
+
+			return TRUE;
+		}
+
+		return FALSE;
+	}
+
+	function getPayFormulaPolicy() {
+		if ( isset($this->data['pay_formula_policy_id']) ) {
+			return (int)$this->data['pay_formula_policy_id'];
+		}
+
+		return FALSE;
+	}
+	function setPayFormulaPolicy($id) {
+		$id = trim($id);
+
+		if ( $id == '' OR empty($id) ) {
+			$id = 0;
+		}
+
+		$pfplf = TTnew( 'PayFormulaPolicyListFactory' );
+
+		if ( $id == 0
+				OR
+				$this->Validator->isResultSetWithRows(	'pay_formula_policy_id',
+													$pfplf->getByID($id),
+													TTi18n::gettext('Pay Formula Policy is invalid')
+													) ) {
+
+			$this->data['pay_formula_policy_id'] = $id;
+
+			return TRUE;
+		}
+
+		return FALSE;
+	}
+
+	function Validate() {
+		if ( $this->getDeleted() != TRUE ) {
+			if ( $this->getPayCode() == 0 ) {
+				$this->Validator->isTRUE(	'pay_code_id',
+											FALSE,
+											TTi18n::gettext('Please choose a Pay Code') );
+			}
+
+			//Make sure Pay Formula Policy is defined somewhere.
+			if ( $this->getPayFormulaPolicy() == 0 AND $this->getPayCode() > 0 AND ( !is_object( $this->getPayCodeObject() ) OR ( is_object( $this->getPayCodeObject() ) AND $this->getPayCodeObject()->getPayFormulaPolicy() == 0 ) ) ) {
+					$this->Validator->isTRUE(	'pay_formula_policy_id',
+												FALSE,
+												TTi18n::gettext('Selected Pay Code does not have a Pay Formula Policy defined'));
 			}
 		}
 
@@ -510,9 +604,12 @@ class MealPolicyFactory extends Factory {
 
 					$function = 'get'.$function_stub;
 					switch( $variable ) {
+						case 'in_use':
+							$data[$variable] = $this->getColumn( $variable );
+							break;
 						case 'type':
 						case 'auto_detect_type':
-							$function = 'get'.str_replace('_','',$variable);
+							$function = 'get'.str_replace('_', '', $variable);
 							if ( method_exists( $this, $function ) ) {
 								$data[$variable] = Option::getByKey( $this->$function(), $this->getOptions( $variable ) );
 							}
@@ -533,7 +630,7 @@ class MealPolicyFactory extends Factory {
 	}
 
 	function addLog( $log_action ) {
-		return TTLog::addEntry( $this->getId(), $log_action,  TTi18n::getText('Meal Policy'), NULL, $this->getTable(), $this );
+		return TTLog::addEntry( $this->getId(), $log_action, TTi18n::getText('Meal Policy'), NULL, $this->getTable(), $this );
 	}
 }
 ?>

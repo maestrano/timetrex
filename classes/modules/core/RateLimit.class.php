@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 4300 $
- * $Id: RateLimit.class.php 4300 2011-02-25 19:49:45Z ipso $
- * $Date: 2011-02-25 11:49:45 -0800 (Fri, 25 Feb 2011) $
- */
+
 
 /**
  * @package Core
@@ -45,7 +41,6 @@
 
 class RateLimit {
 	protected $sleep = FALSE; //When rate limit is reached, do we sleep or return FALSE?
-
 
 	protected $id = 1;
 	protected $group = 'rate_limit';
@@ -120,26 +115,27 @@ class RateLimit {
 	function check() {
 		if ( $this->getID() != '' ) {
 			$rate_data = $this->getRateData();
-			//Debug::Arr($rate_data, 'Failed Attempt Data: ', __FILE__, __LINE__, __METHOD__,10);
+			//Debug::Arr($rate_data, 'Failed Attempt Data: ', __FILE__, __LINE__, __METHOD__, 10);
 			if ( !isset($rate_data['attempts']) ) {
 				$rate_data = array(
 											'attempts' => 0,
 											'first_date' => microtime(TRUE),
-											 );
+											);
 			} elseif ( isset($rate_data['attempts']) ) {
-				if ( $rate_data['attempts'] > $this->getAllowedCalls() AND $rate_data['first_date'] >= ( microtime(TRUE)-$this->getTimeFrame() ) ) {
+				if ( $rate_data['attempts'] > $this->getAllowedCalls() AND $rate_data['first_date'] >= ( microtime(TRUE) - $this->getTimeFrame() ) ) {
 					return FALSE;
-				} elseif ( $rate_data['first_date'] < ( microtime(TRUE)-$this->getTimeFrame() ) ) {
+				} elseif ( $rate_data['first_date'] < ( microtime(TRUE) - $this->getTimeFrame() ) ) {
 					$rate_data['attempts'] = 0;
 					$rate_data['first_date'] = microtime(TRUE);
 				}
 			}
 
 			$rate_data['attempts']++;
-			return $this->setRateData( $rate_data );
+			$this->setRateData( $rate_data );
+			return TRUE; //Don't return result of setRateData() so if it can't write the data to shared memory it fails "OPEN".
 		}
 
-		return FALSE;
+		return TRUE; //Return TRUE is no ID is specified, so it fails "OPEN".
 	}
 
 	function delete() {

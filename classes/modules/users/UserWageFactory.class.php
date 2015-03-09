@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 11018 $
- * $Id: UserWageFactory.class.php 11018 2013-09-24 23:39:40Z ipso $
- * $Date: 2013-09-24 16:39:40 -0700 (Tue, 24 Sep 2013) $
- */
+
 
 /**
  * @package Modules\Users
@@ -58,7 +54,7 @@ class UserWageFactory extends Factory {
 		switch( $name ) {
 			case 'type':
 				$retval = array(
-											10 	=> TTi18n::gettext('Hourly'),
+											10	=> TTi18n::gettext('Hourly'),
 											12	=> TTi18n::gettext('Salary (Weekly)'),
 											13	=> TTi18n::gettext('Salary (Bi-Weekly)'),
 											15	=> TTi18n::gettext('Salary (Monthly)'),
@@ -147,20 +143,9 @@ class UserWageFactory extends Factory {
 	}
 
 	function getUserObject() {
-		if ( is_object($this->user_obj) ) {
-			return $this->user_obj;
-		} else {
-			$ulf = TTnew( 'UserListFactory' );
-			$ulf->getById( $this->getUser() );
-			if ( $ulf->getRecordCount() == 1 ) {
-				$this->user_obj = $ulf->getCurrent();
-				return $this->user_obj;
-			}
-
-			return FALSE;
-		}
+		return $this->getGenericObject( 'UserListFactory', $this->getUser(), 'user_obj' );
 	}
-
+	
 	function getWageGroupObject() {
 		if ( is_object($this->wage_group_obj) ) {
 			return $this->wage_group_obj;
@@ -181,7 +166,7 @@ class UserWageFactory extends Factory {
 
 	function getUser() {
 		if ( isset($this->data['user_id']) ) {
-			return $this->data['user_id'];
+			return (int)$this->data['user_id'];
 		}
 
 		return FALSE;
@@ -206,7 +191,7 @@ class UserWageFactory extends Factory {
 
 	function getWageGroup() {
 		if ( isset($this->data['wage_group_id']) ) {
-			return $this->data['wage_group_id'];
+			return (int)$this->data['wage_group_id'];
 		}
 
 		return FALSE;
@@ -214,7 +199,7 @@ class UserWageFactory extends Factory {
 	function setWageGroup($id) {
 		$id = trim($id);
 
-		Debug::Text('Wage Group ID: '. $id, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Wage Group ID: '. $id, __FILE__, __LINE__, __METHOD__, 10);
 		$wglf = TTnew( 'WageGroupListFactory' );
 
 		if (
@@ -235,7 +220,7 @@ class UserWageFactory extends Factory {
 
 	function getType() {
 		if ( isset($this->data['type_id']) ) {
-			return $this->data['type_id'];
+			return (int)$this->data['type_id'];
 		}
 
 		return FALSE;
@@ -343,7 +328,7 @@ class UserWageFactory extends Factory {
 
 	function getWeeklyTime() {
 		if ( isset($this->data['weekly_time']) ) {
-			//Debug::Text('Weekly Time: '. $this->data['weekly_time'], __FILE__, __LINE__, __METHOD__,10);
+			//Debug::Text('Weekly Time: '. $this->data['weekly_time'], __FILE__, __LINE__, __METHOD__, 10);
 
 			return $this->data['weekly_time'];
 		}
@@ -404,7 +389,7 @@ class UserWageFactory extends Factory {
 
 		$uwlf = TTnew( 'UserWageListFactory' );
 		$uwlf->getByUserIdAndGroupIDAndBeforeDate( $this->getUser(), 0, $epoch );
-		//Debug::text(' Total Rows: '. $uwlf->getRecordCount() .' User: '. $this->getUser() .' Epoch: '. $epoch , __FILE__, __LINE__, __METHOD__,10);
+		//Debug::text(' Total Rows: '. $uwlf->getRecordCount() .' User: '. $this->getUser() .' Epoch: '. $epoch, __FILE__, __LINE__, __METHOD__, 10);
 
 		if ( $uwlf->getRecordCount() <= 1 ) {
 			//If it returns one row, we need to check to see if the returned row is the current record.
@@ -434,6 +419,28 @@ class UserWageFactory extends Factory {
 		return TRUE;
 	}
 
+	function isUniqueEffectiveDate($effective_date) {
+		$ph = array(
+					'user_id' => (int)$this->getUser(),
+					'wage_group_id' => (int)$this->getWageGroup(),
+					'effective_date' => $this->db->BindDate( $effective_date )
+					);
+
+		$query = 'select id from '. $this->getTable() .' where user_id = ? AND wage_group_id = ? AND effective_date = ? AND deleted = 0';
+		$id = $this->db->GetOne($query, $ph);
+		Debug::Arr($id, 'Unique Wage Entry: Effective Date: '. $effective_date, __FILE__, __LINE__, __METHOD__, 10);
+
+		if ( $id === FALSE ) {
+			return TRUE;
+		} else {
+			if ($id == $this->getId() ) {
+				return TRUE;
+			}
+		}
+
+		return FALSE;
+	}
+
 	function getEffectiveDate( $raw = FALSE ) {
 		if ( isset($this->data['effective_date']) ) {
 			if ( $raw === TRUE ) {
@@ -448,11 +455,16 @@ class UserWageFactory extends Factory {
 	function setEffectiveDate($epoch) {
 		$epoch = TTDate::getBeginDayEpoch( trim($epoch) );
 
-		Debug::Text('Effective Date: '. TTDate::getDate('DATE+TIME', $epoch ) , __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Effective Date: '. TTDate::getDate('DATE+TIME', $epoch ), __FILE__, __LINE__, __METHOD__, 10);
 
-		if 	(	$this->Validator->isDate(		'effective_date',
+		if	(	$this->Validator->isDate(		'effective_date',
 												$epoch,
 												TTi18n::gettext('Incorrect Effective Date'))
+				AND
+					$this->Validator->isTrue(		'effective_date',
+													$this->isUniqueEffectiveDate($epoch),
+													TTi18n::gettext('Employee already has a wage entry on this date for the same wage group. Try using a different date instead.')
+													)
 			) {
 
 			$this->data['effective_date'] = $epoch;
@@ -517,7 +529,7 @@ class UserWageFactory extends Factory {
 			if ( $base_currency_obj->getId() == $this->getUserObject()->getCurrency() ) {
 				return $rate;
 			} else {
-				//Debug::text(' Base Currency Rate: '. $base_currency_obj->getConversionRate() .' Hourly Rate: '. $rate , __FILE__, __LINE__, __METHOD__,10);
+				//Debug::text(' Base Currency Rate: '. $base_currency_obj->getConversionRate() .' Hourly Rate: '. $rate, __FILE__, __LINE__, __METHOD__, 10);
 				return CurrencyFactory::convertCurrency( $this->getUserObject()->getCurrency(), $base_currency_obj->getId(), $rate );
 			}
 		}
@@ -528,7 +540,7 @@ class UserWageFactory extends Factory {
 	function getAnnualWage() {
 		$annual_wage = 0;
 
-		//Debug::text(' Type: '. $this->getType() .' Wage: '. $this->getWage() , __FILE__, __LINE__, __METHOD__,10);
+		//Debug::text(' Type: '. $this->getType() .' Wage: '. $this->getWage(), __FILE__, __LINE__, __METHOD__, 10);
 		switch ( $this->getType() ) {
 			case 10: //Hourly
 				//Hourly wage type, can't have an annual wage.
@@ -573,21 +585,21 @@ class UserWageFactory extends Factory {
 		}
 
 		if ( $accurate_calculation == TRUE ) {
-			Debug::text('EPOCH: '. $epoch , __FILE__, __LINE__, __METHOD__,10);
+			Debug::text('EPOCH: '. $epoch, __FILE__, __LINE__, __METHOD__, 10);
 
 			$annual_week_days = TTDate::getAnnualWeekDays( $epoch );
-			Debug::text('Annual Week Days: '. $annual_week_days , __FILE__, __LINE__, __METHOD__,10);
+			Debug::text('Annual Week Days: '. $annual_week_days, __FILE__, __LINE__, __METHOD__, 10);
 
 			//Calculate weeks from adjusted annual weekdays
 			//We could use just 52 weeks in a year, but that isn't as accurate.
 			$annual_work_weeks = bcdiv( $annual_week_days, 5);
-			Debug::text('Adjusted annual work weeks : '. $annual_work_weeks , __FILE__, __LINE__, __METHOD__,10);
+			Debug::text('Adjusted annual work weeks : '. $annual_work_weeks, __FILE__, __LINE__, __METHOD__, 10);
 		} else {
 			$annual_work_weeks = 52;
 		}
 
 		$average_weekly_hours = TTDate::getHours( $this->getWeeklyTime() );
-		//Debug::text('Average Weekly Hours: '. $average_weekly_hours , __FILE__, __LINE__, __METHOD__,10);
+		//Debug::text('Average Weekly Hours: '. $average_weekly_hours, __FILE__, __LINE__, __METHOD__, 10);
 
 		if ( $average_weekly_hours == 0 ) {
 			//No default schedule, can't pay them.
@@ -600,8 +612,8 @@ class UserWageFactory extends Factory {
 			}
 			unset($hours_per_year);
 		}
-		//Debug::text('User Wage: '. $this->getWage() , __FILE__, __LINE__, __METHOD__,10);
-		//Debug::text('Annual Hourly Rate: '. $hourly_wage , __FILE__, __LINE__, __METHOD__,10);
+		//Debug::text('User Wage: '. $this->getWage(), __FILE__, __LINE__, __METHOD__, 10);
+		//Debug::text('Annual Hourly Rate: '. $hourly_wage, __FILE__, __LINE__, __METHOD__, 10);
 
 		return $hourly_wage;
 	}
@@ -618,24 +630,59 @@ class UserWageFactory extends Factory {
 		if ( $prev_wage_effective_date == 0 ) {
 			//ProRate salary to termination date if its in the middle of a pay period.
 			if ( $termination_date != '' AND $termination_date > 0 AND $termination_date < $pp_end_date ) {
-				Debug::text(' Setting PP end date to Termination Date: '. TTDate::GetDate('DATE', $termination_date) , __FILE__, __LINE__, __METHOD__,10);
+				Debug::text(' Setting PP end date to Termination Date: '. TTDate::GetDate('DATE', $termination_date), __FILE__, __LINE__, __METHOD__, 10);
 				$pp_end_date = $termination_date;
 			}
 
-			Debug::text(' Using Pay Period End Date: '. TTDate::GetDate('DATE', $pp_end_date) , __FILE__, __LINE__, __METHOD__,10);
+			Debug::text(' Using Pay Period End Date: '. TTDate::GetDate('DATE', $pp_end_date), __FILE__, __LINE__, __METHOD__, 10);
 			$total_wage_effective_days = ceil( TTDate::getDayDifference( $wage_effective_date, $pp_end_date) );
 		} else {
-			Debug::text(' Using Prev Effective Date: '. TTDate::GetDate('DATE', $prev_wage_effective_date ) , __FILE__, __LINE__, __METHOD__,10);
+			Debug::text(' Using Prev Effective Date: '. TTDate::GetDate('DATE', $prev_wage_effective_date ), __FILE__, __LINE__, __METHOD__, 10);
 			$total_wage_effective_days = ceil( TTDate::getDayDifference( $wage_effective_date, $prev_wage_effective_date ) );
 		}
 
-		Debug::text('Salary: '. $salary .' Total Pay Period Days: '. $total_pay_period_days .' Wage Effective Days: '. $total_wage_effective_days , __FILE__, __LINE__, __METHOD__,10);
+		Debug::text('Salary: '. $salary .' Total Pay Period Days: '. $total_pay_period_days .' Wage Effective Days: '. $total_wage_effective_days, __FILE__, __LINE__, __METHOD__, 10);
 
-		//$pro_rate_salary = $salary * ($total_wage_effective_days / $total_pay_period_days);
 		$pro_rate_salary = bcmul( $salary, bcdiv($total_wage_effective_days, $total_pay_period_days) );
 
-		Debug::text('Pro Rate Salary: '. $pro_rate_salary, __FILE__, __LINE__, __METHOD__,10);
+		Debug::text('Pro Rate Salary: '. $pro_rate_salary, __FILE__, __LINE__, __METHOD__, 10);
 		return $pro_rate_salary;
+	}
+
+	static function proRateSalaryDates( $wage_effective_date, $prev_wage_effective_date, $pp_start_date, $pp_end_date, $termination_date ) {
+		$prev_wage_effective_date = (int)$prev_wage_effective_date;
+
+		if ( $wage_effective_date < $pp_start_date ) {
+			$wage_effective_date = $pp_start_date;
+		}
+
+		$total_pay_period_days = ceil( TTDate::getDayDifference( $pp_start_date, $pp_end_date) );
+
+		if ( $prev_wage_effective_date == 0 ) {
+			//ProRate salary to termination date if its in the middle of a pay period.
+			if ( $termination_date != '' AND $termination_date > 0 AND $termination_date < $pp_end_date ) {
+				//Debug::text(' Setting PP end date to Termination Date: '. TTDate::GetDate('DATE', $termination_date), __FILE__, __LINE__, __METHOD__, 10);
+				$pp_end_date = $termination_date;
+			}
+			$total_wage_effective_days = ceil( TTDate::getDayDifference( $wage_effective_date, $pp_end_date) );
+
+			//Debug::text(' Using Pay Period End Date: '. TTDate::GetDate('DATE', $pp_end_date), __FILE__, __LINE__, __METHOD__, 10);
+			$retarr['start_date'] = $wage_effective_date;
+			$retarr['end_date'] = $pp_end_date;
+		} else {
+			$total_wage_effective_days = ceil( TTDate::getDayDifference( $wage_effective_date, $prev_wage_effective_date ) );
+
+			//Debug::text(' Using Prev Effective Date: '. TTDate::GetDate('DATE', $prev_wage_effective_date ), __FILE__, __LINE__, __METHOD__, 10);
+			$retarr['start_date'] = $wage_effective_date;
+			$retarr['end_date'] = $prev_wage_effective_date;
+		}
+
+		if ( $retarr['start_date'] > $pp_start_date OR $retarr['end_date'] < $pp_end_date ) {
+			$retarr['percent'] = Misc::removeTrailingZeros( round( bcmul( bcdiv($total_wage_effective_days, $total_pay_period_days), 100), 2), 0 );
+			return $retarr;
+		}
+
+		return FALSE;
 	}
 
 	static function getWageFromArray( $date, $wage_arr ) {
@@ -647,11 +694,11 @@ class UserWageFactory extends Factory {
 			return FALSE;
 		}
 
-		//Debug::Arr($wage_arr, 'Wage Array: ', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($wage_arr, 'Wage Array: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		foreach( $wage_arr as $effective_date => $wage ) {
 			if ( $effective_date <= $date ) {
-				Debug::Text('Effective Date: '. TTDate::getDate('DATE+TIME', $effective_date) .' Is Less Than: '. TTDate::getDate('DATE+TIME', $date)  , __FILE__, __LINE__, __METHOD__,10);
+				Debug::Text('Effective Date: '. TTDate::getDate('DATE+TIME', $effective_date) .' Is Less Than: '. TTDate::getDate('DATE+TIME', $date), __FILE__, __LINE__, __METHOD__, 10);
 				return $wage;
 			}
 		}
@@ -669,7 +716,7 @@ class UserWageFactory extends Factory {
 		}
 
 		$end_epoch = TTDate::getTime();
-		$start_epoch = TTDate::getTime()-(86400*180); //6mths
+		$start_epoch = ( TTDate::getTime() - (86400 * 180) ); //6mths
 
 		$retval = FALSE;
 
@@ -704,6 +751,22 @@ class UserWageFactory extends Factory {
 										TTi18n::gettext('No employee specified') );
 		}
 
+		if ( $this->getType() != 10 ) { //Salary
+			//Make sure they won't put 0 or 1hr for the weekly time, as that is almost certainly wrong.
+			if ( $this->getWeeklyTime() <= 3601 ) {
+				$this->Validator->isTRUE(	'weekly_time',
+											FALSE,
+											TTi18n::gettext('Average Time / Week is invalid') );
+			}
+
+			//Make sure the weekly total time is within reason and hourly rates aren't 1000+/hr.
+			if ( $this->getHourlyRate() > 1000 ) {
+				$this->Validator->isTRUE(	'hourly_rate',
+											FALSE,
+											TTi18n::gettext('Annual Hourly Rate is too high') );
+			}
+		}
+
 		if ( $this->getDeleted() == FALSE ) {
 			if ( is_object( $this->getUserObject() ) AND $this->getUserObject()->getHireDate() ) {
 				$hire_date = $this->getUserObject()->getHireDate();
@@ -715,7 +778,6 @@ class UserWageFactory extends Factory {
 											$this->isValidEffectiveDate( $this->getEffectiveDate() ),
 											TTi18n::gettext('An employees first wage entry must be effective on or before the employees hire date').' ('. TTDate::getDate('DATE', $hire_date) .')');
 		}
-
 
 		return TRUE;
 	}

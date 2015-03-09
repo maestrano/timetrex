@@ -1,26 +1,26 @@
 CREATE TABLE income_tax_rate (
-    id integer AUTO_INCREMENT NOT NULL,
-    country varchar(250),
-    province varchar(250),
-    effective_date integer NOT NULL,
-    income numeric(10,4) NOT NULL,
-    rate numeric(10,4) NOT NULL,
-    constant numeric(10,4),
+	id integer AUTO_INCREMENT NOT NULL,
+	country varchar(250),
+	province varchar(250),
+	effective_date integer NOT NULL,
+	income numeric(10,4) NOT NULL,
+	rate numeric(10,4) NOT NULL,
+	constant numeric(10,4),
 	PRIMARY KEY(id)
 ) ENGINE=InnoDB;
 
 
 
 CREATE TABLE income_tax_rate_us (
-    id integer AUTO_INCREMENT NOT NULL,
-    country varchar(250),
-    state varchar(250),
-    district varchar(250),
-    effective_date integer NOT NULL,
-    status integer NOT NULL,
-    income numeric(10,4) NOT NULL,
-    rate numeric(10,4) NOT NULL,
-    constant numeric(10,4) DEFAULT 0,
+	id integer AUTO_INCREMENT NOT NULL,
+	country varchar(250),
+	state varchar(250),
+	district varchar(250),
+	effective_date integer NOT NULL,
+	status integer NOT NULL,
+	income numeric(10,4) NOT NULL,
+	rate numeric(10,4) NOT NULL,
+	constant numeric(10,4) DEFAULT 0,
 	PRIMARY KEY(id)
 ) ENGINE=InnoDB;
 

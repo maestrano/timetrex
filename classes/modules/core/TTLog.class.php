@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 4252 $
- * $Id: TTLog.class.php 4252 2011-02-16 01:19:08Z ipso $
- * $Date: 2011-02-15 17:19:08 -0800 (Tue, 15 Feb 2011) $
- */
+
 
 /**
  * @package Core
@@ -83,7 +79,7 @@ class TTLog {
 		if ( $lf->isValid() === TRUE ) {
 			$insert_id = $lf->Save();
 
-			if ( 	(
+			if (	(
 					!isset($config_vars['other']['disable_audit_log_detail'])
 						OR ( isset($config_vars['other']['disable_audit_log_detail']) AND $config_vars['other']['disable_audit_log_detail'] != TRUE )
 					)

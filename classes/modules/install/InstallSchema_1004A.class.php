@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 8371 $
- * $Id: InstallSchema_1004A.class.php 8371 2012-11-22 21:18:57Z ipso $
- * $Date: 2012-11-22 13:18:57 -0800 (Thu, 22 Nov 2012) $
- */
+
 
 /**
  * @package Modules\Install
@@ -45,13 +41,13 @@
 class InstallSchema_1004A extends InstallSchema_Base {
 
 	function preInstall() {
-		Debug::text('preInstall: '. $this->getVersion() , __FILE__, __LINE__, __METHOD__,9);
+		Debug::text('preInstall: '. $this->getVersion(), __FILE__, __LINE__, __METHOD__, 9);
 
 		$tables = $this->getDatabaseConnection()->MetaTables();
 		if ( in_array( 'log', $tables ) ) {
 			//Make sure this only runs for PGSQL databases.
 
-			if ( strncmp($this->getDatabaseConnection()->databaseType,'postgres',8) == 0 ) {
+			if ( strncmp($this->getDatabaseConnection()->databaseType, 'postgres', 8) == 0 ) {
 				//Upgrading, rename log file.
 				$query = 'alter table "log" rename to "system_log"';
 				$this->getDatabaseConnection()->Execute($query);
@@ -65,7 +61,7 @@ class InstallSchema_1004A extends InstallSchema_Base {
 				$query = 'alter table "log_id_seq" rename to "system_log_id_seq";';
 				$this->getDatabaseConnection()->Execute($query);
 			} else {
-				Debug::text('preInstall: Not a PGSQL database, skipping special commands', __FILE__, __LINE__, __METHOD__,9);
+				Debug::text('preInstall: Not a PGSQL database, skipping special commands', __FILE__, __LINE__, __METHOD__, 9);
 			}
 		}
 
@@ -75,7 +71,7 @@ class InstallSchema_1004A extends InstallSchema_Base {
 
 
 	function postInstall() {
-		Debug::text('postInstall: '. $this->getVersion(), __FILE__, __LINE__, __METHOD__,9);
+		Debug::text('postInstall: '. $this->getVersion(), __FILE__, __LINE__, __METHOD__, 9);
 
 		return TRUE;
 

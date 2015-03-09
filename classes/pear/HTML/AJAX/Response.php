@@ -2,12 +2,14 @@
 /**
  * OO AJAX Implementation for PHP, contains HTML_AJAX_Response
  *
+ * SVN Rev: $Id: Response.php 620 2008-05-07 22:33:32Z jeichorn $ 
+ *
  * @category   HTML
  * @package    AJAX
  * @author     Elizabeth Smith <auroraeosrose@gmail.com>
  * @copyright  2005-2006 Elizabeth Smith
  * @license    http://www.opensource.org/licenses/lgpl-license.php  LGPL
- * @version    Release: 0.5.2
+ * @version    Release: 0.5.6
  */
 
 /**
@@ -23,7 +25,7 @@ require_once 'HTML/AJAX.php';
  * getPayload method or fill the payload property with your extended classes's
  * serialized content
  *
- * @version   $Id: Response.php 536 2006-08-12 01:05:54Z emsmith $
+ * @version   $Id: Response.php 620 2008-05-07 22:33:32Z jeichorn $
  */
 class HTML_AJAX_Response
 {

@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,13 +33,6 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 1406 $
- * $Id: PayrollDeduction_Base.class.php 1406 2007-11-08 18:58:09Z ipso $
- * $Date: 2007-11-08 10:58:09 -0800 (Thu, 08 Nov 2007) $
- *
- * @package PayrollDeduction
- */
 
 /**
  * @package PayrollDeduction\CR

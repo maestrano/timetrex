@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 8371 $
- * $Id: InstallSchema_1011A.class.php 8371 2012-11-22 21:18:57Z ipso $
- * $Date: 2012-11-22 13:18:57 -0800 (Thu, 22 Nov 2012) $
- */
+
 
 /**
  * @package Modules\Install
@@ -45,7 +41,7 @@
 class InstallSchema_1011A extends InstallSchema_Base {
 
 	function preInstall() {
-		Debug::text('preInstall: '. $this->getVersion() , __FILE__, __LINE__, __METHOD__,9);
+		Debug::text('preInstall: '. $this->getVersion(), __FILE__, __LINE__, __METHOD__, 9);
 
 		return TRUE;
 	}
@@ -53,7 +49,7 @@ class InstallSchema_1011A extends InstallSchema_Base {
 	function postInstall() {
 		global $cache;
 
-		Debug::text('postInstall: '. $this->getVersion(), __FILE__, __LINE__, __METHOD__,9);
+		Debug::text('postInstall: '. $this->getVersion(), __FILE__, __LINE__, __METHOD__, 9);
 
 		//Configure currencies for Standard Edition.
 		if ( $this->getIsUpgrade() == TRUE ) {
@@ -65,12 +61,12 @@ class InstallSchema_1011A extends InstallSchema_Base {
 				foreach( $clf as $c_obj ) {
 					if ( $c_obj->getStatus() == 10 ) {
 						//Converting to new Accrual Policy table.
-						Debug::text('Converting to new Accrual Policy Table: '. $c_obj->getName() .' ID: '. $c_obj->getId() , __FILE__, __LINE__, __METHOD__,9);
+						Debug::text('Converting to new Accrual Policy Table: '. $c_obj->getName() .' ID: '. $c_obj->getId(), __FILE__, __LINE__, __METHOD__, 9);
 						$pglf = TTnew( 'PolicyGroupListFactory' );
 						$pglf->getByCompanyId( $c_obj->getId() );
 						if ( $pglf->getRecordCount() > 0 ) {
 							foreach( $pglf as $pg_obj ) {
-								Debug::text('Accrual Policy ID: '. $pg_obj->getColumn('accrual_policy_id'), __FILE__, __LINE__, __METHOD__,9);
+								Debug::text('Accrual Policy ID: '. $pg_obj->getColumn('accrual_policy_id'), __FILE__, __LINE__, __METHOD__, 9);
 								if ( $pg_obj->getColumn('accrual_policy_id') != ''
 										AND $pg_obj->getColumn('accrual_policy_id') != 0 ) {
 									$pg_obj->setAccrualPolicy( array($pg_obj->getColumn('accrual_policy_id') ) );
@@ -81,7 +77,7 @@ class InstallSchema_1011A extends InstallSchema_Base {
 							}
 						}
 
-						Debug::text('Adding Currency Information to Company: '. $c_obj->getName() .' ID: '. $c_obj->getId() , __FILE__, __LINE__, __METHOD__,9);
+						Debug::text('Adding Currency Information to Company: '. $c_obj->getName() .' ID: '. $c_obj->getId(), __FILE__, __LINE__, __METHOD__, 9);
 						$crlf = TTnew( 'CurrencyListFactory' );
 						$crlf->getByCompanyId( $c_obj->getId() );
 						if ( $crlf->getRecordCount() == 0 ) {
@@ -90,9 +86,9 @@ class InstallSchema_1011A extends InstallSchema_Base {
 
 							if ( isset($country_to_currency_map_arr[$c_obj->getCountry()]) ) {
 								$base_currency = $country_to_currency_map_arr[$c_obj->getCountry()];
-								Debug::text('Found Base Currency For Country: '. $c_obj->getCountry() .' Currency: '. $base_currency , __FILE__, __LINE__, __METHOD__,9);
+								Debug::text('Found Base Currency For Country: '. $c_obj->getCountry() .' Currency: '. $base_currency, __FILE__, __LINE__, __METHOD__, 9);
 							} else {
-								Debug::text('DID NOT Find Base Currency For Country: '. $c_obj->getCountry() .' Using default USD.', __FILE__, __LINE__, __METHOD__,9);
+								Debug::text('DID NOT Find Base Currency For Country: '. $c_obj->getCountry() .' Using default USD.', __FILE__, __LINE__, __METHOD__, 9);
 								$base_currency = 'USD';
 							}
 
@@ -109,7 +105,7 @@ class InstallSchema_1011A extends InstallSchema_Base {
 							if ( $cf->isValid() ) {
 								$base_currency_id = $cf->Save();
 
-								Debug::text('Base Currency ID: '. $base_currency_id, __FILE__, __LINE__, __METHOD__,10);
+								Debug::text('Base Currency ID: '. $base_currency_id, __FILE__, __LINE__, __METHOD__, 10);
 
 								//Set Employee Hire Defaults.
 								$udlf = TTnew( 'UserDefaultListFactory' );
@@ -131,7 +127,7 @@ class InstallSchema_1011A extends InstallSchema_Base {
 										foreach( $ulf as $u_obj ) {
 											$user_id = $u_obj->getID();
 
-											Debug::text('Setting Base Currency For User: '. $u_obj->getUserName() .' ID: '. $user_id, __FILE__, __LINE__, __METHOD__,10);
+											Debug::text('Setting Base Currency For User: '. $u_obj->getUserName() .' ID: '. $user_id, __FILE__, __LINE__, __METHOD__, 10);
 
 											$u_obj->setCurrency( $base_currency_id );
 
@@ -149,7 +145,7 @@ class InstallSchema_1011A extends InstallSchema_Base {
 													}
 													unset($uplf, $up_obj);
 
-													Debug::text('  Setting Base Currency for Pay Stubs, User ID: '. $user_id, __FILE__, __LINE__, __METHOD__,10);
+													Debug::text('  Setting Base Currency for Pay Stubs, User ID: '. $user_id, __FILE__, __LINE__, __METHOD__, 10);
 
 													//Change all pay stubs for this user to the base currency.
 													//Do this in a single query for speed purposes.
@@ -166,7 +162,7 @@ class InstallSchema_1011A extends InstallSchema_Base {
 													$pslf->getByUserIdAndCompanyId( $user_id, $c_obj->getId() );
 													if ( $pslf->getRecordCount() > 0 ) {
 														foreach( $pslf as $ps_obj ) {
-															//Debug::text('    Setting Base Currency for Pay Stub ID: '. $ps_obj->getId(), __FILE__, __LINE__, __METHOD__,10);
+															//Debug::text('	   Setting Base Currency for Pay Stub ID: '. $ps_obj->getId(), __FILE__, __LINE__, __METHOD__, 10);
 
 															$ps_obj->setCurrency( $base_currency_id );
 															if ( $ps_obj->isValid() ) {
@@ -184,10 +180,10 @@ class InstallSchema_1011A extends InstallSchema_Base {
 													unset($pslf);
 													*/
 												} else {
-													Debug::text('Failed saving user ID: '. $user_id, __FILE__, __LINE__, __METHOD__,10);
+													Debug::text('Failed saving user ID: '. $user_id, __FILE__, __LINE__, __METHOD__, 10);
 												}
 											} else {
-												Debug::text('Failed saving user ID: '. $user_id, __FILE__, __LINE__, __METHOD__,10);
+												Debug::text('Failed saving user ID: '. $user_id, __FILE__, __LINE__, __METHOD__, 10);
 											}
 											unset($u_obj, $user_id);
 										}
@@ -199,7 +195,7 @@ class InstallSchema_1011A extends InstallSchema_Base {
 							unset($cf);
 						}
 					} else {
-						Debug::text('Company is not active! '. $c_obj->getId(), __FILE__, __LINE__, __METHOD__,10);
+						Debug::text('Company is not active! '. $c_obj->getId(), __FILE__, __LINE__, __METHOD__, 10);
 					}
 					unset($c_obj, $base_currency, $base_currency_id, $crlf);
 				}
@@ -212,11 +208,11 @@ class InstallSchema_1011A extends InstallSchema_Base {
 		//Add currency updating to cron.
 		$maint_base_path = Environment::getBasePath() . DIRECTORY_SEPARATOR .'maint'. DIRECTORY_SEPARATOR;
 		if ( PHP_OS == 'WINNT' ) {
-			$cron_job_base_command =  'php-win.exe '. $maint_base_path;
+			$cron_job_base_command = 'php-win.exe '. $maint_base_path;
 		} else {
-			$cron_job_base_command =  'php '. $maint_base_path;
+			$cron_job_base_command = 'php '. $maint_base_path;
 		}
-		Debug::text('Cron Job Base Command: '. $cron_job_base_command, __FILE__, __LINE__, __METHOD__,9);
+		Debug::text('Cron Job Base Command: '. $cron_job_base_command, __FILE__, __LINE__, __METHOD__, 9);
 
 		$cjf = TTnew( 'CronJobFactory' );
 		$cjf->setName('UpdateCurrencyRates');

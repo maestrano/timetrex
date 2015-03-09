@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 1378 $
- * $Id: UserWageFactory.class.php 1378 2007-11-02 22:09:17Z ipso $
- * $Date: 2007-11-02 15:09:17 -0700 (Fri, 02 Nov 2007) $
- */
+
 
 
 /**
@@ -55,14 +51,15 @@ class UserIdentificationFactory extends Factory {
 		switch( $name ) {
 			case 'type':
 				$retval = array(
-											5 	=> TTi18n::gettext('Password History'), //Web interface password history
-											10 	=> TTi18n::gettext('iButton'),
+											5	=> TTi18n::gettext('Password History'), //Web interface password history
+											10	=> TTi18n::gettext('iButton'),
 											20	=> TTi18n::gettext('USB Fingerprint'),
 											//25	=> TTi18n::gettext('LibFingerPrint'),
 											30	=> TTi18n::gettext('Barcode'), //For barcode readers and USB proximity card readers.
 											35	=> TTi18n::gettext('QRcode'), //For cameras to read QR code badges.
 											40	=> TTi18n::gettext('Proximity Card'), //Mainly for proximity cards on timeclocks.
-											75	=> TTi18n::gettext('Facial Recognition'),
+											70	=> TTi18n::gettext('Face Image'), //Raw image of cropped face in as high of quality as possible.
+											75	=> TTi18n::gettext('Facial Recognition'), //Luxand v5 SDK templates.
 											100	=> TTi18n::gettext('TimeClock FingerPrint (v9)'), //TimeClocks v9 algo
 											101	=> TTi18n::gettext('TimeClock FingerPrint (v10)'), //TimeClocks v10 algo
 									);
@@ -85,7 +82,11 @@ class UserIdentificationFactory extends Factory {
 	}
 
 	function getUser() {
-		return $this->data['user_id'];
+		if ( isset($this->data['user_id']) ) {
+			return (int)$this->data['user_id'];
+		}
+		
+		return FALSE;
 	}
 	function setUser($id) {
 		$id = trim($id);
@@ -107,7 +108,7 @@ class UserIdentificationFactory extends Factory {
 
 	function getType() {
 		if ( isset($this->data['type_id']) ) {
-			return $this->data['type_id'];
+			return (int)$this->data['type_id'];
 		}
 
 		return FALSE;
@@ -186,7 +187,7 @@ class UserIdentificationFactory extends Factory {
 						AND a.value = ?
 						AND ( a.deleted = 0 AND b.deleted = 0 )';
 		$id = $this->db->GetOne($query, $ph);
-		//Debug::Arr($id,'Unique Value: '. $value, __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($id, 'Unique Value: '. $value, __FILE__, __LINE__, __METHOD__, 10);
 
 		if ( $id === FALSE ) {
 			return TRUE;
@@ -281,7 +282,7 @@ class UserIdentificationFactory extends Factory {
 
 	function addLog( $log_action ) {
 		//Don't do detail logging for this, as it will store entire figerprints in the log table.
-		return TTLog::addEntry( $this->getId(), $log_action, TTi18n::getText('Employee Identification - Employee'). ': '. UserListFactory::getFullNameById( $this->getUser() ) .' '. TTi18n::getText('Type') . ': '. Option::getByKey($this->getType(), $this->getOptions('type') ) , NULL, $this->getTable() );
+		return TTLog::addEntry( $this->getId(), $log_action, TTi18n::getText('Employee Identification - Employee'). ': '. UserListFactory::getFullNameById( $this->getUser() ) .' '. TTi18n::getText('Type') . ': '. Option::getByKey($this->getType(), $this->getOptions('type') ), NULL, $this->getTable() );
 	}
 }
 ?>

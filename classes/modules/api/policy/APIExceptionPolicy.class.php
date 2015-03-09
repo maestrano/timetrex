@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2196 $
- * $Id: APIExceptionPolicy.class.php 2196 2008-10-14 16:08:54Z ipso $
- * $Date: 2008-10-14 09:08:54 -0700 (Tue, 14 Oct 2008) $
- */
+
 
 /**
  * @package API\Policy
@@ -58,7 +54,7 @@ class APIExceptionPolicy extends APIFactory {
 	function getExceptionPolicyDefaultData() {
 		$epf = TTnew( 'ExceptionPolicyFactory' );
 
-		Debug::Text('Getting exception policy default data...', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Getting exception policy default data...', __FILE__, __LINE__, __METHOD__, 10);
 
 		$data = $epf->getExceptionTypeDefaultValues( NULL, $this->getCurrentCompanyObject()->getProductEdition() );
 
@@ -71,8 +67,8 @@ class APIExceptionPolicy extends APIFactory {
 	 * @return array
 	 */
 	function getExceptionPolicy( $data = NULL, $disable_paging = FALSE ) {
-		if ( !$this->getPermissionObject()->Check('exception_policy','enabled')
-				OR !( $this->getPermissionObject()->Check('exception_policy','view') OR $this->getPermissionObject()->Check('exception_policy','view_own') OR $this->getPermissionObject()->Check('exception_policy','view_child')  ) ) {
+		if ( !$this->getPermissionObject()->Check('exception_policy', 'enabled')
+				OR !( $this->getPermissionObject()->Check('exception_policy', 'view') OR $this->getPermissionObject()->Check('exception_policy', 'view_own') OR $this->getPermissionObject()->Check('exception_policy', 'view_child')  ) ) {
 			return $this->getPermissionObject()->PermissionDenied();
 		}
 		$data = $this->initializeFilterAndPager( $data, $disable_paging );
@@ -125,9 +121,9 @@ class APIExceptionPolicy extends APIFactory {
 			return $this->returnHandler( FALSE );
 		}
 
-		if ( !$this->getPermissionObject()->Check('exception_policy','enabled')
-				OR !( $this->getPermissionObject()->Check('exception_policy','edit') OR $this->getPermissionObject()->Check('exception_policy','edit_own') OR $this->getPermissionObject()->Check('exception_policy','edit_child') OR $this->getPermissionObject()->Check('exception_policy','add') ) ) {
-			return  $this->getPermissionObject()->PermissionDenied();
+		if ( !$this->getPermissionObject()->Check('exception_policy', 'enabled')
+				OR !( $this->getPermissionObject()->Check('exception_policy', 'edit') OR $this->getPermissionObject()->Check('exception_policy', 'edit_own') OR $this->getPermissionObject()->Check('exception_policy', 'edit_child') OR $this->getPermissionObject()->Check('exception_policy', 'add') ) ) {
+			return	$this->getPermissionObject()->PermissionDenied();
 		}
 
 		if ( $validate_only == TRUE ) {
@@ -151,11 +147,11 @@ class APIExceptionPolicy extends APIFactory {
 					if ( $lf->getRecordCount() == 1 ) {
 						//Object exists, check edit permissions
 						if (
-							  $validate_only == TRUE
-							  OR
+							$validate_only == TRUE
+							OR
 								(
-								$this->getPermissionObject()->Check('exception_policy','edit')
-									OR ( $this->getPermissionObject()->Check('exception_policy','edit_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE )
+								$this->getPermissionObject()->Check('exception_policy', 'edit')
+									OR ( $this->getPermissionObject()->Check('exception_policy', 'edit_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE )
 								) ) {
 
 							Debug::Text('Row Exists, getting current data: ', $row['id'], __FILE__, __LINE__, __METHOD__, 10);
@@ -171,7 +167,7 @@ class APIExceptionPolicy extends APIFactory {
 				} else {
 					unset($row['id']); //ID could be '-1', so simply unset it so it doesn't try to update a non-existing record.
 					//Adding new object, check ADD permissions.
-					$primary_validator->isTrue( 'permission', $this->getPermissionObject()->Check('exception_policy','add'), TTi18n::gettext('Add permission denied') );
+					$primary_validator->isTrue( 'permission', $this->getPermissionObject()->Check('exception_policy', 'add'), TTi18n::gettext('Add permission denied') );
 				}
 				Debug::Arr($row, 'Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
@@ -180,9 +176,6 @@ class APIExceptionPolicy extends APIFactory {
 					Debug::Text('Setting object data...', __FILE__, __LINE__, __METHOD__, 10);
 
 					$lf->setObjectFromArray( $row );
-
-					//Force Company ID to current company.
-					//$lf->setCompany( $this->getCurrentCompanyObject()->getId() );
 
 					$is_valid = $lf->isValid();
 					if ( $is_valid == TRUE ) {
@@ -242,16 +235,16 @@ class APIExceptionPolicy extends APIFactory {
 			return $this->returnHandler( FALSE );
 		}
 
-		if ( !$this->getPermissionObject()->Check('exception_policy','enabled')
-				OR !( $this->getPermissionObject()->Check('exception_policy','delete') OR $this->getPermissionObject()->Check('exception_policy','delete_own') OR $this->getPermissionObject()->Check('exception_policy','delete_child') ) ) {
-			return  $this->getPermissionObject()->PermissionDenied();
+		if ( !$this->getPermissionObject()->Check('exception_policy', 'enabled')
+				OR !( $this->getPermissionObject()->Check('exception_policy', 'delete') OR $this->getPermissionObject()->Check('exception_policy', 'delete_own') OR $this->getPermissionObject()->Check('exception_policy', 'delete_child') ) ) {
+			return	$this->getPermissionObject()->PermissionDenied();
 		}
 
 		Debug::Text('Received data for: '. count($data) .' ExceptionPolicys', __FILE__, __LINE__, __METHOD__, 10);
 		Debug::Arr($data, 'Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		$total_records = count($data);
-        $validator_stats = array('total_records' => $total_records, 'valid_records' => 0 );
+		$validator_stats = array('total_records' => $total_records, 'valid_records' => 0 );
 		if ( is_array($data) ) {
 			foreach( $data as $key => $id ) {
 				$primary_validator = new Validator();
@@ -263,8 +256,8 @@ class APIExceptionPolicy extends APIFactory {
 					$lf->getByIdAndCompanyId( $id, $this->getCurrentCompanyObject()->getId() );
 					if ( $lf->getRecordCount() == 1 ) {
 						//Object exists, check edit permissions
-						if ( $this->getPermissionObject()->Check('exception_policy','delete')
-								OR ( $this->getPermissionObject()->Check('exception_policy','delete_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE ) ) {
+						if ( $this->getPermissionObject()->Check('exception_policy', 'delete')
+								OR ( $this->getPermissionObject()->Check('exception_policy', 'delete_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE ) ) {
 							Debug::Text('Record Exists, deleting record: ', $id, __FILE__, __LINE__, __METHOD__, 10);
 							$lf = $lf->getCurrent();
 						} else {
@@ -343,7 +336,7 @@ class APIExceptionPolicy extends APIFactory {
 		if ( is_array( $src_rows ) AND count($src_rows) > 0 ) {
 			Debug::Arr($src_rows, 'SRC Rows: ', __FILE__, __LINE__, __METHOD__, 10);
 			foreach( $src_rows as $key => $row ) {
-				unset($src_rows[$key]['id'],$src_rows[$key]['manual_id'] ); //Clear fields that can't be copied
+				unset($src_rows[$key]['id'], $src_rows[$key]['manual_id'] ); //Clear fields that can't be copied
 				$src_rows[$key]['name'] = Misc::generateCopyName( $row['name'] ); //Generate unique name
 			}
 			//Debug::Arr($src_rows, 'bSRC Rows: ', __FILE__, __LINE__, __METHOD__, 10);

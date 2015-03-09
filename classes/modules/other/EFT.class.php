@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 9688 $
- * $Id: EFT.class.php 9688 2013-04-25 22:01:30Z ipso $
- * $Date: 2013-04-25 15:01:30 -0700 (Thu, 25 Apr 2013) $
- */
+
 
 /*
 
@@ -93,16 +89,17 @@ $eft->save('/tmp/eft01.txt');
  */
 class EFT {
 
-	var $file_format_options = array( '1464','105', 'HSBC', 'BEANSTREAM' );
+	var $file_format_options = array( '1464', '105', 'HSBC', 'BEANSTREAM' );
 	var $file_format = NULL; //File format
 
+	var $file_prefix_data = NULL; //Leading data in the file, primarily for RBC routing lines.
 	var $header_data = NULL;
 	var $data = NULL;
 
 	var $compiled_data = NULL;
 
 	function __construct( $options = NULL ) {
-		Debug::Text(' Contruct... ', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text(' Contruct... ', __FILE__, __LINE__, __METHOD__, 10);
 
 		$this->setFileCreationDate( time() );
 
@@ -110,7 +107,7 @@ class EFT {
 	}
 
 	function removeDecimal( $value ) {
-		$retval = str_replace('.','', number_format( $value, 2, '.','') );
+		$retval = str_replace('.', '', number_format( $value, 2, '.', '') );
 
 		return $retval;
 	}
@@ -120,7 +117,7 @@ class EFT {
 		$year = str_pad( date('y', $epoch), 3, 0, STR_PAD_LEFT);
 
 		//PHP's day of year is 0 based, so we need to add one for the banks.
-		$day = str_pad( date('z', $epoch)+1, 3, 0, STR_PAD_LEFT);
+		$day = str_pad( (date('z', $epoch) + 1), 3, 0, STR_PAD_LEFT);
 
 		$retval = $year.$day;
 
@@ -131,7 +128,7 @@ class EFT {
 
 	function isAlphaNumeric( $value ) {
 		/*
-		if ( preg_match('/^[-0-9A-Z\ ]+$/',$value) ) {
+		if ( preg_match('/^[-0-9A-Z\ ]+$/', $value) ) {
 			return TRUE;
 		}
 
@@ -142,7 +139,7 @@ class EFT {
 	}
 
 	function isNumeric( $value ) {
-		if ( preg_match('/^[-0-9]+$/',$value) ) {
+		if ( preg_match('/^[-0-9]+$/', $value) ) {
 			return TRUE;
 		}
 
@@ -150,13 +147,26 @@ class EFT {
 	}
 
 	function isFloat( $value ) {
-		if ( preg_match('/^[-0-9\.]+$/',$value) ) {
+		if ( preg_match('/^[-0-9\.]+$/', $value) ) {
 			return TRUE;
 		}
 
 		return FALSE;
 	}
 
+	function getFilePrefixData() {
+		if ( isset($this->file_prefix_data) ) {
+			return $this->file_prefix_data;
+		}
+
+		return FALSE;
+	}
+	function setFilePrefixData( $data ) {
+		$this->file_prefix_data = $data;
+
+		return TRUE;
+	}
+	
 	function getFileFormat() {
 		if ( isset($this->file_format) ) {
 			return $this->file_format;
@@ -292,14 +302,27 @@ class EFT {
 		return FALSE;
 	}
 
-	function setRecord( $obj ){
+	function getOtherData( $key ) {
+		if ( isset($this->header_data[$key]) ) {
+			return $this->header_data[$key];
+		}
+
+		return FALSE;
+	}
+	function setOtherData($key, $value) {
+		$this->header_data[$key] = $value;
+
+		return TRUE;
+	}
+
+	function setRecord( $obj ) {
 		$this->data[] = $obj;
 
 		return TRUE;
 	}
 
 	/*
-	  Functions to help process the data.
+	Functions to help process the data.
 	*/
 
 	function padRecord( $value, $length, $type ) {
@@ -330,7 +353,7 @@ class EFT {
 
 	function getCompiledData() {
 		if ( $this->compiled_data !== NULL AND $this->compiled_data !== FALSE ) {
-			return $this->compiled_data;
+			return $this->getFilePrefixData().$this->compiled_data;
 		}
 
 		return FALSE;
@@ -343,7 +366,7 @@ class EFT {
 			$file_format_obj = new EFT_File_Format_{$this->getFileFormat()}( $this->header_data, $this->data );
 		*/
 
-		switch ( strtoupper( $this->getFileFormat() ) )  {
+		switch ( strtoupper( $this->getFileFormat() ) )	 {
 			case 1464:
 				$file_format_obj = new EFT_File_Format_1464($this->header_data, $this->data);
 				break;
@@ -412,7 +435,7 @@ class EFT_record extends EFT {
 	var $record_data = NULL;
 
 	function __construct( $options = NULL ) {
-		Debug::Text(' EFT_Record Contruct... ', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text(' EFT_Record Contruct... ', __FILE__, __LINE__, __METHOD__, 10);
 
 		return TRUE;
 	}
@@ -692,7 +715,6 @@ class EFT_record extends EFT {
 
 		return TRUE;
 	}
-
 }
 
 
@@ -706,7 +728,7 @@ class EFT_File_Format_1464 Extends EFT {
 	var $data = NULL;
 
 	function __construct( $header_data, $data ) {
-		Debug::Text(' EFT_Format_1464 Contruct... ', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text(' EFT_Format_1464 Contruct... ', __FILE__, __LINE__, __METHOD__, 10);
 
 		$this->header_data = $header_data;
 		$this->data = $data;
@@ -721,6 +743,36 @@ class EFT_File_Format_1464 Extends EFT {
 		$line[] = $this->padRecord( $this->getFileCreationNumber(), 4, 'N');
 		$line[] = $this->padRecord( $this->toJulian( $this->getFileCreationDate() ), 6, 'N');
 		$line[] = $this->padRecord( $this->getDataCenter(), 5, 'N');
+
+		$sanity_check_1 = strlen( implode('', $line) );
+		Debug::Text('Digits to Data Center: '. $sanity_check_1 .' - Should be: 35', __FILE__, __LINE__, __METHOD__, 10);
+		if ( $sanity_check_1 !== 35 ) {
+			Debug::Text('Failed Sanity Check 1', __FILE__, __LINE__, __METHOD__, 10);
+			return FALSE;
+		}
+		unset($sanity_check_1);
+		
+		if ( $this->getOtherData('cibc_settlement_account') !== FALSE ) {
+			//FIXME: The settlement account series (01) needs to be in each record between 252 and 253 (N) as well
+			//Some banks, specifically CIBC require a mandatory Settlement Account Series that is the return bank account.
+			//This seems to be only for their pre-funded settlement option.
+			$line[] = str_repeat(' ', 20); //Blank
+
+			$line[] = 'CAD'; //Currency CAD/USD
+			$line[] = str_repeat(' ', 1190); //Blank
+			$line[] = '0001'; //Version Number (always 0001) - Starts at 1249
+			$line[] = '01'; //Number of Settlement Account Series (always 01)
+			$line[] = '0'.$this->padRecord( $this->getOtherData('cibc_settlement_institution'), 3, 'N').$this->padRecord( $this->getOtherData('cibc_settlement_transit'), 5, 'N');
+			$line[] = $this->padRecord( $this->getOtherData('cibc_settlement_account'), 12, 'AN');
+
+			$sanity_check_2 = strlen( implode('', $line) );
+			Debug::Text('Digits to end of Settlement Account: '. $sanity_check_2 .' - Should be: 1275', __FILE__, __LINE__, __METHOD__, 10);
+			if ( $sanity_check_2 !== 1275 ) {
+				Debug::Text('Failed Sanity Check 1', __FILE__, __LINE__, __METHOD__, 10);
+				return FALSE;
+			}
+			unset($sanity_check_2);
+		}
 
 		$retval = $this->padLine( implode('', $line), 1464 );
 
@@ -737,7 +789,7 @@ class EFT_File_Format_1464 Extends EFT {
 			return FALSE;
 		}
 
-		$i=2;
+		$i = 2;
 		foreach ( $this->data as $key => $record ) {
 			//Debug::Arr($record, 'Record Object:', __FILE__, __LINE__, __METHOD__, 10);
 
@@ -747,7 +799,7 @@ class EFT_File_Format_1464 Extends EFT {
 			$line[] = $this->padRecord( $this->getOriginatorID(), 10, 'AN');
 			$line[] = $this->padRecord( $this->getFileCreationNumber(), 4, 'N');
 
-			$line[] = $this->padRecord($record->getCPACode(), 3, 'N');
+			$line[] = $this->padRecord( $record->getCPACode(), 3, 'N');
 			$line[] = $this->padRecord( $this->removeDecimal( $record->getAmount() ), 10, 'N');
 
 			$line[] = $this->padRecord( $this->toJulian( $record->getDueDate() ), 6, 'N');
@@ -766,12 +818,11 @@ class EFT_File_Format_1464 Extends EFT {
 			}
 			unset($sanity_check_1);
 
-			$line[] = $this->padRecord($record->getOriginatorShortName(), 15, 'AN');
-			$line[] = $this->padRecord($record->getName(), 30, 'AN');
-			$line[] = $this->padRecord($record->getOriginatorLongName(), 30, 'AN');
+			$line[] = $this->padRecord( $record->getOriginatorShortName(), 15, 'AN');
+			$line[] = $this->padRecord( $record->getName(), 30, 'AN');
 
+			$line[] = $this->padRecord( $record->getOriginatorLongName(), 30, 'AN');
 			$line[] = $this->padRecord( $this->getOriginatorID(), 10, 'AN');
-
 			$line[] = $this->padRecord( $record->getOriginatorReferenceNumber(), 19, 'AN');
 
 			$line[] = '0'.$this->padRecord( $record->getReturnInstitution(), 3, 'N').$this->padRecord( $record->getReturnTransit(), 5, 'N');
@@ -787,7 +838,11 @@ class EFT_File_Format_1464 Extends EFT {
 
 			$line[] = $this->padRecord( NULL, 15, 'AN'); //Originators Sundry Info. -- Blank
 			$line[] = $this->padRecord( NULL, 22, 'AN'); //Stored Trace Number -- Blank
-			$line[] = $this->padRecord( NULL, 2, 'AN'); //Settlement Code -- Blank
+			if ( $this->getOtherData('cibc_settlement_account') !== FALSE ) {
+				$line[] = $this->padRecord( '01', 2, 'AN'); //Settlement Code, always '01'
+			} else {
+				$line[] = $this->padRecord( NULL, 2, 'AN'); //Settlement Code -- Blank
+			}
 			$line[] = $this->padRecord( NULL, 11, 'N'); //Invalid Data Element, must be 0's for HSBC to accept it -- Blank
 
 			$sanity_check_3 = strlen( implode('', $line) );
@@ -825,7 +880,7 @@ class EFT_File_Format_1464 Extends EFT {
 		$line[] = 'Z'; //Z Record
 
 		//$line[] = '000000001'; //Z Record number
-		$line[] = $this->padRecord( count($this->data)+2, 9, 'N'); //add 2, 1 for the A record, and 1 for the Z record.
+		$line[] = $this->padRecord( (count($this->data) + 2), 9, 'N'); //add 2, 1 for the A record, and 1 for the Z record.
 
 		$line[] = $this->padRecord( $this->getOriginatorID(), 10, 'AN');
 		$line[] = $this->padRecord( $this->getFileCreationNumber(), 4, 'N');
@@ -866,18 +921,14 @@ class EFT_File_Format_1464 Extends EFT {
 
 	function _compile() {
 		//Processes all the data, padding it, converting dates to julian, incrementing
-        //record numbers.
+		//record numbers.
 
 		$compiled_data = $this->compileHeader();
 		$compiled_data .= @implode('', $this->compileRecords() );
 		$compiled_data .= $this->compileFooter();
 
 		//Make sure the length of at least 3 records exists.
-		if ( strlen( $compiled_data ) >= (1464 * 1) ) {
-			//$this->compiled_data = $compiled_data;
-
-			//return TRUE;
-
+		if ( strlen( $compiled_data ) >= 1464 ) {
 			return $compiled_data;
 		}
 
@@ -897,7 +948,7 @@ class EFT_File_Format_105 Extends EFT {
 	var $data = NULL;
 
 	function __construct( $header_data, $data ) {
-		Debug::Text(' EFT_Format_105 Contruct... ', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text(' EFT_Format_105 Contruct... ', __FILE__, __LINE__, __METHOD__, 10);
 
 		$this->header_data = $header_data;
 		$this->data = $data;
@@ -953,7 +1004,7 @@ class EFT_File_Format_105 Extends EFT {
 			return FALSE;
 		}
 
-		$i=2;
+		$i = 2;
 		foreach ( $this->data as $key => $record ) {
 			//Debug::Arr($record, 'Record Object:', __FILE__, __LINE__, __METHOD__, 10);
 
@@ -1043,7 +1094,7 @@ class EFT_File_Format_105 Extends EFT {
 
 	function _compile() {
 		//Processes all the data, padding it, converting dates to julian, incrementing
-        //record numbers.
+		//record numbers.
 
 		$compiled_data = $this->compileHeader();
 		$compiled_data .= $this->compileCustomerHeader();
@@ -1069,7 +1120,7 @@ class EFT_File_Format_HSBC Extends EFT {
 	var $data = NULL;
 
 	function __construct( $data ) {
-		Debug::Text(' EFT_Format_HSBC Contruct... ', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text(' EFT_Format_HSBC Contruct... ', __FILE__, __LINE__, __METHOD__, 10);
 
 		$this->data = $data;
 
@@ -1084,7 +1135,7 @@ class EFT_File_Format_HSBC Extends EFT {
 			return FALSE;
 		}
 
-		$i=2;
+		$i = 2;
 		foreach ( $this->data as $key => $record ) {
 			//Debug::Arr($record, 'Record Object:', __FILE__, __LINE__, __METHOD__, 10);
 			if ( $record->getType() == 'D' ) {
@@ -1180,7 +1231,7 @@ class EFT_File_Format_ACH Extends EFT {
 	protected $batch_number = 1;
 
 	function __construct( $header_data, $data ) {
-		Debug::Text(' EFT_Format_ACH Contruct... ', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text(' EFT_Format_ACH Contruct... ', __FILE__, __LINE__, __METHOD__, 10);
 
 		$this->header_data = $header_data;
 		$this->data = $data;
@@ -1197,11 +1248,11 @@ class EFT_File_Format_ACH Extends EFT {
 		$line[] = $this->padRecord( date('ymd', $this->getFileCreationDate() ), 6, 'N');
 		$line[] = $this->padRecord( date('Hi', $this->getFileCreationDate() ), 4, 'N');
 
-		$line[] = $this->padRecord( 0 , 1, 'N'); //0-9, input file ID modifier
+		$line[] = $this->padRecord( 0, 1, 'N'); //0-9, input file ID modifier
 
-		$line[] = $this->padRecord( 94 , 3, 'N'); //94 byte records
-		$line[] = $this->padRecord( 10 , 2, 'N'); //Blocking factor
-		$line[] = $this->padRecord( 1 , 1, 'N'); //Format code
+		$line[] = $this->padRecord( 94, 3, 'N'); //94 byte records
+		$line[] = $this->padRecord( 10, 2, 'N'); //Blocking factor
+		$line[] = $this->padRecord( 1, 1, 'N'); //Format code
 
 		$line[] = $this->padRecord( strtoupper( $this->getDataCenterName() ), 23, 'AN'); //Immidiate destination name. Optional
 		$line[] = $this->padRecord( strtoupper( $this->getOriginatorShortName() ), 23, 'AN'); //Company Short Name. Optional
@@ -1226,7 +1277,7 @@ class EFT_File_Format_ACH Extends EFT {
 		$line[] = $this->padRecord( strtoupper( $this->getOriginatorShortName() ), 16, 'AN'); //Company Short Name
 		$line[] = $this->padRecord( '', 20, 'AN'); //Discretionary Data
 		$line[] = $this->padRecord( $this->getBusinessNumber(), 10, 'N'); //Company Identification - Recommend IRS Federal Tax ID Number
-		$line[] = $this->padRecord( 'PPD', 3, 'AN'); //Standard Entry Class. (PPD, CCD,CTX,TEL,WEB)
+		$line[] = $this->padRecord( 'PPD', 3, 'AN'); //Standard Entry Class. (PPD, CCD, CTX, TEL, WEB)
 		$line[] = $this->padRecord( 'PAYROLL', 10, 'AN'); //Entry Description
 		$line[] = $this->padRecord( date('ymd', $this->getFileCreationDate() ), 6, 'N'); //Date
 		$line[] = $this->padRecord( date('ymd', $due_date ), 6, 'N'); //Date to post funds.
@@ -1278,8 +1329,8 @@ class EFT_File_Format_ACH Extends EFT {
 			return FALSE;
 		}
 
-		$i=1;
-		$max=count($this->data);
+		$i = 1;
+		$max = count($this->data);
 		$prev_due_date = FALSE;
 		$batch_amount = 0;
 		$batch_record_count = 1;
@@ -1301,15 +1352,15 @@ class EFT_File_Format_ACH Extends EFT {
 			}
 			$line[] = $this->padRecord( $transaction_type, 2, 'N'); //Transaction code - 22=Deposit destined for checking account, 32=Deposit destined for savings account
 
-			$line[] = $this->padRecord( substr($record->getTransit(),0,8), 8, 'N'); //Transit
-			$line[] = $this->padRecord( substr($record->getTransit(),-1,1), 1, 'AN'); //Check Digit
+			$line[] = $this->padRecord( substr($record->getTransit(), 0, 8), 8, 'N'); //Transit
+			$line[] = $this->padRecord( substr($record->getTransit(), -1, 1), 1, 'AN'); //Check Digit
 			$line[] = $this->padRecord( $record->getAccount(), 17, 'AN'); //Account number
 			$line[] = $this->padRecord( $this->removeDecimal( $record->getAmount() ), 10, 'N'); //Amount
 			$line[] = $this->padRecord( $record->getOriginatorReferenceNumber(), 15, 'AN'); //transaction identification number
 			$line[] = $this->padRecord( $record->getName(), 22, 'AN'); //Name of receiver
 			$line[] = $this->padRecord( '', 2, 'AN'); //discretionary data
 			$line[] = $this->padRecord( 0, 1, 'N'); //Addenda record indicator
-			$line[] = $this->padRecord( $this->getInitialEntryNumber() . str_pad( $i, ( 15-strlen($this->getInitialEntryNumber()) ), 0, STR_PAD_LEFT), 15, 'N'); //Trace number. Bank assigns?
+			$line[] = $this->padRecord( $this->getInitialEntryNumber() . str_pad( $i, ( 15 - strlen($this->getInitialEntryNumber() ) ), 0, STR_PAD_LEFT), 15, 'N'); //Trace number. Bank assigns?
 
 			$d_record = $this->padLine( implode('', $line), 94 );
 
@@ -1317,13 +1368,13 @@ class EFT_File_Format_ACH Extends EFT {
 
 			$batch_amount += $record->getAmount();
 			$prev_due_date = $record->getDueDate();
-			$batch_hash += substr($record->getTransit(),0,8);
-			Debug::Text('PPD Record:'. $d_record .' - DueDate: '. $record->getDueDate() .' Batch Amount: '. $batch_amount .' Length: '. strlen($d_record) .' Hash1: '. substr($record->getTransit(),0,8) .' Hash2: '. $batch_hash, __FILE__, __LINE__, __METHOD__, 10);
+			$batch_hash += substr($record->getTransit(), 0, 8);
+			Debug::Text('PPD Record:'. $d_record .' - DueDate: '. $record->getDueDate() .' Batch Amount: '. $batch_amount .' Length: '. strlen($d_record) .' Hash1: '. substr($record->getTransit(), 0, 8) .' Hash2: '. $batch_hash, __FILE__, __LINE__, __METHOD__, 10);
 
 			//Add BatchControl Record Here
 			if ( $i == $max ) {
 				$retval[] = $this->compileBatchControl( $record->getType(), $batch_record_count, $batch_amount, $batch_hash );
-			} elseif ( isset($this->data[$key+1]) AND $prev_due_date == FALSE OR $prev_due_date != $this->data[$key+1]->getDueDate() ) {
+			} elseif ( isset($this->data[($key + 1)]) AND $prev_due_date == FALSE OR $prev_due_date != $this->data[($key + 1)]->getDueDate() ) {
 				//Because each batch only has a due date, only start a new batch if the DueDate changes.
 				//Add batch record here
 				//Close the previous batch before starting a new one.
@@ -1363,11 +1414,11 @@ class EFT_File_Format_ACH Extends EFT {
 		foreach ( $this->data as $key => $record ) {
 			if ( $record->getType() == 'D' ) {
 				$d_record_total += $record->getAmount();
-				$hash_total += substr($record->getTransit(),0,8);
+				$hash_total += substr($record->getTransit(), 0, 8);
 				$d_record_count++;
 			} elseif ( $record->getType() == 'C' ) {
 				$c_record_total += $record->getAmount();
-				$hash_total += substr($record->getTransit(),0,8);
+				$hash_total += substr($record->getTransit(), 0, 8);
 				$c_record_count++;
 			}
 		}
@@ -1375,16 +1426,16 @@ class EFT_File_Format_ACH Extends EFT {
 		Debug::Text('File Hash:'. $hash_total, __FILE__, __LINE__, __METHOD__, 10);
 
 		$line[] = '9'; //9 Record
-		$line[] = $this->padRecord( $this->batch_number-1, 6, 'N'); //Total number of batches
+		$line[] = $this->padRecord( ($this->batch_number - 1), 6, 'N'); //Total number of batches
 
 		/*
 		Total count of output lines, including the first and last lines, divided by 10,
-         rounded up to the nearest integer e.g. 99.9 becomes 100); 6 columns, zero-padded on
-         the left.
+		rounded up to the nearest integer e.g. 99.9 becomes 100); 6 columns, zero-padded on
+		the left.
 		*/
-		$line[] = $this->padRecord( round( ((($c_record_count+$d_record_count)*2)+2)/10 ), 6, 'N'); //Block count?!?!
+		$line[] = $this->padRecord( round( ((($c_record_count + $d_record_count) * 2) + 2) / 10 ), 6, 'N'); //Block count?!?!
 
-		$line[] = $this->padRecord( $c_record_count+$d_record_count, 8, 'N'); //Total entry count
+		$line[] = $this->padRecord( ($c_record_count + $d_record_count), 8, 'N'); //Total entry count
 
 		$line[] = $this->padRecord( $hash_total, 10, 'N'); //Entry hash
 		$line[] = $this->padRecord( $this->removeDecimal( $d_record_total ), 12, 'N'); //Total Debit Amount
@@ -1402,7 +1453,7 @@ class EFT_File_Format_ACH Extends EFT {
 
 	function _compile() {
 		//Processes all the data, padding it, converting dates to julian, incrementing
-        //record numbers.
+		//record numbers.
 
 		$compiled_data = $this->compileFileHeader();
 		$compiled_data .= @implode('', $this->compileRecords() );
@@ -1427,7 +1478,7 @@ class EFT_File_Format_BEANSTREAM Extends EFT {
 	var $data = NULL;
 
 	function __construct( $data ) {
-		Debug::Text(' EFT_Format_BEANSTREAM Contruct... ', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text(' EFT_Format_BEANSTREAM Contruct... ', __FILE__, __LINE__, __METHOD__, 10);
 
 		$this->data = $data;
 

@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 8371 $
- * $Id: NE.class.php 8371 2012-11-22 21:18:57Z ipso $
- * $Date: 2012-11-22 13:18:57 -0800 (Thu, 22 Nov 2012) $
- */
+
 
 /**
  * @package PayrollDeduction\US
@@ -45,7 +41,10 @@
 class PayrollDeduction_US_NE extends PayrollDeduction_US {
 
 	var $state_options = array(
-								1262332800 => array( //01-Jan-2010: Formula changed.
+								1357027200 => array( // 01-Jan-2013
+													'allowance' => 1900
+												   ),
+								1262332800 => array( //01-Jan-2010: Formula changed, this is no longer used.
 													'allowance' => 118
 													),
 								1199174400 => array( //01-Jan-2008
@@ -65,10 +64,13 @@ class PayrollDeduction_US_NE extends PayrollDeduction_US {
 
 	function getStateAnnualTaxableIncome() {
 		$annual_income = $this->getAnnualTaxableIncome();
-		//$state_allowance = $this->getStateAllowanceAmount();
 
-		//$income = bcsub( $annual_income, $state_allowance );
-		$income = $annual_income;
+		if ( $this->getDate() >= strtotime('01-Jan-2013') ) {
+			$state_allowance = $this->getStateAllowanceAmount();
+			$income = bcsub( $annual_income, $state_allowance );
+		} else {
+			$income = $annual_income;
+		}
 
 		Debug::text('State Annual Taxable Income: '. $income, __FILE__, __LINE__, __METHOD__, 10);
 
@@ -103,7 +105,9 @@ class PayrollDeduction_US_NE extends PayrollDeduction_US {
 			$retval = bcadd( bcmul( bcsub( $annual_income, $state_rate_income ), $rate ), $state_constant );
 			Debug::text('aState Annual Tax Payable: '. $retval, __FILE__, __LINE__, __METHOD__, 10);
 
-			$retval = bcsub( $retval, $this->getStateAllowanceAmount() );
+			if ( $this->getDate() < strtotime('01-Jan-2013') ) {
+				$retval = bcsub( $retval, $this->getStateAllowanceAmount() );
+			}
 		}
 
 		if ( $retval < 0 ) {

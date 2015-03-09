@@ -2,12 +2,14 @@
 /**
  * HTML/JavaScript Generation Helper
  *
+ * SVN Rev: $Id$
+ *
  * @category   HTML
  * @package    AJAX
  * @author     Joshua Eichorn <josh@bluga.net>
  * @copyright  2005 Joshua Eichorn
  * @license    http://www.opensource.org/licenses/lgpl-license.php  LGPL
- * @version    Release: 0.5.2
+ * @version    Release: 0.5.6
  */
 
 /**
@@ -18,7 +20,7 @@
  * @author     Joshua Eichorn <josh@bluga.net>
  * @copyright  2005 Joshua Eichorn
  * @license    http://www.opensource.org/licenses/lgpl-license.php  LGPL
- * @version    Release: 0.5.2
+ * @version    Release: 0.5.6
  * @link       http://pear.php.net/package/HTML_AJAX
  */
 class HTML_AJAX_Helper 
@@ -40,6 +42,11 @@ class HTML_AJAX_Helper
 	 */
 	var $stubs = array();
 
+    /**
+     *  Combine jsLibraries into a single require and remove duplicates
+     */
+    var $combineJsIncludes = false;
+
 	/**
 	 * Include all needed libraries, stubs, and set defaultServer
 	 *
@@ -48,24 +55,41 @@ class HTML_AJAX_Helper
 	function setupAJAX() 
 	{
 		$libs = array(0=>array());
+        $combinedLibs = array();
+
+        $this->jsLibraries = array_unique($this->jsLibraries);
 		foreach($this->jsLibraries as $library) {
 			if (is_array($library)) {
+                $library = array_unique($library);
+                $combinedLibs = array_merge($combinedLibs,$library);
 				$libs[] = implode(',',$library);
 			}
 			else {
 				$libs[0][] = $library;
+                $combinedLibs[] = $library;
 			}
 		}
 		$libs[0] = implode(',',$libs[0]);
 
+        $sep = '?';
+        if (strstr($this->serverUrl,'?')) {
+            $sep = '&';
+        }
+
 		$ret = '';
-		foreach($libs as $list) {
-			$ret .= "<script type='text/javascript' src='{$this->serverUrl}?client={$list}'></script>\n";
-		}
+        if ($this->combineJsIncludes == true) {
+            $list = implode(',',$combinedLibs);
+            $ret .= "<script type='text/javascript' src='{$this->serverUrl}{$sep}client={$list}'></script>\n";
+        } 
+        else {
+            foreach($libs as $list) {
+                $ret .= "<script type='text/javascript' src='{$this->serverUrl}{$sep}client={$list}'></script>\n";
+            }
+        }
 
 		if (count($this->stubs) > 0) {
 			$stubs = implode(',',$this->stubs);
-			$ret .= "<script type='text/javascript' src='{$this->serverUrl}?stub={$stubs}'></script>\n";
+			$ret .= "<script type='text/javascript' src='{$this->serverUrl}{$sep}stub={$stubs}'></script>\n";
 		}
 		$ret .= $this->encloseInScript('HTML_AJAX.defaultServerUrl = '.$this->escape($this->serverUrl));
 		return $ret;

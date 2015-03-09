@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2286 $
- * $Id: CA.class.php 2286 2008-12-12 23:12:41Z ipso $
- * $Date: 2008-12-12 15:12:41 -0800 (Fri, 12 Dec 2008) $
- */
+
 
 include_once( 'CA.class.php' );
 
@@ -130,6 +126,22 @@ class GovernmentForms_CA_T4 extends GovernmentForms_CA {
 		return TRUE;
 	}
 
+	public function getPreCalcFunction( $name ) {
+		$variable_function_map = array(
+										'l24' => 'preCalcL24',
+										'l26' => 'preCalcL26',
+										'ei_exempt' => 'preCalcEIExempt',
+										'cpp_exempt' => 'preCalcCPPExempt',
+										'ppip_exempt' => 'preCalcPPIPExempt',
+						  );
+
+		if ( isset($variable_function_map[$name]) ) {
+			return $variable_function_map[$name];
+		}
+
+		return FALSE;
+	}
+
 	public function getFilterFunction( $name ) {
 		$variable_function_map = array(
 										'year' => 'isNumeric',
@@ -186,6 +198,7 @@ class GovernmentForms_CA_T4 extends GovernmentForms_CA {
 															),
 									),
 								'payroll_account_number' => array(
+										'function' => array('filterPayrollAccountNumber', 'drawNormal' ),
 										'coordinates' => array(
 															'x' => 52,
 															'y' => 110,
@@ -209,7 +222,7 @@ class GovernmentForms_CA_T4 extends GovernmentForms_CA {
 															),
 									),
 								'cpp_exempt' => array(
-										'function' => array('filterCPPExempt', 'drawCheckBox' ),
+										'function' => array( 'drawCheckBox' ),
 										'coordinates' => array(
 																array(
 																	'x' => 202,
@@ -221,7 +234,7 @@ class GovernmentForms_CA_T4 extends GovernmentForms_CA {
 															),
 									),
 								'ei_exempt' => array(
-										'function' => array('filterEIExempt', 'drawCheckBox' ),
+										'function' => array( 'drawCheckBox' ),
 										'coordinates' => array(
 																array(
 																	'x' => 226,
@@ -233,7 +246,7 @@ class GovernmentForms_CA_T4 extends GovernmentForms_CA {
 															),
 									),
 								'ppip_exempt' => array(
-										'function' => array('filterPPIPExempt', 'drawCheckBox' ),
+										'function' => array( 'drawCheckBox' ),
 										'coordinates' => array(
 																array(
 																	'x' => 252,
@@ -450,7 +463,7 @@ class GovernmentForms_CA_T4 extends GovernmentForms_CA {
 																	),
 											),
 								'l24' => array(
-												'function' =>  array( 'filterL24', 'drawSplitDecimalFloat' ),
+												'function' =>  array( 'drawSplitDecimalFloat' ),
 												'coordinates' => array(
 																	array(
 																		'x' => 483,
@@ -469,7 +482,7 @@ class GovernmentForms_CA_T4 extends GovernmentForms_CA {
 																	),
 											),
 								'l26' => array(
-												'function' => array( 'filterL26', 'drawSplitDecimalFloat' ),
+												'function' => array( 'drawSplitDecimalFloat' ),
 												'coordinates' => array(
 																	array(
 																		'x' => 483,
@@ -732,63 +745,44 @@ class GovernmentForms_CA_T4 extends GovernmentForms_CA {
 		}
 	}
 
-	function filterMiddleName( $value ) {
-		//Return just initial
-		$value = substr( $value, 0, 1);
-		return $value;
-	}
-	function filterAddress( $value ) {
-		//Combine company address for multicell display.
-		$retarr[] = $this->address1;
-		if ( $this->address2 != '' ) {
-			$retarr[] = $this->address2;
-		}
-		$retarr[] = $this->city. ', '.$this->province . ' ' . $this->postal_code;
-
-		return implode("\n", $retarr );
-	}
-
-	function filterL24( $value ) {
-		Debug::Text('EI Earning: '. $value .' Maximum: '. $this->getEIMaximumEarnings(), __FILE__, __LINE__, __METHOD__,10);
+	function preCalcL24( $value, $key, &$array ) {
+		Debug::Text('EI Earning: '. $value .' Maximum: '. $this->getEIMaximumEarnings(), __FILE__, __LINE__, __METHOD__, 10);
 		if ( $value > $this->getEIMaximumEarnings() ) {
 			return $this->getEIMaximumEarnings();
 		}
 
 		return $value;
 	}
-
-	function filterL26( $value ) {
+	function preCalcL26( $value, $key, &$array ) {
 		if ( $value > $this->getCPPMaximumEarnings() ) {
-			return $this->getCPPMaximumEarnings();
+			$value = $this->getCPPMaximumEarnings();
 		}
 
 		return $value;
 	}
-
-	function filterEIExempt( $value ) {
+	function preCalcEIExempt( $value, $key, &$array ) {
 		if ( $value == TRUE ) {
-			$this->l24 = 0;
+			$array['l24'] = 0;
 		}
 
 		return $value;
 	}
-	function filterCPPExempt( $value ) {
+	function preCalcCPPExempt( $value, $key, &$array ) {
 		if ( $value == TRUE ) {
-			$this->l26 = 0;
+			$array['l26'] = 0;
 		}
 
 		return $value;
 	}
-	function filterPPIPExempt( $value ) {
+	function preCalcPPIPExempt( $value, $key, &$array ) {
 		if ( $value == TRUE ) {
-			$this->l56 = 0;
+			$array['l56'] = 0;
 		}
 
 		return $value;
 	}
 
 	function _outputXML() {
-
 		//Maps other income box codes to XML element names.
 		$other_box_code_map = array(
 									30 => 'hm_brd_lodg_amt',
@@ -852,8 +846,8 @@ class GovernmentForms_CA_T4 extends GovernmentForms_CA {
 				if ( $this->filterMiddleName($this->middle_name) != '' ) { $xml->Return->T4->T4Slip[$e]->EMPE_NM->addChild('init', $this->filterMiddleName($this->middle_name) ); }
 
 				$xml->Return->T4->T4Slip[$e]->addChild('EMPE_ADDR'); //Employee Address
-				if ( $this->address1 != '' ) { $xml->Return->T4->T4Slip[$e]->EMPE_ADDR->addChild('addr_l1_txt', substr( $this->address1, 0, 30) ); }
-				if ( $this->address2 != '' ) { $xml->Return->T4->T4Slip[$e]->EMPE_ADDR->addChild('addr_l2_txt', substr( $this->address2, 0, 30) ); }
+				if ( $this->address1 != '' ) { $xml->Return->T4->T4Slip[$e]->EMPE_ADDR->addChild('addr_l1_txt', substr( Misc::stripHTMLSpecialChars( $this->address1 ), 0, 30) ); }
+				if ( $this->address2 != '' ) { $xml->Return->T4->T4Slip[$e]->EMPE_ADDR->addChild('addr_l2_txt', substr( Misc::stripHTMLSpecialChars( $this->address2 ), 0, 30) ); }
 				if ( $this->city != '' ) { $xml->Return->T4->T4Slip[$e]->EMPE_ADDR->addChild('cty_nm', $this->city ); }
 				if ( $this->province != '' ) { $xml->Return->T4->T4Slip[$e]->EMPE_ADDR->addChild('prov_cd', $this->province ); }
 				$xml->Return->T4->T4Slip[$e]->EMPE_ADDR->addChild('cntry_cd', 'CAN' );
@@ -882,8 +876,8 @@ class GovernmentForms_CA_T4 extends GovernmentForms_CA {
 				if ( isset($this->l20) AND is_numeric($this->l20) ) { $xml->Return->T4->T4Slip[$e]->T4_AMT->addChild('rpp_cntrb_amt', $this->MoneyFormat( (float)$this->l20, FALSE ) ); }
 				if ( isset($this->l22) AND is_numeric($this->l22) ) { $xml->Return->T4->T4Slip[$e]->T4_AMT->addChild('itx_ddct_amt', $this->MoneyFormat( (float)$this->l22, FALSE ) ); }
 
-				if ( $this->ei_exempt == FALSE AND isset($this->l24) AND is_numeric($this->l24) ) { $xml->Return->T4->T4Slip[$e]->T4_AMT->addChild('ei_insu_ern_amt', $this->MoneyFormat( $this->filterL24( (float)$this->l24 ), FALSE ) ); }
-				if ( $this->cpp_exempt == FALSE AND isset($this->l26) AND is_numeric($this->l26) ) { $xml->Return->T4->T4Slip[$e]->T4_AMT->addChild('cpp_qpp_ern_amt', $this->MoneyFormat( $this->filterL26( (float)$this->l26 ), FALSE ) ); }
+				if ( $this->ei_exempt == FALSE AND isset($this->l24) AND is_numeric($this->l24) ) { $xml->Return->T4->T4Slip[$e]->T4_AMT->addChild('ei_insu_ern_amt', $this->MoneyFormat( (float)$this->l24, FALSE ) ); }
+				if ( $this->cpp_exempt == FALSE AND isset($this->l26) AND is_numeric($this->l26) ) { $xml->Return->T4->T4Slip[$e]->T4_AMT->addChild('cpp_qpp_ern_amt', $this->MoneyFormat( (float)$this->l26, FALSE ) ); }
 				if ( isset($this->l44) AND is_numeric($this->l44) ) { $xml->Return->T4->T4Slip[$e]->T4_AMT->addChild('unn_dues_amt', $this->MoneyFormat( (float)$this->l44, FALSE ) ); }
 				if ( isset($this->l46) AND is_numeric($this->l46) ) { $xml->Return->T4->T4Slip[$e]->T4_AMT->addChild('chrty_dons_amt', $this->MoneyFormat( (float)$this->l46, FALSE ) ); }
 				if ( isset($this->l52) AND is_numeric($this->l52) ) { $xml->Return->T4->T4Slip[$e]->T4_AMT->addChild('padj_amt', $this->MoneyFormat( (float)$this->l52, FALSE ) ); }
@@ -955,7 +949,7 @@ class GovernmentForms_CA_T4 extends GovernmentForms_CA {
 					}
 				}
 
-				if ( $employees_per_page == 1 OR ( $employees_per_page == 2 AND  $e % $employees_per_page != 0 ) ) {
+				if ( $employees_per_page == 1 OR ( $employees_per_page == 2 AND $e % $employees_per_page != 0 ) ) {
 					$this->resetTemplatePage();
 					if ( $this->getShowInstructionPage() == TRUE ) {
 						$this->addPage( array('template_page' => 2) );

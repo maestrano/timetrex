@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2196 $
- * $Id: APIMessageControl.class.php 2196 2008-10-14 16:08:54Z ipso $
- * $Date: 2008-10-14 09:08:54 -0700 (Tue, 14 Oct 2008) $
- */
+
 
 /**
  * @package API\Message
@@ -60,9 +56,9 @@ class APIMessageControl extends APIFactory {
 	function getOptions( $name, $parent = NULL ) {
 		if ( $name == 'user_columns' ) {
 			$uf = TTnew('UserFactory');
-			if  ( $this->getPermissionObject()->Check('user','enabled') AND $this->getPermissionObject()->Check('user','view') ) {
+			if	( $this->getPermissionObject()->Check('user', 'enabled') AND $this->getPermissionObject()->Check('user', 'view') ) {
 				$retarr = $uf->getOptions('columns');
-			} elseif  ( $this->getPermissionObject()->Check('user','enabled') AND $this->getPermissionObject()->Check('user','view_child') ) {
+			} elseif  ( $this->getPermissionObject()->Check('user', 'enabled') AND $this->getPermissionObject()->Check('user', 'view_child') ) {
 				$retarr = $uf->getOptions('user_child_secure_columns');
 			} else {
 				$retarr = $uf->getOptions('user_secure_columns');
@@ -80,7 +76,7 @@ class APIMessageControl extends APIFactory {
 	function getMessageControlDefaultData() {
 		$company_obj = $this->getCurrentCompanyObject();
 
-		Debug::Text('Getting message_control default data...', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Getting message_control default data...', __FILE__, __LINE__, __METHOD__, 10);
 
 		$next_available_manual_id = MessageControlListFactory::getNextAvailableManualId( $company_obj->getId() );
 
@@ -104,8 +100,8 @@ class APIMessageControl extends APIFactory {
 	 * @return array
 	 */
 	function getMessageControl( $data = NULL, $disable_paging = FALSE ) {
-		if ( !$this->getPermissionObject()->Check('message','enabled')
-				OR !( $this->getPermissionObject()->Check('message','view') OR $this->getPermissionObject()->Check('message','view_own') OR $this->getPermissionObject()->Check('message','view_child')  ) ) {
+		if ( !$this->getPermissionObject()->Check('message', 'enabled')
+				OR !( $this->getPermissionObject()->Check('message', 'view') OR $this->getPermissionObject()->Check('message', 'view_own') OR $this->getPermissionObject()->Check('message', 'view_child')	) ) {
 			return $this->getPermissionObject()->PermissionDenied();
 		}
 		$data = $this->initializeFilterAndPager( $data, $disable_paging );
@@ -142,11 +138,15 @@ class APIMessageControl extends APIFactory {
 	 * @return array
 	 */
 	function getMessage( $data = NULL, $disable_paging = FALSE ) {
-		if ( !$this->getPermissionObject()->Check('message','enabled')
-				OR !( $this->getPermissionObject()->Check('message','view') OR $this->getPermissionObject()->Check('message','view_own') OR $this->getPermissionObject()->Check('message','view_child')  ) ) {
+		if ( !$this->getPermissionObject()->Check('message', 'enabled')
+				OR !( $this->getPermissionObject()->Check('message', 'view') OR $this->getPermissionObject()->Check('message', 'view_own') OR $this->getPermissionObject()->Check('message', 'view_child')	) ) {
 			return $this->getPermissionObject()->PermissionDenied();
 		}
 		$data = $this->initializeFilterAndPager( $data, $disable_paging );
+
+		if ( !isset($data['filter_data']['id']) ) {
+			return $this->returnHandler( TRUE ); //No records returned.
+		}
 
 		$data['filter_data']['current_user_id'] = $this->getCurrentUserObject()->getId();
 
@@ -178,16 +178,43 @@ class APIMessageControl extends APIFactory {
 	 * @return array
 	 */
 	function getEmbeddedMessage( $data = NULL, $disable_paging = FALSE ) {
-		if ( !$this->getPermissionObject()->Check('message','enabled')
-				OR !( $this->getPermissionObject()->Check('message','view') OR $this->getPermissionObject()->Check('message','view_own') OR $this->getPermissionObject()->Check('message','view_child')  ) ) {
+		if ( !$this->getPermissionObject()->Check('message', 'enabled')
+				OR !( $this->getPermissionObject()->Check('message', 'view') OR $this->getPermissionObject()->Check('message', 'view_own') OR $this->getPermissionObject()->Check('message', 'view_child')	) ) {
 			return $this->getPermissionObject()->PermissionDenied();
 		}
 		$data = $this->initializeFilterAndPager( $data, $disable_paging );
 
-		$blf = TTnew( 'MessageControlListFactory' );
-		//$blf->getAPIMessageByCompanyIdAndArrayCriteria( $this->getCurrentCompanyObject()->getId(), $data['filter_data'], $data['filter_items_per_page'], $data['filter_page'], NULL, $data['filter_sort'] );
-		$blf->getByCompanyIDAndUserIdAndObjectTypeAndObject( $this->getCurrentCompanyObject()->getId(), $this->getCurrentUserObject()->getId(), $data['filter_data']['object_type_id'], $data['filter_data']['object_id'] );
+		if ( isset($data['filter_data']['object_type_id']) AND $data['filter_data']['object_type_id'] == 5 ) {
+			Debug::Text('ERROR: Emails cant be embedded!', __FILE__, __LINE__, __METHOD__, 10);
+			return $this->getPermissionObject()->PermissionDenied();
+		}
 
+		$type_to_api_map = $this->getOptions('type_to_api_map');
+		if ( isset($data['filter_data']['object_type_id']) AND isset($type_to_api_map[$data['filter_data']['object_type_id']])
+				AND isset($data['filter_data']['object_id']) ) {
+			$tmp_apif = TTnew( $type_to_api_map[$data['filter_data']['object_type_id']] );
+			$get_function = 'get'. str_replace('API', '', $type_to_api_map[$data['filter_data']['object_type_id']] );
+			Debug::Text('API Class Name: '. $type_to_api_map[$data['filter_data']['object_type_id']] .' GET Function: '. $get_function, __FILE__, __LINE__, __METHOD__, 10);
+
+			if ( method_exists( $tmp_apif, $get_function ) ) {
+				$result = $this->stripReturnHandler( $tmp_apif->$get_function( array('filter_data' => array( 'id' => $data['filter_data']['object_id'] ), 'filter_items_per_page' => 1, 'filter_columns' => array('id' => TRUE) ) ) );
+				if ( !( isset($result[0]) AND count($result[0]) > 0 ) ) {
+					Debug::Text('ERROR: Permission denied, unable to find record for supplied object_id...', __FILE__, __LINE__, __METHOD__, 10);
+					return $this->getPermissionObject()->PermissionDenied();
+				}
+			} else {
+				Debug::Text('ERROR: Object Type ID is invalid...', __FILE__, __LINE__, __METHOD__, 10);
+				return $this->returnHandler( FALSE ); //No records returned.
+			}
+		} else {
+			Debug::Text('Object Type ID not defined...', __FILE__, __LINE__, __METHOD__, 10);
+			//MyAccount -> Document doesn't send object_type_id
+			//return $this->returnHandler( FALSE ); //No records returned.
+		}
+
+
+		$blf = TTnew( 'MessageControlListFactory' );
+		$blf->getByCompanyIDAndUserIdAndObjectTypeAndObject( $this->getCurrentCompanyObject()->getId(), $this->getCurrentUserObject()->getId(), $data['filter_data']['object_type_id'], $data['filter_data']['object_id'] );
 		Debug::Text('Record Count: '. $blf->getRecordCount(), __FILE__, __LINE__, __METHOD__, 10);
 		if ( $blf->getRecordCount() > 0 ) {
 			$this->getProgressBarObject()->start( $this->getAMFMessageID(), $blf->getRecordCount() );
@@ -227,7 +254,7 @@ class APIMessageControl extends APIFactory {
 	}
 
 	/**
-	 * Set message_control data for one or more message_controles.
+	 * Set message_control data for one or more message_controls.
 	 * @param array $data message_control data
 	 * @return array
 	 */
@@ -238,9 +265,9 @@ class APIMessageControl extends APIFactory {
 			return $this->returnHandler( FALSE );
 		}
 
-		if ( !$this->getPermissionObject()->Check('message','enabled')
-				OR !( $this->getPermissionObject()->Check('message','edit') OR $this->getPermissionObject()->Check('message','edit_own') OR $this->getPermissionObject()->Check('message','edit_child') OR $this->getPermissionObject()->Check('message','add') ) ) {
-			return  $this->getPermissionObject()->PermissionDenied();
+		if ( !$this->getPermissionObject()->Check('message', 'enabled')
+				OR !( $this->getPermissionObject()->Check('message', 'edit') OR $this->getPermissionObject()->Check('message', 'edit_own') OR $this->getPermissionObject()->Check('message', 'edit_child') OR $this->getPermissionObject()->Check('message', 'add') ) ) {
+			return	$this->getPermissionObject()->PermissionDenied();
 		}
 
 		if ( $validate_only == TRUE ) {
@@ -261,34 +288,16 @@ class APIMessageControl extends APIFactory {
 				$lf->StartTransaction();
 				if ( isset($row['id']) AND $row['id'] > 0 ) {
 					$primary_validator->isTrue( 'permission', FALSE, TTi18n::gettext('Edit permission denied') );
-/*
-					//Modifying existing object.
-					//Get message_control object, so we can only modify just changed data for specific records if needed.
-					$lf->getByIdAndCompanyId( $row['id'], $this->getCurrentCompanyObject()->getId() );
-					if ( $lf->getRecordCount() == 1 ) {
-						//Object exists, check edit permissions
-						if (
-							  $validate_only == TRUE
-							  OR
-								(
-								$this->getPermissionObject()->Check('message','edit')
-									OR ( $this->getPermissionObject()->Check('message','edit_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE )
-								) ) {
-
-							Debug::Text('Row Exists, getting current data: ', $row['id'], __FILE__, __LINE__, __METHOD__, 10);
-							$lf = $lf->getCurrent();
-							$row = array_merge( $lf->getObjectAsArray(), $row );
-						} else {
-							$primary_validator->isTrue( 'permission', FALSE, TTi18n::gettext('Edit permission denied') );
-						}
-					} else {
-						//Object doesn't exist.
-						$primary_validator->isTrue( 'id', FALSE, TTi18n::gettext('Edit permission denied, record does not exist') );
-					}
-*/
 				} else {
 					//Adding new object, check ADD permissions.
-					$primary_validator->isTrue( 'permission', $this->getPermissionObject()->Check('message','add'), TTi18n::gettext('Add permission denied') );
+					$primary_validator->isTrue( 'permission', $this->getPermissionObject()->Check('message', 'add'), TTi18n::gettext('Add permission denied') );
+					
+					//Security check, make sure any data passed as to_user_id is within the list of users available.
+					if ( !isset($row['to_user_id']) OR is_array($row['to_user_id']) AND count($row['to_user_id']) == 0 ) {
+						$row['to_user_id'] = FALSE;
+					}
+					$row['to_user_id'] = Misc::arrayColumn( $this->stripReturnHandler( $this->getUser( array( 'filter_data' => array( 'id' => (array)$row['to_user_id'] ), 'filter_columns' => array( 'id' => TRUE ) ), TRUE ) ), 'id' );
+					//$row['to_user_id'] = FALSE; //This prevents a message_sender record from being created, and therefore message can't viewed.
 				}
 				Debug::Arr($row, 'Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
@@ -371,16 +380,16 @@ class APIMessageControl extends APIFactory {
 			return $this->returnHandler( FALSE );
 		}
 
-		if ( !$this->getPermissionObject()->Check('message','enabled')
-				OR !( $this->getPermissionObject()->Check('message','delete') OR $this->getPermissionObject()->Check('message','delete_own') OR $this->getPermissionObject()->Check('message','delete_child') ) ) {
-			return  $this->getPermissionObject()->PermissionDenied();
+		if ( !$this->getPermissionObject()->Check('message', 'enabled')
+				OR !( $this->getPermissionObject()->Check('message', 'delete') OR $this->getPermissionObject()->Check('message', 'delete_own') OR $this->getPermissionObject()->Check('message', 'delete_child') ) ) {
+			return	$this->getPermissionObject()->PermissionDenied();
 		}
 
 		Debug::Text('Received data for: '. count($data) .' MessageControls', __FILE__, __LINE__, __METHOD__, 10);
 		Debug::Arr($data, 'Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		$total_records = count($data);
-        $validator_stats = array('total_records' => $total_records, 'valid_records' => 0 );
+		$validator_stats = array('total_records' => $total_records, 'valid_records' => 0 );
 		if ( is_array($data) ) {
 			$this->getProgressBarObject()->start( $this->getAMFMessageID(), $total_records );
 
@@ -405,8 +414,8 @@ class APIMessageControl extends APIFactory {
 
 					if ( $lf->getRecordCount() == 1 ) {
 						//Object exists, check edit permissions
-						if ( $this->getPermissionObject()->Check('message','delete')
-								OR ( $this->getPermissionObject()->Check('message','delete_own') ) ) { //Remove is_owner() checks, as the list factory filter it for us.
+						if ( $this->getPermissionObject()->Check('message', 'delete')
+								OR ( $this->getPermissionObject()->Check('message', 'delete_own') ) ) { //Remove is_owner() checks, as the list factory filter it for us.
 							Debug::Text('Record Exists, deleting record: ', $id, __FILE__, __LINE__, __METHOD__, 10);
 							$lf = $lf->getCurrent();
 						} else {
@@ -509,7 +518,7 @@ class APIMessageControl extends APIFactory {
 	function getUser( $data, $disable_paging = FALSE ) {
 		$data = $this->initializeFilterAndPager( $data, $disable_paging );
 
-		if ( $this->getPermissionObject()->Check('message','send_to_any') ) {
+		if ( $this->getPermissionObject()->Check('message', 'send_to_any') ) {
 			//Show all employees
 			$data['filter_data']['permission_children_ids'] = NULL;
 		} else {
@@ -520,15 +529,15 @@ class APIMessageControl extends APIFactory {
 			// Also how to handle cases where there are no To: recipients to select from.
 
 			//Get Parents
-			$request_parent_level_user_ids = $hlf->getHierarchyParentByCompanyIdAndUserIdAndObjectTypeID( $this->getCurrentCompanyObject()->getId(), $this->getCurrentUserObject()->getId(), array(1010,1020,1030,1040,1100), FALSE, FALSE );
-			//Debug::Arr( $request_parent_level_user_ids, 'Request Parent Level Ids', __FILE__, __LINE__, __METHOD__,10);
+			$request_parent_level_user_ids = $hlf->getHierarchyParentByCompanyIdAndUserIdAndObjectTypeID( $this->getCurrentCompanyObject()->getId(), $this->getCurrentUserObject()->getId(), array(1010, 1020, 1030, 1040, 1100), FALSE, FALSE );
+			//Debug::Arr( $request_parent_level_user_ids, 'Request Parent Level Ids', __FILE__, __LINE__, __METHOD__, 10);
 
 			//Get Children, in case the current user is a superior.
-			$request_child_level_user_ids = $hlf->getHierarchyChildrenByCompanyIdAndUserIdAndObjectTypeID( $this->getCurrentCompanyObject()->getId(), $this->getCurrentUserObject()->getId(), array(1010,1020,1030,1040,1100) );
-			//Debug::Arr( $request_child_level_user_ids, 'Request Child Level Ids', __FILE__, __LINE__, __METHOD__,10);
+			$request_child_level_user_ids = $hlf->getHierarchyChildrenByCompanyIdAndUserIdAndObjectTypeID( $this->getCurrentCompanyObject()->getId(), $this->getCurrentUserObject()->getId(), array(1010, 1020, 1030, 1040, 1100) );
+			//Debug::Arr( $request_child_level_user_ids, 'Request Child Level Ids', __FILE__, __LINE__, __METHOD__, 10);
 
 			$request_user_ids = array_merge( (array)$request_parent_level_user_ids, (array)$request_child_level_user_ids );
-			//Debug::Arr( $request_user_ids, 'User Ids', __FILE__, __LINE__, __METHOD__,10);
+			//Debug::Arr( $request_user_ids, 'User Ids', __FILE__, __LINE__, __METHOD__, 10);
 
 			$data['filter_data']['permission_children_ids'] = $request_user_ids;
 			//Debug::Arr($data['filter_data']['permission_children_ids'], 'Permission Section: '. $permission_section .' Child IDs: ', __FILE__, __LINE__, __METHOD__, 10);
@@ -570,6 +579,7 @@ class APIMessageControl extends APIFactory {
 			return $this->returnHandler( $retarr );
 		}
 
+		return $this->returnHandler( FALSE );
 	}
 
 	/**

@@ -11,21 +11,21 @@ alter table "accrual_policy" rename column maximum to maximum_time;
 alter table "accrual_policy" rename column minimum to minimum_time;
 
 CREATE TABLE accrual_policy_milestone (
-    id serial NOT NULL,
-    accrual_policy_id integer NOT NULL,
+	id serial NOT NULL,
+	accrual_policy_id integer NOT NULL,
 	length_of_service numeric, --set to numeric(9,2) in MYSQL
 	length_of_service_unit_id smallint, --ie: days, weeks,months,years
 	length_of_service_days numeric, --set to numeric(9,2) in MYSQL
 	accrual_rate integer, --seconds
 	minimum_time integer,
 	maximum_time integer,
-    created_date integer,
-    created_by integer,
-    updated_date integer,
-    updated_by integer,
-    deleted_date integer,
-    deleted_by integer,
-    deleted smallint DEFAULT 0 NOT NULL
+	created_date integer,
+	created_by integer,
+	updated_date integer,
+	updated_by integer,
+	deleted_date integer,
+	deleted_by integer,
+	deleted smallint DEFAULT 0 NOT NULL
 );
 
 alter table "policy_group" add column accrual_policy_id integer;

@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 1246 $
- * $Id: UserWageListFactory.class.php 1246 2007-09-14 23:47:42Z ipso $
- * $Date: 2007-09-14 16:47:42 -0700 (Fri, 14 Sep 2007) $
- */
+
 
 /**
  * @package Modules\Users
@@ -46,7 +42,7 @@ class UserIdentificationListFactory extends UserIdentificationFactory implements
 
 	function getAll($limit = NULL, $page = NULL, $where = NULL, $order = NULL) {
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					WHERE deleted = 0';
 		$query .= $this->getWhereSQL( $where );
@@ -69,7 +65,7 @@ class UserIdentificationListFactory extends UserIdentificationFactory implements
 						);
 
 			$query = '
-						select 	*
+						select	*
 						from	'. $this->getTable() .'
 						where	id = ?
 							AND deleted = 0';
@@ -78,7 +74,7 @@ class UserIdentificationListFactory extends UserIdentificationFactory implements
 
 			$this->ExecuteSQL( $query, $ph );
 
-			$this->saveCache($this->rs,$id);
+			$this->saveCache($this->rs, $id);
 		}
 
 		return $this;
@@ -99,8 +95,8 @@ class UserIdentificationListFactory extends UserIdentificationFactory implements
 					);
 
 		$query = '
-					select 	a.*
-					from 	'. $this->getTable() .' as a
+					select	a.*
+					from	'. $this->getTable() .' as a
 					where	a.type_id = ?
 						AND a.value = ?
 						AND a.deleted = 0';
@@ -123,12 +119,12 @@ class UserIdentificationListFactory extends UserIdentificationFactory implements
 					);
 
 		$query = '
-					select 	a.*
-					from 	'. $this->getTable() .' as a,
+					select	a.*
+					from	'. $this->getTable() .' as a,
 							'. $uf->getTable() .' as b
 					where	a.user_id = b.id
 						AND	b.company_id = ?
-						AND ( a.deleted = 0  AND b.deleted = 0) ';
+						AND ( a.deleted = 0	 AND b.deleted = 0) ';
 		$query .= $this->getWhereSQL( $where );
 		$query .= $this->getSortSQL( $order );
 
@@ -154,8 +150,8 @@ class UserIdentificationListFactory extends UserIdentificationFactory implements
 					);
 
 		$query = '
-					select 	a.*
-					from 	'. $this->getTable() .' as a,
+					select	a.*
+					from	'. $this->getTable() .' as a,
 							'. $uf->getTable() .' as b
 					where	a.user_id = b.id
 						AND	b.company_id = ?
@@ -191,8 +187,8 @@ class UserIdentificationListFactory extends UserIdentificationFactory implements
 					);
 
 		$query = '
-					select 	a.*
-					from 	'. $this->getTable() .' as a,
+					select	a.*
+					from	'. $this->getTable() .' as a,
 							'. $uf->getTable() .' as b
 					where	a.user_id = b.id
 						AND	b.company_id = ?
@@ -235,8 +231,8 @@ class UserIdentificationListFactory extends UserIdentificationFactory implements
 		//If the user record is modified, we have to consider the identification record to be modified as well,
 		//otherwise a terminated employee re-hired will not have their old prox/fingerprint records put back on the clock.
 		$query = '
-					select 	a.*
-					from 	'. $this->getTable() .' as a,
+					select	a.*
+					from	'. $this->getTable() .' as a,
 							'. $uf->getTable() .' as b
 					where	a.user_id = b.id
 						AND	b.company_id = ?
@@ -253,15 +249,15 @@ class UserIdentificationListFactory extends UserIdentificationFactory implements
 				$ph[] = (int)$date;
 				$ph[] = (int)$date;
 				$ph[] = (int)$date;
-				$query  .=	' 	( ( a.created_date >= ? OR a.updated_date >= ? ) OR ( b.created_date >= ? OR b.updated_date >= ? ) ) ';
+				$query	.=	'	( ( a.created_date >= ? OR a.updated_date >= ? ) OR ( b.created_date >= ? OR b.updated_date >= ? ) ) ';
 			}
 
-			//Valid USER IDs is an "OR", so if any IDs are specified they should *always* be included ,regardless of the $date variable.
+			//Valid USER IDs is an "OR", so if any IDs are specified they should *always* be included, regardless of the $date variable.
 			if ( isset($valid_user_ids) AND is_array($valid_user_ids) AND count($valid_user_ids) > 0 ) {
 				if ( isset($date) AND $date > 0 ) {
 					$query .= ' OR ';
 				}
-				$query  .=	' a.user_id in ('. $this->getListSQL($valid_user_ids, $ph) .') ';
+				$query	.=	' a.user_id in ('. $this->getListSQL($valid_user_ids, $ph) .') ';
 			}
 
 			$query .= ' ) ';
@@ -298,8 +294,8 @@ class UserIdentificationListFactory extends UserIdentificationFactory implements
 					);
 
 		$query = '
-					select 	a.*
-					from 	'. $this->getTable() .' as a,
+					select	a.*
+					from	'. $this->getTable() .' as a,
 							'. $uf->getTable() .' as b
 					where	a.user_id = b.id
 						AND	b.company_id = ?
@@ -323,7 +319,7 @@ class UserIdentificationListFactory extends UserIdentificationFactory implements
 					);
 
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					where	user_id = ?
 						AND deleted = 0';
@@ -355,7 +351,7 @@ class UserIdentificationListFactory extends UserIdentificationFactory implements
 					);
 
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					where	user_id = ?
 						AND type_id in ('. $this->getListSQL($type_id, $ph) .')
@@ -387,7 +383,7 @@ class UserIdentificationListFactory extends UserIdentificationFactory implements
 					);
 
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					where	user_id = ?
 						AND type_id = ?
@@ -427,8 +423,8 @@ class UserIdentificationListFactory extends UserIdentificationFactory implements
 					);
 
 		$query = '
-					select 	a.*
-					from 	'. $this->getTable() .' as a,
+					select	a.*
+					from	'. $this->getTable() .' as a,
 							'. $uf->getTable() .' as b
 					where	a.user_id = b.id
 						AND	b.company_id = ?
@@ -463,7 +459,7 @@ class UserIdentificationListFactory extends UserIdentificationFactory implements
 					);
 
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					where	user_id = ?
 						AND type_id = ?
@@ -493,7 +489,7 @@ class UserIdentificationListFactory extends UserIdentificationFactory implements
 
 		//INCLUDE Deleted rows in this query.
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					where	user_id = ?
 						AND
@@ -503,10 +499,10 @@ class UserIdentificationListFactory extends UserIdentificationFactory implements
 
 		$this->ExecuteSQL( $query, $ph );
 		if ( $this->getRecordCount() > 0 ) {
-			Debug::text('User Identification rows have been modified: '. $this->getRecordCount(), __FILE__, __LINE__, __METHOD__,10);
+			Debug::text('User Identification rows have been modified: '. $this->getRecordCount(), __FILE__, __LINE__, __METHOD__, 10);
 			return TRUE;
 		}
-		Debug::text('User Identification rows have NOT been modified', __FILE__, __LINE__, __METHOD__,10);
+		Debug::text('User Identification rows have NOT been modified', __FILE__, __LINE__, __METHOD__, 10);
 		return FALSE;
 	}
 
@@ -533,7 +529,7 @@ class UserIdentificationListFactory extends UserIdentificationFactory implements
 		//If the user record is modified, we have to consider the identification record to be modified as well,
 		//otherwise a terminated employee re-hired will not have their old prox/fingerprint records put back on the clock.
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .' as a
 					LEFT JOIN '. $uf->getTable() .' as b ON a.user_id = b.id
 					where	b.company_id = ?
@@ -544,10 +540,10 @@ class UserIdentificationListFactory extends UserIdentificationFactory implements
 
 		$this->ExecuteSQL( $query, $ph );
 		if ( $this->getRecordCount() > 0 ) {
-			Debug::text('User Identification rows have been modified: '. $this->getRecordCount(), __FILE__, __LINE__, __METHOD__,10);
+			Debug::text('User Identification rows have been modified: '. $this->getRecordCount(), __FILE__, __LINE__, __METHOD__, 10);
 			return TRUE;
 		}
-		Debug::text('User Identification rows have NOT been modified', __FILE__, __LINE__, __METHOD__,10);
+		Debug::text('User Identification rows have NOT been modified', __FILE__, __LINE__, __METHOD__, 10);
 		return FALSE;
 	}
 
@@ -574,7 +570,7 @@ class UserIdentificationListFactory extends UserIdentificationFactory implements
 					);
 
 		$query = '
-					select 	*
+					select	*
 					from	'. $uf->getTable() .' as a,
 							'. $this->getTable() .' as b
 					where	a.id = b.user_id

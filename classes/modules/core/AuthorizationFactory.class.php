@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 9521 $
- * $Id: AuthorizationFactory.class.php 9521 2013-04-08 23:09:52Z ipso $
- * $Date: 2013-04-08 16:09:52 -0700 (Mon, 08 Apr 2013) $
- */
+
 
 /**
  * @package Core
@@ -67,7 +63,7 @@ class AuthorizationFactory extends Factory {
 										//59 => 'request_schedule',
 										90 => 'timesheet',
 
-                                        200 => 'expense',
+										200 => 'expense',
 
 										//50 => 'request', //request_other
 										1010 => 'request_punch',
@@ -147,20 +143,20 @@ class AuthorizationFactory extends Factory {
 			$object_user_id = $current_obj->getUser();
 
 			if ( $object_user_id > 0 ) {
-				Debug::Text(' Authorizing User ID: '. $user_id , __FILE__, __LINE__, __METHOD__,10);
-				Debug::Text(' Object User ID: '. $object_user_id , __FILE__, __LINE__, __METHOD__,10);
+				Debug::Text(' Authorizing User ID: '. $user_id, __FILE__, __LINE__, __METHOD__, 10);
+				Debug::Text(' Object User ID: '. $object_user_id, __FILE__, __LINE__, __METHOD__, 10);
 
 				$ulf = TTnew( 'UserListFactory' );
 				$company_id = $ulf->getById( $object_user_id )->getCurrent()->getCompany();
-				Debug::Text(' Company ID: '. $company_id , __FILE__, __LINE__, __METHOD__,10);
+				Debug::Text(' Company ID: '. $company_id, __FILE__, __LINE__, __METHOD__, 10);
 
 				$hlf = TTnew( 'HierarchyListFactory' );
 				$this->hierarchy_parent_arr = $hlf->getHierarchyParentByCompanyIdAndUserIdAndObjectTypeID( $company_id, $object_user_id, $this->getObjectType(), FALSE);
 
-				Debug::Arr($this->hierarchy_parent_arr, ' Parent Arr: ', __FILE__, __LINE__, __METHOD__,10);
+				Debug::Arr($this->hierarchy_parent_arr, ' Parent Arr: ', __FILE__, __LINE__, __METHOD__, 10);
 				return $this->hierarchy_parent_arr;
 			} else {
-				Debug::Text(' Could not find Object User ID: '. $user_id , __FILE__, __LINE__, __METHOD__,10);
+				Debug::Text(' Could not find Object User ID: '. $user_id, __FILE__, __LINE__, __METHOD__, 10);
 			}
 		}
 
@@ -183,7 +179,7 @@ class AuthorizationFactory extends Factory {
 		}
 
 		if ( $retval < 1 ) {
-			Debug::Text(' ERROR, hierarchy level goes past 1... This shouldnt happen...', __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text(' ERROR, hierarchy level goes past 1... This shouldnt happen...', __FILE__, __LINE__, __METHOD__, 10);
 			$retval = FALSE;
 		}
 
@@ -201,7 +197,7 @@ class AuthorizationFactory extends Factory {
 			}
 		}
 
-		Debug::Text(' Authorizing User is not a parent of the object owner: ', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text(' Authorizing User is not a parent of the object owner: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		return FALSE;
 	}
@@ -211,13 +207,13 @@ class AuthorizationFactory extends Factory {
 		$parent_arr = $this->getHierarchyParentArray();
 		if ( is_array($parent_arr) AND count($parent_arr) > 0 ) {
 			//Check that level 1 parent exists
-			if ( isset($parent_arr[1]) 	AND in_array( $user_id, $parent_arr[1] ) ) {
-				Debug::Text(' Final Authorization!', __FILE__, __LINE__, __METHOD__,10);
+			if ( isset($parent_arr[1]) AND in_array( $user_id, $parent_arr[1] ) ) {
+				Debug::Text(' Final Authorization!', __FILE__, __LINE__, __METHOD__, 10);
 				return TRUE;
 			}
 		}
 
-		Debug::Text(' NOT Final Authorization!', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text(' NOT Final Authorization!', __FILE__, __LINE__, __METHOD__, 10);
 		return FALSE;
 	}
 
@@ -230,9 +226,9 @@ class AuthorizationFactory extends Factory {
 				case 90: //TimeSheet
 					$this->obj_handler = TTnew( 'PayPeriodTimeSheetVerifyListFactory' );
 					break;
-                case 200:
-                    $this->obj_handler = TTnew( 'UserExpenseListFactory' );
-                    break;
+				case 200:
+					$this->obj_handler = TTnew( 'UserExpenseListFactory' );
+					break;
 				case 50: //Requests
 				case 1010:
 				case 1020:
@@ -248,13 +244,17 @@ class AuthorizationFactory extends Factory {
 	}
 
 	function getObjectType() {
-		return $this->data['object_type_id'];
+		if ( isset($this->data['object_type_id']) ) {
+			return (int)$this->data['object_type_id'];
+		}
+
+		return FALSE;
 	}
 	function setObjectType($type) {
 		$type = trim($type);
 
 		// i18n: passing 3rd param as false because object_type options do not use gettext
-		$key = Option::getByValue($type, $this->getOptions('object_type'), false );
+		$key = Option::getByValue($type, $this->getOptions('object_type'), FALSE );
 		if ($key !== FALSE) {
 			$type = $key;
 		}
@@ -274,7 +274,7 @@ class AuthorizationFactory extends Factory {
 
 	function getObject() {
 		if ( isset($this->data['object_id']) ) {
-			return $this->data['object_id'];
+			return (int)$this->data['object_id'];
 		}
 
 		return FALSE;
@@ -300,7 +300,7 @@ class AuthorizationFactory extends Factory {
 	function setAuthorized($bool) {
 		$this->data['authorized'] = $this->toBool($bool);
 
-		return true;
+		return TRUE;
 	}
 
 	function clearHistory() {
@@ -335,14 +335,14 @@ class AuthorizationFactory extends Factory {
 	}
 
 	function preSave() {
-		//Debug::Text(' Calling preSave!: ', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Text(' Calling preSave!: ', __FILE__, __LINE__, __METHOD__, 10);
 		$this->StartTransaction();
 
 		return TRUE;
 	}
 
 	function postSave() {
-		//Debug::Text(' Post Save: ', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Text(' Post Save: ', __FILE__, __LINE__, __METHOD__, 10);
 		if ( $this->getDeleted() == FALSE ) {
 			$is_final_authorization = $this->isFinalAuthorization();
 
@@ -351,31 +351,31 @@ class AuthorizationFactory extends Factory {
 			$current_obj = $this->getObjectHandler()->getCurrent();
 			if ( $this->getAuthorized() === TRUE ) {
 				if ( $is_final_authorization === TRUE ) {
-					Debug::Text('  Approving Authorization... Final Authorizing Object: '. $this->getObject() .' - Type: '. $this->getObjectType(), __FILE__, __LINE__, __METHOD__,10);
+					Debug::Text('  Approving Authorization... Final Authorizing Object: '. $this->getObject() .' - Type: '. $this->getObjectType(), __FILE__, __LINE__, __METHOD__, 10);
 					$current_obj->setAuthorizationLevel( 1 );
 					$current_obj->setStatus(50); //Active/Authorized
 					$current_obj->setAuthorized(TRUE);
 				} else {
-					Debug::text('  Approving Authorization, moving to next level up...', __FILE__, __LINE__, __METHOD__,10);
+					Debug::text('  Approving Authorization, moving to next level up...', __FILE__, __LINE__, __METHOD__, 10);
 					$current_level = $current_obj->getAuthorizationLevel();
 					if ( $current_level > 1 ) { //Highest level is 1, so no point in making it less than that.
 
 						//Get the next level above the current user doing the authorization, in case they have dropped down a level or two.
 						$next_level = $this->getNextHierarchyLevel();
 						if ( $next_level !== FALSE AND $next_level < $current_level ) {
-							Debug::text('  Current Level: '. $current_level .' Moving Up To Level: '. $next_level, __FILE__, __LINE__, __METHOD__,10);
+							Debug::text('  Current Level: '. $current_level .' Moving Up To Level: '. $next_level, __FILE__, __LINE__, __METHOD__, 10);
 							$current_obj->setAuthorizationLevel( $next_level );
 						}
 					}
 					unset( $current_level, $next_level );
 				}
 			} else {
-				Debug::text('  Declining Authorization...', __FILE__, __LINE__, __METHOD__,10);
+				Debug::text('  Declining Authorization...', __FILE__, __LINE__, __METHOD__, 10);
 				$current_obj->setStatus(55); //'AUTHORIZATION DECLINED'
 			}
 
 			if ( $current_obj->isValid() ) {
-				Debug::text('  Object Valid...', __FILE__, __LINE__, __METHOD__,10);
+				Debug::text('  Object Valid...', __FILE__, __LINE__, __METHOD__, 10);
 				//Return true if object saved correctly.
 				$retval = $current_obj->Save();
 
@@ -434,7 +434,7 @@ class AuthorizationFactory extends Factory {
 					$function = 'get'.$function_stub;
 					switch( $variable ) {
 						case 'object_type':
-							Debug::text('  Object Type...', __FILE__, __LINE__, __METHOD__,10);
+							Debug::text('  Object Type...', __FILE__, __LINE__, __METHOD__, 10);
 							$data[$variable] = Option::getByKey( $this->getObjectType(), $this->getOptions( $variable ) );
 							break;
 						default:
@@ -455,11 +455,11 @@ class AuthorizationFactory extends Factory {
 
 	function addLog( $log_action ) {
 		if ($this->getAuthorized() === TRUE ) {
-			$authorized =  TTi18n::getText('True');
+			$authorized = TTi18n::getText('True');
 		} else {
-			$authorized =  TTi18n::getText('False');
+			$authorized = TTi18n::getText('False');
 		}
-		return TTLog::addEntry( $this->getId(), $log_action,  TTi18n::getText('Authorization Object Type').': '.$this->getObjectType() .' '. TTi18n::getText('Authorized').': '. $authorized, NULL , $this->getTable() );
+		return TTLog::addEntry( $this->getId(), $log_action, TTi18n::getText('Authorization Object Type').': '.$this->getObjectType() .' '. TTi18n::getText('Authorized').': '. $authorized, NULL, $this->getTable() );
 	}
 }
 ?>

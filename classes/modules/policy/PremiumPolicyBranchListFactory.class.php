@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 11018 $
- * $Id: PremiumPolicyBranchListFactory.class.php 11018 2013-09-24 23:39:40Z ipso $
- * $Date: 2013-09-24 16:39:40 -0700 (Tue, 24 Sep 2013) $
- */
+
 
 /**
  * @package Modules\Policy
@@ -46,7 +42,7 @@ class PremiumPolicyBranchListFactory extends PremiumPolicyBranchFactory implemen
 
 	function getAll($limit = NULL, $page = NULL, $where = NULL, $order = NULL) {
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable();
 		$query .= $this->getWhereSQL( $where );
 		$query .= $this->getSortSQL( $order );
@@ -66,7 +62,7 @@ class PremiumPolicyBranchListFactory extends PremiumPolicyBranchFactory implemen
 					);
 
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					where	id = ?
 					';
@@ -90,7 +86,7 @@ class PremiumPolicyBranchListFactory extends PremiumPolicyBranchFactory implemen
 					);
 
 		$query = '
-					select 	a.*
+					select	a.*
 					from	'. $this->getTable() .' as a
 					LEFT JOIN '. $ppf->getTable() .' as ppf ON a.premium_policy_id = ppf.id
 					where	ppf.company_id = ?
@@ -108,24 +104,30 @@ class PremiumPolicyBranchListFactory extends PremiumPolicyBranchFactory implemen
 			return FALSE;
 		}
 
-		$ppf = new PremiumPolicyFactory();
+		$cache_id = 'premium_policy-'. $id;
+		$this->rs = $this->getCache( $cache_id );
+		if ( $this->rs === FALSE ) {
+			$ppf = new PremiumPolicyFactory();
 
-		$ph = array(
-					'id' => $id,
-					);
+			$ph = array(
+						'id' => $id,
+						);
 
-		$query = '
-					select 	a.*
-					from	'. $this->getTable() .' as a,
-							'. $ppf->getTable() .' as b
-					where	b.id = a.premium_policy_id
-						AND a.premium_policy_id = ?
-					';
-		$query .= $this->getWhereSQL( $where );
-		$query .= $this->getSortSQL( $order );
+			$query = '
+						select	a.*
+						from	'. $this->getTable() .' as a,
+								'. $ppf->getTable() .' as b
+						where	b.id = a.premium_policy_id
+							AND a.premium_policy_id = ?
+						';
+			$query .= $this->getWhereSQL( $where );
+			$query .= $this->getSortSQL( $order );
 
-		$this->ExecuteSQL( $query, $ph );
+			$this->ExecuteSQL( $query, $ph );
 
+			$this->saveCache($this->rs, $cache_id);
+		}
+		
 		return $this;
 	}
 

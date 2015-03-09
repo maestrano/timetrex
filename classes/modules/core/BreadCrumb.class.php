@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2095 $
- * $Id: BreadCrumb.class.php 2095 2008-09-01 07:04:25Z ipso $
- * $Date: 2008-09-01 00:04:25 -0700 (Mon, 01 Sep 2008) $
- */
+
 
 /**
  * @package Core
@@ -102,7 +98,7 @@ class BreadCrumb {
 						'created_date' => TTDate::getTime(),
 						);
 
-			$query = 'insert into bread_crumb (user_id,name,url,created_date)
+			$query = 'insert into bread_crumb (user_id, name, url, created_date)
 							VALUES(
 									?,
 									?,
@@ -126,7 +122,7 @@ class BreadCrumb {
 					'user_id' => $current_user->getId(),
 					);
 
-		$query = 'SELECT name,url
+		$query = 'SELECT name, url
 					FROM bread_crumb
 					WHERE user_id = ?
 					ORDER BY created_date DESC
@@ -201,11 +197,9 @@ class BreadCrumb {
 
 		if ( $crumbs != FALSE) {
 			$total_crumbs = count($crumbs);
-			$i=1;
+			$i = 1;
 			foreach ($crumbs as $crumb) {
-				if ($i == 1 AND $crumb['name'] == 'Home') {
-
-				} else {
+				if ( !( $i == 1 AND $crumb['name'] == 'Home' )) {
 					if ($i == $total_crumbs) {
 							$links[] = TTi18n::gettext($crumb['name']);
 					} else {

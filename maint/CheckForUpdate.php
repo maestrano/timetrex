@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 9743 $
- * $Id: CheckForUpdate.php 9743 2013-05-02 21:22:23Z ipso $
- * $Date: 2013-05-02 14:22:23 -0700 (Thu, 02 May 2013) $
- */
+
 /*
  * Checks for any version updates...
  *
@@ -47,11 +43,11 @@ require_once( dirname(__FILE__) . DIRECTORY_SEPARATOR .'..'. DIRECTORY_SEPARATOR
 
 $ttsc = new TimeTrexSoapClient();
 if ( $ttsc->isUpdateNotifyEnabled() == TRUE ) {
-	sleep( rand(0,60) ); //Further randomize when calls are made.
+	sleep( rand(0, 60) ); //Further randomize when calls are made.
 	$clf = new CompanyListFactory();
 	$clf->getAll();
 	if ( $clf->getRecordCount() > 0 ) {
-		$i=0;
+		$i = 0;
 		foreach ( $clf as $c_obj ) {
 			if ( $ttsc->getLocalRegistrationKey() == FALSE
 					OR $ttsc->getLocalRegistrationKey() == '' ) {
@@ -67,7 +63,7 @@ if ( $ttsc->isUpdateNotifyEnabled() == TRUE ) {
 
 			//Check for new license once it starts expiring.
 			//Help -> About, checking for new versions also gets the updated license file.
-			if ( $c_obj->getID() == $config_vars['other']['primary_company_id'] AND getTTProductEdition() > TT_PRODUCT_COMMUNITY ) {
+			if ( $i == 0 AND getTTProductEdition() > TT_PRODUCT_COMMUNITY ) {
 				if ( !isset($system_settings['license']) ) {
 					$system_settings['license'] = NULL;
 				}
@@ -77,7 +73,7 @@ if ( $ttsc->isUpdateNotifyEnabled() == TRUE ) {
 			}
 
 			//Only need to call this on the last company
-			if ( $i == $clf->getRecordCount()-1 ) {
+			if ( $i == ( $clf->getRecordCount() - 1 ) ) {
 				$latest_version = $ttsc->isLatestVersion( $c_obj->getId() );
 				$latest_tax_engine_version = $ttsc->isLatestTaxEngineVersion( $c_obj->getId() );
 				$latest_tax_data_version = $ttsc->isLatestTaxDataVersion( $c_obj->getId() );
@@ -108,7 +104,7 @@ if ( $ttsc->isUpdateNotifyEnabled() == TRUE ) {
 		}
 	}
 } else {
-	Debug::Text('Auto Update Notifications are disabled!', __FILE__, __LINE__, __METHOD__,10);
+	Debug::Text('Auto Update Notifications are disabled!', __FILE__, __LINE__, __METHOD__, 10);
 }
 Debug::writeToLog();
 Debug::Display();

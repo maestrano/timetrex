@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 8201 $
- * $Id: TimeTrexClientAPI.php 8201 2006-07-07 23:40:12Z root $
- * $Date: 2006-07-07 16:40:12 -0700 (Fri, 07 Jul 2006) $
- */
+
 
 /**
  * @package API\TimeTrexClientAPI
@@ -256,7 +252,11 @@ class TimeTrexClientAPIReturnHandler {
 		$output = array();
 		$output[] = '=====================================';
 		$output[] = 'Function: '. $this->getFunction() .'()';
-		$output[] = 'Args: '. $this->getArgs();
+		if ( is_object( $this->getArgs() ) OR is_array( $this->getArgs() ) ) {
+			$output[] = 'Args: '. count( $this->getArgs() );
+		} else {
+			$output[] = 'Args: '. $this->getArgs();
+		}
 		$output[] = '-------------------------------------';
 		$output[] = 'Returned:';
 		$output[] = ( $this->isValid() === TRUE ) ? 'IsValid: YES' : 'IsValid: NO';
@@ -335,21 +335,21 @@ class TimeTrexClientAPIReturnHandler {
 		return FALSE;
 	}
 	function getTotalRecords() {
-		if ( isset($this->result_data['api_details']) AND isset($this->result_data['api_details']['record_details'])  AND isset($this->result_data['api_details']['record_details']['total_records']) ) {
+		if ( isset($this->result_data['api_details']) AND isset($this->result_data['api_details']['record_details']) AND isset($this->result_data['api_details']['record_details']['total_records']) ) {
 			return $this->result_data['api_details']['record_details']['total_records'];
 		}
 
 		return FALSE;
 	}
 	function getValidRecords() {
-		if ( isset($this->result_data['api_details']) AND isset($this->result_data['api_details']['record_details'])  AND isset($this->result_data['api_details']['record_details']['valid_records']) ) {
+		if ( isset($this->result_data['api_details']) AND isset($this->result_data['api_details']['record_details']) AND isset($this->result_data['api_details']['record_details']['valid_records']) ) {
 			return $this->result_data['api_details']['record_details']['valid_records'];
 		}
 
 		return FALSE;
 	}
 	function getInValidRecords() {
-		if ( isset($this->result_data['api_details']) AND isset($this->result_data['api_details']['record_details'])  AND isset($this->result_data['api_details']['record_details']['invalid_records']) ) {
+		if ( isset($this->result_data['api_details']) AND isset($this->result_data['api_details']['record_details']) AND isset($this->result_data['api_details']['record_details']['invalid_records']) ) {
 			return $this->result_data['api_details']['record_details']['invalid_records'];
 		}
 

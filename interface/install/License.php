@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,15 +33,11 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 9761 $
- * $Id: License.php 9761 2013-05-03 23:06:47Z ipso $
- * $Date: 2013-05-03 16:06:47 -0700 (Fri, 03 May 2013) $
- */
-$disable_database_connection=TRUE;
+
+$disable_database_connection = TRUE;
 require_once('../../includes/global.inc.php');
 
-$authenticate=FALSE;
+$authenticate = FALSE;
 require_once(Environment::getBasePath() .'includes/Interface.inc.php');
 
 $smarty->assign('title', TTi18n::gettext($title = '1. License Acceptance')); // See index.php
@@ -58,15 +54,23 @@ extract	(FormVariables::GetVariables(
 
 $install_obj = new Install();
 
+//Rewrite .INI file just in case we need to fix any problems with it.
+//Once done rewriting it, make sure we reload it into memory too.
+//This should be able to be removed by v8.0.
+$install_obj->writeConfigFile( array() );
+$config_vars = parse_ini_file( CONFIG_FILE, TRUE);
+if ( $config_vars === FALSE ) {
+	echo "Config file (". CONFIG_FILE .") contains a syntax error! If your passwords contain special characters you need to wrap them in double quotes, ie:<br>\n password = \"test!1!me\"\n";
+	exit(1);
+}
+
 $action = Misc::findSubmitButton();
 switch ($action) {
 	case 'start':
-		Debug::Text('Start', __FILE__, __LINE__, __METHOD__,10);
-
+		Debug::Text('Start', __FILE__, __LINE__, __METHOD__, 10);
 		if ( $data['license_accept'] == 1 ) {
 			Redirect::Page( URLBuilder::getURL( array('external_installer' => $external_installer ), 'Requirements.php') );
 		}
-
 		break;
 	default:
 		break;

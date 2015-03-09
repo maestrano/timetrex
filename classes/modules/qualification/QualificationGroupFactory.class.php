@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,14 +33,10 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2095 $
- * $Id: QualificationGroupFactory.class.php 2095 2008-09-01 07:04:25Z ipso $
- * $Date: 2008-09-01 00:04:25 -0700 (Mon, 01 Sep 2008) $
- */
+
 
 /**
- * @package Module_Users
+ * @package Modules\Qualification
  */
 class QualificationGroupFactory extends Factory {
 	protected $table = 'qualification_group';
@@ -84,14 +80,14 @@ class QualificationGroupFactory extends Factory {
 		$variable_function_map = array(
 										'id' => 'ID',
 										'company_id' => 'Company',
-                                        'parent_id' => 'Parent',
+										'parent_id' => 'Parent',
 										'name' => 'Name',
 										'deleted' => 'Deleted',
 										);
 		return $variable_function_map;
 	}
 
-    function getFastTreeObject() {
+	function getFastTreeObject() {
 
 		if ( is_object($this->fasttree_obj) ) {
 			return $this->fasttree_obj;
@@ -104,9 +100,9 @@ class QualificationGroupFactory extends Factory {
 	}
 
 	function getCompany() {
-	    if( isset( $this->data['company_id'] ) ) {
-	       return $this->data['company_id'];
-	    }
+		if( isset( $this->data['company_id'] ) ) {
+			return (int)$this->data['company_id'];
+		}
 		return FALSE;
 	}
 	function setCompany($id) {
@@ -127,7 +123,7 @@ class QualificationGroupFactory extends Factory {
 		return FALSE;
 	}
 
-    //Use this for completly editing a row in the tree
+	//Use this for completly editing a row in the tree
 	//Basically "old_id".
 	function getPreviousParent() {
 		if ( isset($this->tmp_data['previous_parent_id']) ) {
@@ -152,7 +148,7 @@ class QualificationGroupFactory extends Factory {
 	}
 	function setParent($id) {
 
-		$this->tmp_data['parent_id'] = $id;
+		$this->tmp_data['parent_id'] = (int)$id;
 
 		return TRUE;
 	}
@@ -168,7 +164,7 @@ class QualificationGroupFactory extends Factory {
 						AND name = ?
 						AND deleted = 0';
 		$name_id = $this->db->GetOne($query, $ph);
-		Debug::Arr($name_id,'Unique Name: '. $name, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Arr($name_id, 'Unique Name: '. $name, __FILE__, __LINE__, __METHOD__, 10);
 
 		if ( $name_id === FALSE ) {
 			return TRUE;
@@ -182,15 +178,15 @@ class QualificationGroupFactory extends Factory {
 	}
 
 	function getName() {
-	    if ( isset( $this->data['name'] ) ) {
-	       return $this->data['name'];
-	    }
+		if ( isset( $this->data['name'] ) ) {
+			return $this->data['name'];
+		}
 		return FALSE;
 	}
 	function setName($name) {
 		$name = trim($name);
 
-		if 	(	$this->Validator->isLength(		'name',
+		if	(	$this->Validator->isLength(		'name',
 												$name,
 												TTi18n::gettext('Name is too short or too long'),
 												2,
@@ -229,7 +225,7 @@ class QualificationGroupFactory extends Factory {
 				}
 
 				if ( is_array($children_ids) AND in_array( $this->getParent(), $children_ids) == TRUE ) {
-					Debug::Text(' Objects cant be re-parented to their own children...' , __FILE__, __LINE__, __METHOD__,10);
+					Debug::Text(' Objects cant be re-parented to their own children...', __FILE__, __LINE__, __METHOD__, 10);
 					$this->Validator->isTrue(	'parent',
 												FALSE,
 												TTi18n::gettext('Unable to change parent to a child of itself')
@@ -241,13 +237,13 @@ class QualificationGroupFactory extends Factory {
 		return TRUE;
 	}
 
-    function preSave() {
+	function preSave() {
 
 		if ( $this->isNew() ) {
-			Debug::Text(' Setting Insert Tree TRUE ', __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text(' Setting Insert Tree TRUE ', __FILE__, __LINE__, __METHOD__, 10);
 			$this->insert_tree = TRUE;
 		} else {
-			Debug::Text(' Setting Insert Tree FALSE ', __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text(' Setting Insert Tree FALSE ', __FILE__, __LINE__, __METHOD__, 10);
 			$this->insert_tree = FALSE;
 		}
 
@@ -270,7 +266,7 @@ class QualificationGroupFactory extends Factory {
 			$qlf->getByCompanyIdAndGroupId( $this->getCompany(), $this->getId() );
 			if ( $qlf->getRecordCount() > 0 ) {
 				foreach( $qlf as $obj ) {
-					Debug::Text(' Re-Grouping Item: '. $obj->getId(), __FILE__, __LINE__, __METHOD__,10);
+					Debug::Text(' Re-Grouping Item: '. $obj->getId(), __FILE__, __LINE__, __METHOD__, 10);
 					$obj->setGroup($parent_id);
 					$obj->Save();
 				}
@@ -303,14 +299,14 @@ class QualificationGroupFactory extends Factory {
 			//if ( $this->getId() === FALSE ) {
 
 			if ( $this->insert_tree === TRUE ) {
-				Debug::Text(' Adding Node ', __FILE__, __LINE__, __METHOD__,10);
+				Debug::Text(' Adding Node ', __FILE__, __LINE__, __METHOD__, 10);
 
-				//echo "Current ID: ".  $this->getID() ."<br>\n";
+				//echo "Current ID: ".	$this->getID() ."<br>\n";
 				//echo "Parent ID: ".  $this->getParent() ."<br>\n";
 
 				//Add node to tree
 				if ( $this->getFastTreeObject()->add( $this->getID(), $this->getParent() ) === FALSE ) {
-					Debug::Text(' Failed adding Node ', __FILE__, __LINE__, __METHOD__,10);
+					Debug::Text(' Failed adding Node ', __FILE__, __LINE__, __METHOD__, 10);
 
 					$this->Validator->isTrue(	'name',
 												FALSE,
@@ -319,10 +315,10 @@ class QualificationGroupFactory extends Factory {
 					$retval = FALSE;
 				}
 			} else {
-				Debug::Text(' Editing Node ', __FILE__, __LINE__, __METHOD__,10);
+				Debug::Text(' Editing Node ', __FILE__, __LINE__, __METHOD__, 10);
 
 				//Edit node.
-				$retval = $this->getFastTreeObject()->move( $this->getID() , $this->getParent() );
+				$retval = $this->getFastTreeObject()->move( $this->getID(), $this->getParent() );
 			}
 
 			if ( $retval === TRUE ) {
@@ -378,7 +374,7 @@ class QualificationGroupFactory extends Factory {
 				}
 			}
 			$this->getPermissionColumns( $data, $this->getCreatedBy(), FALSE, $permission_children_ids, $include_columns );
-            
+
 			$this->getCreatedAndUpdatedColumns( $data, $include_columns );
 		}
 

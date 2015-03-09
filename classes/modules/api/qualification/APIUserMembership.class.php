@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,14 +33,10 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2196 $
- * $Id: APIUserMembership.class.php 2196 2008-10-14 16:08:54Z ipso $
- * $Date: 2008-10-14 09:08:54 -0700 (Tue, 14 Oct 2008) $
- */
+
 
 /**
- * @package API_APIQualification
+ * @package API\Qualification
  */
 class APIUserMembership extends APIFactory {
 	protected $main_class = 'UserMembershipFactory';
@@ -59,8 +55,8 @@ class APIUserMembership extends APIFactory {
 	 */
 	function getOptions( $name, $parent = NULL ) {
 		if ( $name == 'columns'
-				AND ( !$this->getPermissionObject()->Check('user_membership','enabled')
-					OR !( $this->getPermissionObject()->Check('user_membership','view') OR $this->getPermissionObject()->Check('user_membership','view_own') OR $this->getPermissionObject()->Check('user_membership','view_child') ) ) ) {
+				AND ( !$this->getPermissionObject()->Check('user_membership', 'enabled')
+					OR !( $this->getPermissionObject()->Check('user_membership', 'view') OR $this->getPermissionObject()->Check('user_membership', 'view_own') OR $this->getPermissionObject()->Check('user_membership', 'view_child') ) ) ) {
 			$name = 'list_columns';
 		}
 
@@ -71,49 +67,47 @@ class APIUserMembership extends APIFactory {
 	 * Get default user membership data for creating new memberships.
 	 * @return array
 	 */
-	function getUserMembershipDefaultData() { 
-	    $data = array();
- 
-        return $data;
+	function getUserMembershipDefaultData() {
+		$data = array();
+
+		return $data;
 	}
-    
+
 	/**
 	 * Get user membership data for one or more memberships.
 	 * @param array $data filter data
 	 * @return array
 	 */
-	function getUserMembership( $data = NULL, $disable_paging = FALSE ) { 
-		if ( !$this->getPermissionObject()->Check('user_membership','enabled')
-				OR !( $this->getPermissionObject()->Check('user_membership','view') OR $this->getPermissionObject()->Check('user_membership','view_own') OR $this->getPermissionObject()->Check('user_membership','view_child')  ) ) {
-			//return $this->getPermissionObject()->PermissionDenied();
-			//Rather then permission denied, restrict to just 'list_view' columns.
-			$data['filter_columns'] = $this->handlePermissionFilterColumns( (isset($data['filter_columns'])) ? $data['filter_columns'] : NULL, Misc::trimSortPrefix( $this->getOptions('list_columns') ) );
+	function getUserMembership( $data = NULL, $disable_paging = FALSE ) {
+		if ( !$this->getPermissionObject()->Check('user_membership', 'enabled')
+				OR !( $this->getPermissionObject()->Check('user_membership', 'view') OR $this->getPermissionObject()->Check('user_membership', 'view_own') OR $this->getPermissionObject()->Check('user_membership', 'view_child')	) ) {
+			return $this->getPermissionObject()->PermissionDenied();
 		}
 		$data = $this->initializeFilterAndPager( $data, $disable_paging );
 
 		$data['filter_data']['permission_children_ids'] = $this->getPermissionObject()->getPermissionChildren( 'user_membership', 'view' );
 
-        if ( isset($data['filter_data']['company_id'])
+		if ( isset($data['filter_data']['company_id'])
 				AND $data['filter_data']['company_id'] > 0
-				AND ( $this->getPermissionObject()->Check('company','enabled') AND $this->getPermissionObject()->Check('company','edit') ) ) {
+				AND ( $this->getPermissionObject()->Check('company', 'enabled') AND $this->getPermissionObject()->Check('company', 'edit') ) ) {
 			$company_id = $data['filter_data']['company_id'];
 		} else {
 			$company_id = $this->getCurrentCompanyObject()->getId();
 		}
 
-		$umlf = TTnew( 'UserMembershipListFactory' ); 
-        
+		$umlf = TTnew( 'UserMembershipListFactory' );
+
 		$umlf->getAPISearchByCompanyIdAndArrayCriteria( $company_id, $data['filter_data'], $data['filter_items_per_page'], $data['filter_page'], NULL, $data['filter_sort'] );
-        
-        Debug::Text('Record Count: '. $umlf->getRecordCount(), __FILE__, __LINE__, __METHOD__, 10);
+
+		Debug::Text('Record Count: '. $umlf->getRecordCount(), __FILE__, __LINE__, __METHOD__, 10);
 		if ( $umlf->getRecordCount() > 0 ) {
 			$this->getProgressBarObject()->start( $this->getAMFMessageID(), $umlf->getRecordCount() );
 
 			$this->setPagerObject( $umlf );
 
 			foreach( $umlf as $s_obj ) {
-			    
-				$retarr[] = $s_obj->getObjectAsArray( $data['filter_columns'], $data['filter_data']['permission_children_ids']  );
+			
+				$retarr[] = $s_obj->getObjectAsArray( $data['filter_columns'], $data['filter_data']['permission_children_ids']	);
 
 				$this->getProgressBarObject()->set( $this->getAMFMessageID(), $umlf->getCurrentRow() );
 			}
@@ -156,16 +150,16 @@ class APIUserMembership extends APIFactory {
 			return $this->returnHandler( FALSE );
 		}
 
-		if ( !$this->getPermissionObject()->Check('user_membership','enabled')
-				OR !( $this->getPermissionObject()->Check('user_membership','edit') OR $this->getPermissionObject()->Check('user_membership','edit_own') OR $this->getPermissionObject()->Check('user_membership','edit_child') OR $this->getPermissionObject()->Check('user_membership','add') ) ) {
-			return  $this->getPermissionObject()->PermissionDenied();
+		if ( !$this->getPermissionObject()->Check('user_membership', 'enabled')
+				OR !( $this->getPermissionObject()->Check('user_membership', 'edit') OR $this->getPermissionObject()->Check('user_membership', 'edit_own') OR $this->getPermissionObject()->Check('user_membership', 'edit_child') OR $this->getPermissionObject()->Check('user_membership', 'add') ) ) {
+			return	$this->getPermissionObject()->PermissionDenied();
 		}
 
 		if ( $validate_only == TRUE ) {
 			Debug::Text('Validating Only!', __FILE__, __LINE__, __METHOD__, 10);
-            $permission_children_ids = FALSE;
+			$permission_children_ids = FALSE;
 		} else {
-            //Get Permission Hierarchy Children first, as this can be used for viewing, or editing.
+			//Get Permission Hierarchy Children first, as this can be used for viewing, or editing.
 			$permission_children_ids = $this->getPermissionChildren();
 		}
 
@@ -185,19 +179,19 @@ class APIUserMembership extends APIFactory {
 					//Modifying existing object.
 					//Get qualification object, so we can only modify just changed data for specific records if needed.
 					$lf->getByIdAndCompanyId( $row['id'], $this->getCurrentCompanyObject()->getId() );
-                    
+
 					if ( $lf->getRecordCount() == 1 ) {
 						//Object exists, check edit permissions
 						if (
-							  $validate_only == TRUE
-							  OR
+							$validate_only == TRUE
+							OR
 								(
-								$this->getPermissionObject()->Check('user_membership','edit')
-									OR ( $this->getPermissionObject()->Check('user_membership','edit_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getUser() ) === TRUE )
-                                    OR ( $this->getPermissionObject()->Check('user_membership','edit_child') AND $this->getPermissionObject()->isChild( $lf->getCurrent()->getUser(), $permission_children_ids ) === TRUE )
+								$this->getPermissionObject()->Check('user_membership', 'edit')
+									OR ( $this->getPermissionObject()->Check('user_membership', 'edit_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getUser() ) === TRUE )
+									OR ( $this->getPermissionObject()->Check('user_membership', 'edit_child') AND $this->getPermissionObject()->isChild( $lf->getCurrent()->getUser(), $permission_children_ids ) === TRUE )
 								) ) {
 							Debug::Text('Row Exists, getting current data: ', $row['id'], __FILE__, __LINE__, __METHOD__, 10);
-							$lf = $lf->getCurrent(); 
+							$lf = $lf->getCurrent();
 							$row = array_merge( $lf->getObjectAsArray(), $row );
 						} else {
 							$primary_validator->isTrue( 'permission', FALSE, TTi18n::gettext('Edit permission denied') );
@@ -208,14 +202,14 @@ class APIUserMembership extends APIFactory {
 					}
 				} else {
 					//Adding new object, check ADD permissions.
-					if (    !( $validate_only == TRUE
+					if (	!( $validate_only == TRUE
 								OR
-								( $this->getPermissionObject()->Check('user_membership','add')
+								( $this->getPermissionObject()->Check('user_membership', 'add')
 									AND
 									(
-										$this->getPermissionObject()->Check('user_membership','edit')
-										OR ( isset($row['user_id']) AND $this->getPermissionObject()->Check('user_membership','edit_own') AND $this->getPermissionObject()->isOwner( FALSE, $row['user_id'] ) === TRUE ) //We don't know the created_by of the user at this point, but only check if the user is assigned to the logged in person.
-										OR ( isset($row['user_id']) AND $this->getPermissionObject()->Check('user_membership','edit_child') AND $this->getPermissionObject()->isChild( $row['user_id'], $permission_children_ids ) === TRUE )
+										$this->getPermissionObject()->Check('user_membership', 'edit')
+										OR ( isset($row['user_id']) AND $this->getPermissionObject()->Check('user_membership', 'edit_own') AND $this->getPermissionObject()->isOwner( FALSE, $row['user_id'] ) === TRUE ) //We don't know the created_by of the user at this point, but only check if the user is assigned to the logged in person.
+										OR ( isset($row['user_id']) AND $this->getPermissionObject()->Check('user_membership', 'edit_child') AND $this->getPermissionObject()->isChild( $row['user_id'], $permission_children_ids ) === TRUE )
 									)
 								)
 							) ) {
@@ -228,7 +222,7 @@ class APIUserMembership extends APIFactory {
 				if ( $is_valid == TRUE ) { //Check to see if all permission checks passed before trying to save data.
 					Debug::Text('Setting object data...', __FILE__, __LINE__, __METHOD__, 10);
 				
-                    
+
 					$lf->setObjectFromArray( $row );
 					$is_valid = $lf->isValid();
 					if ( $is_valid == TRUE ) {
@@ -292,18 +286,18 @@ class APIUserMembership extends APIFactory {
 			return $this->returnHandler( FALSE );
 		}
 
-		if ( !$this->getPermissionObject()->Check('user_membership','enabled')
-				OR !( $this->getPermissionObject()->Check('user_membership','delete') OR $this->getPermissionObject()->Check('user_membership','delete_own') OR $this->getPermissionObject()->Check('user_membership','delete_child') ) ) {
-			return  $this->getPermissionObject()->PermissionDenied();
+		if ( !$this->getPermissionObject()->Check('user_membership', 'enabled')
+				OR !( $this->getPermissionObject()->Check('user_membership', 'delete') OR $this->getPermissionObject()->Check('user_membership', 'delete_own') OR $this->getPermissionObject()->Check('user_membership', 'delete_child') ) ) {
+			return	$this->getPermissionObject()->PermissionDenied();
 		}
-        
-        $permission_children_ids = $this->getPermissionChildren();
+
+		$permission_children_ids = $this->getPermissionChildren();
 
 		Debug::Text('Received data for: '. count($data) .' Memberships', __FILE__, __LINE__, __METHOD__, 10);
 		Debug::Arr($data, 'Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		$total_records = count($data);
-        $validator_stats = array('total_records' => $total_records, 'valid_records' => 0 );
+		$validator_stats = array('total_records' => $total_records, 'valid_records' => 0 );
 		if ( is_array($data) ) {
 			$this->getProgressBarObject()->start( $this->getAMFMessageID(), $total_records );
 
@@ -315,12 +309,12 @@ class APIUserMembership extends APIFactory {
 					//Modifying existing object.
 					//Get qualification object, so we can only modify just changed data for specific records if needed.
 					$lf->getByIdAndCompanyId( $id, $this->getCurrentCompanyObject()->getId() );
-                    //$lf->getById($id);
+					//$lf->getById($id);
 					if ( $lf->getRecordCount() == 1 ) {
 						//Object exists, check edit permissions
-						if ( $this->getPermissionObject()->Check('user_membership','delete')
-								OR ( $this->getPermissionObject()->Check('user_membership','delete_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getUser() ) === TRUE )
-                                OR ( $this->getPermissionObject()->Check('user_membership','delete_child') AND $this->getPermissionObject()->isChild( $lf->getCurrent()->getUser(), $permission_children_ids ) === TRUE ) ) {
+						if ( $this->getPermissionObject()->Check('user_membership', 'delete')
+								OR ( $this->getPermissionObject()->Check('user_membership', 'delete_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getUser() ) === TRUE )
+								OR ( $this->getPermissionObject()->Check('user_membership', 'delete_child') AND $this->getPermissionObject()->isChild( $lf->getCurrent()->getUser(), $permission_children_ids ) === TRUE ) ) {
 							Debug::Text('Record Exists, deleting record: ', $id, __FILE__, __LINE__, __METHOD__, 10);
 							$lf = $lf->getCurrent();
 						} else {

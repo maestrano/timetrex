@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2196 $
- * $Id: APIPayStubAmendment.class.php 2196 2008-10-14 16:08:54Z ipso $
- * $Date: 2008-10-14 09:08:54 -0700 (Tue, 14 Oct 2008) $
- */
+
 
 /**
  * @package API\PayStubAmendment
@@ -58,7 +54,7 @@ class APIPayStubAmendment extends APIFactory {
 	function getPayStubAmendmentDefaultData() {
 		$company_obj = $this->getCurrentCompanyObject();
 
-		Debug::Text('Getting pay stub amendment default data...', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Getting pay stub amendment default data...', __FILE__, __LINE__, __METHOD__, 10);
 
 		$data = array(
 						'company_id' => $company_obj->getId(),
@@ -77,8 +73,8 @@ class APIPayStubAmendment extends APIFactory {
 	 * @return array
 	 */
 	function getPayStubAmendment( $data = NULL, $disable_paging = FALSE, $format = FALSE ) {
-		if ( !$this->getPermissionObject()->Check('pay_stub_amendment','enabled')
-				OR !( $this->getPermissionObject()->Check('pay_stub_amendment','view') OR $this->getPermissionObject()->Check('pay_stub_amendment','view_own') OR $this->getPermissionObject()->Check('pay_stub_amendment','view_child')  ) ) {
+		if ( !$this->getPermissionObject()->Check('pay_stub_amendment', 'enabled')
+				OR !( $this->getPermissionObject()->Check('pay_stub_amendment', 'view') OR $this->getPermissionObject()->Check('pay_stub_amendment', 'view_own') OR $this->getPermissionObject()->Check('pay_stub_amendment', 'view_child')	 ) ) {
 			return $this->getPermissionObject()->PermissionDenied();
 		}
 		$data = $this->initializeFilterAndPager( $data, $disable_paging );
@@ -103,7 +99,7 @@ class APIPayStubAmendment extends APIFactory {
 					$this->getProgressBarObject()->stop( $this->getAMFMessageID() );
 
 					if ( stristr( $format, 'cheque') ) {
-						return Misc::APIFileDownload( 'checks_'. str_replace(array('/',',',' '), '_', TTDate::getDate('DATE', time() ) ) .'.pdf', 'application/pdf', $output );
+						return Misc::APIFileDownload( 'checks_'. str_replace(array('/', ',', ' '), '_', TTDate::getDate('DATE', time() ) ) .'.pdf', 'application/pdf', $output );
 					} else {
 						//Include file creation number in the exported file name, so the user knows what it is without opening the file,
 						//and can generate multiple files if they need to match a specific number.
@@ -119,7 +115,7 @@ class APIPayStubAmendment extends APIFactory {
 						} else {
 							$file_creation_number = 0;
 						}
-						return Misc::APIFileDownload( 'eft_'. $file_creation_number .'_'. str_replace(array('/',',',' '), '_', TTDate::getDate('DATE', time() ) ) .'.txt', 'application/pdf', $output );
+						return Misc::APIFileDownload( 'eft_'. $file_creation_number .'_'. str_replace(array('/', ',', ' '), '_', TTDate::getDate('DATE', time() ) ) .'.txt', 'application/pdf', $output );
 					}
 				}
 			} else {
@@ -176,9 +172,9 @@ class APIPayStubAmendment extends APIFactory {
 			return $this->returnHandler( FALSE );
 		}
 
-		if ( !$this->getPermissionObject()->Check('pay_stub_amendment','enabled')
-				OR !( $this->getPermissionObject()->Check('pay_stub_amendment','edit') OR $this->getPermissionObject()->Check('pay_stub_amendment','edit_own') OR $this->getPermissionObject()->Check('pay_stub_amendment','edit_child') OR $this->getPermissionObject()->Check('pay_stub_amendment','add') ) ) {
-			return  $this->getPermissionObject()->PermissionDenied();
+		if ( !$this->getPermissionObject()->Check('pay_stub_amendment', 'enabled')
+				OR !( $this->getPermissionObject()->Check('pay_stub_amendment', 'edit') OR $this->getPermissionObject()->Check('pay_stub_amendment', 'edit_own') OR $this->getPermissionObject()->Check('pay_stub_amendment', 'edit_child') OR $this->getPermissionObject()->Check('pay_stub_amendment', 'add') ) ) {
+			return	$this->getPermissionObject()->PermissionDenied();
 		}
 
 		if ( $validate_only == TRUE ) {
@@ -204,11 +200,11 @@ class APIPayStubAmendment extends APIFactory {
 					if ( $lf->getRecordCount() == 1 ) {
 						//Object exists, check edit permissions
 						if (
-							  $validate_only == TRUE
-							  OR
+							$validate_only == TRUE
+							OR
 								(
-								$this->getPermissionObject()->Check('pay_stub_amendment','edit')
-									OR ( $this->getPermissionObject()->Check('pay_stub_amendment','edit_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE )
+								$this->getPermissionObject()->Check('pay_stub_amendment', 'edit')
+									OR ( $this->getPermissionObject()->Check('pay_stub_amendment', 'edit_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE )
 								) ) {
 
 							Debug::Text('Row Exists, getting current data: ', $row['id'], __FILE__, __LINE__, __METHOD__, 10);
@@ -223,7 +219,7 @@ class APIPayStubAmendment extends APIFactory {
 					}
 				} else {
 					//Adding new object, check ADD permissions.
-					$primary_validator->isTrue( 'permission', $this->getPermissionObject()->Check('pay_stub_amendment','add'), TTi18n::gettext('Add permission denied') );
+					$primary_validator->isTrue( 'permission', $this->getPermissionObject()->Check('pay_stub_amendment', 'add'), TTi18n::gettext('Add permission denied') );
 				}
 				Debug::Arr($row, 'Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
@@ -302,16 +298,16 @@ class APIPayStubAmendment extends APIFactory {
 			return $this->returnHandler( FALSE );
 		}
 
-		if ( !$this->getPermissionObject()->Check('pay_stub_amendment','enabled')
-				OR !( $this->getPermissionObject()->Check('pay_stub_amendment','delete') OR $this->getPermissionObject()->Check('pay_stub_amendment','delete_own') OR $this->getPermissionObject()->Check('pay_stub_amendment','delete_child') ) ) {
-			return  $this->getPermissionObject()->PermissionDenied();
+		if ( !$this->getPermissionObject()->Check('pay_stub_amendment', 'enabled')
+				OR !( $this->getPermissionObject()->Check('pay_stub_amendment', 'delete') OR $this->getPermissionObject()->Check('pay_stub_amendment', 'delete_own') OR $this->getPermissionObject()->Check('pay_stub_amendment', 'delete_child') ) ) {
+			return	$this->getPermissionObject()->PermissionDenied();
 		}
 
 		Debug::Text('Received data for: '. count($data) .' PayStubAmendments', __FILE__, __LINE__, __METHOD__, 10);
 		Debug::Arr($data, 'Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		$total_records = count($data);
-        $validator_stats = array('total_records' => $total_records, 'valid_records' => 0 );
+		$validator_stats = array('total_records' => $total_records, 'valid_records' => 0 );
 		if ( is_array($data) ) {
 			$this->getProgressBarObject()->start( $this->getAMFMessageID(), $total_records );
 
@@ -325,8 +321,8 @@ class APIPayStubAmendment extends APIFactory {
 					$lf->getByIdAndCompanyId( $id, $this->getCurrentCompanyObject()->getId() );
 					if ( $lf->getRecordCount() == 1 ) {
 						//Object exists, check edit permissions
-						if ( $this->getPermissionObject()->Check('pay_stub_amendment','delete')
-								OR ( $this->getPermissionObject()->Check('pay_stub_amendment','delete_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE ) ) {
+						if ( $this->getPermissionObject()->Check('pay_stub_amendment', 'delete')
+								OR ( $this->getPermissionObject()->Check('pay_stub_amendment', 'delete_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE ) ) {
 							Debug::Text('Record Exists, deleting record: ', $id, __FILE__, __LINE__, __METHOD__, 10);
 							$lf = $lf->getCurrent();
 						} else {

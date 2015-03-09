@@ -1,0 +1,270 @@
+.time-sheet-view {
+
+}
+
+.time-sheet-view .control-bar {
+    float: left;
+    left: 50%;
+    margin-left: -450px;
+    position: relative;
+    width: 900px;
+    text-align: center;
+}
+
+.time-sheet-view .control-bar .control-bar-center {
+    display: inline-block;
+}
+
+.time-sheet-view .date-chooser-div {
+    float: left;
+    margin-right: 20px;
+    margin-top: 5px;
+}
+
+.time-sheet-view .date-chooser-div .arrow {
+    cursor: pointer;
+    position: relative;
+    top: 2px;
+}
+
+.time-sheet-view .date-chooser-div .label {
+    margin-right: 5px;
+}
+
+.time-sheet-view .date-chooser-div .date-picker-div {
+    display: inline;
+
+}
+
+.time-sheet-view .employee-nav-div {
+    float: left;
+    margin-top: 3px;
+
+}
+
+.time-sheet-view .employee-nav-div .navigation-label {
+    float: left;
+    margin-right: 10px;
+    margin-top: 6px;
+}
+
+.time-sheet-view .employee-nav-div .left-click {
+    float: left;
+    margin-top: 6px;
+    cursor: pointer;
+
+}
+
+.time-sheet-view .employee-nav-div .right-click {
+    float: left;
+    margin-top: 6px;
+    cursor: pointer;
+
+}
+
+.time-sheet-view .employee-nav-div .navigation-widget-div {
+    float: left;
+
+}
+
+.time-sheet-view .title-bar {
+    height: 25px;
+    text-align: center;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+.time-sheet-view .title-bar .title-span {
+    line-height: 25px;
+}
+
+.time-sheet-view .punch-content-div {
+    text-align: center;
+    cursor: default;
+    position: relative;
+    height: 100%;
+    width: 100%;
+    margin-left: -2px;
+    padding-right: 2px;
+}
+
+.time-sheet-view .top-line-span {
+    border-top: 2px solid #333333;
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+    padding-top: 3px;
+}
+
+.time-sheet-view .top-line {
+    border-top: 2px solid #333333;
+
+}
+
+.time-sheet-view .punch-content-div span {
+    display: inline-block;
+    margin-top: 4px;
+
+}
+
+.time-sheet-view .top-line span {
+    margin-top: 3px;
+}
+
+.time-sheet-view .punch-time {
+    display: inline-block;
+    float: left;
+    height: 14px;
+    width: 100%;
+
+}
+
+.time-sheet-view .absence-override {
+    color: red;
+}
+
+.time-sheet-view .request {
+    float: left;
+    width: 100%;
+    font-weight: bold;
+
+}
+
+.time-sheet-view .total {
+    float: left;
+    width: 100%;
+    font-weight: bold;
+}
+
+.time-sheet-view .punch-exceptions {
+    font-weight: bold;
+    position: absolute;
+    left: 2px;
+}
+
+.time-sheet-view .punch-break {
+    position: absolute;
+    right: 20px;
+    font-weight: bold;
+    text-align: left;
+
+}
+
+.time-sheet-view .punch-exceptions-center {
+    margin-right: 5px;
+}
+
+.time-sheet-view .timesheet-grid-div {
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+}
+
+.time-sheet-view .highlight-header {
+    background: #33CCFF !important;
+}
+
+.time-sheet-view .quantity-input, .timesheet-editview .quantity-input {
+    width: 50px !important;
+    margin-right: 5px;
+}
+
+.time-sheet-view .verification-action-bar {
+
+    text-align: center;
+    padding-top: 5px;
+    padding-bottom: 2px;
+}
+
+.time-sheet-view .verification-action-bar .verify-description {
+    display: block;
+
+}
+
+.time-sheet-view .verification-action-bar .verify-button {
+
+}
+
+.timesheet-drag-holder-div {
+    background: #ae0000;
+    padding: 5px;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+    cursor: default;
+}
+
+.timesheet-drag-span {
+    display: block;
+    color: #ffffff;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+    cursor: default;
+
+}
+
+.drag-over-top {
+
+    /*background: #de5a5a;*/
+    background: url("../../../../images/cell_hover.png") repeat-x;
+}
+
+.drag-over-center {
+
+    background: #de5a5a;
+}
+
+.drag-over-bottom {
+
+    /*background: #de5a5a;*/
+    background: url("../../../../images/cell_hover.png") repeat-x;
+    background-position: bottom;
+}
+
+.time-sheet-view .accumulated-total-grid-title {
+    background: #375979;
+    color: #FFFFFF;
+    height: 25px;
+    line-height: 25px;
+    text-align: center;
+    border-right: 1px solid #FFFFFF;
+}
+
+.time-sheet-view .verification-grid-title {
+    background: #375979;
+    color: #FFFFFF;
+    height: 25px;
+    line-height: 25px;
+    text-align: center;
+    border-right: 1px solid #FFFFFF;
+}
+
+.time-sheet-view .timesheet-warning-title-bar {
+    background: red;
+    color: #FFFFFF;
+    line-height: 25px;
+    text-align: center;
+}
+
+.time-sheet-view .timesheet-warning-title-bar span {
+    display: block;
+    font-weight: bold;
+}
+
+.time-sheet-view .grid-expend-btn {
+    float: left;
+    margin-left: 3px;
+    margin-top: 3px;
+    cursor: pointer;
+}
+
+.available-balance-info {
+    position: relative;
+    top: 2px;
+    left: 5px;
+}

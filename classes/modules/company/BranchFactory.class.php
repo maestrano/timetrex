@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 11018 $
- * $Id: BranchFactory.class.php 11018 2013-09-24 23:39:40Z ipso $
- * $Date: 2013-09-24 16:39:40 -0700 (Tue, 24 Sep 2013) $
- */
+
 
 /**
  * @package Modules\Company
@@ -111,7 +107,7 @@ class BranchFactory extends Factory {
 		return $retval;
 	}
 
-    function _getVariableToFunctionMap( $data ) {
+	function _getVariableToFunctionMap( $data ) {
 		$variable_function_map = array(
 										'id' => 'ID',
 										'company_id' => 'Company',
@@ -201,12 +197,12 @@ class BranchFactory extends Factory {
 
 		$ph = array(
 					'manual_id' => $id,
-					'company_id' =>  $this->getCompany(),
+					'company_id' =>	$this->getCompany(),
 					);
 
 		$query = 'select id from '. $this->getTable() .' where manual_id = ? AND company_id = ? AND deleted=0';
 		$id = $this->db->GetOne($query, $ph);
-		Debug::Arr($id,'Unique Code: '. $id, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Arr($id, 'Unique Code: '. $id, __FILE__, __LINE__, __METHOD__, 10);
 
 		if ( $id === FALSE ) {
 			return TRUE;
@@ -230,7 +226,7 @@ class BranchFactory extends Factory {
 		$blf = TTnew( 'BranchListFactory' );
 		$blf->getHighestManualIDByCompanyId( $company_id );
 		if ( $blf->getRecordCount() > 0 ) {
-			$next_available_manual_id = $blf->getCurrent()->getManualId()+1;
+			$next_available_manual_id = ($blf->getCurrent()->getManualId() + 1);
 		} else {
 			$next_available_manual_id = 1;
 		}
@@ -276,7 +272,7 @@ class BranchFactory extends Factory {
 	}
 
 	function isUniqueName($name) {
-		Debug::Arr($this->getCompany(),'Company: ', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Arr($this->getCompany(), 'Company: ', __FILE__, __LINE__, __METHOD__, 10);
 		if ( $this->getCompany() == FALSE ) {
 			return FALSE;
 		}
@@ -296,7 +292,7 @@ class BranchFactory extends Factory {
 						AND name = ?
 						AND deleted = 0';
 		$name_id = $this->db->GetOne($query, $ph);
-		Debug::Arr($name_id,'Unique Name: '. $name , __FILE__, __LINE__, __METHOD__,10);
+		Debug::Arr($name_id, 'Unique Name: '. $name, __FILE__, __LINE__, __METHOD__, 10);
 
 		if ( $name_id === FALSE ) {
 			return TRUE;
@@ -319,7 +315,7 @@ class BranchFactory extends Factory {
 	function setName($name) {
 		$name = trim($name);
 
-		if 	(	$this->Validator->isLength(		'name',
+		if	(	$this->Validator->isLength(		'name',
 												$name,
 												TTi18n::gettext('Name is too short or too long'),
 												2,
@@ -349,7 +345,7 @@ class BranchFactory extends Factory {
 	function setNameMetaphone($value) {
 		$value = metaphone( trim($value) );
 
-		if 	( $value != '' ) {
+		if	( $value != '' ) {
 			$this->data['name_metaphone'] = $value;
 
 			return TRUE;
@@ -368,7 +364,7 @@ class BranchFactory extends Factory {
 	function setAddress1($address1) {
 		$address1 = trim($address1);
 
-		if 	(	$address1 != NULL
+		if	(	$address1 != NULL
 				AND
 					( $this->Validator->isRegEx(		'address1',
 												$address1,
@@ -399,7 +395,7 @@ class BranchFactory extends Factory {
 	function setAddress2($address2) {
 		$address2 = trim($address2);
 
-		if 	(	$address2 != NULL
+		if	(	$address2 != NULL
 				AND (
 					$this->Validator->isRegEx(		'address2',
 													$address2,
@@ -431,7 +427,7 @@ class BranchFactory extends Factory {
 	function setCity($city) {
 		$city = trim($city);
 
-		if 	(	$this->Validator->isRegEx(		'city',
+		if	(	$this->Validator->isRegEx(		'city',
 												$city,
 												TTi18n::gettext('City contains invalid characters'),
 												$this->city_validator_regex)
@@ -460,7 +456,7 @@ class BranchFactory extends Factory {
 	function setProvince($province) {
 		$province = trim($province);
 
-		Debug::Text('Country: '. $this->getCountry() .' Province: '. $province, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Country: '. $this->getCountry() .' Province: '. $province, __FILE__, __LINE__, __METHOD__, 10);
 
 		$cf = TTnew( 'CompanyFactory' );
 
@@ -522,7 +518,7 @@ class BranchFactory extends Factory {
 	function setPostalCode($postal_code) {
 		$postal_code = strtoupper( $this->Validator->stripSpaces($postal_code) );
 
-		if 	(
+		if	(
 				$postal_code == ''
 				OR
 				(
@@ -605,7 +601,7 @@ class BranchFactory extends Factory {
 	function setWorkPhone($work_phone) {
 		$work_phone = trim($work_phone);
 
-		if 	(	$work_phone != NULL
+		if	(	$work_phone != NULL
 				AND $this->Validator->isPhoneNumber(	'work_phone',
 														$work_phone,
 														TTi18n::gettext('Work phone number is invalid')) ) {
@@ -628,7 +624,7 @@ class BranchFactory extends Factory {
 	function setFaxPhone($fax_phone) {
 		$fax_phone = trim($fax_phone);
 
-		if 	(	$fax_phone != NULL
+		if	(	$fax_phone != NULL
 				AND $this->Validator->isPhoneNumber(	'fax_phone',
 														$fax_phone,
 														TTi18n::gettext('Fax phone number is invalid')) ) {
@@ -656,7 +652,7 @@ class BranchFactory extends Factory {
 				$this->Validator->isLength(	'other_id1',
 											$value,
 											TTi18n::gettext('Other ID 1 is invalid'),
-											1,255) ) {
+											1, 255) ) {
 
 			$this->data['other_id1'] = $value;
 
@@ -681,7 +677,7 @@ class BranchFactory extends Factory {
 				$this->Validator->isLength(	'other_id2',
 											$value,
 											TTi18n::gettext('Other ID 2 is invalid'),
-											1,255) ) {
+											1, 255) ) {
 
 			$this->data['other_id2'] = $value;
 
@@ -706,7 +702,7 @@ class BranchFactory extends Factory {
 				$this->Validator->isLength(	'other_id3',
 											$value,
 											TTi18n::gettext('Other ID 3 is invalid'),
-											1,255) ) {
+											1, 255) ) {
 
 			$this->data['other_id3'] = $value;
 
@@ -731,7 +727,7 @@ class BranchFactory extends Factory {
 				$this->Validator->isLength(	'other_id4',
 											$value,
 											TTi18n::gettext('Other ID 4 is invalid'),
-											1,255) ) {
+											1, 255) ) {
 
 			$this->data['other_id4'] = $value;
 
@@ -756,7 +752,7 @@ class BranchFactory extends Factory {
 				$this->Validator->isLength(	'other_id5',
 											$value,
 											TTi18n::gettext('Other ID 5 is invalid'),
-											1,255) ) {
+											1, 255) ) {
 
 			$this->data['other_id5'] = $value;
 
@@ -811,7 +807,7 @@ class BranchFactory extends Factory {
 		}
 
 		if ( $this->getDeleted() == TRUE ) {
-			Debug::Text('UnAssign Hours from Branch: '. $this->getId(), __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text('UnAssign Hours from Branch: '. $this->getId(), __FILE__, __LINE__, __METHOD__, 10);
 			//Unassign hours from this branch.
 			$pcf = TTnew( 'PunchControlFactory' );
 			$udtf = TTnew( 'UserDateTotalFactory' );
@@ -922,8 +918,31 @@ class BranchFactory extends Factory {
 	}
 
 	function addLog( $log_action ) {
-		return TTLog::addEntry( $this->getId(), $log_action, TTi18n::getText('Branch') .': '. $this->getName() , NULL, $this->getTable(), $this );
+		return TTLog::addEntry( $this->getId(), $log_action, TTi18n::getText('Branch') .': '. $this->getName(), NULL, $this->getTable(), $this );
 	}
+
+  // Hook:Maestrano
+  function Save($reset_data=true, $force_lookup=false, $push_to_connec=true) {
+    // Preserve record id when updating
+    $local_id = ($this->isNew() ? null : $this->getId());
+    
+    $result = parent::Save($reset_data, $force_lookup);
+    if(is_null($local_id)) { $local_id = $result; }
+
+    // Send to Connec!
+    if($push_to_connec) {
+      // Reload record
+      $branch = TTNew('BranchListFactory');
+      $branch->getById($local_id);
+      $branch = $branch->getCurrent();
+      
+      $mapper = 'WorkLocationMapper';
+      if(class_exists($mapper)) {
+        $workLocationMapper = new $mapper();
+        $workLocationMapper->processLocalUpdate($branch, $push_to_connec);
+      }
+    }
+  }
 
 }
 ?>

@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2196 $
- * $Id: APIStation.class.php 2196 2008-10-14 16:08:54Z ipso $
- * $Date: 2008-10-14 09:08:54 -0700 (Tue, 14 Oct 2008) $
- */
+
 
 /**
  * @package API\Core
@@ -52,16 +48,42 @@ class APIStation extends APIFactory {
 	}
 
 	/**
+	 * Returns available Station Type IDs to help determine if KIOSK mode is available or not.
+	 * @return string
+	 */
+	function getAvailableStationTypeIDs() {
+		//Check if the user is a supervisor or not, so we determine if KIOSK mode is available.
+		$retarr = array(28, 60); //Single user mode.
+
+		//Check if user is supervisor or not.
+		if ( $this->getPermissionObject()->Check('user', 'view') OR $this->getPermissionObject()->Check('user', 'view_child') ) {
+			$sf = TTnew( 'StationFactory' );
+			$station_type_ids = $sf->getOptions('type');
+
+			if ( isset($station_type_ids[61]) ) {
+				$retarr[] = 61; //PC - KIOSK
+			}
+			if ( isset($station_type_ids[65]) ) {
+				$retarr[] = 65; //Tablet - KIOSK
+			}
+		}
+
+		Debug::Arr($retarr, 'Available Station Type IDs: ', __FILE__, __LINE__, __METHOD__, 10);
+		return $this->returnHandler( $retarr );
+	}
+
+	/**
 	 * Get or create current PC/Phone station.
 	 * @return string
 	 */
 	function getCurrentStation( $station_id = NULL, $type_id = 10 ) {
-		$retval = StationFactory::getOrCreateStation( $station_id, $this->getCurrentCompanyObject()->getID(), $type_id );
+		$sf = TTNew('StationFactory');
+		$retval = $sf->getOrCreateStation( $station_id, $this->getCurrentCompanyObject()->getID(), $type_id, $this->getPermissionObject(), $this->getCurrentUserObject() );
 
 		if ( is_object($retval) AND isset($retval->Validator) AND $retval->Validator->isValid() == FALSE ) {
 			return $this->returnHandler( FALSE, 'VALIDATION', TTi18n::getText('INVALID DATA'), $retval->Validator->getErrorsArray(), array('total_records' => 1, 'valid_records' => 0 ) );
 		} else {
-			Debug::text('Returning Station ID: '. $station_id, __FILE__, __LINE__, __METHOD__, 10);
+			Debug::text('Returning Station ID: '. $retval, __FILE__, __LINE__, __METHOD__, 10);
 			return $this->returnHandler( $retval );
 		}
 	}
@@ -73,7 +95,7 @@ class APIStation extends APIFactory {
 	function getStationDefaultData() {
 		$company_obj = $this->getCurrentCompanyObject();
 
-		Debug::Text('Getting station default data...', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Getting station default data...', __FILE__, __LINE__, __METHOD__, 10);
 		$time_zone = FALSE;
 		if ( is_object( $company_obj->getUserDefaultObject() ) ) {
 			$time_zone = $company_obj->getUserDefaultObject()->getTimeZone();
@@ -94,8 +116,8 @@ class APIStation extends APIFactory {
 	 * @return array
 	 */
 	function getStation( $data = NULL, $disable_paging = FALSE ) {
-		if ( !$this->getPermissionObject()->Check('station','enabled')
-				OR !( $this->getPermissionObject()->Check('station','view') OR $this->getPermissionObject()->Check('station','view_own') OR $this->getPermissionObject()->Check('station','view_child') ) ) {
+		if ( !$this->getPermissionObject()->Check('station', 'enabled')
+				OR !( $this->getPermissionObject()->Check('station', 'view') OR $this->getPermissionObject()->Check('station', 'view_own') OR $this->getPermissionObject()->Check('station', 'view_child') ) ) {
 			//return $this->getPermissionObject()->PermissionDenied();
 			//Edit Punch view needs to display the name of the station, so people who can edit punches must also be able to view stations.
 			//Rather then permission denied, restrict to just 'list_view' columns.
@@ -103,7 +125,12 @@ class APIStation extends APIFactory {
 		}
 		$data = $this->initializeFilterAndPager( $data, $disable_paging );
 
-		$data['filter_data']['permission_children_ids'] = $this->getPermissionObject()->getPermissionChildren( 'station', 'view' );
+		//View/Edit Punch looks for stations by ID, but they can't be returned if its a supervisor who has subordinates only permissions and it didn't happen to match.
+		if ( !isset($data['filter_data']['id']) ) {
+			$data['filter_data']['permission_children_ids'] = $this->getPermissionObject()->getPermissionChildren( 'station', 'view' );
+		} else {
+			$data['filter_data']['permission_children_ids'] = array();
+		}
 
 		$slf = TTnew( 'StationListFactory' );
 		$slf->getAPISearchByCompanyIdAndArrayCriteria( $this->getCurrentCompanyObject()->getId(), $data['filter_data'], $data['filter_items_per_page'], $data['filter_page'], NULL, $data['filter_sort'] );
@@ -114,7 +141,7 @@ class APIStation extends APIFactory {
 			$this->setPagerObject( $slf );
 
 			foreach( $slf as $b_obj ) {
-				$retarr[] = $b_obj->getObjectAsArray( $data['filter_columns'] );
+				$retarr[] = $b_obj->getObjectAsArray( $data['filter_columns'], $data['filter_data']['permission_children_ids'] );
 
 				$this->getProgressBarObject()->set( $this->getAMFMessageID(), $slf->getCurrentRow() );
 			}
@@ -159,9 +186,9 @@ class APIStation extends APIFactory {
 			return $this->returnHandler( FALSE );
 		}
 
-		if ( !$this->getPermissionObject()->Check('station','enabled')
-				OR !( $this->getPermissionObject()->Check('station','edit') OR $this->getPermissionObject()->Check('station','edit_own') OR $this->getPermissionObject()->Check('station','edit_child') OR $this->getPermissionObject()->Check('station','add') ) ) {
-			return  $this->getPermissionObject()->PermissionDenied();
+		if ( !$this->getPermissionObject()->Check('station', 'enabled')
+				OR !( $this->getPermissionObject()->Check('station', 'edit') OR $this->getPermissionObject()->Check('station', 'edit_own') OR $this->getPermissionObject()->Check('station', 'edit_child') OR $this->getPermissionObject()->Check('station', 'add') ) ) {
+			return	$this->getPermissionObject()->PermissionDenied();
 		}
 
 		if ( $validate_only == TRUE ) {
@@ -187,11 +214,11 @@ class APIStation extends APIFactory {
 					if ( $lf->getRecordCount() == 1 ) {
 						//Object exists, check edit permissions
 						if (
-							  $validate_only == TRUE
-							  OR
+							$validate_only == TRUE
+							OR
 								(
-								$this->getPermissionObject()->Check('station','edit')
-									OR ( $this->getPermissionObject()->Check('station','edit_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE )
+								$this->getPermissionObject()->Check('station', 'edit')
+									OR ( $this->getPermissionObject()->Check('station', 'edit_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE )
 								) ) {
 
 							Debug::Text('Row Exists, getting current data: ', $row['id'], __FILE__, __LINE__, __METHOD__, 10);
@@ -206,7 +233,7 @@ class APIStation extends APIFactory {
 					}
 				} else {
 					//Adding new object, check ADD permissions.
-					$primary_validator->isTrue( 'permission', $this->getPermissionObject()->Check('station','add'), TTi18n::gettext('Add permission denied') );
+					$primary_validator->isTrue( 'permission', $this->getPermissionObject()->Check('station', 'add'), TTi18n::gettext('Add permission denied') );
 
 					//Because this class has sub-classes that depend on it, when adding a new record we need to make sure the ID is set first,
 					//so the sub-classes can depend on it. We also need to call Save( TRUE, TRUE ) to force a lookup on isNew()
@@ -219,7 +246,7 @@ class APIStation extends APIFactory {
 					Debug::Text('Setting object data...', __FILE__, __LINE__, __METHOD__, 10);
 
 					//Force Company ID to current company.
-					if ( !isset($row['company_id']) OR !$this->getPermissionObject()->Check('company','add') ) {
+					if ( !isset($row['company_id']) OR !$this->getPermissionObject()->Check('company', 'add') ) {
 						$row['company_id'] = $this->getCurrentCompanyObject()->getId();
 					}
 
@@ -291,16 +318,16 @@ class APIStation extends APIFactory {
 			return $this->returnHandler( FALSE );
 		}
 
-		if ( !$this->getPermissionObject()->Check('station','enabled')
-				OR !( $this->getPermissionObject()->Check('station','delete') OR $this->getPermissionObject()->Check('station','delete_own') OR $this->getPermissionObject()->Check('station','delete_child') ) ) {
-			return  $this->getPermissionObject()->PermissionDenied();
+		if ( !$this->getPermissionObject()->Check('station', 'enabled')
+				OR !( $this->getPermissionObject()->Check('station', 'delete') OR $this->getPermissionObject()->Check('station', 'delete_own') OR $this->getPermissionObject()->Check('station', 'delete_child') ) ) {
+			return	$this->getPermissionObject()->PermissionDenied();
 		}
 
 		Debug::Text('Received data for: '. count($data) .' Stations', __FILE__, __LINE__, __METHOD__, 10);
 		Debug::Arr($data, 'Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		$total_records = count($data);
-        $validator_stats = array('total_records' => $total_records, 'valid_records' => 0 );
+		$validator_stats = array('total_records' => $total_records, 'valid_records' => 0 );
 		if ( is_array($data) ) {
 			$this->getProgressBarObject()->start( $this->getAMFMessageID(), $total_records );
 
@@ -314,8 +341,8 @@ class APIStation extends APIFactory {
 					$lf->getByIdAndCompanyId( $id, $this->getCurrentCompanyObject()->getId() );
 					if ( $lf->getRecordCount() == 1 ) {
 						//Object exists, check edit permissions
-						if ( $this->getPermissionObject()->Check('station','delete')
-								OR ( $this->getPermissionObject()->Check('station','delete_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE ) ) {
+						if ( $this->getPermissionObject()->Check('station', 'delete')
+								OR ( $this->getPermissionObject()->Check('station', 'delete_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE ) ) {
 							Debug::Text('Record Exists, deleting record: ', $id, __FILE__, __LINE__, __METHOD__, 10);
 							$lf = $lf->getCurrent();
 						} else {
@@ -425,7 +452,7 @@ class APIStation extends APIFactory {
 			return $this->returnHandler( FALSE );
 		}
 
-		Debug::Text('Time Clock Command: '. $command, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Time Clock Command: '. $command, __FILE__, __LINE__, __METHOD__, 10);
 
 		Debug::Text('Received data for: '. count($data) .' Stations', __FILE__, __LINE__, __METHOD__, 10);
 		Debug::Arr($data, 'Data: ', __FILE__, __LINE__, __METHOD__, 10);
@@ -439,119 +466,126 @@ class APIStation extends APIFactory {
 					continue;
 				}
 
-				Debug::Text(' Type: '. $row['type_id'] .' Source: '. $row['source'] .' Port: '. $row['port'] .' Password: '. $row['password'], __FILE__, __LINE__, __METHOD__, 10);
-				$tc = new TimeClock( $row['type_id'] );
-				$tc->setIPAddress( $row['source'] );
-				$tc->setPort( $row['port'] );
-				//$tc->setUsername( $row['user_name'] );
-				$tc->setPassword( $row['password'] );
-
 				$slf = TTnew( 'StationListFactory' );
 				$slf->getByIdAndCompanyId( $row['id'], $this->getCurrentCompanyObject()->getId() );
 				if ( $slf->getRecordCount() == 1 ) {
 					$s_obj = $slf->getCurrent();
 				}
 
-				$s_obj->setLastPunchTimeStamp( $s_obj->getLastPunchTimeStamp() );
+				if ( isset($s_obj) AND is_object($s_obj) ) {
+					$s_obj->setLastPunchTimeStamp( $s_obj->getLastPunchTimeStamp() );
 
-				if ( $s_obj->getTimeZone() != '' AND !is_numeric( $s_obj->getTimeZone() ) ) {
-					Debug::text('Setting Station TimeZone To: '. $s_obj->getTimeZone(), __FILE__, __LINE__, __METHOD__, 10);
-					TTDate::setTimeZone( $s_obj->getTimeZone() );
-				}
+					if ( $s_obj->getTimeZone() != '' AND !is_numeric( $s_obj->getTimeZone() ) ) {
+						Debug::text('Setting Station TimeZone To: '. $s_obj->getTimeZone(), __FILE__, __LINE__, __METHOD__, 10);
+						TTDate::setTimeZone( $s_obj->getTimeZone() );
+					}
 
-				$result_str = NULL;
-				switch ( $command ) {
-					case 'test_connection':
-						if ( $tc->testConnection() == TRUE ) {
-							$result_str = TTi18n::gettext('Connection Succeeded!');
-						} else {
-							$result_str = TTi18n::gettext('Connection Failed!');
-						}
-						break;
-					case 'set_date':
-						TTDate::setTimeZone( $row['time_zone_id'], $s_obj->getTimeZone() );
+					try { //Catch exception here, otherwisw the api.php catches it and causes other problems.
+						Debug::Text(' Type: '. $row['type_id'] .' Source: '. $row['source'] .' Port: '. $row['port'] .' Password: '. $row['password'], __FILE__, __LINE__, __METHOD__, 10);
+						$tc = new TimeClock( $row['type_id'] );
+						$tc->setIPAddress( $row['source'] );
+						$tc->setPort( $row['port'] );
+						//$tc->setUsername( $row['user_name'] );
+						$tc->setPassword( $row['password'] );
 
-						if ( $tc->setDate( time() ) == TRUE ) {
-							$result_str = TTi18n::gettext('Date Successfully Set To: '). TTDate::getDate('DATE+TIME', time() );
-						} else {
-							$result_str = TTi18n::gettext('Setting Date Failed!');
-						}
-						break;
-					case 'download':
-						if ( isset($s_obj) AND $tc->Poll( $this->getCurrentCompanyObject(), $s_obj) == TRUE ) {
-							$result_str = TTi18n::gettext('Download Data Succeeded!');
-							if ( $s_obj->isValid() ) {
-								$s_obj->Save(FALSE);
-							}
-						} else {
-							$result_str = TTi18n::gettext('Download Data Failed!');
-						}
-						break;
-					case 'upload':
-						if ( isset($s_obj) AND $tc->Push( $this->getCurrentCompanyObject(), $s_obj) == TRUE ) {
-							$result_str = TTi18n::gettext('Upload Data Succeeded!');
-							if ( $s_obj->isValid() ) {
-								$s_obj->Save(FALSE);
-							}
-						} else {
-							$result_str = TTi18n::gettext('Upload Data Failed!');
-						}
-						break;
-					case 'update_config':
-						if ( isset($s_obj) AND $tc->setModeFlag( $s_obj->getModeFlag() ) == TRUE ) {
-							$result_str = TTi18n::gettext('Update Configuration Succeeded');
-						} else {
-							$result_str = TTi18n::gettext('Update Configuration Failed');
-						}
-						break;
-					case 'delete_data':
-						if ( isset($s_obj) AND $tc->DeleteAllData( $s_obj ) == TRUE ) {
-							$result_str = TTi18n::gettext('Delete Data Succeeded!');
-							if ( $s_obj->isValid() ) {
-								$s_obj->Save(FALSE);
-							}
-						} else {
-							$result_str = TTi18n::gettext('Delete Data Failed!');
-						}
-						break;
-					case 'reset_last_punch_time_stamp':
-						$s_obj->setLastPunchTimeStamp( time() );
-						if ( $s_obj->isValid() ) {
-							$s_obj->Save(FALSE);
-						}
-						$result_str = TTi18n::gettext('Reset Last Punch Time Succeeded!');
-						break;
-					case 'clear_last_punch_time_stamp':
-						$s_obj->setLastPunchTimeStamp( 1 );
-						if ( $s_obj->isValid() ) {
-							$s_obj->Save(FALSE);
-						}
-						$result_str = TTi18n::gettext('Clear Last Punch Time Succeeded!');
-						break;
-					case 'restart':
-						$tc->restart();
-						$result_str = TTi18n::gettext('Restart Succeeded!');
-						break;
-					case 'firmware':
-						if ( $tc->setFirmware() == TRUE ) {
-							$result_str = TTi18n::gettext('Firmware Update Succeeded!');
-						} else {
-							$result_str = TTi18n::gettext('Firmware Update Failed!');
-						}
-						break;
-					default:
-						$result_str = TTi18n::gettext('Invalid manual command!');
-						break;
-				}
+						$result_str = NULL;
+						switch ( $command ) {
+							case 'test_connection':
+								if ( $tc->testConnection() == TRUE ) {
+									$result_str = TTi18n::gettext('Connection Succeeded!');
+								} else {
+									$result_str = TTi18n::gettext('Connection Failed!');
+								}
+								break;
+							case 'set_date':
+								TTDate::setTimeZone( $row['time_zone_id'], $s_obj->getTimeZone() );
 
-				TTLog::addEntry( $s_obj->getId(), 500,  TTi18n::getText('TimeClock Manual Command').': '. ucwords( str_replace('_', ' ', $command ) ) .' '.TTi18n::getText('Result').': '. $result_str, NULL, $s_obj->getTable() );
+								if ( $tc->setDate( time() ) == TRUE ) {
+									$result_str = TTi18n::gettext('Date Successfully Set To: '). TTDate::getDate('DATE+TIME', time() );
+								} else {
+									$result_str = TTi18n::gettext('Setting Date Failed!');
+								}
+								break;
+							case 'download':
+								if ( isset($s_obj) AND $tc->Poll( $this->getCurrentCompanyObject(), $s_obj) == TRUE ) {
+									$result_str = TTi18n::gettext('Download Data Succeeded!');
+									if ( $s_obj->isValid() ) {
+										$s_obj->Save(FALSE);
+									}
+								} else {
+									$result_str = TTi18n::gettext('Download Data Failed!');
+								}
+								break;
+							case 'upload':
+								if ( isset($s_obj) AND $tc->Push( $this->getCurrentCompanyObject(), $s_obj) == TRUE ) {
+									$result_str = TTi18n::gettext('Upload Data Succeeded!');
+									if ( $s_obj->isValid() ) {
+										$s_obj->Save(FALSE);
+									}
+								} else {
+									$result_str = TTi18n::gettext('Upload Data Failed!');
+								}
+								break;
+							case 'update_config':
+								if ( isset($s_obj) AND $tc->setModeFlag( $s_obj->getModeFlag() ) == TRUE ) {
+									$result_str = TTi18n::gettext('Update Configuration Succeeded');
+								} else {
+									$result_str = TTi18n::gettext('Update Configuration Failed');
+								}
+								break;
+							case 'delete_data':
+								if ( isset($s_obj) AND $tc->DeleteAllData( $s_obj ) == TRUE ) {
+									$result_str = TTi18n::gettext('Delete Data Succeeded!');
+									if ( $s_obj->isValid() ) {
+										$s_obj->Save(FALSE);
+									}
+								} else {
+									$result_str = TTi18n::gettext('Delete Data Failed!');
+								}
+								break;
+							case 'reset_last_punch_time_stamp':
+								$s_obj->setLastPunchTimeStamp( time() );
+								if ( $s_obj->isValid() ) {
+									$s_obj->Save(FALSE);
+								}
+								$result_str = TTi18n::gettext('Reset Last Punch Time Succeeded!');
+								break;
+							case 'clear_last_punch_time_stamp':
+								$s_obj->setLastPunchTimeStamp( 1 );
+								if ( $s_obj->isValid() ) {
+									$s_obj->Save(FALSE);
+								}
+								$result_str = TTi18n::gettext('Clear Last Punch Time Succeeded!');
+								break;
+							case 'restart':
+								$tc->restart();
+								$result_str = TTi18n::gettext('Restart Succeeded!');
+								break;
+							case 'firmware':
+								if ( $tc->setFirmware() == TRUE ) {
+									$result_str = TTi18n::gettext('Firmware Update Succeeded!');
+								} else {
+									$result_str = TTi18n::gettext('Firmware Update Failed!');
+								}
+								break;
+							default:
+								$result_str = TTi18n::gettext('Invalid manual command!');
+								break;
+						}
 
-				if ( isset($s_obj) ) {
-					$row['last_poll_date'] = $s_obj->getLastPollDate();
-					$row['last_push_date'] = $s_obj->getLastPushDate();
+						if ( isset($s_obj) ) {
+							$row['last_poll_date'] = $s_obj->getLastPollDate();
+							$row['last_push_date'] = $s_obj->getLastPushDate();
+						}
+					} catch ( Exception $e ) {
+						$result_str = $e->getMessage();
+					}
+
+					TTLog::addEntry( $s_obj->getId(), 500, TTi18n::getText('TimeClock Manual Command').': '. ucwords( str_replace('_', ' ', $command ) ) .' '.TTi18n::getText('Result').': '. $result_str, NULL, $s_obj->getTable() );
+				} else {
+					Debug::text('ERROR: Station not found... ID: '. $row['id'], __FILE__, __LINE__, __METHOD__, 10);
 				}
 				unset($s_obj, $slf);
-
 			}
 
 			return $this->returnHandler( $result_str );

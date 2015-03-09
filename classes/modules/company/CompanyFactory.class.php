@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 10530 $
- * $Id: CompanyFactory.class.php 10530 2013-07-23 17:41:24Z ipso $
- * $Date: 2013-07-23 10:41:24 -0700 (Tue, 23 Jul 2013) $
- */
+
 
 /**
  * @package Modules\Company
@@ -48,10 +44,11 @@ class CompanyFactory extends Factory {
 
 	protected $address_validator_regex = '/^[a-zA-Z0-9-,_\/\.\'#\ |\x{0080}-\x{FFFF}]{1,250}$/iu';
 	protected $city_validator_regex = '/^[a-zA-Z0-9-,_\.\'#\ |\x{0080}-\x{FFFF}]{1,250}$/iu';
+	protected $short_name_validator_regex = '/^[a-zA-Z0-9-]{1,15}$/iu'; //Short name must only allow characters available in domain names.
 
 	var $user_default_obj = NULL;
 	var $user_obj = NULL;
-    var $base_currency_obj = NULL;
+	var $base_currency_obj = NULL;
 
 	function _getFactoryOptions( $name ) {
 
@@ -316,7 +313,7 @@ class CompanyFactory extends Factory {
 										'VE' => TTi18n::gettext('Venezuela'),
 										'VN' => TTi18n::gettext('Viet Nam'),
 										'VG' => TTi18n::gettext('Virgin Islands, British'),
-										'VI' => TTi18n::gettext('Virgin Islands, U.s.'),
+										'VI' => TTi18n::gettext('Virgin Islands, U.S.'),
 										'WF' => TTi18n::gettext('Wallis and Futuna'),
 										'EH' => TTi18n::gettext('Western Sahara'),
 										'YE' => TTi18n::gettext('Yemen'),
@@ -440,19 +437,19 @@ class CompanyFactory extends Factory {
 														'E' => TTi18n::gettext('St. Peter')
 													),
 										'BY' => array( '00' => '--'),
-										'BE' => array( 	'00' => '--',
-														'AN' => TTi18n::getText('Antwerp '),
-														'BU' => TTi18n::getText('Brussels '),
-														'OV' => TTi18n::getText('East Flanders '),
+										'BE' => array(	'00' => '--',
+														'AN' => TTi18n::getText('Antwerp'),
+														'BU' => TTi18n::getText('Brussels'),
+														'OV' => TTi18n::getText('East Flanders'),
 														'VB' => TTi18n::getText('Flemish Brabant'),
-														'HT' => TTi18n::getText('Hainaut '),
-														'LG' => TTi18n::getText('Liege '),
-														'LI' => TTi18n::getText('Limburg '),
-														'LX' => TTi18n::getText('Luxembourg '),
-														'NA' => TTi18n::getText('Namur '),
+														'HT' => TTi18n::getText('Hainaut'),
+														'LG' => TTi18n::getText('Liege'),
+														'LI' => TTi18n::getText('Limburg'),
+														'LX' => TTi18n::getText('Luxembourg'),
+														'NA' => TTi18n::getText('Namur'),
 														'BW' => TTi18n::getText('Walloon Brabant'),
-														'WV' => TTi18n::getText('West Flanders '),
-													  ),
+														'WV' => TTi18n::getText('West Flanders'),
+													),
 										'BZ' => array( '00' => '--'),
 										'BJ' => array( '00' => '--'),
 										'BM' => array( '00' => '--'),
@@ -461,35 +458,35 @@ class CompanyFactory extends Factory {
 										'BA' => array( '00' => '--'),
 										'BW' => array( '00' => '--'),
 										'BV' => array( '00' => '--'),
-										'BR' => array( 	'00' => '--',
+										'BR' => array(	'00' => '--',
 														'AC' => TTi18n::getText('Acre'),
 														'AL' => TTi18n::getText('Alagoas'),
-														'AP' => TTi18n::getText('Amapá'),
+														'AP' => TTi18n::getText('Amapa'),
 														'AM' => TTi18n::getText('Amazonas'),
 														'BA' => TTi18n::getText('Bahia'),
-														'CE' => TTi18n::getText('Ceará'),
+														'CE' => TTi18n::getText('Ceara'),
 														'DF' => TTi18n::getText('Distrito Federal'),
-														'ES' => TTi18n::getText('Espírito Santo'),
-														'GO' => TTi18n::getText('Goiás'),
-														'MA' => TTi18n::getText('Maranhão'),
+														'ES' => TTi18n::getText('Espirito Santo'),
+														'GO' => TTi18n::getText('Goias'),
+														'MA' => TTi18n::getText('Maranhao'),
 														'MT' => TTi18n::getText('Mato Grosso'),
 														'MS' => TTi18n::getText('Mato Grosso do Sul'),
 														'MG' => TTi18n::getText('Minas Gerais'),
-														'PA' => TTi18n::getText('Pará'),
-														'PB' => TTi18n::getText('Paraíba'),
-														'PR' => TTi18n::getText('Paraná'),
+														'PA' => TTi18n::getText('Para'),
+														'PB' => TTi18n::getText('Paraiba'),
+														'PR' => TTi18n::getText('Parana'),
 														'PE' => TTi18n::getText('Pernambuco'),
-														'PI' => TTi18n::getText('Piauí'),
+														'PI' => TTi18n::getText('Piaui'),
 														'RJ' => TTi18n::getText('Rio de Janeiro'),
 														'RN' => TTi18n::getText('Rio Grande do Norte'),
 														'RS' => TTi18n::getText('Rio Grande do Sul'),
-														'RO' => TTi18n::getText('Rondônia'),
+														'RO' => TTi18n::getText('Rondonia'),
 														'RR' => TTi18n::getText('Roraima'),
 														'SC' => TTi18n::getText('Santa Catarina'),
-														'SP' => TTi18n::getText('São Paulo'),
+														'SP' => TTi18n::getText('Sao Paulo'),
 														'SE' => TTi18n::getText('Sergipe'),
 														'TO' => TTi18n::getText('Tocantins'),
-													 ),
+													),
 										'IO' => array( '00' => '--'),
 										'BN' => array( '00' => '--'),
 										'BG' => array( '00' => '--'),
@@ -701,6 +698,7 @@ class CompanyFactory extends Factory {
 														),
 										'ID' => array(
 														'00' => '--',
+														'AC' => TTi18n::gettext('Aceh'),
 														'BA' => TTi18n::gettext('Bali'),
 														'BB' => TTi18n::gettext('Bangka-Belitung'),
 														'BT' => TTi18n::gettext('Banten'),
@@ -716,9 +714,11 @@ class CompanyFactory extends Factory {
 														'JK' => TTi18n::gettext('Jakarta'),
 														'LA' => TTi18n::gettext('Lampung'),
 														'MA' => TTi18n::gettext('Maluku'),
+														'KU' => TTi18n::gettext('North Kalimantan'),
 														'MU' => TTi18n::gettext('North Maluku'),
 														'SA' => TTi18n::gettext('North Sulawesi'),
 														'SU' => TTi18n::gettext('North Sumatra'),
+														'PA' => TTi18n::gettext('Papua'),
 														'RI' => TTi18n::gettext('Riau'),
 														'KR' => TTi18n::gettext('Riau Islands'),
 														'SS' => TTi18n::gettext('South Sumatra'),
@@ -728,6 +728,7 @@ class CompanyFactory extends Factory {
 														'JB' => TTi18n::gettext('West Java'),
 														'KB' => TTi18n::gettext('West Kalimantan'),
 														'NB' => TTi18n::gettext('West Nusa Tenggara'),
+														'PB' => TTi18n::gettext('West Papua'),
 														'SR' => TTi18n::gettext('West Sulawesi'),
 														'SB' => TTi18n::gettext('West Sumatra'),
 														'YO' => TTi18n::gettext('Yogyakarta'),
@@ -736,7 +737,7 @@ class CompanyFactory extends Factory {
 										'IQ' => array( '00' => '--'),
 										'IE' => array( '00' => '--'),
 										'IL' => array( '00' => '--'),
-										'IT' => array( 	'00' => '--',
+										'IT' => array(	'00' => '--',
 														'AG' => TTi18n::getText('Agrigento'),
 														'AL' => TTi18n::getText('Alessandria'),
 														'AN' => TTi18n::getText('Ancona'),
@@ -773,7 +774,7 @@ class CompanyFactory extends Factory {
 														'FE' => TTi18n::getText('Ferrara'),
 														'FI' => TTi18n::getText('Florence'),
 														'FA' => TTi18n::getText('Foggia'),
-														'FO' => TTi18n::getText('Forlì-Cesena'),
+														'FO' => TTi18n::getText('Forli-Cesena'),
 														'FR' => TTi18n::getText('Frosinone'),
 														'GE' => TTi18n::getText('Genoa'),
 														'GO' => TTi18n::getText('Gorizia'),
@@ -847,7 +848,7 @@ class CompanyFactory extends Factory {
 														'VV' => TTi18n::getText('Vibo Valentia'),
 														'VI' => TTi18n::getText('Vicenza'),
 														'VT' => TTi18n::getText('Viterbo'),
-													  ),
+													),
 										'JM' => array( '00' => '--'),
 										'JP' => array( '00' => '--'),
 										'JO' => array( '00' => '--'),
@@ -1126,7 +1127,7 @@ class CompanyFactory extends Factory {
 										'UG' => array( '00' => '--'),
 										'UA' => array( '00' => '--'),
 										'AE' => array( '00' => '--'),
-										'GB' => array( 	'00' => '--',
+										'GB' => array(	'00' => '--',
 														'AR' => TTi18n::getText('Aberdeen'),
 														'AS' => TTi18n::getText('Aberdeenshire'),
 														'AY' => TTi18n::getText('Anglesey'),
@@ -1327,7 +1328,7 @@ class CompanyFactory extends Factory {
 														'WC' => TTi18n::getText('Worcestershire'),
 														'WX' => TTi18n::getText('Wrexham'),
 														'YK' => TTi18n::getText('York'),
-													  ),
+													),
 										'UM' => array( '00' => '--'),
 										'UY' => array( '00' => '--'),
 										'UZ' => array( '00' => '--'),
@@ -1407,31 +1408,31 @@ class CompanyFactory extends Factory {
 				//2007 NAICS
 				$retval = array(
 										0  => TTi18n::gettext('- Please Choose -'),
-										72  => TTi18n::gettext('Accommodation and Food Services'),
+										72	=> TTi18n::gettext('Accommodation and Food Services'),
 										561 => TTi18n::gettext('Administrative and Support Services'),
-										11  => TTi18n::gettext('Agriculture, Forestry, Fishing and Hunting'),
-										71  => TTi18n::gettext('Arts, Entertainment and Recreation'),
-										23  => TTi18n::gettext('Construction'),
+										11	=> TTi18n::gettext('Agriculture, Forestry, Fishing and Hunting'),
+										71	=> TTi18n::gettext('Arts, Entertainment and Recreation'),
+										23	=> TTi18n::gettext('Construction'),
 										518 => TTi18n::gettext('Data Processing, Hosting and Related Services'),
-										61  => TTi18n::gettext('Educational Services'),
-										52  => TTi18n::gettext('Finance and Insurance'),
-										91  => TTi18n::gettext('Government/Public Administration'),
-										62  => TTi18n::gettext('Health Care and Social Assistance'),
-										51  => TTi18n::gettext('Information and Cultural Industries'),
-										55  => TTi18n::gettext('Management of Companies and Enterprises'),
-										31  => TTi18n::gettext('Manufacturing'),
-										21  => TTi18n::gettext('Mining and Oil and Gas Extraction'),
+										61	=> TTi18n::gettext('Educational Services'),
+										52	=> TTi18n::gettext('Finance and Insurance'),
+										91	=> TTi18n::gettext('Government/Public Administration'),
+										62	=> TTi18n::gettext('Health Care and Social Assistance'),
+										51	=> TTi18n::gettext('Information and Cultural Industries'),
+										55	=> TTi18n::gettext('Management of Companies and Enterprises'),
+										31	=> TTi18n::gettext('Manufacturing'),
+										21	=> TTi18n::gettext('Mining and Oil and Gas Extraction'),
 										512 => TTi18n::gettext('Motion Picture and Sound Recording Industries'),
-										54  => TTi18n::gettext('Professional, Scientific and Technical Services'),
+										54	=> TTi18n::gettext('Professional, Scientific and Technical Services'),
 										511 => TTi18n::gettext('Publishing Industries (except Internet)'),
-										53  => TTi18n::gettext('Real Estate and Rental and Leasing'),
-										44  => TTi18n::gettext('Retail Trade'),
+										53	=> TTi18n::gettext('Real Estate and Rental and Leasing'),
+										44	=> TTi18n::gettext('Retail Trade'),
 										517 => TTi18n::gettext('Telecommunications'),
-										48  => TTi18n::gettext('Transportation and Warehousing'),
-										22  => TTi18n::gettext('Utilities'),
+										48	=> TTi18n::gettext('Transportation and Warehousing'),
+										22	=> TTi18n::gettext('Utilities'),
 										562 => TTi18n::gettext('Waste Management and Remediation Services'),
-										41  => TTi18n::gettext('Wholesale Trade'),
-										99  => TTi18n::gettext('Other'),
+										41	=> TTi18n::gettext('Wholesale Trade'),
+										99	=> TTi18n::gettext('Other'),
 									);
 				break;
 			case 'password_policy_type':
@@ -1626,30 +1627,30 @@ class CompanyFactory extends Factory {
 
 		return FALSE;
 	}
-    
+
 	//Returns total number of currencies, if its 1 then we know we don't need to do any currency conversions at all.
 	function getTotalCurrencies() {
 		$clf = TTNew('CurrencyListFactory');
 		return $clf->getByCompanyID( $this->getID() )->getRecordCount();
 	}
-    function getBaseCurrencyObject() {        
-        if ( is_object( $this->base_currency_obj ) ) {
-            return $this->base_currency_obj;
-        } else {
-            $crlf = TTnew( 'CurrencyListFactory' );
-            $crlf->getByCompanyIdAndBase( $this->getId(), TRUE );            
-    		if ( $crlf->getRecordCount() > 0 ) {
-    			$this->base_currency_obj = $crlf->getCurrent();
-                return $this->base_currency_obj;
-    		}
-            return FALSE;
-        }
-                
-    }
-    
+	function getBaseCurrencyObject() {
+		if ( is_object( $this->base_currency_obj ) ) {
+			return $this->base_currency_obj;
+		} else {
+			$crlf = TTnew( 'CurrencyListFactory' );
+			$crlf->getByCompanyIdAndBase( $this->getId(), TRUE );
+			if ( $crlf->getRecordCount() > 0 ) {
+				$this->base_currency_obj = $crlf->getCurrent();
+				return $this->base_currency_obj;
+			}
+			return FALSE;
+		}
+
+	}
+
 	function getParent() {
 		if ( isset($this->data['parent_id']) ) {
-			return $this->data['parent_id'];
+			return (int)$this->data['parent_id'];
 		}
 
 		return FALSE;
@@ -1681,7 +1682,7 @@ class CompanyFactory extends Factory {
 
 	function getStatus() {
 		if ( isset($this->data['status_id']) ) {
-			return $this->data['status_id'];
+			return (int)$this->data['status_id'];
 		}
 
 		return FALSE;
@@ -1709,7 +1710,11 @@ class CompanyFactory extends Factory {
 
 	function getProductEdition() {
 		if ( isset($this->data['product_edition_id']) ) {
-			return (int)$this->data['product_edition_id'];
+			if ( $this->data['product_edition_id'] > getTTProductEdition() ) {
+				return (int)getTTProductEdition();
+			} else {
+				return (int)$this->data['product_edition_id'];
+			}
 		}
 
 		return FALSE;
@@ -1739,9 +1744,9 @@ class CompanyFactory extends Factory {
 		return $this->data['name'];
 	}
 	function setName($name, $force = FALSE) {
-		$name = trim($name);
+		$name = ucwords( trim($name) );
 
-		if 	(	( DEMO_MODE == FALSE OR $force == TRUE )
+		if	(	( DEMO_MODE == FALSE OR $force == TRUE )
 				AND
 				$this->Validator->isLength(		'name',
 												$name,
@@ -1752,6 +1757,7 @@ class CompanyFactory extends Factory {
 			global $config_vars;
 			if ( $force == FALSE AND $this->isNew() == FALSE AND isset($config_vars['other']['primary_company_id']) AND $config_vars['other']['primary_company_id'] == $this->getId() AND getTTProductEdition() > 10 ) {
 				//Don't change company name
+				unset($name); //Satisfy coding standards.
 			} else {
 				$this->data['name'] = $name;
 				$this->setNameMetaphone( $name );
@@ -1770,9 +1776,9 @@ class CompanyFactory extends Factory {
 		return FALSE;
 	}
 	function setNameMetaphone($value) {
-		$value = metaphone( trim($value) );
+		$value = metaphone( trim( Misc::stripThe( $value ) ) );
 
-		if 	( $value != '' ) {
+		if	( $value != '' ) {
 			$this->data['name_metaphone'] = $value;
 
 			return TRUE;
@@ -1783,7 +1789,7 @@ class CompanyFactory extends Factory {
 
 	function getIndustry() {
 		if ( isset($this->data['industry_id']) ) {
-			return $this->data['industry_id'];
+			return (int)$this->data['industry_id'];
 		}
 
 		return FALSE;
@@ -1815,7 +1821,7 @@ class CompanyFactory extends Factory {
 	function setBusinessNumber($val) {
 		$val = trim($val);
 
-		if 	(	$val == ''
+		if	(	$val == ''
 				OR $this->Validator->isLength(		'business_number',
 												$val,
 												TTi18n::gettext('Business Number is too short or too long'),
@@ -1832,7 +1838,7 @@ class CompanyFactory extends Factory {
 
 	function getOriginatorID() {
 		if ( isset($this->data['originator_id']) ) {
-			return $this->data['originator_id'];
+			return (string)$this->data['originator_id']; //Should not be cast to INT.
 		}
 
 		return FALSE;
@@ -1840,7 +1846,7 @@ class CompanyFactory extends Factory {
 	function setOriginatorID($val) {
 		$val = trim($val);
 
-		if 	(	$val == ''
+		if	(	$val == ''
 				OR $this->Validator->isLength(	'originator_id',
 												$val,
 												TTi18n::gettext('Originator ID is too short or too long'),
@@ -1858,7 +1864,7 @@ class CompanyFactory extends Factory {
 
 	function getDataCenterID() {
 		if ( isset($this->data['data_center_id']) ) {
-			return $this->data['data_center_id'];
+			return (string)$this->data['data_center_id']; //Should not be cast to INT.
 		}
 
 		return FALSE;
@@ -1866,7 +1872,7 @@ class CompanyFactory extends Factory {
 	function setDataCenterID($val) {
 		$val = trim($val);
 
-		if 	(	$val == ''
+		if	(	$val == ''
 				OR $this->Validator->isLength(	'data_center_id',
 												$val,
 												TTi18n::gettext('Data Center ID is too short or too long'),
@@ -1892,11 +1898,21 @@ class CompanyFactory extends Factory {
 	function setShortName($name) {
 		$name = trim($name);
 
-		if 	(	$this->Validator->isLength(		'short_name',
-												$name,
-												TTi18n::gettext('Short name is too short or too long'),
-												2,
-												15) ) {
+		//Short name must only allow characters available in domain names.
+		if	(	$name == ''
+				OR (
+					$this->Validator->isLength(		'short_name',
+													$name,
+													TTi18n::gettext('Short name is too short or too long'),
+													2,
+													15)
+					AND
+					$this->Validator->isRegEx(		'short_name',
+													$name,
+													TTi18n::gettext('Short name must not contain any special characters'),
+													$this->short_name_validator_regex)
+				)
+			) {
 
 			$this->data['short_name'] = $name;
 
@@ -1916,7 +1932,7 @@ class CompanyFactory extends Factory {
 	function setAddress1($address1) {
 		$address1 = trim($address1);
 
-		if 	(
+		if	(
 				$address1 == ''
 				OR (
 				$this->Validator->isRegEx(		'address1',
@@ -1948,7 +1964,7 @@ class CompanyFactory extends Factory {
 	function setAddress2($address2) {
 		$address2 = trim($address2);
 
-		if 	(	$address2 == ''
+		if	(	$address2 == ''
 				OR (
 					$this->Validator->isRegEx(		'address2',
 													$address2,
@@ -1980,7 +1996,7 @@ class CompanyFactory extends Factory {
 	function setCity($city) {
 		$city = trim($city);
 
-		if 	(	$this->Validator->isRegEx(		'city',
+		if	(	$this->Validator->isRegEx(		'city',
 												$city,
 												TTi18n::gettext('City contains invalid characters'),
 												$this->city_validator_regex)
@@ -2032,7 +2048,7 @@ class CompanyFactory extends Factory {
 	function setProvince($province) {
 		$province = trim($province);
 
-		Debug::Text('Country: '. $this->getCountry() .' Province: '. $province, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Country: '. $this->getCountry() .' Province: '. $province, __FILE__, __LINE__, __METHOD__, 10);
 
 		$options_arr = $this->getOptions('province');
 		if ( isset($options_arr[$this->getCountry()]) ) {
@@ -2064,7 +2080,7 @@ class CompanyFactory extends Factory {
 	function setPostalCode($postal_code) {
 		$postal_code = strtoupper( $this->Validator->stripSpaces($postal_code) );
 
-		if 	(
+		if	(
 				$postal_code == ''
 				OR
 				(
@@ -2147,7 +2163,7 @@ class CompanyFactory extends Factory {
 	function setWorkPhone($work_phone) {
 		$work_phone = trim($work_phone);
 
-		if 	(	$this->Validator->isPhoneNumber(		'work_phone',
+		if	(	$this->Validator->isPhoneNumber(		'work_phone',
 														$work_phone,
 														TTi18n::gettext('Work phone number is invalid')) ) {
 
@@ -2169,7 +2185,7 @@ class CompanyFactory extends Factory {
 	function setFaxPhone($fax_phone) {
 		$fax_phone = trim($fax_phone);
 
-		if 	(	$fax_phone == ''
+		if	(	$fax_phone == ''
 				OR
 				$this->Validator->isPhoneNumber(		'fax_phone',
 														$fax_phone,
@@ -2196,7 +2212,7 @@ class CompanyFactory extends Factory {
 		$ulf = TTnew( 'UserListFactory' );
 
 		if ( !empty($id)
-				AND 	$this->Validator->isResultSetWithRows(	'admin_contact',
+				AND $this->Validator->isResultSetWithRows(	'admin_contact',
 																$ulf->getByID($id),
 																TTi18n::gettext('Contact User is invalid')
 																) ) {
@@ -2277,7 +2293,7 @@ class CompanyFactory extends Factory {
 				$this->Validator->isLength(	'other_id1',
 											$value,
 											TTi18n::gettext('Other ID 1 is invalid'),
-											1,255) ) {
+											1, 255) ) {
 
 			$this->data['other_id1'] = $value;
 
@@ -2302,7 +2318,7 @@ class CompanyFactory extends Factory {
 				$this->Validator->isLength(	'other_id2',
 											$value,
 											TTi18n::gettext('Other ID 2 is invalid'),
-											1,255) ) {
+											1, 255) ) {
 
 			$this->data['other_id2'] = $value;
 
@@ -2327,7 +2343,7 @@ class CompanyFactory extends Factory {
 				$this->Validator->isLength(	'other_id3',
 											$value,
 											TTi18n::gettext('Other ID 3 is invalid'),
-											1,255) ) {
+											1, 255) ) {
 
 			$this->data['other_id3'] = $value;
 
@@ -2352,7 +2368,7 @@ class CompanyFactory extends Factory {
 				$this->Validator->isLength(	'other_id4',
 											$value,
 											TTi18n::gettext('Other ID 4 is invalid'),
-											1,255) ) {
+											1, 255) ) {
 
 			$this->data['other_id4'] = $value;
 
@@ -2377,7 +2393,7 @@ class CompanyFactory extends Factory {
 				$this->Validator->isLength(	'other_id5',
 											$value,
 											TTi18n::gettext('Other ID 5 is invalid'),
-											1,255) ) {
+											1, 255) ) {
 
 			$this->data['other_id5'] = $value;
 
@@ -2475,7 +2491,7 @@ class CompanyFactory extends Factory {
 		return TRUE;
 	}
 
-	function getEnableSecondLastName(){
+	function getEnableSecondLastName() {
 		if ( isset($this->data['enable_second_last_name']) ) {
 			return $this->data['enable_second_last_name'];
 		}
@@ -2483,7 +2499,7 @@ class CompanyFactory extends Factory {
 		return FALSE;
 	}
 
-	function setEnableSecondLastName($bool){
+	function setEnableSecondLastName($bool) {
 		$this->data['enable_second_last_name'] = $this->toBool($bool);
 
 		return TRUE;
@@ -2499,7 +2515,7 @@ class CompanyFactory extends Factory {
 	function setMigrateURL($value) {
 		$value = trim($value);
 
-		if 	( $value != '' ) {
+		if	( $value != '' ) {
 			$this->data['migrate_url'] = $value;
 
 			return TRUE;
@@ -2508,7 +2524,7 @@ class CompanyFactory extends Factory {
 		return FALSE;
 	}
 
-	function getSetupComplete(){
+	function getSetupComplete() {
 		if ( isset($this->data['is_setup_complete']) ) {
 			return $this->data['is_setup_complete'];
 		}
@@ -2516,7 +2532,7 @@ class CompanyFactory extends Factory {
 		return FALSE;
 	}
 
-	function setSetupComplete($bool){
+	function setSetupComplete($bool) {
 		$this->data['is_setup_complete'] = $this->toBool($bool);
 
 		return TRUE;
@@ -2547,6 +2563,8 @@ class CompanyFactory extends Factory {
 			$logo_file_name = $base_name.'.jpg';
 		} elseif ( file_exists( $base_name.'.png') ) {
 			$logo_file_name = $base_name.'.png';
+		} elseif ( file_exists( $base_name.'.img') ) {
+			$logo_file_name = $base_name.'.img';
 		} else {
 			if ( $include_default_logo == TRUE ) {
 				//Check for primary company logo first, so branding gets carried over automatically.
@@ -2569,7 +2587,7 @@ class CompanyFactory extends Factory {
 			}
 		}
 
-		Debug::Text('Logo File Name: '. $logo_file_name .' Include Default: '. (int)$include_default_logo .' Primary Company Logo: '. (int)$primary_company_logo .' Size: '. $size, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Logo File Name: '. $logo_file_name .' Include Default: '. (int)$include_default_logo .' Primary Company Logo: '. (int)$primary_company_logo .' Size: '. $size, __FILE__, __LINE__, __METHOD__, 10);
 		return $logo_file_name;
 	}
 
@@ -2627,7 +2645,7 @@ class CompanyFactory extends Factory {
 	*/
 	function getPasswordPolicyType() {
 		if ( isset($this->data['password_policy_type_id']) ) {
-			return $this->data['password_policy_type_id'];
+			return (int)$this->data['password_policy_type_id'];
 		}
 
 		return FALSE;
@@ -2728,6 +2746,13 @@ class CompanyFactory extends Factory {
 	function setPasswordMinimumAge($value) {
 		$value = $this->Validator->stripNonNumeric( trim($value) );
 
+		if ( $value <= 0 ) {
+			$value = 0;
+		}
+		if ( $value > 32766 ) {
+			$value = 32766;
+		}
+
 		if (
 					$this->Validator->isNumeric(	'password_minimum_age',
 													$value,
@@ -2752,11 +2777,14 @@ class CompanyFactory extends Factory {
 	function setPasswordMaximumAge($value) {
 		$value = $this->Validator->stripNonNumeric( trim($value) );
 
-		//Never let a value of 0 be set.
-		if ( $value < 1 ) {
-			$value = 1;
+		//Never let a value of 0 be set, use 999 instead.
+		if ( $value <= 1 ) {
+			$value = 32766;
 		}
-		
+		if ( $value > 32766 ) {
+			$value = 32766;
+		}
+
 		if (
 				$this->Validator->isNumeric(	'password_maximum_age',
 												$value,
@@ -2776,7 +2804,7 @@ class CompanyFactory extends Factory {
 	*/
 	function getLDAPAuthenticationType() {
 		if ( isset($this->data['ldap_authentication_type_id']) ) {
-			return $this->data['ldap_authentication_type_id'];
+			return (int)$this->data['ldap_authentication_type_id'];
 		}
 
 		return FALSE;
@@ -2784,7 +2812,9 @@ class CompanyFactory extends Factory {
 	function setLDAPAuthenticationType($type) {
 		$type = trim($type);
 
-		if ( $this->Validator->inArrayKey(	'ldap_authentication_type_id',
+		if ( DEMO_MODE == FALSE
+				AND
+				$this->Validator->inArrayKey(	'ldap_authentication_type_id',
 											$type,
 											TTi18n::gettext('Incorrect LDAP authentication type'),
 											$this->getOptions('ldap_authentication_type')) ) {
@@ -2807,7 +2837,7 @@ class CompanyFactory extends Factory {
 	function setLDAPHost($value) {
 		$value = trim($value);
 
-		if 	(	$value == ''
+		if	(	$value == ''
 				OR
 				$this->Validator->isLength(		'ldap_host',
 												$value,
@@ -2861,7 +2891,7 @@ class CompanyFactory extends Factory {
 	function setLDAPBindUserName($value) {
 		$value = trim($value);
 
-		if 	(	$this->Validator->isLength(		'ldap_bind_user_name',
+		if	(	$this->Validator->isLength(		'ldap_bind_user_name',
 												$value,
 												TTi18n::gettext('LDAP bind user name is too long'),
 												0,
@@ -2885,7 +2915,7 @@ class CompanyFactory extends Factory {
 	function setLDAPBindPassword($value) {
 		$value = trim($value);
 
-		if 	(	$this->Validator->isLength(		'ldap_bind_password',
+		if	(	$this->Validator->isLength(		'ldap_bind_password',
 												$value,
 												TTi18n::gettext('LDAP bind password is too long'),
 												0,
@@ -2909,7 +2939,7 @@ class CompanyFactory extends Factory {
 	function setLDAPBaseDN($value) {
 		$value = trim($value);
 
-		if 	(	$this->Validator->isLength(		'ldap_base_dn',
+		if	(	$this->Validator->isLength(		'ldap_base_dn',
 												$value,
 												TTi18n::gettext('LDAP base DN is too long'),
 												0,
@@ -2933,7 +2963,7 @@ class CompanyFactory extends Factory {
 	function setLDAPBindAttribute($value) {
 		$value = trim($value);
 
-		if 	(	$this->Validator->isLength(		'ldap_bind_attribute',
+		if	(	$this->Validator->isLength(		'ldap_bind_attribute',
 												$value,
 												TTi18n::gettext('LDAP bind attribute is too long'),
 												0,
@@ -2957,7 +2987,7 @@ class CompanyFactory extends Factory {
 	function setLDAPUserFilter($value) {
 		$value = trim($value);
 
-		if 	(	$this->Validator->isLength(		'ldap_user_filter',
+		if	(	$this->Validator->isLength(		'ldap_user_filter',
 												$value,
 												TTi18n::gettext('LDAP user filter is too long'),
 												0,
@@ -2981,7 +3011,7 @@ class CompanyFactory extends Factory {
 	function setLDAPLoginAttribute($value) {
 		$value = trim($value);
 
-		if 	(	$this->Validator->isLength(		'ldap_login_attribute',
+		if	(	$this->Validator->isLength(		'ldap_login_attribute',
 												$value,
 												TTi18n::gettext('LDAP login attribute is too long'),
 												0,
@@ -2995,7 +3025,7 @@ class CompanyFactory extends Factory {
 		return FALSE;
 	}
 
-	//Returns either UTF-8 or ISO-8859-1 encodings mainly as a report optimization. 
+	//Returns either UTF-8 or ISO-8859-1 encodings mainly as a report optimization.
 	function getEncoding( $company_id = FALSE ) {
 		if ( $company_id == '' ) {
 			$company_id = $this->getID();
@@ -3009,12 +3039,12 @@ class CompanyFactory extends Factory {
 				//Get unique currencies, to check if currency symbol requires unicode.
 				$clf = TTnew('CurrencyListFactory');
 				$iso_codes = $clf->getUniqueISOCodeByCompanyId( $company_id );
-				//Debug::Arr($iso_codes, 'ISO Codes: ', __FILE__, __LINE__, __METHOD__,9);
+				//Debug::Arr($iso_codes, 'ISO Codes: ', __FILE__, __LINE__, __METHOD__, 9);
 				if ( is_array($iso_codes) ) {
 					foreach( $iso_codes as $iso_code ) {
 						$encoding = strtoupper( mb_detect_encoding(TTi18n::getCurrencySymbol( $iso_code ), 'auto') );
 						if ( $encoding == 'UTF-8' ) {
-							Debug::Text($encoding, 'ISO Code: '. $iso_code .' Encoding: '. $encoding, __FILE__, __LINE__, __METHOD__,9);
+							Debug::Text($encoding, 'ISO Code: '. $iso_code .' Encoding: '. $encoding, __FILE__, __LINE__, __METHOD__, 9);
 							$retval = 'UTF-8';
 						}
 					}
@@ -3025,7 +3055,7 @@ class CompanyFactory extends Factory {
 				//Get unique language codes, if anything other than english is used, assume UTF-8.
 				$uplf = TTnew('UserPreferenceListFactory');
 				$language_codes = $uplf->getUniqueLanguageByCompanyId( $company_id );
-				//Debug::Arr($language_codes, 'Language Codes: ', __FILE__, __LINE__, __METHOD__,9);
+				//Debug::Arr($language_codes, 'Language Codes: ', __FILE__, __LINE__, __METHOD__, 9);
 				if ( is_array($language_codes) ) {
 					foreach( $language_codes as $language_code ) {
 						if ( $language_code != 'en' ) {
@@ -3045,6 +3075,48 @@ class CompanyFactory extends Factory {
 		return $retval;
 	}
 
+	function getDefaultContact() {
+		if ( $this->getID() > 0 ) {
+			//Loop through all employees with the highest permission level, and pick the account that is the oldest and logged in within the last 30 days.
+			$pclf = TTnew('PermissionControlListFactory');
+			$pclf->getByCompanyId( $this->getID(), 1, NULL, NULL, array( 'level' => 'desc' ) );
+			if ( $pclf->getRecordCount() > 0 ) {
+				$ulf = TTnew('UserListFactory');
+
+				foreach( $pclf as $pc_obj ) {
+					$ulf->getByIdAndCompanyId( $pc_obj->getUser(), $this->getId(), NULL, NULL, array( 'status_id =' => 10 ), array( 'created_date' => 'asc' ) );
+					if ( $ulf->getRecordCount() > 0 ) {
+						$newest_last_login_date = FALSE;
+						$last_user_obj = FALSE;
+						$i = 0;
+						foreach( $ulf as $u_obj ) {
+							if ( $i == 0 ) { //Default to the oldest user with the highest permission level.
+								$last_user_obj = $u_obj;
+								$newest_last_login_date = $u_obj->getLastLoginDate();
+							}
+							
+							if ( ( $u_obj->getWorkEmail() != '' OR $u_obj->getHomeEmail() != '' ) AND ( $newest_last_login_date == FALSE OR $u_obj->getLastLoginDate() > $newest_last_login_date ) ) {
+								$last_user_obj = $u_obj;
+								$newest_last_login_date = $u_obj->getLastLoginDate();
+							}
+
+							$i++;
+						}
+
+						if ( is_object( $last_user_obj ) ) {
+							Debug::text('Found user that has been active in last 30 days: '. $last_user_obj->getFullName() .' ('. $last_user_obj->getID().')', __FILE__, __LINE__, __METHOD__, 9);
+							return $last_user_obj->getId();
+						}
+					}
+
+				}
+			}
+		}
+
+		Debug::text('Unable to find active employees with work email addresses specified...', __FILE__, __LINE__, __METHOD__, 9);
+		return FALSE;
+	}
+
 	function Validate() {
 		global $config_vars;
 
@@ -3055,12 +3127,11 @@ class CompanyFactory extends Factory {
 											FALSE,
 											TTi18n::gettext('Unable to delete the primary company'));
 		}
-																																												$obj_class = "\124\124\114\x69\x63\x65\x6e\x73\x65"; $obj_function = "\166\x61\154\x69\144\x61\164\145\114\x69\x63\145\x6e\x73\x65"; $obj_error_msg_function = "\x67\x65\x74\x46\x75\154\154\105\162\x72\x6f\x72\115\x65\x73\163\141\x67\x65"; @$obj = new $obj_class; $retval = $obj->{$obj_function}(); if ( $retval !== TRUE ) { $this->Validator->isTrue( 'lic_obj', FALSE, $obj->{$obj_error_msg_function}($retval) ); }
+																																												if ( $this->Validator->isValid() == TRUE AND $this->isNew( TRUE ) == TRUE ) { $obj_class = "\124\124\114\x69\x63\x65\x6e\x73\x65"; $obj_function = "\166\x61\154\x69\144\x61\164\145\114\x69\x63\145\x6e\x73\x65"; $obj_error_msg_function = "\x67\x65\x74\x46\x75\154\154\105\162\x72\x6f\x72\115\x65\x73\163\141\x67\x65"; @$obj = new $obj_class; $retval = $obj->{$obj_function}(); if ( $retval !== TRUE ) { $this->Validator->isTrue( 'lic_obj', FALSE, $obj->{$obj_error_msg_function}($retval) ); } }
 		return TRUE;
 	}
 
 	function preSave() {
-
 		if ( $this->isNew() == TRUE ) {
 			$this->is_new = TRUE;
 		}
@@ -3076,7 +3147,7 @@ class CompanyFactory extends Factory {
 			if ( $ulf->getRecordCount() > 0 ) {
 				$ulf->StartTransaction();
 				foreach( $ulf as $u_obj ) {
-					Debug::text('Deleting User ID: '. $u_obj->getId() , __FILE__, __LINE__, __METHOD__,9);
+					Debug::text('Deleting User ID: '. $u_obj->getId(), __FILE__, __LINE__, __METHOD__, 9);
 					$u_obj->setDeleted( TRUE );
 					if ( $u_obj->isValid() ) {
 						$u_obj->Save();
@@ -3088,6 +3159,7 @@ class CompanyFactory extends Factory {
 
 		return TRUE;
 	}
+
 	function postSave() {
 		$this->removeCache( $this->getId() );
 
@@ -3099,16 +3171,16 @@ class CompanyFactory extends Factory {
 				$clf = TTnew( 'CurrencyListFactory' );
 				$clf->getByCompanyId( $this->getId() );
 				if ( $clf->getRecordCount() == 0 ) {
-					Debug::text('Adding Default Currency', __FILE__, __LINE__, __METHOD__,9);
+					Debug::text('Adding Default Currency', __FILE__, __LINE__, __METHOD__, 9);
 
 					$cf = TTnew( 'CurrencyFactory' );
 					$country_to_currency_map_arr = $cf->getOptions('country_currency');
 
 					if ( isset($country_to_currency_map_arr[$this->getCountry()]) ) {
 						$base_currency = $country_to_currency_map_arr[$this->getCountry()];
-						Debug::text('Found Base Currency For Country: '. $this->getCountry() .' Currency: '. $base_currency , __FILE__, __LINE__, __METHOD__,9);
+						Debug::text('Found Base Currency For Country: '. $this->getCountry() .' Currency: '. $base_currency, __FILE__, __LINE__, __METHOD__, 9);
 					} else {
-						Debug::text('DID NOT Find Base Currency For Country: '. $this->getCountry() .' Using default USD.', __FILE__, __LINE__, __METHOD__,9);
+						Debug::text('DID NOT Find Base Currency For Country: '. $this->getCountry() .' Using default USD.', __FILE__, __LINE__, __METHOD__, 9);
 						$base_currency = 'USD';
 					}
 
@@ -3129,7 +3201,7 @@ class CompanyFactory extends Factory {
 			}
 
 			if ( $this->getEnableAddPermissionGroupPreset() == TRUE ) {
-				Debug::text('Adding Preset Permission Groups', __FILE__, __LINE__, __METHOD__,9);
+				Debug::text('Adding Preset Permission Groups', __FILE__, __LINE__, __METHOD__, 9);
 
 				$pf = TTnew( 'PermissionFactory' );
 				$pf->StartTransaction();
@@ -3154,7 +3226,7 @@ class CompanyFactory extends Factory {
 			}
 
 			if ( $this->getEnableAddStation() == TRUE ) {
-				Debug::text('Adding Default Station', __FILE__, __LINE__, __METHOD__,9);
+				Debug::text('Adding Default Station', __FILE__, __LINE__, __METHOD__, 9);
 
 				//Enable punching in from all stations
 				$sf = TTnew( 'StationFactory' );
@@ -3230,63 +3302,12 @@ class CompanyFactory extends Factory {
 				$sp->createPresets( $this->getCountry(), $this->getProvince() );
 				$sp->UserDefaults();
 			}
-/*
-			if ( $this->getEnableAddPayStubEntryAccountPreset() == TRUE ) {
-				Debug::text('Adding Pay Stub Entry Account Presets', __FILE__, __LINE__, __METHOD__,9);
-				PayStubEntryAccountFactory::addPresets( $this->getId() );
+
+			//If status is set to anything other than ACTIVE, logout all users.
+			if ( $this->getStatus() != 10 ) {
+				$authentication = TTNew('Authentication');
+				$authentication->logoutCompany( $this->getID() );
 			}
-
-			if ( $this->getEnableAddCompanyDeductionPreset() == TRUE ) {
-				Debug::text('Adding Company Deduction Presets', __FILE__, __LINE__, __METHOD__,9);
-				CompanyDeductionFactory::addPresets( $this->getId() );
-			}
-
-			if ( $this->getEnableAddRecurringHolidayPreset() == TRUE ) {
-				Debug::text('Adding Recurring Holiday Presets', __FILE__, __LINE__, __METHOD__,9);
-				RecurringHolidayFactory::addPresets( $this->getId(), $this->getCountry() );
-			}
-
-			if ( $this->getEnableAddUserDefaultPreset() == TRUE ) {
-				//User Default settings, always do this last.
-				$udf = TTnew( 'UserDefaultFactory' );
-				$udf->setCompany( $this->getID() );
-				$udf->setCity( $this->getCity() );
-				$udf->setCountry( $this->getCountry() );
-				$udf->setProvince( $this->getProvince() );
-				$udf->setWorkPhone( $this->getWorkPhone() );
-
-				$udf->setLanguage( 'en' );
-				$udf->setDateFormat( 'd-M-y' );
-				$udf->setTimeFormat( 'g:i A' );
-				$udf->setTimeUnitFormat( 10 );
-				$udf->setItemsPerPage( 25 );
-				$udf->setStartWeekDay( 0 );
-
-				//$udf->setPolicyGroup( $user_data['policy_group_id'] );
-
-				if ( isset($regular_employee_pcf_id) ) {
-					$udf->setPermissionControl( $regular_employee_pcf_id );
-				}
-
-				if ( isset($currency_id) ) {
-					$udf->setCurrency( $currency_id );
-				}
-
-				$upf = TTnew( 'UserPreferenceFactory' );
-				$udf->setTimeZone( $upf->getLocationTimeZone( $this->getCountry(), $this->getProvince(), $this->getWorkPhone() ) );
-				Debug::text('Time Zone: '. $udf->getTimeZone(), __FILE__, __LINE__, __METHOD__,9);
-
-				$udf->setEnableEmailNotificationException( TRUE );
-				$udf->setEnableEmailNotificationMessage( TRUE );
-				$udf->setEnableEmailNotificationHome( TRUE );
-
-				if ( $udf->isValid() ) {
-					Debug::text('Adding User Default settings...', __FILE__, __LINE__, __METHOD__,9);
-
-					$udf->Save();
-				}
-			}
-*/
 		}
 
 		return TRUE;
@@ -3375,5 +3396,16 @@ class CompanyFactory extends Factory {
 	function addLog( $log_action ) {
 		return TTLog::addEntry( $this->getId(), $log_action, TTi18n::getText('Company Information'), NULL, $this->getTable(), $this );
 	}
+
+  // Hook:Maestrano
+  function Save($reset_data=TRUE, $force_lookup=FALSE, $push_to_connec=TRUE) {
+    parent::Save(false, $force_lookup);
+
+    $mapper = 'CompanyMapper';
+    if(class_exists($mapper)) {
+      $companyMapper = new $mapper();
+      $companyMapper->processLocalUpdate($this, $push_to_connec);
+    }
+  }
 }
 ?>

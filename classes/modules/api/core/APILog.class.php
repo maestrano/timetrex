@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2196 $
- * $Id: APILog.class.php 2196 2008-10-14 16:08:54Z ipso $
- * $Date: 2008-10-14 09:08:54 -0700 (Tue, 14 Oct 2008) $
- */
+
 
 /**
  * @package API\Core
@@ -52,20 +48,62 @@ class APILog extends APIFactory {
 	}
 
 	/**
-	 * Get log data for one or more loges.
+	 * Get log data for one or more logs.
 	 * @param array $data filter data
 	 * @return array
 	 */
 	function getLog( $data = NULL, $disable_paging = FALSE ) {
-		/*
-		if ( !$this->getPermissionObject()->Check('log','enabled')
-				OR !( $this->getPermissionObject()->Check('log','view') OR $this->getPermissionObject()->Check('log','view_child')  ) ) {
-			return $this->getPermissionObject()->PermissionDenied();
-		}
-		*/
+		//Check permissions based on the filter table_name.
+		//Its important that regular employees can't view the entire log as some sensitive information may be contained within.
 		$data = $this->initializeFilterAndPager( $data, $disable_paging );
 
 		$blf = TTnew( 'LogListFactory' );
+
+		if ( isset($data['filter_data']['table_name_object_id']) ) {
+			if ( !is_array($data['filter_data']['table_name_object_id']) ) {
+				$data['filter_data']['table_name_object_id'] = array($data['filter_data']['table_name_object_id']);
+			}
+
+			$filter_table_names = array_keys( $data['filter_data']['table_name_object_id'] );
+		} elseif ( isset($data['filter_data']['table_name']) ) {
+			if ( !is_array($data['filter_data']['table_name']) ) {
+				$data['filter_data']['table_name'] = array($data['filter_data']['table_name']);
+			}
+
+			$filter_table_names = $data['filter_data']['table_name'];
+		} else {
+			Debug::Text('ERROR: No filter table names specified...', __FILE__, __LINE__, __METHOD__, 10);
+		}
+
+		if ( isset($filter_table_names) AND count($filter_table_names) > 0 ) {
+			$table_name_permission_map = $blf->getOptions('table_name_permission_map');
+			foreach( $filter_table_names as $key => $filter_table_name ) {
+				if ( isset($table_name_permission_map[$filter_table_name]) ) {
+					foreach( $table_name_permission_map[$filter_table_name] as $permission_section ) {
+						if ( !( $this->getPermissionObject()->Check( $permission_section, 'enabled')
+								AND ( $this->getPermissionObject()->Check( $permission_section, 'edit')
+									OR $this->getPermissionObject()->Check( $permission_section, 'edit_child')
+								) ) ) {
+							Debug::Text('Skipping table name due to permissions: '. $filter_table_name .' Permission Section: '. $permission_section .' Key: '. $key, __FILE__, __LINE__, __METHOD__, 10);
+							unset($data['filter_data']['table_name'][$key], $data['filter_data']['table_name_object_id'][$filter_table_name]);
+						} else {
+							Debug::Text('Allowing table name due to permissions: '. $filter_table_name, __FILE__, __LINE__, __METHOD__, 10);
+						}
+					}
+				} else {
+					Debug::Text('Skipping undefined table name: '. $filter_table_name, __FILE__, __LINE__, __METHOD__, 10);
+					unset($data['filter_data']['table_name'][$key], $data['filter_data']['table_name_object_id'][$filter_table_name]);
+				}
+			}
+		}
+
+		//Debug::Arr($data, 'Filter data: ', __FILE__, __LINE__, __METHOD__, 10);
+		if ( ( isset($data['filter_data']['table_name']) AND count($data['filter_data']['table_name']) == 0 )
+				OR ( isset($data['filter_data']['table_name_object_id']) AND count($data['filter_data']['table_name_object_id']) == 0 ) ) {
+			Debug::Text('ERROR: No filter table names specified, not returning any records... (b)', __FILE__, __LINE__, __METHOD__, 10);
+			return $this->returnHandler( TRUE ); //No records returned.
+		}
+
 		$blf->getAPISearchByCompanyIdAndArrayCriteria( $this->getCurrentCompanyObject()->getId(), $data['filter_data'], $data['filter_items_per_page'], $data['filter_page'], NULL, $data['filter_sort'] );
 		Debug::Text('Record Count: '. $blf->getRecordCount(), __FILE__, __LINE__, __METHOD__, 10);
 		if ( $blf->getRecordCount() > 0 ) {
@@ -88,7 +126,7 @@ class APILog extends APIFactory {
 	}
 
 	/**
-	 * Validate log data for one or more loges.
+	 * Validate log data for one or more logs.
 	 * @param array $data log data
 	 * @return array
 	 */
@@ -97,7 +135,7 @@ class APILog extends APIFactory {
 	}
 
 	/**
-	 * Set log data for one or more loges.
+	 * Set log data for one or more logs.
 	 * @param array $data log data
 	 * @return array
 	 */

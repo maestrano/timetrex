@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 11053 $
- * $Id: RecurringScheduleTemplateFactory.class.php 11053 2013-09-27 23:08:52Z ipso $
- * $Date: 2013-09-27 16:08:52 -0700 (Fri, 27 Sep 2013) $
- */
+
 
 /**
  * @package Modules\Schedule
@@ -47,6 +43,7 @@ class RecurringScheduleTemplateFactory extends Factory {
 	protected $pk_sequence_name = 'recurring_schedule_template_id_seq'; //PK Sequence name
 
 	protected $schedule_policy_obj = NULL;
+	protected $recurring_schedule_template_control_obj = NULL;
 
 	function _getFactoryOptions( $name ) {
 
@@ -148,24 +145,18 @@ class RecurringScheduleTemplateFactory extends Factory {
 		return $variable_function_map;
 	}
 
-	function getSchedulePolicyObject() {
-		if ( is_object($this->schedule_policy_obj) ) {
-			return $this->schedule_policy_obj;
-		} else {
-			$splf = TTnew( 'SchedulePolicyListFactory' );
-			$splf->getById( $this->getSchedulePolicyID() );
-			if ( $splf->getRecordCount() > 0 ) {
-				$this->schedule_policy_obj = $splf->getCurrent();
-				return $this->schedule_policy_obj;
-			}
+	function getRecurringScheduleTemplateControlObject() {
+		return $this->getGenericObject( 'RecurringScheduleTemplateControlListFactory', $this->getRecurringScheduleTemplateControl(), 'recurring_schedule_template_control_obj' );
+	}
 
-			return FALSE;
-		}
+
+	function getSchedulePolicyObject() {
+		return $this->getGenericObject( 'SchedulePolicyListFactory', $this->getSchedulePolicyID(), 'schedule_policy_obj' );
 	}
 
 	function getRecurringScheduleTemplateControl() {
 		if ( isset($this->data['recurring_schedule_template_control_id']) ) {
-			return $this->data['recurring_schedule_template_control_id'];
+			return (int)$this->data['recurring_schedule_template_control_id'];
 		}
 
 		return FALSE;
@@ -190,7 +181,7 @@ class RecurringScheduleTemplateFactory extends Factory {
 
 	function getStatus() {
 		if ( isset($this->data['status_id']) ) {
-			return $this->data['status_id'];
+			return (int)$this->data['status_id'];
 		}
 
 		return FALSE;
@@ -226,7 +217,7 @@ class RecurringScheduleTemplateFactory extends Factory {
 	function setWeek($int) {
 		$int = trim($int);
 
-		if 	(	$int > 0
+		if	(	$int > 0
 				AND
 				$this->Validator->isNumeric(		'week'.$this->getLabelID(),
 													$int,
@@ -339,9 +330,9 @@ class RecurringScheduleTemplateFactory extends Factory {
 	function setStartTime($epoch) {
 		$epoch = trim($epoch);
 
-		Debug::Text('Start Time: '. $epoch, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Start Time: '. $epoch, __FILE__, __LINE__, __METHOD__, 10);
 
-		if 	(	$this->Validator->isDate(		'start_time'.$this->getLabelID(),
+		if	(	$this->Validator->isDate(		'start_time'.$this->getLabelID(),
 												$epoch,
 												TTi18n::gettext('Incorrect In time'))
 
@@ -369,7 +360,7 @@ class RecurringScheduleTemplateFactory extends Factory {
 	function setEndTime($epoch) {
 		$epoch = trim($epoch);
 
-		if 	(	$this->Validator->isDate(		'end_time'.$this->getLabelID(),
+		if	(	$this->Validator->isDate(		'end_time'.$this->getLabelID(),
 												$epoch,
 												TTi18n::gettext('Incorrect Out time'))
 
@@ -385,6 +376,9 @@ class RecurringScheduleTemplateFactory extends Factory {
 
 	function getTotalTime() {
 		$sf = TTnew( 'ScheduleFactory' );
+
+		//This helps calculate the schedule total time based on schedule policy or policy groups.
+		$sf->setCompany( $this->getRecurringScheduleTemplateControlObject()->getCompany() );
 		$sf->setStartTime( $this->getStartTime() );
 		$sf->setEndTime( $this->getEndTime() );
 		if ( $this->getSchedulePolicyObject() != FALSE ) {
@@ -397,7 +391,7 @@ class RecurringScheduleTemplateFactory extends Factory {
 
 	function getSchedulePolicyID() {
 		if ( isset($this->data['schedule_policy_id']) ) {
-			return $this->data['schedule_policy_id'];
+			return (int)$this->data['schedule_policy_id'];
 		}
 
 		return FALSE;
@@ -428,7 +422,7 @@ class RecurringScheduleTemplateFactory extends Factory {
 
 	function getBranch() {
 		if ( isset($this->data['branch_id']) ) {
-			return $this->data['branch_id'];
+			return (int)$this->data['branch_id'];
 		}
 
 		return FALSE;
@@ -438,7 +432,7 @@ class RecurringScheduleTemplateFactory extends Factory {
 
 		$blf = TTnew( 'BranchListFactory' );
 
-		Debug::text('Branch ID: '. $id ,__FILE__, __LINE__, __METHOD__, 10);
+		Debug::text('Branch ID: '. $id, __FILE__, __LINE__, __METHOD__, 10);
 
 		//-1 is for user default branch.
 		if (  $id == 0 OR $id == -1
@@ -457,7 +451,7 @@ class RecurringScheduleTemplateFactory extends Factory {
 
 	function getDepartment() {
 		if ( isset($this->data['department_id']) ) {
-			return $this->data['department_id'];
+			return (int)$this->data['department_id'];
 		}
 
 		return FALSE;
@@ -484,7 +478,7 @@ class RecurringScheduleTemplateFactory extends Factory {
 
 	function getJob() {
 		if ( isset($this->data['job_id']) ) {
-			return $this->data['job_id'];
+			return (int)$this->data['job_id'];
 		}
 
 		return FALSE;
@@ -516,7 +510,7 @@ class RecurringScheduleTemplateFactory extends Factory {
 
 	function getJobItem() {
 		if ( isset($this->data['job_item_id']) ) {
-			return $this->data['job_item_id'];
+			return (int)$this->data['job_item_id'];
 		}
 
 		return FALSE;
@@ -548,7 +542,7 @@ class RecurringScheduleTemplateFactory extends Factory {
 
 	function getAbsencePolicyID() {
 		if ( isset($this->data['absence_policy_id']) ) {
-			return $this->data['absence_policy_id'];
+			return (int)$this->data['absence_policy_id'];
 		}
 
 		return FALSE;
@@ -608,14 +602,15 @@ class RecurringScheduleTemplateFactory extends Factory {
 	}
 
 	function getShifts( $start_date, $end_date, &$holiday_data = array(), &$branch_options = array(), &$department_options = array(), &$n, &$shifts = array(), &$shifts_index = array(), $open_shift_conflict_index = array(), $permission_children_ids = NULL ) {
+		global $current_user;
 		//Debug::text('Start Date: '. TTDate::getDate('DATE+TIME', $start_date) .' End Date: '. TTDate::getDate('DATE+TIME', $end_date), __FILE__, __LINE__, __METHOD__, 10);
 
 		$recurring_schedule_control_start_date = TTDate::strtotime( $this->getColumn('recurring_schedule_control_start_date') );
-		//Debug::text('Recurring Schedule Control Start Date: '. TTDate::getDate('DATE+TIME', $recurring_schedule_control_start_date),__FILE__, __LINE__, __METHOD__, 10);
+		//Debug::text('Recurring Schedule Control Start Date: '. TTDate::getDate('DATE+TIME', $recurring_schedule_control_start_date), __FILE__, __LINE__, __METHOD__, 10);
 
 		$current_template_week = $this->getColumn('remapped_week');
 		$max_week = $this->getColumn('max_week');
-		//Debug::text('Template Week: '. $current_template_week .' Max Week: '. $this->getColumn('max_week') .' ReMapped Week: '. $this->getColumn('remapped_week') ,__FILE__, __LINE__, __METHOD__, 10);
+		//Debug::text('Template Week: '. $current_template_week .' Max Week: '. $this->getColumn('max_week') .' ReMapped Week: '. $this->getColumn('remapped_week'), __FILE__, __LINE__, __METHOD__, 10);
 
 		if ( $recurring_schedule_control_start_date == ''  ) {
 			return FALSE;
@@ -623,51 +618,50 @@ class RecurringScheduleTemplateFactory extends Factory {
 
 		//Get week of start_date
 		$start_date_week = TTDate::getBeginWeekEpoch( $recurring_schedule_control_start_date, 0 ); //Start week on Sunday to match Recurring Schedule.
-		//Debug::text('Week of Start Date: '. $start_date_week ,__FILE__, __LINE__, __METHOD__, 10);
+		//Debug::text('Week of Start Date: '. $start_date_week, __FILE__, __LINE__, __METHOD__, 10);
 
-		$apf = TTnew( 'AbsencePolicyFactory' );
-		$absence_policy_paid_type_options = $apf->getOptions('paid_type');
+		$pcf = TTnew( 'PayCodeFactory' );
+		$absence_policy_paid_type_options = $pcf->getOptions('paid_type');
 
-		for ( $i=$start_date; $i <= $end_date; $i+=(86400+43200)) {
+		for ( $i = $start_date; $i <= $end_date; $i += (86400 + 43200) ) {
 			//Handle DST by adding 12hrs to the date to get the mid-day epoch, then forcing it back to the beginning of the day.
 			$i = TTDate::getBeginDayEpoch( $i );
 
 			if ( ( $this->getColumn('hire_date') != '' AND $i < $this->getColumn('hire_date') )
 					OR ( $this->getColumn('termination_date') != '' AND $i > $this->getColumn('termination_date') )
 					) {
-				//Debug::text('Skipping due to Hire/Termination date: User ID: '. $this->getColumn('user_id') .' I: '. $i .' Hire Date: '. $this->getColumn('hire_date') .' Termination Date: '. $this->getColumn('termination_date') ,__FILE__, __LINE__, __METHOD__, 10);
+				//Debug::text('Skipping due to Hire/Termination date: User ID: '. $this->getColumn('user_id') .' I: '. $i .' Hire Date: '. $this->getColumn('hire_date') .' Termination Date: '. $this->getColumn('termination_date'), __FILE__, __LINE__, __METHOD__, 10);
 				continue;
 			}
 
 			//This needs to take into account weeks spanning January 1st of each year. Where the week goes from 53 to 1.
 			//Rather then use the week of the year, calculate the weeks between the recurring schedule start date and now.
 			$current_week = round( ( TTDate::getBeginWeekEpoch( $i, 0 ) - $start_date_week ) / ( 604800 ) ); //Find out which week we are on based on the recurring schedule start date. Use round due to DST the week might be 6.9 or 7.1, so we need to round to the nearest full week.
-			//Debug::text('I: '. $i .' User ID: '. $this->getColumn('user_id') .' Current Date: '. TTDate::getDate('DATE+TIME', $i) .' Current Week: '. $current_week .' Start Week: '. $start_date_week,__FILE__, __LINE__, __METHOD__, 10);
+			//Debug::text('I: '. $i .' User ID: '. $this->getColumn('user_id') .' Current Date: '. TTDate::getDate('DATE+TIME', $i) .' Current Week: '. $current_week .' Start Week: '. $start_date_week, __FILE__, __LINE__, __METHOD__, 10);
 
-			$template_week = ( $current_week % $max_week ) + 1;
-			//Debug::text('Template Week: '. $template_week .' Max Week: '. $max_week,__FILE__, __LINE__, __METHOD__, 10);
+			$template_week = ( ( $current_week % $max_week ) + 1 );
+			//Debug::text('Template Week: '. $template_week .' Max Week: '. $max_week, __FILE__, __LINE__, __METHOD__, 10);
 
 			if ( $template_week == $current_template_week ) {
-				//Debug::text('Current Date: '. TTDate::getDate('DATE+TIME', $i) .' Current Week: '. $current_week,__FILE__, __LINE__, __METHOD__, 10);
-				//Debug::text('&nbsp;Template Week: '. $template_week .' Max Week: '. $max_week,__FILE__, __LINE__, __METHOD__, 10);
+				//Debug::text('Current Date: '. TTDate::getDate('DATE+TIME', $i) .' Current Week: '. $current_week, __FILE__, __LINE__, __METHOD__, 10);
+				//Debug::text('&nbsp;Template Week: '. $template_week .' Max Week: '. $max_week, __FILE__, __LINE__, __METHOD__, 10);
 
 				if ( $this->isActiveShiftDay( $i ) ) {
-					//Debug::text('&nbsp;&nbsp;Active Shift on this day...',__FILE__, __LINE__, __METHOD__, 10);
+					//Debug::text('&nbsp;&nbsp;Active Shift on this day...', __FILE__, __LINE__, __METHOD__, 10);
 					$start_time = TTDate::getTimeLockedDate( $this->getStartTime(), $i );
 					$end_time = TTDate::getTimeLockedDate( $this->getEndTime(), $i );
 					if ( $end_time < $start_time ) {
 						//Spans the day boundary, add 86400 to end_time
-						$end_time = $end_time + 86400;
-						//Debug::text('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Schedule spans day boundary, bumping endtime to next day: ',__FILE__, __LINE__, __METHOD__, 10);
+						$end_time = ( $end_time + 86400 );
+						//Debug::text('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Schedule spans day boundary, bumping endtime to next day: ', __FILE__, __LINE__, __METHOD__, 10);
 					}
 
 					$iso_date_stamp = TTDate::getISODateStamp( PayPeriodScheduleFactory::getShiftAssignedDate( $start_time, $end_time, $this->getColumn('shift_assigned_day_id') ) );
 					//$iso_date_stamp = TTDate::getISODateStamp( $i );
 
-
-					$open_shift_multiplier = ( $this->getColumn('user_id') == 0 ) ? $this->getOpenShiftMultiplier() : 1;
-					//Debug::text('Open Shift Multiplier: '. $open_shift_multiplier,__FILE__, __LINE__, __METHOD__, 10);
-					for( $x=0; $x < $open_shift_multiplier; $x++ ) {
+					$open_shift_multiplier = ( $this->getColumn('user_id') == 0 ) ? ( ( getTTProductEdition() == TT_PRODUCT_COMMUNITY OR $current_user->getCompanyObject()->getProductEdition() == 10 ) ) ? 0 : $this->getOpenShiftMultiplier() : 1;
+					//Debug::text('Open Shift Multiplier: '. $open_shift_multiplier, __FILE__, __LINE__, __METHOD__, 10);
+					for( $x = 0; $x < $open_shift_multiplier; $x++ ) {
 						//Check all non-OPEN shifts for conflicts.
 						if ( $this->getColumn('user_id') > 0 AND isset($shifts_index[$iso_date_stamp][$this->getColumn('user_id')]) ) {
 							//User has previous recurring schedule shifts, check for overlap.
@@ -679,20 +673,20 @@ class RecurringScheduleTemplateFactory extends Factory {
 																( defined('TIMETREX_API') ) ? TTDate::parseDateTime($shifts[$iso_date_stamp][$shift_key]['end_date']) : $shifts[$iso_date_stamp][$shift_key]['end_date'],
 																$start_time,
 																$end_time ) == TRUE ) {
-										//Debug::text('&nbsp;&nbsp;Found overlapping recurring schedules! User ID: '. $this->getColumn('user_id') .' Start Time: '. $start_time,__FILE__, __LINE__, __METHOD__, 10);
+										//Debug::text('&nbsp;&nbsp;Found overlapping recurring schedules! User ID: '. $this->getColumn('user_id') .' Start Time: '. $start_time, __FILE__, __LINE__, __METHOD__, 10);
 										continue 2;
 									}
 								}
 							}
 							unset($shift_key);
 						} elseif ( $this->getColumn('user_id') == 0 AND isset($shifts_index[$iso_date_stamp]) ) {
-							//Debug::text('    Checking OPEN shift conflicts... Date: '. $iso_date_stamp,__FILE__, __LINE__, __METHOD__, 10);
+							//Debug::text('	   Checking OPEN shift conflicts... Date: '. $iso_date_stamp, __FILE__, __LINE__, __METHOD__, 10);
 
 							//Check all OPEN shifts for conflicts.
-							//This is special, since there can be multiple open shifts for the same branch,department,job,task, so we need to check if are conflicts with *any* employee.
+							//This is special, since there can be multiple open shifts for the same branch, department, job, task, so we need to check if are conflicts with *any* employee.
 							//Do we allow conflicting shifts between committed and recurring OPEN shifts? For example what if there are two open shifts on the same day
 							//6AM-3PM (x2) and they want to override one of those shifts to 7AM-4PM? If we use this check:
-							//   ( $shifts[$iso_date_stamp][$shift_key]['user_id'] > 0 OR ( isset($shifts[$iso_date_stamp][$shift_key]['id']) AND $shifts[$iso_date_stamp][$shift_key]['id'] > 0 ) )
+							//	 ( $shifts[$iso_date_stamp][$shift_key]['user_id'] > 0 OR ( isset($shifts[$iso_date_stamp][$shift_key]['id']) AND $shifts[$iso_date_stamp][$shift_key]['id'] > 0 ) )
 							//That allows committed OPEN shifts to override recurring open shifts, which is great, but it prevents adding additional open shifts that may
 							//also overlap unless they override all recurring shifts first. I think this is the trade-off we have to make as its more likely that they
 							//will adjust an open shift time rather than add/remove specific shifts. Removing recurring OPEN shifts can be done by making them ABSENT.
@@ -703,30 +697,30 @@ class RecurringScheduleTemplateFactory extends Factory {
 									$tmp_end_date = ( defined('TIMETREX_API') ) ? TTDate::parseDateTime($shifts[$iso_date_stamp][$shift_key]['end_date']) : $shifts[$iso_date_stamp][$shift_key]['end_date'];
 									if (
 											( $shifts[$iso_date_stamp][$shift_key]['user_id'] > 0 OR ( isset($shifts[$iso_date_stamp][$shift_key]['id']) AND $shifts[$iso_date_stamp][$shift_key]['id'] > 0 ) )
-											AND ( !isset($open_shift_conflict_index['open'][$this->getID()][$shift_key]) AND ( isset( $shifts[$iso_date_stamp][$shift_key]['id'] ) AND !isset($open_shift_conflict_index['scheduled'][ $shifts[$iso_date_stamp][$shift_key]['id'] ]) ) )
+											AND ( !isset($open_shift_conflict_index['open'][$this->getID()][$shift_key]) AND ( isset( $shifts[$iso_date_stamp][$shift_key]['id'] ) AND !isset($open_shift_conflict_index['scheduled'][$shifts[$iso_date_stamp][$shift_key]['id']]) ) )
 											AND $this->getColumn('schedule_branch_id') == $shifts[$iso_date_stamp][$shift_key]['branch_id']
 											AND $this->getColumn('schedule_department_id') == $shifts[$iso_date_stamp][$shift_key]['department_id']
 											AND $this->getColumn('job_id') == $shifts[$iso_date_stamp][$shift_key]['job_id']
 											AND $this->getColumn('job_item_id') == $shifts[$iso_date_stamp][$shift_key]['job_item_id']
 											AND ( $tmp_start_date == $start_time AND $tmp_end_date == $end_time )
-											//AND TTDate::isTimeOverLap( 	( defined('TIMETREX_API') ) ? TTDate::parseDateTime($shifts[$iso_date_stamp][$shift_key]['start_date']) : $shifts[$iso_date_stamp][$shift_key]['start_date'],
+											//AND TTDate::isTimeOverLap(	( defined('TIMETREX_API') ) ? TTDate::parseDateTime($shifts[$iso_date_stamp][$shift_key]['start_date']) : $shifts[$iso_date_stamp][$shift_key]['start_date'],
 											//							( defined('TIMETREX_API') ) ? TTDate::parseDateTime($shifts[$iso_date_stamp][$shift_key]['end_date']) : $shifts[$iso_date_stamp][$shift_key]['end_date'],
 											//							$start_time,
 											//							$end_time ) == TRUE
 											) {
-										//Debug::text('      Found OPEN shift conflict... Skipping...! Shift Key: '. $shift_key,__FILE__, __LINE__, __METHOD__, 10);
+										//Debug::text('		 Found OPEN shift conflict... Skipping...! Shift Key: '. $shift_key, __FILE__, __LINE__, __METHOD__, 10);
 
 										//We need to track each shift_key that caused a conflict so it can't cause another conflict later on.
-										//  Make sure we just track it on a per template basis though, otherwise the same $shift_key from a previous template can affect other templates.
-										//  The above issue would show up as OPEN shifts not being overridden.
+										//	Make sure we just track it on a per template basis though, otherwise the same $shift_key from a previous template can affect other templates.
+										//	The above issue would show up as OPEN shifts not being overridden.
 										//We also need to track which scheduled shift that caused a conflict so it can't cause another one later on.
-										//  This prevents a single scheduled shift from overriding multiple OPEN shifts of different times.
+										//	This prevents a single scheduled shift from overriding multiple OPEN shifts of different times.
 										//However we need to be smarter about which shifts override which OPEN shifts...
-										//  So if there are two open shifts, 10AM-4PM and 3:50PM-9PM, a 10AM-4PM scheduled shift overrides the OPEN shift that best fits it (10AM to 4PM, *not* 3:50-9PM)
-										//  For now require an exact match to override an OPEN shift, if we start using partial schedules it gets much more complicated.
-										//  Or we could introduce a hardcoded "fudge factor" setting (ie: 5 mins) that is always used instead.
+										//	So if there are two open shifts, 10AM-4PM and 3:50PM-9PM, a 10AM-4PM scheduled shift overrides the OPEN shift that best fits it (10AM to 4PM, *not* 3:50-9PM)
+										//	For now require an exact match to override an OPEN shift, if we start using partial schedules it gets much more complicated.
+										//	Or we could introduce a hardcoded "fudge factor" setting (ie: 5 mins) that is always used instead.
 										$open_shift_conflict_index['open'][$this->getID()][$shift_key] = TRUE;
-										$open_shift_conflict_index['scheduled'][ $shifts[$iso_date_stamp][$shift_key]['id'] ] = TRUE;
+										$open_shift_conflict_index['scheduled'][$shifts[$iso_date_stamp][$shift_key]['id']] = TRUE;
 										continue 3;
 									}
 									unset( $tmp_start_date, $tmp_end_date );
@@ -738,27 +732,27 @@ class RecurringScheduleTemplateFactory extends Factory {
 						//This check has to occurr after the committed schedule check, otherwise no committed schedules will appear.
 						if ( ( $this->getColumn('recurring_schedule_control_start_date') != '' AND $i < TTDate::strtotime( $this->getColumn('recurring_schedule_control_start_date') ) )
 								OR ( $this->getColumn('recurring_schedule_control_end_date') != '' AND $i > TTDate::strtotime( $this->getColumn('recurring_schedule_control_end_date') ) ) ) {
-							//Debug::text('Skipping due to Recurring Schedule Start/End date: ID: '. $this->getColumn('id') .' User ID: '. $this->getColumn('user_id') .' I: '. $i .' Start Date: '. $this->getColumn('recurring_schedule_control_start_date') .' ('. TTDate::strtotime( $this->getColumn('recurring_schedule_control_start_date') ) .') End Date: '. $this->getColumn('recurring_schedule_control_end_date') ,__FILE__, __LINE__, __METHOD__, 10);
+							//Debug::text('Skipping due to Recurring Schedule Start/End date: ID: '. $this->getColumn('id') .' User ID: '. $this->getColumn('user_id') .' I: '. $i .' Start Date: '. $this->getColumn('recurring_schedule_control_start_date') .' ('. TTDate::strtotime( $this->getColumn('recurring_schedule_control_start_date') ) .') End Date: '. $this->getColumn('recurring_schedule_control_end_date'), __FILE__, __LINE__, __METHOD__, 10);
 							continue;
 						}
 
-						//Debug::text('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Start Date: '. TTDate::getDate('DATE+TIME', $start_time) .' End Date: '. TTDate::getDate('DATE+TIME', $end_time),__FILE__, __LINE__, __METHOD__, 10);
+						//Debug::text('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Start Date: '. TTDate::getDate('DATE+TIME', $start_time) .' End Date: '. TTDate::getDate('DATE+TIME', $end_time), __FILE__, __LINE__, __METHOD__, 10);
 
-						$status_id = $this->getColumn('status_id');
-						$absence_policy_id = $this->getColumn('absence_policy_id');
-						$absence_policy_type_id = $this->getColumn('absence_policy_type_id');
+						$status_id = (int)$this->getColumn('status_id');
+						$absence_policy_id = (int)$this->getColumn('absence_policy_id');
+						$absence_policy_type_id = (int)$this->getColumn('absence_policy_type_id');
 						$absence_policy = ( $this->getColumn('absence_policy') != '' ) ? $this->getColumn('absence_policy') : NULL; //Must be NULL to be converted to N/A
 
-						if ( isset($holiday_data[$iso_date_stamp]) ) {
+						if ( isset($holiday_data[(int)$this->getColumn('policy_group_id')][$iso_date_stamp]) ) {
 							//We have to assume they are eligible, because we really won't know
 							//if they will have worked enough days or not. We could assume they
 							//work whatever their schedule is, but chances are they will be eligible then anyways.
-							//Debug::text('&nbsp;&nbsp;Found Holiday on this day...',__FILE__, __LINE__, __METHOD__, 10);
-							$status_id = $holiday_data[$iso_date_stamp]['status_id'];
-							if ( isset($holiday_data[$iso_date_stamp]['absence_policy_id']) ) {
-								$absence_policy_id = $holiday_data[$iso_date_stamp]['absence_policy_id'];
-								$absence_policy_type_id = $holiday_data[$iso_date_stamp]['type_id'];
-								$absence_policy = $holiday_data[$iso_date_stamp]['absence_policy'];
+							//Debug::text('&nbsp;&nbsp;Found Holiday on this day...', __FILE__, __LINE__, __METHOD__, 10);
+							$status_id = $holiday_data[(int)$this->getColumn('policy_group_id')][$iso_date_stamp]['status_id'];
+							if ( isset($holiday_data[(int)$this->getColumn('policy_group_id')][$iso_date_stamp]['absence_policy_id']) ) {
+								$absence_policy_id = (int)$holiday_data[(int)$this->getColumn('policy_group_id')][$iso_date_stamp]['absence_policy_id'];
+								$absence_policy_type_id = (int)$holiday_data[(int)$this->getColumn('policy_group_id')][$iso_date_stamp]['type_id'];
+								$absence_policy = $holiday_data[(int)$this->getColumn('policy_group_id')][$iso_date_stamp]['absence_policy'];
 							}
 						}
 
@@ -772,37 +766,37 @@ class RecurringScheduleTemplateFactory extends Factory {
 							$total_time_wage = Misc::MoneyFormat( bcmul( TTDate::getHours( $this->getTotalTime() ), $hourly_rate ), FALSE );
 						}
 
-						//Debug::text('I: '. $i .' N: '. $n .' User ID: '. $this->getColumn('user_id') .' Current Date: '. TTDate::getDate('DATE+TIME', $i) .' Current Week: '. $current_week .' Start Time: '. TTDate::getDate('DATE+TIME', $start_time ) .' Absence Policy: '. $absence_policy,__FILE__, __LINE__, __METHOD__, 10);
+						//Debug::text('I: '. $i .' N: '. $n .' User ID: '. $this->getColumn('user_id') .' Current Date: '. TTDate::getDate('DATE+TIME', $i) .' Current Week: '. $current_week .' Start Time: '. TTDate::getDate('DATE+TIME', $start_time ) .' Absence Policy: '. $absence_policy, __FILE__, __LINE__, __METHOD__, 10);
 						//$shifts[$iso_date_stamp][$this->getColumn('user_id').$start_time] = array(
 						$shifts[$iso_date_stamp][$n] = array(
 															'pay_period_id' => FALSE,
 															'user_id' => (int)$this->getColumn('user_id'),
-															'user_created_by' => $this->getColumn('user_created_by'),
+															'user_created_by' => (int)$this->getColumn('user_created_by'),
 															'user_full_name' => ( $this->getColumn('user_id') > 0 ) ? Misc::getFullName( $this->getColumn('first_name'), NULL, $this->getColumn('last_name'), FALSE, FALSE ) : TTi18n::getText('OPEN'),
 															//'user_full_name' => Misc::getFullName( $this->getColumn('first_name'), NULL, $this->getColumn('last_name'), FALSE, FALSE ),
 															'first_name' => $this->getColumn('first_name'),
 															'last_name' => $this->getColumn('last_name'),
-															'title_id' => $this->getColumn('title_id'),
+															'title_id' => (int)$this->getColumn('title_id'),
 															'title' => $this->getColumn('title'),
-															'group_id' => $this->getColumn('group_id'),
+															'group_id' => (int)$this->getColumn('group_id'),
 															'group' => $this->getColumn('group'),
-															'default_branch_id' => $this->getColumn('default_branch_id'),
+															'default_branch_id' => (int)$this->getColumn('default_branch_id'),
 															'default_branch' => $this->getColumn('default_branch'),
-															'default_department_id' => $this->getColumn('default_department_id'),
+															'default_department_id' => (int)$this->getColumn('default_department_id'),
 															'default_department' => $this->getColumn('default_department'),
 
-															'job_id' => $this->getJob(),
+															'job_id' => (int)$this->getColumn('job_id'),
 															'job' => $this->getColumn('job'),
-															'job_status_id' => $this->getColumn('job_status_id'),
-															'job_manual_id' => $this->getColumn('job_manual_id'),
-															'job_branch_id' => $this->getColumn('job_branch_id'),
-															'job_department_id' => $this->getColumn('job_department_id'),
-															'job_group_id' => $this->getColumn('job_group_id'),
-															'job_item_id' => $this->getJobItem(),
+															'job_status_id' => (int)$this->getColumn('job_status_id'),
+															'job_manual_id' => (int)$this->getColumn('job_manual_id'),
+															'job_branch_id' => (int)$this->getColumn('job_branch_id'),
+															'job_department_id' => (int)$this->getColumn('job_department_id'),
+															'job_group_id' => (int)$this->getColumn('job_group_id'),
+															'job_item_id' => (int)$this->getColumn('job_item_id'),
 															'job_item' => $this->getColumn('job_item'),
 
 															'type_id' => 20, //Recurring
-															'status_id' => $status_id,
+															'status_id' => (int)$status_id,
 
 															'date_stamp' => TTDate::getAPIDate('DATE', strtotime( $iso_date_stamp ) ), //Date the schedule is displayed on
 															'start_date_stamp' => ( defined('TIMETREX_API') ) ? TTDate::getAPIDate('DATE', $start_time ) : $start_time, //Date the schedule starts on.
@@ -825,15 +819,15 @@ class RecurringScheduleTemplateFactory extends Factory {
 
 															'note' => FALSE,
 
-															'schedule_policy_id' => $this->getSchedulePolicyID(),
-															'absence_policy_id' => $absence_policy_id,
+															'schedule_policy_id' => (int)$this->getSchedulePolicyID(),
+															'absence_policy_id' => (int)$absence_policy_id,
 															'absence_policy' => $absence_policy,
-															'branch_id' => $this->getColumn('schedule_branch_id'),
+															'branch_id' => (int)$this->getColumn('schedule_branch_id'),
 															'branch' => $this->getColumn('schedule_branch'),
-															'department_id' => $this->getColumn('schedule_department_id'),
+															'department_id' => (int)$this->getColumn('schedule_department_id'),
 															'department' => $this->getColumn('schedule_department'),
 
-															'created_by_id' => $this->getColumn('recurring_schedule_control_created_by'), //Whoever created the recurring schedule control object is consider the owner.
+															'created_by_id' => (int)$this->getColumn('recurring_schedule_control_created_by'), //Whoever created the recurring schedule control object is consider the owner.
 															'created_date' => $this->getCreatedDate(),
 															'updated_date' => $this->getUpdatedDate(),
 															);
@@ -848,15 +842,12 @@ class RecurringScheduleTemplateFactory extends Factory {
 					}
 					unset($open_shift_multiplier);
 					unset($start_time, $end_time);
-
-				} else {
-					//Debug::text('&nbsp;&nbsp;NOT active shift on this day... ID: '. $this->getColumn('id') .' User ID: '. $this->getColumn('user_id') .' Start Time: '. TTDate::getDate('DATE+TIME', $i),__FILE__, __LINE__, __METHOD__, 10);
-				}
+				} //else { //Debug::text('&nbsp;&nbsp;NOT active shift on this day... ID: '. $this->getColumn('id') .' User ID: '. $this->getColumn('user_id') .' Start Time: '. TTDate::getDate('DATE+TIME', $i), __FILE__, __LINE__, __METHOD__, 10);
 			}
 		}
 
 		if ( isset($shifts) ) {
-			//Debug::Arr($shifts, 'Template Shifts: ',__FILE__, __LINE__, __METHOD__, 10);
+			//Debug::Arr($shifts, 'Template Shifts: ', __FILE__, __LINE__, __METHOD__, 10);
 			return $shifts;
 		}
 
@@ -912,7 +903,7 @@ class RecurringScheduleTemplateFactory extends Factory {
 						case 'end_time':
 							//$data[$variable] = ( defined('TIMETREX_API') ) ? TTDate::getAPIDate( 'TIME', TTDate::strtotime( $this->$function() ) ) : $this->$function();
 							$data[$variable] = ( defined('TIMETREX_API') ) ? TTDate::getAPIDate( 'TIME', TTDate::strtotime( $this->$function() ) ) : $this->$function();
-							//Need to include the raw_start_time,raw_end_time columns that are in EPOCH format so getShiftsByStartDateAndEndDate() can convert them as needed.
+							//Need to include the raw_start_time, raw_end_time columns that are in EPOCH format so getShiftsByStartDateAndEndDate() can convert them as needed.
 							$data['raw_'.$variable] = $this->$function();
 							break;
 						case 'sun':
@@ -941,13 +932,27 @@ class RecurringScheduleTemplateFactory extends Factory {
 	}
 
 	function preSave() {
+		if ( $this->getWeek() == '' ) {
+			$this->setWeek(1);
+		}
+		
 		if ( $this->getEndTime() < $this->getStartTime() ) {
-			Debug::Text('EndTime spans midnight boundary! Increase by 24hrs ', __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text('EndTime spans midnight boundary! Increase by 24hrs ', __FILE__, __LINE__, __METHOD__, 10);
 			$this->setEndTime( $this->getEndTime() + 86400 ); //End time spans midnight, add 24hrs.
 		}
 
 		if ( $this->getOpenShiftMultiplier() == '' ) {
 			$this->setOpenShiftMultiplier( 1 );
+		}
+
+		return TRUE;
+	}
+
+	function Validate() {
+		if ( $this->getRecurringScheduleTemplateControl() == FALSE ) {
+			$this->Validator->isTRUE(		'recurring_schedule_template_control_id',
+											FALSE,
+											TTi18n::gettext('Invalid Recurring Schedule Template Control') );
 		}
 
 		return TRUE;

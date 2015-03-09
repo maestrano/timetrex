@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 9883 $
- * $Id: TTPDF.class.php 9883 2013-05-14 22:00:44Z ipso $
- * $Date: 2013-05-14 15:00:44 -0700 (Tue, 14 May 2013) $
- */
+
 require_once(Environment::getBasePath() .'/classes/tcpdf/tcpdf.php');
 
 //Automatically create TCPDF cache path if it doesn't exist.
@@ -51,7 +47,7 @@ if ( !file_exists( K_PATH_CACHE ) ) {
 class TTPDF extends tcpdf {
 	protected function _freadint($f) {
 		//Read a 4-byte integer from file
-		$a=unpack('Ni',fread($f,4));
+		$a = unpack('Ni', fread($f, 4));
 
 		//Fixed bug in PHP v5.2.1 and less where it is returning a huge negative number.
 		//See: http://ca3.php.net/manual/en/function.unpack.php
@@ -71,15 +67,15 @@ class TTPDF extends tcpdf {
 		} else {
 			parent::__construct($orientation, $unit, $format, TRUE, $encoding, $diskcache); //Make sure TCPDF constructor is called with all the arguments
 		}
-		Debug::Text('PDF Encoding: '. $encoding, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('PDF Encoding: '. $encoding, __FILE__, __LINE__, __METHOD__, 10);
 
 		/*
 		if ( TTi18n::getPDFDefaultFont() == 'freeserif' ) {
-			Debug::Text('Using unicode PDF: Font: freeserif Unicode: '. (int)$unicode .' Encoding: '. $encoding, __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text('Using unicode PDF: Font: freeserif Unicode: '. (int)$unicode .' Encoding: '. $encoding, __FILE__, __LINE__, __METHOD__, 10);
 		} else {
 			//If we're only using English, default to faster non-unicode settings.
 			//unicode=FALSE and encoding='ISO-8859-1' is about 20-30% faster.
-			Debug::Text('Using non-unicode PDF: Font: helvetica Unicode: '. (int)$unicode .' Encoding: '. $encoding, __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text('Using non-unicode PDF: Font: helvetica Unicode: '. (int)$unicode .' Encoding: '. $encoding, __FILE__, __LINE__, __METHOD__, 10);
 			parent::__construct($orientation, $unit, $format, FALSE, 'ISO-8859-1', $diskcache); //Make sure TCPDF constructor is called with all the arguments
 		}
 		*/

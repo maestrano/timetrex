@@ -61,8 +61,9 @@ class Payment_Process_BeanstreamEFT extends Payment_Process_Common
     var $_fieldMap = array(
         // Required
         'customerId'    => 'loginCompany',
-        'login'         => 'loginUser',
-        'password'      => 'loginPass',
+        //'login'         => 'loginUser',
+        //'password'      => 'loginPass',
+		'password'      => 'passCode',
         'action'        => 'trnType',
         'invoiceNumber' => 'trnOrderNumber',
         'amount'        => 'trnAmount',
@@ -148,7 +149,8 @@ class Payment_Process_BeanstreamEFT extends Payment_Process_Common
     {
         parent::__construct($options);
         $this->_driver = 'BeanstreamEFT';
-        $this->_makeRequired('customerId','login', 'password', 'action', 'invoiceNumber');
+        //$this->_makeRequired('customerId','login', 'password', 'action', 'invoiceNumber');
+		$this->_makeRequired('customerId','password', 'action', 'invoiceNumber');
     }
 
     function Payment_Process_BeanstreamEFT($options = false)
@@ -331,7 +333,8 @@ class Payment_Process_BeanstreamEFT extends Payment_Process_Common
      */
     function _prepareQueryString()
     {
-        $url_fields = array('ServiceVersion', 'loginCompany', 'loginUser', 'loginPass', 'processDate' );
+        //$url_fields = array('ServiceVersion', 'loginCompany', 'loginUser', 'loginPass', 'processDate' );
+		$url_fields = array('ServiceVersion', 'loginCompany', 'passCode', 'processDate' );
 
         $data = array_merge($this->_options, $this->_data);
 

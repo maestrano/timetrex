@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2095 $
- * $Id: URLBuilder.class.php 2095 2008-09-01 07:04:25Z ipso $
- * $Date: 2008-09-01 00:04:25 -0700 (Mon, 01 Sep 2008) $
- */
+
 
 /**
  * @package Core
@@ -93,9 +89,8 @@ class URLBuilder {
 			$array = array_merge(self::$data, $array);
 		} elseif ($array == NULL AND $merge == TRUE) {
 			$array = self::$data;
-		} else {
-			//Use $array as is.
-		}
+		} //else Use $array as is.
+
 		//Debug::Arr($array, 'bAfter: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		if ($script == NULL) {

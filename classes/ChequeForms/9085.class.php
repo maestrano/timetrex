@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2286 $
- * $Id: CA.class.php 2286 2008-12-12 23:12:41Z ipso $
- * $Date: 2008-12-12 15:12:41 -0800 (Fri, 12 Dec 2008) $
- */
+
 
 /**
  * @package ChequeForms
@@ -138,14 +134,30 @@ class ChequeForms_9085 extends ChequeForms_Base {
                                                         'x' => 130,
                                                         'y' => 45,
                                                         'h' => 5,
-                                                        'w' => 38,
-                                                        'halign' => 'L',
+                                                        'w' => 25,
+                                                        'halign' => 'C',
                                                     ),
                                         'font' => array(
                                                         'size' => 10,
                                                         'type' => ''
                                                     )
                                 ),
+								//date format label
+                                array(
+                                    'function' => array('getDisplayDateFormat', 'drawNormal'),
+                                    'coordinates' => array(
+                                                'x' => 130,
+                                                'y' => 47.5,
+                                                'h' => 5,
+                                                'w' => 25,
+                                                'halign' => 'C',
+                                    ),
+                                    'font' => array(
+                                                'size' => 6,
+                                                'type' => ''
+                                    )
+                                ),
+
                                 // amount padded
                                 'amount_padded' => array(
                                         'function' => array('filterAmountPadded', 'drawNormal'),

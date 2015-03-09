@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2095 $
- * $Id: Sort.class.php 2095 2008-09-01 07:04:25Z ipso $
- * $Date: 2008-09-01 00:04:25 -0700 (Mon, 01 Sep 2008) $
- */
+
 
 /**
  * @package Modules\Report
@@ -54,8 +50,8 @@ class AuditTrailReport extends Report {
 	}
 
 	protected function _checkPermissions( $user_id, $company_id ) {
-		if ( $this->getPermissionObject()->Check('report','enabled', $user_id, $company_id )
-				AND $this->getPermissionObject()->Check('report','view_system_log', $user_id, $company_id ) ) {
+		if ( $this->getPermissionObject()->Check('report', 'enabled', $user_id, $company_id )
+				AND $this->getPermissionObject()->Check('report', 'view_system_log', $user_id, $company_id ) ) {
 			return TRUE;
 		}
 
@@ -84,7 +80,7 @@ class AuditTrailReport extends Report {
 										'template',
 										'time_period',
 										'columns',
-							   );
+								);
 				break;
 			case 'setup_fields':
 				$retval = array(
@@ -99,11 +95,11 @@ class AuditTrailReport extends Report {
 										'-2050-exclude_user_id' => TTi18n::gettext('Employee Exclude'),
 										'-2060-default_branch_id' => TTi18n::gettext('Default Branch'),
 										'-2070-default_department_id' => TTi18n::gettext('Default Department'),
-                                        '-2100-custom_filter' => TTi18n::gettext('Custom Filter'),
+										'-2100-custom_filter' => TTi18n::gettext('Custom Filter'),
 
-                                        //'-3500-pay_period_id' => TTi18n::gettext('Pay Period'),
-                                        '-3600-log_action_id' => TTi18n::gettext('Action'),
-                                        '-3700-log_table_name_id' => TTi18n::gettext('Object'),
+										//'-3500-pay_period_id' => TTi18n::gettext('Pay Period'),
+										'-3600-log_action_id' => TTi18n::gettext('Action'),
+										'-3700-log_table_name_id' => TTi18n::gettext('Object'),
 
 										//'-4020-include_no_data_rows' => TTi18n::gettext('Include Blank Records'),
 
@@ -111,9 +107,9 @@ class AuditTrailReport extends Report {
 										'-5010-group' => TTi18n::gettext('Group By'),
 										'-5020-sub_total' => TTi18n::gettext('SubTotal By'),
 										'-5030-sort' => TTi18n::gettext('Sort By'),
-							   );
+								);
 				break;
-            case 'time_period':
+			case 'time_period':
 				$retval = TTDate::getTimePeriodOptions();
 				break;
 			case 'date_columns':
@@ -122,7 +118,7 @@ class AuditTrailReport extends Report {
 									TTDate::getReportDateOptions( 'end', TTi18n::getText('End Date'), 17, FALSE )
 								);*/
 				break;
-            case 'report_custom_column':
+			case 'report_custom_column':
 				if ( getTTProductEdition() >= TT_PRODUCT_PROFESSIONAL ) {
 					$rcclf = TTnew( 'ReportCustomColumnListFactory' );
 					// Because the Filter type is just only a filter criteria and not need to be as an option of Display Columns, Group By, Sub Total, Sort By dropdowns.
@@ -132,14 +128,14 @@ class AuditTrailReport extends Report {
 						$retval = Misc::addSortPrefix( $custom_column_labels, 9500 );
 					}
 				}
-                break; 
-            case 'report_custom_filters':
+				break;
+			case 'report_custom_filters':
 				if ( getTTProductEdition() >= TT_PRODUCT_PROFESSIONAL ) {
 					$rcclf = TTnew( 'ReportCustomColumnListFactory' );
 					$retval = $rcclf->getByCompanyIdAndTypeIdAndFormatIdAndScriptArray( $this->getUserObject()->getCompany(), $rcclf->getOptions('filter_column_type_ids'), NULL, 'AuditTrailReport', 'custom_column' );
 				}
-                break;
-            case 'report_dynamic_custom_column':
+				break;
+			case 'report_dynamic_custom_column':
 				if ( getTTProductEdition() >= TT_PRODUCT_PROFESSIONAL ) {
 					$rcclf = TTnew( 'ReportCustomColumnListFactory' );
 					$report_dynamic_custom_column_labels = $rcclf->getByCompanyIdAndTypeIdAndFormatIdAndScriptArray( $this->getUserObject()->getCompany(), $rcclf->getOptions('display_column_type_ids'), $rcclf->getOptions('dynamic_format_ids'), 'AuditTrailReport', 'custom_column' );
@@ -147,8 +143,8 @@ class AuditTrailReport extends Report {
 						$retval = Misc::addSortPrefix( $report_dynamic_custom_column_labels, 9700 );
 					}
 				}
-                break;
-            case 'report_static_custom_column':
+				break;
+			case 'report_static_custom_column':
 				if ( getTTProductEdition() >= TT_PRODUCT_PROFESSIONAL ) {
 					$rcclf = TTnew( 'ReportCustomColumnListFactory' );
 					$report_static_custom_column_labels = $rcclf->getByCompanyIdAndTypeIdAndFormatIdAndScriptArray( $this->getUserObject()->getCompany(), $rcclf->getOptions('display_column_type_ids'), $rcclf->getOptions('static_format_ids'), 'AuditTrailReport', 'custom_column' );
@@ -156,13 +152,13 @@ class AuditTrailReport extends Report {
 						$retval = Misc::addSortPrefix( $report_static_custom_column_labels, 9700 );
 					}
 				}
-                break;
-            case 'formula_columns':
-                $retval = TTMath::formatFormulaColumns( array_merge( array_diff( $this->getOptions('static_columns'), (array)$this->getOptions('report_static_custom_column') ), $this->getOptions('dynamic_columns') ) );
-                break; 
-            case 'filter_columns':
-                $retval = TTMath::formatFormulaColumns( array_merge( $this->getOptions('static_columns'), $this->getOptions('dynamic_columns'), (array)$this->getOptions('report_dynamic_custom_column') ) );
-                break;
+				break;
+			case 'formula_columns':
+				$retval = TTMath::formatFormulaColumns( array_merge( array_diff( $this->getOptions('static_columns'), (array)$this->getOptions('report_static_custom_column') ), $this->getOptions('dynamic_columns') ) );
+				break;
+			case 'filter_columns':
+				$retval = TTMath::formatFormulaColumns( array_merge( $this->getOptions('static_columns'), $this->getOptions('dynamic_columns'), (array)$this->getOptions('report_dynamic_custom_column') ) );
+				break;
 			case 'static_columns':
 				$retval = array(
 										//Static Columns - Aggregate functions can't be used on these.
@@ -184,16 +180,16 @@ class AuditTrailReport extends Report {
 										'-1090-default_branch' => TTi18n::gettext('Branch'), //abbreviate for space
 										'-1100-default_department' => TTi18n::gettext('Department'), //abbreviate for space
 
-                                        '-2000-date' => TTi18n::gettext('Date'),
+										'-2000-date' => TTi18n::gettext('Date'),
 										'-2100-object' => TTi18n::gettext('Object'),
 										'-2150-action' => TTi18n::gettext('Action'),
 										'-2200-description' => TTi18n::gettext('Description'),
-                                        //'-2250-function' => TTi18n::gettext('Functions'),
+										//'-2250-function' => TTi18n::gettext('Functions'),
 
-							   );
+								);
 
 				//$retval = array_merge( $retval, $this->getOptions('date_columns') );
-                $retval = array_merge( $retval, (array)$this->getOptions('report_static_custom_column') );
+				$retval = array_merge( $retval, (array)$this->getOptions('report_static_custom_column') );
 				ksort($retval);
 				break;
 			case 'dynamic_columns':
@@ -205,7 +201,7 @@ class AuditTrailReport extends Report {
 				break;
 			case 'columns':
 				//$retval = array_merge( $this->getOptions('static_columns'), $this->getOptions('dynamic_columns') );
-		        $retval = array_merge( $this->getOptions('static_columns'), $this->getOptions('dynamic_columns'), (array)$this->getOptions('report_dynamic_custom_column') );
+				$retval = array_merge( $this->getOptions('static_columns'), $this->getOptions('dynamic_columns'), (array)$this->getOptions('report_dynamic_custom_column') );
 				break;
 			case 'column_format':
 				//Define formatting function for each column.
@@ -215,9 +211,9 @@ class AuditTrailReport extends Report {
 						if ( strpos($column, 'wage') !== FALSE OR strpos($column, 'hourly_rate') !== FALSE ) {
 							$retval[$column] = 'currency';
 						}
-                        if ( strpos($column, 'amount') !== FALSE ) {
-                            $retval[$column] = 'time_unit';
-                        }
+						if ( strpos($column, 'amount') !== FALSE ) {
+							$retval[$column] = 'time_unit';
+						}
 
 					}
 				}
@@ -229,7 +225,7 @@ class AuditTrailReport extends Report {
 					foreach( $dynamic_columns as $column ) {
 						switch ( $column ) {
 							default:
-							    $retval[$column] = 'sum';
+								$retval[$column] = 'sum';
 						}
 					}
 				}
@@ -237,11 +233,11 @@ class AuditTrailReport extends Report {
 			case 'templates':
 				$retval = array(
 									'-1200-by_date+audit' => TTi18n::gettext('Audit By Date'),
-                                    '-1210-by_employee+audit' => TTi18n::gettext('Audit By Employee'),
+									'-1210-by_employee+audit' => TTi18n::gettext('Audit By Employee'),
 									'-1220-by_object+audit' => TTi18n::gettext('Audit By Object'),
 									'-1230-by_action+audit' => TTi18n::gettext('Audit By Action'),
 									'-1240-by_object_by_action_by_employee+audit_total' => TTi18n::gettext('Audit Records By Object/Action/Employee'),
-							   );
+								);
 
 				break;
 			case 'template_config':
@@ -250,96 +246,96 @@ class AuditTrailReport extends Report {
 					$retval['-1010-time_period']['time_period'] = 'last_7_days'; //Always default to the last 7 days to keep the report small and fast.
 
 					switch( $template ) {
-                        case 'by_date+audit':
-                            $retval['columns'][] = 'date';
+						case 'by_date+audit':
+							$retval['columns'][] = 'date';
 
-                            $retval['columns'][] = 'first_name';
-                            $retval['columns'][] = 'last_name';
+							$retval['columns'][] = 'first_name';
+							$retval['columns'][] = 'last_name';
 
-                            $retval['columns'][] = 'object';
-                            $retval['columns'][] = 'action';
-                            $retval['columns'][] = 'description';
-
-							$retval['sort'][] = array('date' => 'desc');
-                            $retval['sort'][] = array('last_name' => 'asc');
-							$retval['sort'][] = array('first_name' => 'asc');
-							$retval['sort'][] = array('object' => 'asc');
-							$retval['sort'][] = array('action' => 'asc');
-                            break;
-                        case 'by_employee+audit':
-                            $retval['columns'][] = 'first_name';
-                            $retval['columns'][] = 'last_name';
-
-                            $retval['columns'][] = 'date';
-                            $retval['columns'][] = 'object';
-                            $retval['columns'][] = 'action';
-                            $retval['columns'][] = 'description';
-
-                            $retval['sort'][] = array('last_name' => 'asc');
-							$retval['sort'][] = array('first_name' => 'asc');
-							$retval['sort'][] = array('date' => 'desc');
-							$retval['sort'][] = array('object' => 'asc');
-							$retval['sort'][] = array('action' => 'asc');
-                            break;
-                        case 'by_object+audit':
-                            $retval['columns'][] = 'object';
-
-                            $retval['columns'][] = 'date';
-
-                            $retval['columns'][] = 'first_name';
-                            $retval['columns'][] = 'last_name';
-
-                            $retval['columns'][] = 'action';
-                            $retval['columns'][] = 'description';
-
-							$retval['sort'][] = array('object' => 'asc');
-							$retval['sort'][] = array('date' => 'desc');
-                            $retval['sort'][] = array('last_name' => 'asc');
-							$retval['sort'][] = array('first_name' => 'asc');
-							$retval['sort'][] = array('action' => 'asc');
-
-                            break;
-                        case 'by_action+audit':
+							$retval['columns'][] = 'object';
 							$retval['columns'][] = 'action';
-                            $retval['columns'][] = 'date';
+							$retval['columns'][] = 'description';
 
-                            $retval['columns'][] = 'first_name';
-                            $retval['columns'][] = 'last_name';
+							$retval['sort'][] = array('date' => 'desc');
+							$retval['sort'][] = array('last_name' => 'asc');
+							$retval['sort'][] = array('first_name' => 'asc');
+							$retval['sort'][] = array('object' => 'asc');
+							$retval['sort'][] = array('action' => 'asc');
+							break;
+						case 'by_employee+audit':
+							$retval['columns'][] = 'first_name';
+							$retval['columns'][] = 'last_name';
 
-                            $retval['columns'][] = 'object';
-                            $retval['columns'][] = 'description';
+							$retval['columns'][] = 'date';
+							$retval['columns'][] = 'object';
+							$retval['columns'][] = 'action';
+							$retval['columns'][] = 'description';
+
+							$retval['sort'][] = array('last_name' => 'asc');
+							$retval['sort'][] = array('first_name' => 'asc');
+							$retval['sort'][] = array('date' => 'desc');
+							$retval['sort'][] = array('object' => 'asc');
+							$retval['sort'][] = array('action' => 'asc');
+							break;
+						case 'by_object+audit':
+							$retval['columns'][] = 'object';
+
+							$retval['columns'][] = 'date';
+
+							$retval['columns'][] = 'first_name';
+							$retval['columns'][] = 'last_name';
+
+							$retval['columns'][] = 'action';
+							$retval['columns'][] = 'description';
+
+							$retval['sort'][] = array('object' => 'asc');
+							$retval['sort'][] = array('date' => 'desc');
+							$retval['sort'][] = array('last_name' => 'asc');
+							$retval['sort'][] = array('first_name' => 'asc');
+							$retval['sort'][] = array('action' => 'asc');
+
+							break;
+						case 'by_action+audit':
+							$retval['columns'][] = 'action';
+							$retval['columns'][] = 'date';
+
+							$retval['columns'][] = 'first_name';
+							$retval['columns'][] = 'last_name';
+
+							$retval['columns'][] = 'object';
+							$retval['columns'][] = 'description';
 
 							$retval['sort'][] = array('action' => 'asc');
 							$retval['sort'][] = array('date' => 'desc');
-                            $retval['sort'][] = array('last_name' => 'asc');
+							$retval['sort'][] = array('last_name' => 'asc');
 							$retval['sort'][] = array('first_name' => 'asc');
 							$retval['sort'][] = array('object' => 'asc');
 
 							//$retval['filter']['-1050-log_action_id'] = array();
-                            break;
-                        case 'by_object_by_action_by_employee+audit_total':
+							break;
+						case 'by_object_by_action_by_employee+audit_total':
 							$retval['columns'][] = 'object';
 							$retval['columns'][] = 'action';
-                            $retval['columns'][] = 'first_name';
-                            $retval['columns'][] = 'last_name';
-                            $retval['columns'][] = 'total_log';
+							$retval['columns'][] = 'first_name';
+							$retval['columns'][] = 'last_name';
+							$retval['columns'][] = 'total_log';
 
-                            $retval['group'][] = 'object';
+							$retval['group'][] = 'object';
 							$retval['group'][] = 'action';
 							$retval['group'][] = 'first_name';
-                            $retval['group'][] = 'last_name';
+							$retval['group'][] = 'last_name';
 
-                            $retval['sub_total'][] = 'object';
+							$retval['sub_total'][] = 'object';
 							$retval['sub_total'][] = 'action';
 
 							$retval['sort'][] = array('object' => 'asc');
 							$retval['sort'][] = array('action' => 'asc');
 							$retval['sort'][] = array('total_log' => 'desc');
-                            $retval['sort'][] = array('last_name' => 'asc');
+							$retval['sort'][] = array('last_name' => 'asc');
 							$retval['sort'][] = array('first_name' => 'asc');
-                            break;
+							break;
 						default:
-							Debug::Text(' Parsing template name: '. $template, __FILE__, __LINE__, __METHOD__,10);
+							Debug::Text(' Parsing template name: '. $template, __FILE__, __LINE__, __METHOD__, 10);
 							break;
 					}
 				}
@@ -368,7 +364,7 @@ class AuditTrailReport extends Report {
 					$retval['-5040-sort'] = $retval['sort'];
 					unset($retval['sort']);
 				}
-				Debug::Arr($retval, ' Template Config for: '. $template, __FILE__, __LINE__, __METHOD__,10);
+				Debug::Arr($retval, ' Template Config for: '. $template, __FILE__, __LINE__, __METHOD__, 10);
 
 				break;
 			default:
@@ -383,26 +379,26 @@ class AuditTrailReport extends Report {
 	//Get raw data for report
 	function _getData( $format = NULL ) {
 		$this->tmp_data = array(
-                            'user' => array(),
-                            'log' => array(),
-                         );
+							'user' => array(),
+							'log' => array(),
+						);
 
 		$columns = $this->getColumnDataConfig();
 		$filter_data = $this->getFilterConfig();
 
-		if ( $this->getPermissionObject()->Check('user','view') == FALSE ) {
+		if ( $this->getPermissionObject()->Check('user', 'view') == FALSE ) {
 			$hlf = TTnew( 'HierarchyListFactory' );
-			$permission_children_ids  =  $hlf->getHierarchyChildrenByCompanyIdAndUserIdAndObjectTypeID( $this->getUserObject()->getCompany(), $this->getUserObject()->getID() );
-			Debug::Arr($permission_children_ids,'Permission Children Ids:', __FILE__, __LINE__, __METHOD__,10);
+			$permission_children_ids = $hlf->getHierarchyChildrenByCompanyIdAndUserIdAndObjectTypeID( $this->getUserObject()->getCompany(), $this->getUserObject()->getID() );
+			Debug::Arr($permission_children_ids, 'Permission Children Ids:', __FILE__, __LINE__, __METHOD__, 10);
 		} else {
 			//Get Permission Hierarchy Children first, as this can be used for viewing, or editing.
 			$permission_children_ids = array();
 		}
-		if ( $this->getPermissionObject()->Check('user','view') == FALSE ) {
-			if ( $this->getPermissionObject()->Check('user','view_child') == FALSE ) {
+		if ( $this->getPermissionObject()->Check('user', 'view') == FALSE ) {
+			if ( $this->getPermissionObject()->Check('user', 'view_child') == FALSE ) {
 				$permission_children_ids = array();
 			}
-			if ( $this->getPermissionObject()->Check('user','view_own') ) {
+			if ( $this->getPermissionObject()->Check('user', 'view_own') ) {
 				$permission_children_ids[] = $this->getUserObject()->getID();
 			}
 
@@ -412,15 +408,15 @@ class AuditTrailReport extends Report {
 		//Get user data for joining.
 		$ulf = TTnew( 'UserListFactory' );
 		$ulf->getAPISearchByCompanyIdAndArrayCriteria( $this->getUserObject()->getCompany(), $filter_data );
-		Debug::Text(' User Rows: '. $ulf->getRecordCount(), __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text(' User Rows: '. $ulf->getRecordCount(), __FILE__, __LINE__, __METHOD__, 10);
 		$this->getProgressBarObject()->start( $this->getAMFMessageID(), $ulf->getRecordCount(), NULL, TTi18n::getText('Retrieving Data...') );
 		foreach ( $ulf as $key => $u_obj ) {
 			$this->tmp_data['user'][$u_obj->getId()] = (array)$u_obj->getObjectAsArray( $columns );
-            $this->tmp_data['user'][$u_obj->getId()]['user_status'] = Option::getByKey( $u_obj->getStatus(), $u_obj->getOptions( 'status' ) );
+			$this->tmp_data['user'][$u_obj->getId()]['user_status'] = Option::getByKey( $u_obj->getStatus(), $u_obj->getOptions( 'status' ) );
 			$this->getProgressBarObject()->set( $this->getAMFMessageID(), $key );
 		}
 
-		//Debug::Arr($this->tmp_data['user'], 'TMP User Data: ', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($this->tmp_data['user'], 'TMP User Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		//Get system log data for joining.
 		if ( count($this->tmp_data['user']) > 0 ) {
@@ -429,14 +425,14 @@ class AuditTrailReport extends Report {
 			$llf = TTnew( 'LogListFactory' );
 			$llf->getSearchByCompanyIdAndArrayCriteria( $this->getUserObject()->getCompany(), $filter_data, 5000 );
 	
-			Debug::Text(' Log Rows: '. $llf->getRecordCount(), __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text(' Log Rows: '. $llf->getRecordCount(), __FILE__, __LINE__, __METHOD__, 10);
 			$this->getProgressBarObject()->start( $this->getAMFMessageID(), $llf->getRecordCount(), NULL, TTi18n::getText('Retrieving Data...') );
 			foreach ( $llf as $key => $l_obj ) {
 				$this->tmp_data['log'][$l_obj->getUser()][] = array_merge( (array)$l_obj->getObjectAsArray( $columns ), array('total_log' => 1 ) );
 	
 				$this->getProgressBarObject()->set( $this->getAMFMessageID(), $key );
 			}			
-			//Debug::Arr($this->tmp_data['log'], 'TMP Log Data: ', __FILE__, __LINE__, __METHOD__,10);
+			//Debug::Arr($this->tmp_data['log'], 'TMP Log Data: ', __FILE__, __LINE__, __METHOD__, 10);
 		}
 		
 		return TRUE;
@@ -446,12 +442,12 @@ class AuditTrailReport extends Report {
 	function _preProcess() {
 		$this->getProgressBarObject()->start( $this->getAMFMessageID(), count($this->tmp_data['log']), NULL, TTi18n::getText('Pre-Processing Data...') );
 		if ( isset($this->tmp_data['user']) ) {
-			$key=0;
+			$key = 0;
 			if ( isset( $this->tmp_data['log'] ) ) {
 				foreach( $this->tmp_data['log'] as $user_id => $level_2 ) {
 					if ( isset($this->tmp_data['user'][$user_id]) ) {
 						foreach( $level_2 as $row ) {
-                            $this->data[] = array_merge( $row, $this->tmp_data['user'][$user_id] );
+							$this->data[] = array_merge( $row, $this->tmp_data['user'][$user_id] );
 						}
 					}
 
@@ -461,7 +457,7 @@ class AuditTrailReport extends Report {
 			}
 			unset($this->tmp_data, $row, $processed_data );
 		}
-        //Debug::Arr($this->data, 'preProcess Data: ', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($this->data, 'preProcess Data: ', __FILE__, __LINE__, __METHOD__, 10);
 		return TRUE;
 	}
 }

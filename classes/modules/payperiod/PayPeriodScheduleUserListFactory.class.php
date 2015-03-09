@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 11018 $
- * $Id: PayPeriodScheduleUserListFactory.class.php 11018 2013-09-24 23:39:40Z ipso $
- * $Date: 2013-09-24 16:39:40 -0700 (Tue, 24 Sep 2013) $
- */
+
 
 /**
  * @package Modules\PayPeriod
@@ -46,7 +42,7 @@ class PayPeriodScheduleUserListFactory extends PayPeriodScheduleUserFactory impl
 
 	function getAll($limit = NULL, $page = NULL, $where = NULL, $order = NULL) {
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable();
 		$query .= $this->getWhereSQL( $where );
 		$query .= $this->getSortSQL( $order );
@@ -66,7 +62,7 @@ class PayPeriodScheduleUserListFactory extends PayPeriodScheduleUserFactory impl
 					);
 
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					where	id = ?
 					';
@@ -127,7 +123,7 @@ class PayPeriodScheduleUserListFactory extends PayPeriodScheduleUserFactory impl
 					);
 
 		$query = '
-					select 	a.*
+					select	a.*
 					from	'. $this->getTable() .' as a,
 							'. $ppsf->getTable() .' as b
 					where	b.id = a.pay_period_schedule_id
@@ -163,7 +159,7 @@ class PayPeriodScheduleUserListFactory extends PayPeriodScheduleUserFactory impl
 					);
 
 		$query = '
-					select 	a.*
+					select	a.*
 					from	'. $this->getTable() .' as a,
 							'. $ppsf->getTable() .' as b
 					where	b.id = a.pay_period_schedule_id
@@ -198,7 +194,7 @@ class PayPeriodScheduleUserListFactory extends PayPeriodScheduleUserFactory impl
 					);
 
 		$query = '
-					select 	a.*
+					select	a.*
 					from	'. $this->getTable() .' as a,
 							'. $ppsf->getTable() .' as b
 					where	b.id = a.pay_period_schedule_id
@@ -229,7 +225,7 @@ class PayPeriodScheduleUserListFactory extends PayPeriodScheduleUserFactory impl
 					);
 
 		$query = '
-					select 	a.*
+					select	a.*
 					from	'. $this->getTable() .' as a,
 							'. $ppsf->getTable() .' as b
 					where	b.id = a.pay_period_schedule_id

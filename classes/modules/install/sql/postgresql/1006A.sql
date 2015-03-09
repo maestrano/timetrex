@@ -1,18 +1,18 @@
 CREATE TABLE user_generic_status (
-    id serial NOT NULL,
-    user_id integer NOT NULL,
-    batch_id integer NOT NULL,
-    status_id integer NOT NULL,
+	id serial NOT NULL,
+	user_id integer NOT NULL,
+	batch_id integer NOT NULL,
+	status_id integer NOT NULL,
 	label character varying,
 	description character varying,
 	link character varying,
-    created_date integer,
-    created_by integer,
-    updated_date integer,
-    updated_by integer,
-    deleted_date integer,
-    deleted_by integer,
-    deleted smallint DEFAULT 0 NOT NULL
+	created_date integer,
+	created_by integer,
+	updated_date integer,
+	updated_by integer,
+	deleted_date integer,
+	deleted_by integer,
+	deleted smallint DEFAULT 0 NOT NULL
 );
 CREATE INDEX user_generic_status_id ON user_generic_status USING btree (id);
 CREATE INDEX user_generic_status_user_id_batch_id ON user_generic_status USING btree (user_id,batch_id);

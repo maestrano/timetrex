@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 7121 $
- * $Id: SystemSettingListFactory.class.php 7121 2012-06-22 22:55:40Z ipso $
- * $Date: 2012-06-22 15:55:40 -0700 (Fri, 22 Jun 2012) $
- */
+
 
 /**
  * @package Core
@@ -46,7 +42,7 @@ class SystemSettingListFactory extends SystemSettingFactory implements IteratorA
 
 	function getAll($limit = NULL, $page = NULL, $where = NULL, $order = NULL) {
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					';
 		$query .= $this->getWhereSQL( $where );
@@ -67,7 +63,7 @@ class SystemSettingListFactory extends SystemSettingFactory implements IteratorA
 					);
 
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					where	id = ?
 					';
@@ -91,7 +87,7 @@ class SystemSettingListFactory extends SystemSettingFactory implements IteratorA
 		$this->rs = $this->getCache($name);
 		if ( $this->rs === FALSE ) {
 			$query = '
-						select 	*
+						select	*
 						from	'. $this->getTable() .'
 						where	name = ?
 						';
@@ -100,7 +96,7 @@ class SystemSettingListFactory extends SystemSettingFactory implements IteratorA
 
 			$this->ExecuteSQL( $query, $ph );
 
-			$this->saveCache($this->rs,$name);
+			$this->saveCache($this->rs, $name);
 		}
 		
 		return $this;
@@ -118,7 +114,7 @@ class SystemSettingListFactory extends SystemSettingFactory implements IteratorA
 					$retarr[$ss_obj->getName()] = $ss_obj->getValue();
 				}
 
-				$this->saveCache($retarr,$id);
+				$this->saveCache($retarr, $id);
 
 				return $retarr;
 			} else {

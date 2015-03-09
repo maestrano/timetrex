@@ -28,35 +28,35 @@ update station set branch_selection_type_id = 20;
 update station set department_selection_type_id = 20;
 
 CREATE TABLE station_branch (
-    id serial NOT NULL,
+	id serial NOT NULL,
 	station_id integer NOT NULL,
 	branch_id integer NOT NULL,
 	PRIMARY KEY(id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE station_department (
-    id serial NOT NULL,
+	id serial NOT NULL,
 	station_id integer NOT NULL,
 	department_id integer NOT NULL,
 	PRIMARY KEY(id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE station_user_group (
-    id serial NOT NULL,
+	id serial NOT NULL,
 	station_id integer NOT NULL,
 	group_id integer NOT NULL,
 	PRIMARY KEY(id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE station_include_user (
-    id serial NOT NULL,
+	id serial NOT NULL,
 	station_id integer NOT NULL,
 	user_id integer NOT NULL,
 	PRIMARY KEY(id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE station_exclude_user (
-    id serial NOT NULL,
+	id serial NOT NULL,
 	station_id integer NOT NULL,
 	user_id integer NOT NULL,
 	PRIMARY KEY(id)

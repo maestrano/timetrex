@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 9521 $
- * $Id: AccrualPolicyMilestoneFactory.class.php 9521 2013-04-08 23:09:52Z ipso $
- * $Date: 2013-04-08 16:09:52 -0700 (Mon, 08 Apr 2013) $
- */
+
 
 /**
  * @package Modules\Policy
@@ -142,7 +138,7 @@ class AccrualPolicyMilestoneFactory extends Factory {
 
 	function getAccrualPolicy() {
 		if ( isset($this->data['accrual_policy_id']) ) {
-			return $this->data['accrual_policy_id'];
+			return (int)$this->data['accrual_policy_id'];
 		}
 
 		return FALSE;
@@ -165,6 +161,33 @@ class AccrualPolicyMilestoneFactory extends Factory {
 		return FALSE;
 	}
 
+	//If we just base LengthOfService on days, leap years and such can cause off-by-one errors.
+	//So we need to determine the exact dates when the milestones rollover and base it on that instead.
+	function getLengthOfServiceDate( $milestone_rollover_date ) {
+		switch ( $this->getLengthOfServiceUnit() ) {
+			case 10: //Days
+				$unit_str = 'Days';
+				break;
+			case 20: //Weeks
+				$unit_str = 'Weeks';
+				break;
+			case 30: //Months
+				$unit_str = 'Months';
+				break;
+			case 40: //Years
+				$unit_str = 'Years';
+				break;
+		}
+
+		if ( isset($unit_str) ) {
+			$retval = TTDate::getBeginDayEpoch( strtotime( '+'. $this->getLengthOfService() .' '. $unit_str, $milestone_rollover_date ) );
+			Debug::text('MileStone Rollover Days based on Length Of Service: '. TTDate::getDate('DATE+TIME', $retval), __FILE__, __LINE__, __METHOD__, 10);
+			return $retval;
+		}
+
+		return FALSE;
+	}
+
 	function getLengthOfServiceDays() {
 		if ( isset($this->data['length_of_service_days']) ) {
 			return (int)$this->data['length_of_service_days'];
@@ -177,7 +200,7 @@ class AccrualPolicyMilestoneFactory extends Factory {
 
 		Debug::text('aLength of Service Days: '. $int, __FILE__, __LINE__, __METHOD__, 10);
 
-		if 	(	$int >= 0
+		if	(	$int >= 0
 				AND
 				$this->Validator->isFloat(			'length_of_service'.$this->getLabelID(),
 													$int,
@@ -203,7 +226,7 @@ class AccrualPolicyMilestoneFactory extends Factory {
 
 		Debug::text('bLength of Service: '. $int, __FILE__, __LINE__, __METHOD__, 10);
 
-		if 	(	$int >= 0
+		if	(	$int >= 0
 				AND
 				$this->Validator->isFloat(			'length_of_service'.$this->getLabelID(),
 													$int,
@@ -219,7 +242,7 @@ class AccrualPolicyMilestoneFactory extends Factory {
 
 	function getLengthOfServiceUnit() {
 		if ( isset($this->data['length_of_service_unit_id']) ) {
-			return $this->data['length_of_service_unit_id'];
+			return (int)$this->data['length_of_service_unit_id'];
 		}
 
 		return FALSE;
@@ -255,7 +278,7 @@ class AccrualPolicyMilestoneFactory extends Factory {
 	function setAccrualRate($int) {
 		$int = trim($int);
 
-		if 	(	$int > 0
+		if	(	$int > 0
 				AND
 				$this->Validator->isNumeric(		'accrual_rate'.$this->getLabelID(),
 													$int,
@@ -278,7 +301,7 @@ class AccrualPolicyMilestoneFactory extends Factory {
 	function setMaximumTime($int) {
 		$int = trim($int);
 
-		if 	(	$int == 0
+		if	(	$int == 0
 				OR
 				$this->Validator->isNumeric(		'maximum_time'.$this->getLabelID(),
 													$int,
@@ -301,7 +324,7 @@ class AccrualPolicyMilestoneFactory extends Factory {
 	function setMinimumTime($int) {
 		$int = trim($int);
 
-		if 	(	$int == 0
+		if	(	$int == 0
 				OR
 				$this->Validator->isNumeric(		'minimum_time'.$this->getLabelID(),
 													$int,
@@ -324,7 +347,7 @@ class AccrualPolicyMilestoneFactory extends Factory {
 	function setRolloverTime($int) {
 		$int = trim($int);
 
-		if 	(	$int == 0
+		if	(	$int == 0
 				OR
 				$this->Validator->isNumeric(		'rollover_time'.$this->getLabelID(),
 													$int,
@@ -352,6 +375,16 @@ class AccrualPolicyMilestoneFactory extends Factory {
 
 					$function = 'set'.$function;
 					switch( $key ) {
+						/* Once Flex interface is discontinued we can remove parseTimeUnit from HTML5 interface and do it in the API instead.
+						case 'accrual_rate':
+						case 'maximum_time':
+						case 'minimum_time':
+						case 'rollover_time':
+							if ( method_exists( $this, $function ) ) {
+								$this->$function( TTDate::parseTimeUnit( $data[$key] ) );
+							}
+							break;
+						*/
 						default:
 							if ( method_exists( $this, $function ) ) {
 								$this->$function( $data[$key] );
@@ -378,7 +411,7 @@ class AccrualPolicyMilestoneFactory extends Factory {
 					$function = 'get'.$function_stub;
 					switch( $variable ) {
 						/*
-						 //This is not displayed anywhere that needs it in text rather then from the options.
+						//This is not displayed anywhere that needs it in text rather then from the options.
 						case 'length_of_service_unit':
 							//$function = 'getLengthOfServiceUnit';
 							if ( method_exists( $this, $function ) ) {
@@ -402,7 +435,7 @@ class AccrualPolicyMilestoneFactory extends Factory {
 	}
 
 	function addLog( $log_action ) {
-		return TTLog::addEntry( $this->getAccrualPolicy(), $log_action,  TTi18n::getText('Accrual Policy Milestone') .' (ID: '. $this->getID() .')' , NULL, $this->getTable(), $this );
+		return TTLog::addEntry( $this->getAccrualPolicy(), $log_action, TTi18n::getText('Accrual Policy Milestone') .' (ID: '. $this->getID() .')', NULL, $this->getTable(), $this );
 	}
 }
 ?>

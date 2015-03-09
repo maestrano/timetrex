@@ -1,0 +1,313 @@
+.a-dropdown {
+
+    float: left;
+    margin-bottom: 5px;
+}
+
+.a-dropdown .unselect-grid-div {
+
+    background-color: #34628D;
+    border-radius: 6px;
+    height: auto;
+    /*padding-bottom: 10px;*/
+    width: 464px;
+    float: left;
+}
+
+.a-dropdown .search-input-place-holder {
+    opacity: 0;
+}
+
+.a-dropdown .search-input {
+    outline: none;
+    border: 1px inset;
+    border-right: none;
+    padding-left: 0px;
+    padding-right: 0px;
+    height: 20px;
+}
+
+.a-dropdown .search-input-focus-out {
+
+    font-size: 12px;
+    text-align: center;
+    color: #777777;
+}
+
+.a-dropdown .search-input-focus-in {
+
+    font-size: 12px;
+    text-align: left;
+    color: #333333;
+}
+
+.a-dropdown .unselect-grid-div .unselect-grid-title-bar {
+    height: 30px;
+    left: 10px;
+    position: relative;
+    top: 7px;
+    color: #ffffff;
+}
+
+.a-dropdown .unselect-grid-div .unselect-grid-search-div {
+    position: relative;
+
+}
+
+.a-dropdown .unselect-grid-div .unselect-grid-border-div {
+    position: relative;
+    left: 10px;
+    border: 2px solid red;
+    width: 442px;
+    overflow: auto;
+
+}
+
+.a-dropdown .unselect-grid-div .single-mode-border {
+    border: 2px solid #00ff00;
+}
+
+.a-dropdown .unselect-grid-div .unselect-grid-bottom-bar {
+    height: 25px;
+    text-align: center;
+    position: relative;
+}
+
+.a-dropdown .unselect-grid-div .disable-unselect-grid-bottom-bar {
+    height: 10px;
+    text-align: center;
+}
+
+.a-dropdown .unselect-grid-div .unselect-grid-bottom-bar .total-number-span {
+    color: #FFFFFF;
+    line-height: 25px;
+    vertical-align: middle;
+    font-size: 10px;
+    float: left;
+    width: 260px;
+    left: 50%;
+    position: absolute;
+    margin-left: -130px;
+}
+
+.a-dropdown .unselect-grid-div .ui-jqgrid {
+    position: relative;
+    border-radius: 0px;
+}
+
+.a-dropdown .select-grid-div {
+
+    background-color: #34628D;
+    border-radius: 6px;
+    height: auto;
+    padding-bottom: 10px;
+    width: 464px;
+    float: left;
+}
+
+.a-dropdown .select-grid-div .select-grid-title-bar {
+    height: 30px;
+    left: 10px;
+    position: relative;
+    top: 7px;
+    color: #ffffff;
+}
+
+.a-dropdown .select-grid-div .select-grid-border-div {
+    position: relative;
+    left: 10px;
+    border: 2px solid #00ff00;
+    width: 442px;
+    overflow: auto;
+
+}
+
+.a-dropdown .select-grid-div .select-grid-search-div {
+
+}
+
+.a-dropdown .select-grid-div .ui-jqgrid {
+    position: relative;
+    border-radius: 0px;
+
+}
+
+.a-dropdown .left-and-right-div {
+
+    background-color: #34628D;
+    float: left;
+    height: 60px;
+    position: relative;
+    text-align: center;
+    top: 75px;
+    width: 30px;
+}
+
+.a-dropdown .left-and-right-div .right-arrow-div {
+
+    margin-top: 6px;
+}
+
+.a-dropdown .left-and-right-div .left-arrow-div {
+
+}
+
+.a-dropdown .left-and-right-div .right-arrow-div .a-grid-right-arrow {
+    cursor: pointer;
+}
+
+.a-dropdown .left-and-right-div .left-arrow-div .a-grid-left-arrow {
+    cursor: pointer;
+
+}
+
+.a-dropdown .a-grid-title {
+    font-size: 13px;
+    float: left;
+
+}
+
+.a-dropdown .a-grid-button {
+    position: relative;
+    top: -2px;
+    background-color: #1B3E60;
+    border: 1px solid #6687A6;
+    border-radius: 4px 4px 4px 4px;
+    color: #FFFFFF;
+    font-size: 10px;
+    padding-bottom: 2px;
+    padding-top: 2px;
+    float: right;
+    right: 20px;
+    cursor: pointer;
+    margin-left: 2px;
+}
+
+.a-dropdown .a-grid-close-button {
+    background: url("images/close.png") repeat scroll 0 0 transparent;
+    border: medium none;
+    cursor: pointer;
+    float: right;
+    height: 18px;
+    position: relative;
+    right: 18px;
+    width: 18px;
+}
+
+.a-dropdown .a-grid-checkbox {
+    float: right;
+    position: relative;
+    right: 25px;
+    top: -2px;
+}
+
+.a-dropdown .a-grid-checkbox-label {
+    float: right;
+    font-size: 11px;
+    position: relative;
+    right: 25px;
+    top: 1px;
+}
+
+.a-dropdown .left-buttons-div {
+    float: left;
+    color: #ffffff;
+    margin-left: 10px;
+    margin-top: 1px;
+
+}
+
+.a-dropdown .right-buttons-div {
+    float: right;
+    color: #ffffff;
+    margin-right: 7px;
+    margin-top: 1px;
+
+}
+
+.a-dropdown .disabled {
+    color: #999999;
+    -webkit-filter: grayscale(100%);
+    -moz-filter: grayscale(100%);
+    -ms-filter: grayscale(100%);
+    -o-filter: grayscale(100%);
+
+    filter: grayscale(100%);
+    filter: url(gray.svg#grayscale);
+
+    filter: gray;
+}
+
+.a-dropdown .double-left-arrow {
+    background: url("../../../../images/double_left_arrow.png");
+    height: 14px;
+    width: 17px;
+    float: left;
+    margin-top: 4px;
+
+}
+
+.a-dropdown .double-right-arrow {
+    float: left;
+    background: url("../../../../images/double_right_arrow.png");
+    height: 14px;
+    width: 17px;
+    float: left;
+    margin-top: 4px;
+}
+
+.a-dropdown .right-arrow {
+    background: url("../../../../images/right_arrow.png");
+    height: 14px;
+    width: 12px;
+    float: left;
+    margin-top: 4px;
+}
+
+.a-dropdown .left-arrow {
+    background: url("../../../../images/left_arrow.png");
+    height: 14px;
+    width: 12px;
+    float: left;
+    margin-top: 4px;
+}
+
+.a-dropdown .paging-2-span {
+    float: left;
+    margin-right: 2px;
+    margin-top: 3px;
+    cursor: pointer;
+    font-size: 11px;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.a-dropdown .drop-position {
+    background: red;
+}
+
+.a-dropdown .search-input-close {
+    position: relative;
+    right: -6px;
+    color: #ffffff;
+    cursor: pointer;
+    background: url("../../../../images/close.png") repeat scroll 0 0 rgba(0, 0, 0, 0);
+    width: 12px;
+    height: 12px;
+}
+
+.a-dropdown .close-btn {
+    background: url("../../../../images/close.png") repeat scroll 0 0 rgba(0, 0, 0, 0);
+    border: medium none;
+    cursor: pointer;
+    height: 12px;
+    position: relative;
+    width: 12px;
+    padding: 0px;
+    right: -3px;
+    top: 2px;
+}

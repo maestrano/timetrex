@@ -1,0 +1,47 @@
+.no-result-div {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0px;
+    /* Fallback for web browsers that doesn't support RGBa */
+    background: rgb(0, 0, 0);
+    /* RGBa with 0.6 opacity */
+    background: rgba(0, 0, 0, 0.6);
+    /* For IE 5.5 - 7*/
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000);
+    /* For IE 8*/
+    -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000)";
+    z-index: 1;
+    text-align: center;
+}
+
+.no-result-div .message {
+    color: #FFFFFF;
+    display: block;
+    font-size: 36px;
+    font-weight: bold;
+    height: 50px;
+    left: 0;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: -25px;
+    position: absolute;
+    right: 0;
+    top: 50%;
+
+}
+
+.no-result-div .ribbon-button {
+    color: #FFFFFF;
+    left: 0;
+    margin-left: auto;
+    margin-right: auto;
+    position: absolute;
+    right: 0;
+    top: 52%;
+    width: 50px;
+}
+
+.no-result-div .ribbon-button .label {
+
+}

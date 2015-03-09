@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2095 $
- * $Id: Sort.class.php 2095 2008-09-01 07:04:25Z ipso $
- * $Date: 2008-09-01 00:04:25 -0700 (Mon, 01 Sep 2008) $
- */
+
 
 /**
  * @package Modules\Report
@@ -54,8 +50,8 @@ class ExceptionReport extends Report {
 	}
 
 	protected function _checkPermissions( $user_id, $company_id ) {
-		if ( $this->getPermissionObject()->Check('report','enabled', $user_id, $company_id )
-				AND $this->getPermissionObject()->Check('report','view_exception_summary', $user_id, $company_id ) ) {
+		if ( $this->getPermissionObject()->Check('report', 'enabled', $user_id, $company_id )
+				AND $this->getPermissionObject()->Check('report', 'view_exception_summary', $user_id, $company_id ) ) {
 			return TRUE;
 		}
 
@@ -73,7 +69,7 @@ class ExceptionReport extends Report {
 										'template',
 										'time_period',
 										'columns',
-							   );
+							);
 				break;
 			case 'setup_fields':
 				$retval = array(
@@ -88,19 +84,19 @@ class ExceptionReport extends Report {
 										'-2050-exclude_user_id' => TTi18n::gettext('Employee Exclude'),
 										'-2060-default_branch_id' => TTi18n::gettext('Default Branch'),
 										'-2070-default_department_id' => TTi18n::gettext('Default Department'),
-                                        '-2100-custom_filter' => TTi18n::gettext('Custom Filter'),
+										'-2100-custom_filter' => TTi18n::gettext('Custom Filter'),
 
-                                        '-3000-exception_policy_type_id' => TTi18n::gettext('Exception'),
-                                        '-3050-exception_policy_severity_id' => TTi18n::gettext('Severity'),
-                                        '-4000-pay_period_id' => TTi18n::gettext('Pay Period'),
+										'-3000-exception_policy_type_id' => TTi18n::gettext('Exception'),
+										'-3050-exception_policy_severity_id' => TTi18n::gettext('Severity'),
+										'-4000-pay_period_id' => TTi18n::gettext('Pay Period'),
 
 										'-5000-columns' => TTi18n::gettext('Display Columns'),
 										'-5010-group' => TTi18n::gettext('Group By'),
 										'-5020-sub_total' => TTi18n::gettext('SubTotal By'),
 										'-5030-sort' => TTi18n::gettext('Sort By'),
-							   );
+								);
 				break;
-            case 'time_period':
+			case 'time_period':
 				$retval = TTDate::getTimePeriodOptions();
 				break;
 			case 'date_columns':
@@ -117,7 +113,7 @@ class ExceptionReport extends Report {
 					$retval = Misc::addSortPrefix( $other_field_names, 9000 );
 				}
 				break;
-            case 'report_custom_column':
+			case 'report_custom_column':
 				if ( getTTProductEdition() >= TT_PRODUCT_PROFESSIONAL ) {
 					$rcclf = TTnew( 'ReportCustomColumnListFactory' );
 					// Because the Filter type is just only a filter criteria and not need to be as an option of Display Columns, Group By, Sub Total, Sort By dropdowns.
@@ -127,14 +123,14 @@ class ExceptionReport extends Report {
 						$retval = Misc::addSortPrefix( $custom_column_labels, 9500 );
 					}
 				}
-                break; 
-            case 'report_custom_filters':
+				break;
+			case 'report_custom_filters':
 				if ( getTTProductEdition() >= TT_PRODUCT_PROFESSIONAL ) {
 					$rcclf = TTnew( 'ReportCustomColumnListFactory' );
 					$retval = $rcclf->getByCompanyIdAndTypeIdAndFormatIdAndScriptArray( $this->getUserObject()->getCompany(), $rcclf->getOptions('filter_column_type_ids'), NULL, 'ExceptionReport', 'custom_column' );
 				}
-                break;
-            case 'report_dynamic_custom_column':
+				break;
+			case 'report_dynamic_custom_column':
 				if ( getTTProductEdition() >= TT_PRODUCT_PROFESSIONAL ) {
 					$rcclf = TTnew( 'ReportCustomColumnListFactory' );
 					$report_dynamic_custom_column_labels = $rcclf->getByCompanyIdAndTypeIdAndFormatIdAndScriptArray( $this->getUserObject()->getCompany(), $rcclf->getOptions('display_column_type_ids'), $rcclf->getOptions('dynamic_format_ids'), 'ExceptionReport', 'custom_column' );
@@ -142,8 +138,8 @@ class ExceptionReport extends Report {
 						$retval = Misc::addSortPrefix( $report_dynamic_custom_column_labels, 9700 );
 					}
 				}
-                break;
-            case 'report_static_custom_column':
+				break;
+			case 'report_static_custom_column':
 				if ( getTTProductEdition() >= TT_PRODUCT_PROFESSIONAL ) {
 					$rcclf = TTnew( 'ReportCustomColumnListFactory' );
 					$report_static_custom_column_labels = $rcclf->getByCompanyIdAndTypeIdAndFormatIdAndScriptArray( $this->getUserObject()->getCompany(), $rcclf->getOptions('display_column_type_ids'), $rcclf->getOptions('static_format_ids'), 'ExceptionReport', 'custom_column' );
@@ -151,13 +147,13 @@ class ExceptionReport extends Report {
 						$retval = Misc::addSortPrefix( $report_static_custom_column_labels, 9700 );
 					}
 				}
-                break;
-            case 'formula_columns':
-                $retval = TTMath::formatFormulaColumns( array_merge( array_diff( $this->getOptions('static_columns'), (array)$this->getOptions('report_static_custom_column') ), $this->getOptions('dynamic_columns') ) );
-                break; 
-            case 'filter_columns':
-                $retval = TTMath::formatFormulaColumns( array_merge( $this->getOptions('static_columns'), $this->getOptions('dynamic_columns'), (array)$this->getOptions('report_dynamic_custom_column') ) );
-                break;
+				break;
+			case 'formula_columns':
+				$retval = TTMath::formatFormulaColumns( array_merge( array_diff( $this->getOptions('static_columns'), (array)$this->getOptions('report_static_custom_column') ), $this->getOptions('dynamic_columns') ) );
+				break;
+			case 'filter_columns':
+				$retval = TTMath::formatFormulaColumns( array_merge( $this->getOptions('static_columns'), $this->getOptions('dynamic_columns'), (array)$this->getOptions('report_dynamic_custom_column') ) );
+				break;
 			case 'static_columns':
 				$retval = array(
 										//Static Columns - Aggregate functions can't be used on these.
@@ -178,14 +174,19 @@ class ExceptionReport extends Report {
 										'-1080-user_group' => TTi18n::gettext('Employee Group'),
 										'-1090-default_branch' => TTi18n::gettext('Branch'), //abbreviate for space
 										'-1100-default_department' => TTi18n::gettext('Department'), //abbreviate for space
-                                        '-1130-permission_group' => TTi18n::gettext('Permission Group'),
+										'-1130-permission_group' => TTi18n::gettext('Permission Group'),
 
 										'-1150-severity' => TTi18n::gettext('Severity'),
 										'-1160-exception_policy_type' => TTi18n::gettext('Exception'),
-                                        '-1180-policy_group' => TTi18n::gettext('Policy Group'),
-                                        '-1190-pay_period_schedule' => TTi18n::gettext('Pay Period Schedule'),
+										'-1180-policy_group' => TTi18n::gettext('Policy Group'),
+										'-1190-pay_period_schedule' => TTi18n::gettext('Pay Period Schedule'),
 										'-1170-exception_policy_type_id' => TTi18n::gettext('Code'),
-							   );
+								);
+
+				if ( getTTProductEdition() >= TT_PRODUCT_CORPORATE ) {
+					$retval['-1120-default_job'] = TTi18n::gettext('Job');
+					$retval['-1125-default_job_item'] = TTi18n::gettext('Task');
+				}
 
 				$retval = array_merge( $retval, (array)$this->getOptions('date_columns'), (array)$this->getOptions('custom_columns'), (array)$this->getOptions('report_static_custom_column') );
 				ksort($retval);
@@ -193,7 +194,7 @@ class ExceptionReport extends Report {
 			case 'dynamic_columns':
 				$retval = array(
 										//Dynamic - Aggregate functions can be used
-                                        '-2050-total_exception' => TTi18n::gettext('Total Exceptions'),
+										'-2050-total_exception' => TTi18n::gettext('Total Exceptions'),
 							);
 
 				break;
@@ -208,9 +209,9 @@ class ExceptionReport extends Report {
 						if ( strpos($column, 'wage') !== FALSE OR strpos($column, 'hourly_rate') !== FALSE ) {
 							$retval[$column] = 'currency';
 						}
-                        if ( strpos($column, 'amount') !== FALSE ) {
-                            $retval[$column] = 'time_unit';
-                        }
+						if ( strpos($column, 'amount') !== FALSE ) {
+							$retval[$column] = 'time_unit';
+						}
 
 					}
 				}
@@ -225,7 +226,7 @@ class ExceptionReport extends Report {
 								if ( strpos($column, 'hourly_rate') !== FALSE OR strpos($column, 'wage') !== FALSE ) {
 									$retval[$column] = 'avg';
 								} else {
-								    $retval[$column] = 'sum';
+									$retval[$column] = 'sum';
 								}
 						}
 					}
@@ -233,13 +234,13 @@ class ExceptionReport extends Report {
 				break;
 			case 'templates':
 				$retval = array(
-                                        '-1250-by_severity' => TTi18n::gettext('Exceptions by Severity'),
-                                        '-1260-by_exception' => TTi18n::gettext('Exceptions by Name'),
-                                        '-1270-by_pay_period' => TTi18n::gettext('Exceptions by Pay Period'),
+										'-1250-by_severity' => TTi18n::gettext('Exceptions by Severity'),
+										'-1260-by_exception' => TTi18n::gettext('Exceptions by Name'),
+										'-1270-by_pay_period' => TTi18n::gettext('Exceptions by Pay Period'),
 										'-1280-by_employee_by_severity_by_name' => TTi18n::gettext('Exceptions by Employee/Severity/Name'),
 										'-1282-by_severity_by_name_by_employee' => TTi18n::gettext('Exceptions by Severity/Name/Employee'),
-                                        '-1300-by_severity_by_name_by_dow' => TTi18n::gettext('Exceptions by Severity/Name/Day of Week'),
-							   );
+										'-1300-by_severity_by_name_by_dow' => TTi18n::gettext('Exceptions by Severity/Name/Day of Week'),
+								);
 
 				break;
 			case 'template_config':
@@ -248,107 +249,107 @@ class ExceptionReport extends Report {
 					$retval['-1010-time_period']['time_period'] = 'last_pay_period';
 
 					switch( $template ) {
-                        case 'by_severity':
-                            $retval['columns'][] = 'severity';
+						case 'by_severity':
+							$retval['columns'][] = 'severity';
 
-                            $retval['columns'][] = 'exception_policy_type_id';
-                            $retval['columns'][] = 'exception_policy_type';
+							$retval['columns'][] = 'exception_policy_type_id';
+							$retval['columns'][] = 'exception_policy_type';
 							$retval['columns'][] = 'total_exception';
 
-                            $retval['group'][] = 'severity';
+							$retval['group'][] = 'severity';
 							$retval['group'][] = 'exception_policy_type_id';
 							$retval['group'][] = 'exception_policy_type';
 
 							$retval['sub_total'][] = 'severity';
 
-                            $retval['sort'][] = array('severity' => 'asc', 'total_exception' => 'desc');
-                            break;
-                        case 'by_exception':
+							$retval['sort'][] = array('severity' => 'asc', 'total_exception' => 'desc');
+							break;
+						case 'by_exception':
 							$retval['columns'][] = 'severity';
-                            $retval['columns'][] = 'exception_policy_type_id';
-                            $retval['columns'][] = 'exception_policy_type';
+							$retval['columns'][] = 'exception_policy_type_id';
+							$retval['columns'][] = 'exception_policy_type';
 							$retval['columns'][] = 'total_exception';
 
-                            $retval['group'][] = 'severity';
+							$retval['group'][] = 'severity';
 							$retval['group'][] = 'exception_policy_type_id';
 							$retval['group'][] = 'exception_policy_type';
 
-                            $retval['sort'][] = array('total_exception' => 'desc', 'severity' => 'asc' );
-                            break;
-                        case 'by_pay_period':
+							$retval['sort'][] = array('total_exception' => 'desc', 'severity' => 'asc' );
+							break;
+						case 'by_pay_period':
 							$retval['columns'][] = 'pay_period';
-                            $retval['columns'][] = 'severity';
+							$retval['columns'][] = 'severity';
 
-                            $retval['columns'][] = 'exception_policy_type_id';
-                            $retval['columns'][] = 'exception_policy_type';
+							$retval['columns'][] = 'exception_policy_type_id';
+							$retval['columns'][] = 'exception_policy_type';
 							$retval['columns'][] = 'total_exception';
 
 							$retval['group'][] = 'pay_period';
-                            $retval['group'][] = 'severity';
+							$retval['group'][] = 'severity';
 							$retval['group'][] = 'exception_policy_type_id';
 							$retval['group'][] = 'exception_policy_type';
 
 							$retval['sub_total'][] = 'pay_period';
-                            $retval['sub_total'][] = 'severity';
+							$retval['sub_total'][] = 'severity';
 
-                            $retval['sort'][] = array('pay_period' => 'desc', 'severity' => 'asc', 'total_exception' => 'desc');
-                            break;
-                        case 'by_employee_by_severity_by_name':
+							$retval['sort'][] = array('pay_period' => 'desc', 'severity' => 'asc', 'total_exception' => 'desc');
+							break;
+						case 'by_employee_by_severity_by_name':
 							$retval['columns'][] = 'full_name';
-                            $retval['columns'][] = 'severity';
+							$retval['columns'][] = 'severity';
 
-                            $retval['columns'][] = 'exception_policy_type_id';
-                            $retval['columns'][] = 'exception_policy_type';
+							$retval['columns'][] = 'exception_policy_type_id';
+							$retval['columns'][] = 'exception_policy_type';
 							$retval['columns'][] = 'total_exception';
 
 							$retval['group'][] = 'full_name';
-                            $retval['group'][] = 'severity';
+							$retval['group'][] = 'severity';
 							$retval['group'][] = 'exception_policy_type_id';
 							$retval['group'][] = 'exception_policy_type';
 
 							$retval['sub_total'][] = 'full_name';
-                            $retval['sub_total'][] = 'severity';
+							$retval['sub_total'][] = 'severity';
 
-                            $retval['sort'][] = array('full_name' => 'asc', 'severity' => 'asc', 'total_exception' => 'desc');
-                            break;
+							$retval['sort'][] = array('full_name' => 'asc', 'severity' => 'asc', 'total_exception' => 'desc');
+							break;
 						case 'by_severity_by_name_by_employee':
-                            $retval['columns'][] = 'severity';
-                            $retval['columns'][] = 'exception_policy_type_id';
-                            $retval['columns'][] = 'exception_policy_type';
+							$retval['columns'][] = 'severity';
+							$retval['columns'][] = 'exception_policy_type_id';
+							$retval['columns'][] = 'exception_policy_type';
 							$retval['columns'][] = 'full_name';
 							$retval['columns'][] = 'total_exception';
 
 
-                            $retval['group'][] = 'severity';
+							$retval['group'][] = 'severity';
 							$retval['group'][] = 'exception_policy_type_id';
 							$retval['group'][] = 'exception_policy_type';
 							$retval['group'][] = 'full_name';
 
-                            $retval['sub_total'][] = 'severity';
+							$retval['sub_total'][] = 'severity';
 							$retval['sub_total'][] = 'exception_policy_type';
 							$retval['sub_total'][] = 'full_name';
 
-                            $retval['sort'][] = array( 'severity' => 'asc', 'total_exception' => 'desc');
-                            break;
-                        case 'by_severity_by_name_by_dow':
-                            $retval['columns'][] = 'severity';
-                            $retval['columns'][] = 'exception_policy_type_id';
-                            $retval['columns'][] = 'exception_policy_type';
+							$retval['sort'][] = array( 'severity' => 'asc', 'total_exception' => 'desc');
+							break;
+						case 'by_severity_by_name_by_dow':
+							$retval['columns'][] = 'severity';
+							$retval['columns'][] = 'exception_policy_type_id';
+							$retval['columns'][] = 'exception_policy_type';
 							$retval['columns'][] = 'date_dow';
-                            $retval['columns'][] = 'total_exception';
+							$retval['columns'][] = 'total_exception';
 
-                            $retval['group'][] = 'severity';
+							$retval['group'][] = 'severity';
 							$retval['group'][] = 'exception_policy_type_id';
 							$retval['group'][] = 'exception_policy_type';
 							$retval['group'][] = 'date_dow';
 
-                            $retval['sub_total'][] = 'severity';
+							$retval['sub_total'][] = 'severity';
 							$retval['sub_total'][] = 'exception_policy_type';
 
-                            $retval['sort'][] = array( 'severity' => 'asc', 'exception_policy_type_id' => 'asc', 'exception_policy_type' => 'asc', 'total_exception' => 'desc');
-                            break;
+							$retval['sort'][] = array( 'severity' => 'asc', 'exception_policy_type_id' => 'asc', 'exception_policy_type' => 'asc', 'total_exception' => 'desc');
+							break;
 						default:
-							Debug::Text(' Parsing template name: '. $template, __FILE__, __LINE__, __METHOD__,10);
+							Debug::Text(' Parsing template name: '. $template, __FILE__, __LINE__, __METHOD__, 10);
 							break;
 					}
 				}
@@ -377,7 +378,7 @@ class ExceptionReport extends Report {
 					$retval['-5040-sort'] = $retval['sort'];
 					unset($retval['sort']);
 				}
-				Debug::Arr($retval, ' Template Config for: '. $template, __FILE__, __LINE__, __METHOD__,10);
+				Debug::Arr($retval, ' Template Config for: '. $template, __FILE__, __LINE__, __METHOD__, 10);
 
 				break;
 			default:
@@ -392,27 +393,27 @@ class ExceptionReport extends Report {
 	//Get raw data for report
 	function _getData( $format = NULL ) {
 		$this->tmp_data = array(
-                            'user' => array(),
-                            'exception' => array(),
-                         );
+							'user' => array(),
+							'exception' => array(),
+							);
 
 		$columns = $this->getColumnDataConfig();
 		$filter_data = $this->getFilterConfig();
 
-		if ( $this->getPermissionObject()->Check('punch','view') == FALSE ) {
+		if ( $this->getPermissionObject()->Check('punch', 'view') == FALSE ) {
 			$hlf = TTnew( 'HierarchyListFactory' );
 			$permission_children_ids = $wage_permission_children_ids = $hlf->getHierarchyChildrenByCompanyIdAndUserIdAndObjectTypeID( $this->getUserObject()->getCompany(), $this->getUserObject()->getID() );
-			Debug::Arr($permission_children_ids,'Permission Children Ids:', __FILE__, __LINE__, __METHOD__,10);
+			Debug::Arr($permission_children_ids, 'Permission Children Ids:', __FILE__, __LINE__, __METHOD__, 10);
 		} else {
 			//Get Permission Hierarchy Children first, as this can be used for viewing, or editing.
 			$permission_children_ids = array();
 			$wage_permission_children_ids = array();
 		}
-		if ( $this->getPermissionObject()->Check('punch','view') == FALSE ) {
-			if ( $this->getPermissionObject()->Check('user','view_child') == FALSE ) {
+		if ( $this->getPermissionObject()->Check('punch', 'view') == FALSE ) {
+			if ( $this->getPermissionObject()->Check('user', 'view_child') == FALSE ) {
 				$permission_children_ids = array();
 			}
-			if ( $this->getPermissionObject()->Check('punch','view_own') ) {
+			if ( $this->getPermissionObject()->Check('punch', 'view_own') ) {
 				$permission_children_ids[] = $this->getUserObject()->getID();
 			}
 
@@ -422,27 +423,30 @@ class ExceptionReport extends Report {
 		//Get user data for joining.
 		$ulf = TTnew( 'UserListFactory' );
 		$ulf->getAPISearchByCompanyIdAndArrayCriteria( $this->getUserObject()->getCompany(), $filter_data );
-		Debug::Text(' User Rows: '. $ulf->getRecordCount(), __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text(' User Rows: '. $ulf->getRecordCount(), __FILE__, __LINE__, __METHOD__, 10);
 		$this->getProgressBarObject()->start( $this->getAMFMessageID(), $ulf->getRecordCount(), NULL, TTi18n::getText('Retrieving Data...') );
 		foreach ( $ulf as $key => $u_obj ) {
 			$this->tmp_data['user'][$u_obj->getId()] = (array)$u_obj->getObjectAsArray( $columns );
-            $this->tmp_data['user'][$u_obj->getId()]['user_status'] = Option::getByKey( $u_obj->getStatus(), $u_obj->getOptions( 'status' ) );
+			$this->tmp_data['user'][$u_obj->getId()]['user_status'] = Option::getByKey( $u_obj->getStatus(), $u_obj->getOptions( 'status' ) );
 			$this->getProgressBarObject()->set( $this->getAMFMessageID(), $key );
 		}
-		//Debug::Arr($this->tmp_data['user'], 'TMP User Data: ', __FILE__, __LINE__, __METHOD__,10);
-        $columns['pay_period_start_date'] = $columns['pay_period_end_date'] = $columns['pay_period_transaction_date'] = TRUE;
-        //Get Exception data for joining .
-        $elf =  TTnew('ExceptionListFactory');
-        $elf->getAPISearchByCompanyIdAndArrayCriteria( $this->getUserObject()->getCompany(), $filter_data );
-        Debug::Text(' Exception Rows: '.$elf->getRecordCount(), __FILE__,__LINE__,__METHOD__,10);
-        $this->getProgressBarObject()->start( $this->getAMFMessageID(), $elf->getRecordCount(), NULL, TTi18n::getText('Retrieving Data...') );
-        foreach ( $elf as $key => $e_obj ) {
-            $user_id = $e_obj->getColumn('user_id');
+		//Debug::Arr($this->tmp_data['user'], 'TMP User Data: ', __FILE__, __LINE__, __METHOD__, 10);
+		$columns['pay_period_start_date'] = $columns['pay_period_end_date'] = $columns['pay_period_transaction_date'] = TRUE;
+
+		$filter_data['type_id'] = array(50); //Exclude pre-mature exceptions.
+
+		//Get Exception data for joining .
+		$elf =	TTnew('ExceptionListFactory');
+		$elf->getAPISearchByCompanyIdAndArrayCriteria( $this->getUserObject()->getCompany(), $filter_data );
+		Debug::Text(' Exception Rows: '.$elf->getRecordCount(), __FILE__, __LINE__, __METHOD__, 10);
+		$this->getProgressBarObject()->start( $this->getAMFMessageID(), $elf->getRecordCount(), NULL, TTi18n::getText('Retrieving Data...') );
+		foreach ( $elf as $key => $e_obj ) {
+			$user_id = $e_obj->getUser();
 			$this->tmp_data['exception'][$user_id][$e_obj->getID()] = (array)$e_obj->getObjectAsArray( array_merge( array( 'date_stamp' => TRUE ), $columns) );
-            $this->tmp_data['exception'][$user_id][$e_obj->getID()]['total_exception'] = 1;
+			$this->tmp_data['exception'][$user_id][$e_obj->getID()]['total_exception'] = 1;
 			$this->getProgressBarObject()->set( $this->getAMFMessageID(), $key );
 		}
-        //Debug::Arr($this->tmp_data['exception'], 'TMP Exception Data: ', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($this->tmp_data['exception'], 'TMP Exception Data: ', __FILE__, __LINE__, __METHOD__, 10);
 		return TRUE;
 	}
 
@@ -450,14 +454,14 @@ class ExceptionReport extends Report {
 	function _preProcess() {
 		$this->getProgressBarObject()->start( $this->getAMFMessageID(), count($this->tmp_data['exception']), NULL, TTi18n::getText('Pre-Processing Data...') );
 		if ( isset($this->tmp_data['user']) ) {
-			$key=0;
+			$key = 0;
 			if ( isset( $this->tmp_data['exception'] ) ) {
 				foreach( $this->tmp_data['exception'] as $user_id => $level_1 ) {
 					foreach( $level_1 as $id => $level_2 ) {
 						$date_columns = TTDate::getReportDates( NULL, TTDate::parseDateTime( $level_2['date_stamp'] ), FALSE, $this->getUserObject(), array('pay_period_start_date' => strtotime( $level_2['pay_period_start_date'] ), 'pay_period_end_date' => strtotime( $level_2['pay_period_end_date'] ), 'pay_period_transaction_date' => strtotime( $level_2['pay_period_transaction_date'] ) ) );
 
 						if ( isset($this->tmp_data['user'][$user_id]) ) {
-							$this->data[] = array_merge( $level_2,  $this->tmp_data['user'][$user_id], $date_columns );
+							$this->data[] = array_merge( $level_2, $this->tmp_data['user'][$user_id], $date_columns );
 						}
 
 						$this->getProgressBarObject()->set( $this->getAMFMessageID(), $key );
@@ -467,7 +471,7 @@ class ExceptionReport extends Report {
 			}
 			unset($this->tmp_data, $level_1 );
 		}
-        //Debug::Arr($this->data, 'preProcess Data: ', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($this->data, 'preProcess Data: ', __FILE__, __LINE__, __METHOD__, 10);
 		return TRUE;
 	}
 }

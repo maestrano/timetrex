@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 8371 $
- * $Id: HolidayPolicyRecurringHolidayFactory.class.php 8371 2012-11-22 21:18:57Z ipso $
- * $Date: 2012-11-22 13:18:57 -0800 (Thu, 22 Nov 2012) $
- */
+
 
 /**
  * @package Modules\Policy
@@ -65,7 +61,7 @@ class HolidayPolicyRecurringHolidayFactory extends Factory {
 
 	function getHolidayPolicy() {
 		if ( isset($this->data['holiday_policy_id']) ) {
-			return $this->data['holiday_policy_id'];
+			return (int)$this->data['holiday_policy_id'];
 		}
 
 		return FALSE;
@@ -76,12 +72,12 @@ class HolidayPolicyRecurringHolidayFactory extends Factory {
 		$hplf = TTnew( 'HolidayPolicyListFactory' );
 
 		if (
-			  $this->Validator->isNumeric(	'holiday_policy',
+			$this->Validator->isNumeric(	'holiday_policy',
 											$id,
 											TTi18n::gettext('Holiday Policy is invalid')
 
 			/*
-			  $this->Validator->isResultSetWithRows(	'holiday_policy',
+			$this->Validator->isResultSetWithRows(	'holiday_policy',
 													$hplf->getByID($id),
 													TTi18n::gettext('Holiday Policy is invalid')
 			 */
@@ -96,7 +92,7 @@ class HolidayPolicyRecurringHolidayFactory extends Factory {
 
 	function getRecurringHoliday() {
 		if ( isset($this->data['recurring_holiday_id']) ) {
-			return $this->data['recurring_holiday_id'];
+			return (int)$this->data['recurring_holiday_id'];
 		}
 	}
 	function setRecurringHoliday($id) {
@@ -170,7 +166,7 @@ class HolidayPolicyRecurringHolidayFactory extends Factory {
 	function addLog( $log_action ) {
 		$obj = $this->getRecurringHolidayObject();
 		if ( is_object($obj) ) {
-			return TTLog::addEntry( $this->getHolidayPolicy(), $log_action,  TTi18n::getText('Recurring Holiday').': '. $obj->getName(), NULL, $this->getTable() );
+			return TTLog::addEntry( $this->getHolidayPolicy(), $log_action, TTi18n::getText('Recurring Holiday').': '. $obj->getName(), NULL, $this->getTable() );
 		}
 	}
 }

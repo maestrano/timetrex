@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2286 $
- * $Id: CA.class.php 2286 2008-12-12 23:12:41Z ipso $
- * $Date: 2008-12-12 15:12:41 -0800 (Fri, 12 Dec 2008) $
- */
+
 
 include_once( 'US.class.php' );
 
@@ -64,6 +60,23 @@ class GovernmentForms_US_W2 extends GovernmentForms_US {
 		return $retval;
 	}
 
+	function getPayrollDeductionObject() {
+		if ( !isset($this->payroll_deduction_obj) ) {
+			require_once( Environment::getBasePath(). DIRECTORY_SEPARATOR . 'classes'. DIRECTORY_SEPARATOR .'payroll_deduction'. DIRECTORY_SEPARATOR .'PayrollDeduction.class.php');
+			$this->payroll_deduction_obj = new PayrollDeduction( 'US', NULL);
+			$this->payroll_deduction_obj->setDate( TTDate::getTimeStamp( $this->year, 12, 31 ) );
+		}
+
+		return $this->payroll_deduction_obj;
+	}
+
+	function getSocialSecurityMaximumEarnings() {
+		return $this->getPayrollDeductionObject()->getSocialSecurityMaximumEarnings();
+	}
+	function getSocialSecurityMaximumContribution( $type = 'employee' ) {
+		return $this->getPayrollDeductionObject()->getSocialSecurityMaximumContribution( $type );
+	}
+
 	//Set the type of form to display/print. Typically this would be:
 	// government or employee.
 	function getType() {
@@ -88,6 +101,20 @@ class GovernmentForms_US_W2 extends GovernmentForms_US {
 	function setShowInstructionPage( $value ) {
 		$this->show_instruction_page = (bool)trim($value);
 		return TRUE;
+	}
+
+	public function getPreCalcFunction( $name ) {
+		$variable_function_map = array(
+										'l4' => 'preCalcL4',
+										'l6' => 'preCalcL6',
+										'l3' => 'preCalcL3',
+						  );
+
+		if ( isset($variable_function_map[$name]) ) {
+			return $variable_function_map[$name];
+		}
+
+		return FALSE;
 	}
 
 	public function getFilterFunction( $name ) {
@@ -673,13 +700,44 @@ class GovernmentForms_US_W2 extends GovernmentForms_US {
 		}
 	}
 
+	
+	function preCalcL3( $value, $key, &$array ) {
+		if ( $value > $this->getSocialSecurityMaximumEarnings() ) {
+			Debug::Text('Social security earnings exceeds maximum...', __FILE__, __LINE__, __METHOD__, 10);
+			$value = $this->getSocialSecurityMaximumEarnings();
+		}
+
+		return $value;
+	}
+	function preCalcL4( $value, $key, &$array ) {
+		if ( $value === FALSE OR $value <= 0 ) {
+			$value = FALSE;
+			$array['l3'] = FALSE; //If no Social Security Tax was withheld, assume exempt and change Social Security wages to 0.
+			Debug::Text('No social security tax withheld, setting wages to 0: ', __FILE__, __LINE__, __METHOD__, 10);
+		} elseif ( $value > $this->getSocialSecurityMaximumContribution() ) {
+			Debug::Text('Social security contributions exceeds maximum...', __FILE__, __LINE__, __METHOD__, 10);
+			$value = $this->getSocialSecurityMaximumContribution();
+		}
+
+		return $value;
+	}
+	function preCalcL6( $value, $key, &$array ) {
+		if ( $value === FALSE OR $value <= 0 ) {
+			$value = FALSE;
+			$array['l5'] = FALSE; //If no Medicare Tax was withheld, assume exempt change Medicare wages to 0.
+			Debug::Text('No medicare tax withheld, setting wages to 0: ', __FILE__, __LINE__, __METHOD__, 10);
+		}
+
+		return $value;
+	}
+	
 	function filterMiddleName( $value ) {
 		//Return just initial
 		$value = substr( $value, 0, 1);
 		return $value;
 	}
 	function filterCompanyAddress( $value ) {
-		Debug::Text('Filtering company address: '. $value, __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Text('Filtering company address: '. $value, __FILE__, __LINE__, __METHOD__, 10);
 
 		//Combine company address for multicell display.
 		$retarr[] = $this->company_address1;
@@ -770,7 +828,7 @@ class GovernmentForms_US_W2 extends GovernmentForms_US {
 	
 	function _getL12AmountByCode( $code ) {
 		Debug::Text('Checking for Code:'. $code, __FILE__, __LINE__, __METHOD__, 10);
-		foreach( range('a','z') as $z ) {
+		foreach( range('a', 'z') as $z ) {
 			if ( isset( $this->{'l12'.$z.'_code'} ) AND $this->{'l12'.$z.'_code'} == $code ) {
 				Debug::Text('Found amount for Code:'. $code, __FILE__, __LINE__, __METHOD__, 10);
 				return $this->{'l12'.$z};
@@ -921,7 +979,6 @@ class GovernmentForms_US_W2 extends GovernmentForms_US {
 
 	//ID is the state identifier like: a, b, c, d,...
 	function _compileRS( $id ) {
-
 		$l15_state = 'l15'.$id.'_state';
 		$l15_state_id = 'l15'.$id.'_state_id';
 		$l16 = 'l16'.$id;
@@ -1117,13 +1174,14 @@ class GovernmentForms_US_W2 extends GovernmentForms_US {
 			$retval = $this->padLine( $this->_compileRA() );
 			$retval .= $this->padLine( $this->_compileRE() );
 
-			$total = new stdClass();
+			$total = Misc::preSetArrayValues( new stdClass(), array('total','l1','l2','l3','l4','l5','l6','l7','l10','l12d','l12e','l12f','l12g','l12h','l12w','l12aa','l12bb','l12dd'), 0 );
+
 			$i=0;
 			foreach( $records as $w2_data ) {
 				$this->arrayToObject( $w2_data ); //Convert record array to object
 
 				$retval .= $this->padLine( $this->_compileRW() );
-                foreach( range('a','z') as $z ) {
+                foreach( range('a', 'z') as $z ) {
 					$retval .= $this->padLine( $this->_compileRS( $z ) );
 				}
 
@@ -1224,7 +1282,7 @@ class GovernmentForms_US_W2 extends GovernmentForms_US {
 						}
 					}
 
-					if ( $employees_per_page == 1 OR ( $employees_per_page == 2 AND  $e % $employees_per_page != 0 ) ) {
+					if ( $employees_per_page == 1 OR ( $employees_per_page == 2 AND $e % $employees_per_page != 0 ) ) {
 						$this->resetTemplatePage();
 						//if ( $this->getShowInstructionPage() == TRUE ) {
 						//	$this->addPage( array('template_page' => 2) );
@@ -1252,7 +1310,7 @@ class GovernmentForms_US_W2 extends GovernmentForms_US {
         
         $records = $this->getRecords();
         
-        Debug::Arr($records, 'Output XML Records: ',__FILE__, __LINE__, __METHOD__, 10);
+        Debug::Arr($records, 'Output XML Records: ', __FILE__, __LINE__, __METHOD__, 10);
         
         if ( is_array($records) AND count($records) > 0 ) {
             
@@ -1378,7 +1436,7 @@ class GovernmentForms_US_W2 extends GovernmentForms_US {
                 }   
                 
                 $x = 0;
-                foreach( range('a','d') as $z ) {
+                foreach( range('a', 'd') as $z ) {
                     $code_col = 'l12'.$z.'_code';
                     $amount_col = 'l12'.$z;
                     if ( empty( $this->$code_col ) == FALSE OR empty( $this->$amount_col ) == FALSE ) {
@@ -1412,7 +1470,7 @@ class GovernmentForms_US_W2 extends GovernmentForms_US {
                 
                 //Other Deducts/Benefits Cd  
                 $x = 0;
-                foreach( range('a','d') as $z ) {
+                foreach( range('a', 'd') as $z ) {
                     $des_col = 'l14'.$z.'_name';
                     $amount_col = 'l14'.$z;
                     if ( empty( $this->$des_col ) == FALSE AND empty( $this->$amount_col ) == FALSE  ) {
@@ -1427,7 +1485,7 @@ class GovernmentForms_US_W2 extends GovernmentForms_US {
                 
                 //W2 State Local Tax Group                
                 $x = 0;
-                foreach( range('a','z') as $z ) {
+                foreach( range('a', 'z') as $z ) {
                     
                     $l15_state = 'l15'.$z.'_state';
                     $l15_state_id = 'l15'.$z.'_state_id';
@@ -1437,13 +1495,13 @@ class GovernmentForms_US_W2 extends GovernmentForms_US {
                     $l19 = 'l19'.$z;
                     $l20 = 'l20'.$z;
                     
-                    if (    empty($this->$l15_state) == FALSE OR 
-                            empty($this->$l15_state_id) == FALSE OR 
-                            empty($this->$l16) == FALSE OR 
-                            empty( $this->$l17 ) == FALSE OR 
-                            empty($this->$l18) == FALSE OR 
-                            empty($this->$l19) == FALSE OR 
-                            empty($this->$l20) == FALSE ) {  
+                    if (	empty($this->$l15_state) == FALSE
+                            OR empty($this->$l15_state_id) == FALSE
+                            OR empty($this->$l16) == FALSE
+                            OR empty($this->$l17) == FALSE
+                            OR empty($this->$l18) == FALSE
+                            OR empty($this->$l19) == FALSE
+                            OR empty($this->$l20) == FALSE ) {
                                 
                                         $xml->ReturnData->IRSW2[$e]->addChild('W2StateLocalTaxGrp');                                
                                         $xml->ReturnData->IRSW2[$e]->W2StateLocalTaxGrp[$x]->addChild('W2StateTaxGrp');

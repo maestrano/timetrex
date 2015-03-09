@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-	<!-- @@@@ Definition of T4RIF ComplexTypes @@@@  2011/Sept/28  Version# 1.12 (version #.yy)-->
+	<!-- @@@@ Definition of T4RIF ComplexTypes @@@@  2011/June/22  Version# 1.11 (version #.yy)-->
 	<xsd:complexType name="T4RIFSlipType">
 		<xsd:all>
 			<xsd:element name="RCPNT_NM" type="NameType"/>

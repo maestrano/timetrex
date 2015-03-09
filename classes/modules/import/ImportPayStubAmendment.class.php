@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 3387 $
- * $Id: ImportBranch.class.php 3387 2010-03-04 17:42:17Z ipso $
- * $Date: 2010-03-04 09:42:17 -0800 (Thu, 04 Mar 2010) $
- */
+
 
 
 /**
@@ -55,7 +51,7 @@ class ImportPayStubAmendment extends Import {
 		switch( $name ) {
 			case 'columns':
 				$psaf = TTNew('PayStubAmendmentFactory');
-				$retval = Misc::prependArray( $this->getUserIdentificationColumns(), Misc::arrayIntersectByKey( array('status','type','pay_stub_entry_name','effective_date','amount','rate','units','description','ytd_adjustment'), Misc::trimSortPrefix( $psaf->getOptions('columns') ) ) );
+				$retval = Misc::prependArray( $this->getUserIdentificationColumns(), Misc::arrayIntersectByKey( array('status', 'type', 'pay_stub_entry_name', 'effective_date', 'amount', 'rate', 'units', 'description', 'ytd_adjustment'), Misc::trimSortPrefix( $psaf->getOptions('columns') ) ) );
 
 				break;
 			case 'column_aliases':
@@ -87,7 +83,7 @@ class ImportPayStubAmendment extends Import {
 
 
 	function _preParseRow( $row_number, $raw_row ) {
-		$retval = $this->getObject()->getPayStubAmendmentDefaultData();
+		$retval = $this->getObject()->stripReturnHandler( $this->getObject()->getPayStubAmendmentDefaultData() );
 
 		return $retval;
 	}
@@ -111,7 +107,7 @@ class ImportPayStubAmendment extends Import {
 	function getPayStubAccountOptions() {
 		//Get accrual policies
 		$psealf = TTNew('PayStubEntryAccountListFactory');
-		$psealf->getByCompanyIdAndTypeId( $this->company_id, array(10,20,30,50,80) );
+		$psealf->getByCompanyIdAndTypeId( $this->company_id, array(10, 20, 30, 50, 80) );
 
 		//Get names with types in front, ie: "Earning - Commission"
 		$this->pay_stub_account_options = (array)$psealf->getArrayByListFactory( $psealf, FALSE, TRUE, TRUE );

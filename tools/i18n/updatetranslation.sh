@@ -2,10 +2,6 @@
 
 ##$License$##
 ##
-# $Revision: 679 $
-# $Id: updatetranslation.sh 679 2007-03-08 18:32:16Z ipso $
-# $Date: 2007-03-08 10:32:16 -0800 (Thu, 08 Mar 2007) $
-#
 # File Contributed By: Open Source Consulting, S.A.   San Jose, Costa Rica.
 # http://osc.co.cr
 ##

@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 11018 $
- * $Id: Factory.class.php 11018 2013-09-24 23:39:40Z ipso $
- * $Date: 2013-09-24 16:39:40 -0700 (Tue, 24 Sep 2013) $
- */
+
 
 /**
  * @package Core
@@ -62,7 +58,7 @@ abstract class Factory {
 		$this->Validator = new Validator();
 
 		//Callback to the child constructor method.
-		if ( method_exists($this,'childConstruct') ) {
+		if ( method_exists($this, 'childConstruct') ) {
 			$this->childConstruct();
 		}
 
@@ -88,7 +84,7 @@ abstract class Factory {
 	}
 
 	function setProgressBarObject( $obj ) {
-		if  ( is_object( $obj ) ) {
+		if	( is_object( $obj ) ) {
 			$this->progress_bar_obj = $obj;
 			return TRUE;
 		}
@@ -96,7 +92,7 @@ abstract class Factory {
 		return FALSE;
 	}
 	function getProgressBarObject() {
-		if  ( !is_object( $this->progress_bar_obj ) ) {
+		if	( !is_object( $this->progress_bar_obj ) ) {
 			$this->progress_bar_obj = new ProgressBar();
 		}
 
@@ -120,23 +116,53 @@ abstract class Factory {
 		}
 	}
 
+	//Generic function to return and cache CompanyGenericMap data, this greatly improves performance of CalculatePolicy when many policies exist.
+	function getCompanyGenericMapData( $company_id, $object_type_id, $id, $variable ) {
+		$tmp = &$this->$variable; //Works around a PHP issues where $this->$variable[$id] cause a fatal error on unknown string offset
+		if ( $id > 0 AND isset($tmp[$id]) ) {
+			return $tmp[$id];
+		} else {
+			$tmp[$id] = CompanyGenericMapListFactory::getArrayByCompanyIDAndObjectTypeIDAndObjectID( $company_id, $object_type_id, $id );
+			return $tmp[$id];
+		}
+	}
+
 	/*
 	 * Cache functions
 	 */
-	function getCache($cache_id) {
+	function getCache($cache_id, $group_id = NULL ) {
 		if ( is_object($this->cache) ) {
-			return $this->cache->get($cache_id, $this->getTable(TRUE) );
+			if ( $group_id == NULL ) {
+				$group_id = $this->getTable(TRUE);
+			}
+
+			$retval = $this->cache->get( $cache_id, $group_id );
+			if ( is_object($retval) AND get_class( $retval ) == 'PEAR_Error' ) {
+				Debug::Arr($retval, 'WARNING: Unable to read cache file, likely due to permissions or locking! Cache ID: '. $cache_id .' Table: '. $this->getTable(TRUE) .' File: '. $this->cache->_file, __FILE__, __LINE__, __METHOD__, 10);
+			} elseif ( is_string( $retval ) AND strpos( $retval, '====' ) === 0 ) { //Detect ADODB serialized record set so it can be properly unserialized.
+				return $this->unserializeRS( $retval );
+			} else {
+				return $retval;
+			}
 		}
 
 		return FALSE;
 	}
-	function saveCache($data, $cache_id) {
+	function saveCache($data, $cache_id, $group_id = NULL ) {
 		//Cache_ID can't have ':' in it, otherwise it fails on Windows.
 		if ( is_object($this->cache) ) {
-			$retval = $this->cache->save( $data, $cache_id, $this->getTable(TRUE) );
+			if ( $group_id == NULL ) {
+				$group_id = $this->getTable(TRUE);
+			}
+
+			//Check to ADODB record set, then serialize properly. We only need to do special serializing when there are more than one record.
+			if ( is_object( $data ) AND strpos( get_class( $data ), 'ADORecordSet_' ) === 0 AND $data->RecordCount() > 1 ) {
+				$data = $this->serializeRS( $data );
+			}
+			$retval = $this->cache->save( $data, $cache_id, $group_id );
 			if ( $retval === FALSE ) {
 				//Due to locking, its common that cache files may fail writing once in a while.
-				Debug::text('WARNING: Unable to write cache file, likely due to permissions or locking! Cache ID: '. $cache_id .' Table: '. $this->getTable(TRUE) .' File: '. $this->cache->_file, __FILE__, __LINE__, __METHOD__,10);
+				Debug::text('WARNING: Unable to write cache file, likely due to permissions or locking! Cache ID: '. $cache_id .' Table: '. $this->getTable(TRUE) .' File: '. $this->cache->_file, __FILE__, __LINE__, __METHOD__, 10);
 			}
 
 			return $retval;
@@ -144,16 +170,17 @@ abstract class Factory {
 		return FALSE;
 	}
 	function removeCache($cache_id = NULL, $group_id = NULL ) {
-		Debug::text('Attempting to remove cache: '. $cache_id, __FILE__, __LINE__, __METHOD__,10);
+		//See ContributingPayCodePolicyFactory() ->getPayCode() for comments on a bug with caching...
+		Debug::text('Attempting to remove cache: '. $cache_id, __FILE__, __LINE__, __METHOD__, 10);
 		if ( is_object($this->cache) ) {
 			if ( $group_id == '' ) {
 				$group_id = $this->getTable(TRUE);
 			}
 			if ( $cache_id != '' ) {
-				Debug::text('Removing cache: '. $cache_id .' Group Id: '. $group_id, __FILE__, __LINE__, __METHOD__,10);
-				return $this->cache->remove($cache_id, $group_id );
+				Debug::text('Removing cache: '. $cache_id .' Group Id: '. $group_id, __FILE__, __LINE__, __METHOD__, 10);
+				return $this->cache->remove( $cache_id, $group_id );
 			} elseif ( $group_id != '' ) {
-				Debug::text('Removing cache group: '. $group_id , __FILE__, __LINE__, __METHOD__,10);
+				Debug::text('Removing cache group: '. $group_id, __FILE__, __LINE__, __METHOD__, 10);
 				return $this->cache->clean( $group_id );
 			}
 		}
@@ -168,12 +195,28 @@ abstract class Factory {
 		return FALSE;
 	}
 
+	//Serialize ADODB recordset.
+	function serializeRS( $rs ) {
+		global $ADODB_INCLUDED_CSV;
+		if ( empty($ADODB_INCLUDED_CSV) ) {
+			include_once(ADODB_DIR.'/adodb-csvlib.inc.php');
+		}
+
+		return _rs2serialize( $rs, FALSE, $rs->sql );
+	}
+
+	//UnSerialize ADODB recordset.
+	function unserializeRS( $rs ) {
+		$rs = explode("\n", $rs);
+		unset($rs[0]);
+		$rs = join("\n", $rs);
+		return unserialize( $rs );
+	}
 
 	function getTable($strip_quotes = FALSE) {
-
 		if ( isset($this->table) ) {
 			if ( $strip_quotes == TRUE ) {
-				return str_replace('"','', $this->table );
+				return str_replace('"', '', $this->table );
 			} else {
 				return $this->table;
 			}
@@ -229,10 +272,11 @@ abstract class Factory {
 	}
 
 	function fromBool($value) {
-		$value = strtolower(trim($value));
-
-		//if ($value == 't') {
-		if ($value == 1 OR $value == 't' ) {
+		if ( $value == 1 ) {
+			return TRUE;
+		} elseif ( $value == 0 ) {
+			return FALSE;
+		} elseif ( strtolower( trim( $value ) ) == 't' ) {
 			return TRUE;
 		} else {
 			return FALSE;
@@ -241,7 +285,7 @@ abstract class Factory {
 
 	//Determines if the data is new data, or updated data.
 	function isNew( $force_lookup = FALSE ) {
-		//Debug::Arr( $this->getId() ,'getId: ', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr( $this->getId(), 'getId: ', __FILE__, __LINE__, __METHOD__, 10);
 		if ( $this->getId() === FALSE ) {
 			//New Data
 			return TRUE;
@@ -298,7 +342,7 @@ abstract class Factory {
 
 	function getId() {
 		if ( isset($this->data['id']) AND $this->data['id'] != NULL) {
-			return $this->data['id'];
+			return (int)$this->data['id'];
 		}
 
 		return FALSE;
@@ -328,7 +372,7 @@ abstract class Factory {
 	function setEnableSystemLogDetail($bool) {
 		$this->enable_system_log_detail = (bool)$bool;
 
-		return true;
+		return TRUE;
 	}
 
 	function getDeleted() {
@@ -349,7 +393,7 @@ abstract class Factory {
 		}
 
 		$this->data['deleted'] = $this->toBool($value);
-		return true;
+		return TRUE;
 	}
 
 	function getCreatedDate() {
@@ -366,7 +410,7 @@ abstract class Factory {
 			$epoch = TTDate::getTime();
 		}
 
-		if 	(	$this->Validator->isDate(		'created_date',
+		if	(	$this->Validator->isDate(		'created_date',
 												$epoch,
 												TTi18n::gettext('Incorrect Date')) ) {
 
@@ -434,7 +478,7 @@ abstract class Factory {
 			$epoch = TTDate::getTime();
 		}
 
-		if 	(	$this->Validator->isDate(		'updated_date',
+		if	(	$this->Validator->isDate(		'updated_date',
 												$epoch,
 												TTi18n::gettext('Incorrect Date')) ) {
 
@@ -505,7 +549,7 @@ abstract class Factory {
 			$epoch = TTDate::getTime();
 		}
 
-		if 	(	$this->Validator->isDate(		'deleted_date',
+		if	(	$this->Validator->isDate(		'deleted_date',
 												$epoch,
 												TTi18n::gettext('Incorrect Date')) ) {
 
@@ -553,7 +597,7 @@ abstract class Factory {
 	}
 
 	function setCreatedAndUpdatedColumns( $data ) {
-		Debug::text(' Set created/updated columns...', __FILE__, __LINE__, __METHOD__,10);
+		Debug::text(' Set created/updated columns...', __FILE__, __LINE__, __METHOD__, 10);
 		//Update array in-place.
 		if ( isset($data['created_by']) AND is_numeric($data['created_by']) AND $data['created_by'] > 0 ) {
 			$this->setCreatedBy( $data['created_by'] );
@@ -634,15 +678,15 @@ abstract class Factory {
 		if ( $parent == NULL OR $parent == '') {
 			return $this->_getFactoryOptions( $name );
 		} else {
-			$retval = $this->_getFactoryOptions( $name );
-			if ( isset($retval[$parent]) ){
+			$retval = $this->_getFactoryOptions( $name, $parent );
+			if ( isset($retval[$parent]) ) {
 				return $retval[$parent];
 			}
 		}
 
 		return FALSE;
 	}
-	protected function _getFactoryOptions( $name ) {
+	protected function _getFactoryOptions( $name, $parent = NULL ) {
 		return FALSE;
 	}
 
@@ -654,7 +698,7 @@ abstract class Factory {
 	}
 
 	function getRecordCount() {
-		if ( isset($this->rs) ) {
+		if ( isset($this->rs->_numOfRows) ) { //Check a deep variable to make sure it is in fact a valid ADODB record set, just in case some other object is passed in.
 			return $this->rs->RecordCount();
 		}
 
@@ -663,7 +707,7 @@ abstract class Factory {
 
 	function getCurrentRow( $offset = 1 ) {
 		if ( isset($this->rs) AND isset($this->rs->_currentRow) ) {
-			return $this->rs->_currentRow+(int)$offset;
+			return ( $this->rs->_currentRow + (int)$offset );
 		}
 
 		return FALSE;
@@ -680,8 +724,8 @@ abstract class Factory {
 			}
 		}
 
-		Debug::Text('Setting DB query statement timeout to: '. $milliseconds, __FILE__, __LINE__, __METHOD__,10);
-		if ( strncmp($this->db->databaseType,'postgres',8) == 0 ) {
+		Debug::Text('Setting DB query statement timeout to: '. $milliseconds, __FILE__, __LINE__, __METHOD__, 10);
+		if ( strncmp($this->db->databaseType, 'postgres', 8) == 0 ) {
 			$this->db->Execute('SET statement_timeout = '. (int)$milliseconds);
 		}
 
@@ -690,7 +734,7 @@ abstract class Factory {
 
 	private function getRecordSetColumnList($rs) {
 		if (is_object($rs)) {
-			for ($i=0, $max=$rs->FieldCount(); $i < $max; $i++) {
+			for ($i = 0, $max = $rs->FieldCount(); $i < $max; $i++) {
 				$field = $rs->FetchField($i);
 				$fields[] = $field->name;
 			}
@@ -701,10 +745,49 @@ abstract class Factory {
 		return FALSE;
 	}
 
-	protected function getListSQL($array, &$ph = NULL) {
+	protected function castInteger( $int, $type = 'int' ) {
+		//smallint	2 bytes	small-range integer	-32768 to +32767
+		//integer	4 bytes	typical choice for integer	-2147483648 to +2147483647
+		//bigint	8 bytes	large-range integer	-9223372036854775808 to 9223372036854775807
+		switch( $type ) {
+			case 'smallint':
+				if ( $int > 32767 OR $int < -32768 ) {
+					$retval = FALSE;
+				} else {
+					$retval = (int)$int;
+				}
+				break;
+			case 'numeric':
+			case 'int':
+				if ( $int > 2147483647 OR $int < -2147483648 ) {
+					$retval = FALSE;
+				} else {
+					$retval = (int)$int;
+				}
+				break;
+			case 'bigint':
+				if ( $int > 9223372036854775807 OR $int < -9223372036854775808 ) {
+					$retval = FALSE;
+				} else {
+					$retval = (int)$int;
+				}
+				break;
+			default:
+				return $int; //Make sure if the $type is not recognized we just return the raw value again.
+				break;
+		}
+
+		if ( $retval === FALSE ) {
+			Debug::Text(' Integer outside range: '. $int .' Type: '. $type, __FILE__, __LINE__, __METHOD__, 10);
+		}
+		return $retval;
+	}
+
+	protected function getListSQL($array, &$ph = NULL, $cast = FALSE ) {
+		//Debug::Arr($array, 'List Values:', __FILE__, __LINE__, __METHOD__, 10);
 		if ( $ph === NULL ) {
 			if ( is_array( $array ) AND count($array) > 0) {
-				return '\''.implode('\',\'',$array).'\'';
+				return '\''.implode('\', \'', $array).'\'';
 			} elseif ( is_array($array) ) {
 				//Return NULL, because this is an empty array.
 				return 'NULL';
@@ -715,13 +798,13 @@ abstract class Factory {
 			//Just a single ID, return it.
 			return $array;
 		} else {
-			//Debug::Arr($ph, 'Place Holder BEFORE:', __FILE__, __LINE__, __METHOD__,10);
+			//Debug::Arr($ph, 'Place Holder BEFORE:', __FILE__, __LINE__, __METHOD__, 10);
 
 			//Append $array values to end of $ph, return
-			//one "?," for each element in $array.
+			//one "?, " for each element in $array.
 
 			$array_count = count($array);
-			if ( is_array( $array ) AND $array_count > 0) {
+			if ( is_array( $array ) AND $array_count > 0 ) {
 				foreach( $array as $key => $val ) {
 					$ph_arr[] = '?';
 
@@ -729,14 +812,19 @@ abstract class Factory {
 					//Replace them with "-1"'s so we keep the same number of place holders.
 					//This should hopefully prevent SQL errors if a FALSE creeps into the SQL list array.
 					if ( is_null($val) === FALSE AND $val !== '' AND strtolower($val) !== 'false' AND strtolower($val) !== 'true' AND ( is_numeric( $val ) OR is_string( $val ) ) ) {
-						$ph[] = $val;
+						$val = $this->castInteger( $val, $cast );
+						if ( $val === FALSE ) {
+							$ph[] = -1;
+						} else {
+							$ph[] = $val;
+						}
 					} else {
 						$ph[] = '-1';
 					}
 				}
 
 				if ( isset($ph_arr) ) {
-					$retval = implode(',',$ph_arr);
+					$retval = implode(',', $ph_arr);
 				}
 			} elseif ( is_array($array) ) {
 				//Return NULL, because this is an empty array.
@@ -744,16 +832,21 @@ abstract class Factory {
 				//$ph[] = 'NULL';
 				$ph[] = -1;
 				$retval = '?';
-			} elseif ( $array == '' ) {
+			} elseif ( $array === FALSE OR $array === '' ) { //Make sure we don't catch int(0) here.
 				//$ph[] = 'NULL';
 				$ph[] = -1;
 				$retval = '?';
 			} else {
-				$ph[] = $array;
+				$array = $this->castInteger( $array, $cast );
+				if ( $array === FALSE ) {
+					$ph[] = -1;
+				} else {
+					$ph[] = $array;
+				}
 				$retval = '?';
 			}
 
-			//Debug::Arr($ph, 'Place Holder AFTER:', __FILE__, __LINE__, __METHOD__,10);
+			//Debug::Arr($ph, 'Place Holder AFTER: Cast: '. $cast, __FILE__, __LINE__, __METHOD__, 10);
 
 			//Just a single ID, return it.
 			return $retval;
@@ -769,7 +862,7 @@ abstract class Factory {
 	//					>01-Jan-09
 	//					>01-Jan-09 & <10-Jan-09
 	//
-	function getDateRangeSQL( $str, $column, $format = 'epoch' ) {
+	function getDateRangeSQL( $str, $column, $format = 'epoch', $include_blank_dates = FALSE ) {
 		if ( $str == '' ) {
 			return FALSE;
 		}
@@ -778,15 +871,15 @@ abstract class Factory {
 			return FALSE;
 		}
 
-		Debug::text(' Format: '. $format .' String: '. $str .' Column: '. $column, __FILE__, __LINE__, __METHOD__,10);
+		//Debug::text(' Format: '. $format .' String: '. $str .' Column: '. $column, __FILE__, __LINE__, __METHOD__, 10);
 
 		$operators = array(
-						   '>',
-						   '<',
-						   '>=',
-						   '<=',
-						   '=',
-						   );
+							'>',
+							'<',
+							'>=',
+							'<=',
+							'=',
+							);
 		$operations = FALSE;
 		//Parse input, separate any subqueries first.
 		$split_str = explode( '&', $str, 2 ); //Limit sub-queries
@@ -794,11 +887,11 @@ abstract class Factory {
 			foreach( $split_str as $tmp_str ) {
 				$tmp_str = trim($tmp_str);
 				$date = (int)TTDate::parseDateTime( str_replace( $operators, '', $tmp_str ) );
-				//Debug::text(' Parsed Date: '. $tmp_str .' To: '. TTDate::getDate('DATE+TIME', $date) .' ('. $date .')', __FILE__, __LINE__, __METHOD__,10);
+				//Debug::text(' Parsed Date: '. $tmp_str .' To: '. TTDate::getDate('DATE+TIME', $date) .' ('. $date .')', __FILE__, __LINE__, __METHOD__, 10);
 
 				if ( $date != 0 ) {
 					preg_match('/^>=|>|<=|</i', $tmp_str, $operator );
-					//Debug::Arr($operator, ' Operator: ', __FILE__, __LINE__, __METHOD__,10);
+					//Debug::Arr($operator, ' Operator: ', __FILE__, __LINE__, __METHOD__, 10);
 					if ( isset($operator[0]) AND in_array( $operator[0], $operators) ) {
 						if ( $operator[0] == '<=' ) {
 							$date = TTDate::getEndDayEpoch( $date );
@@ -811,31 +904,41 @@ abstract class Factory {
 							$date = '\''.$this->db->bindDateStamp( $date ).'\'';
 						}
 
-						$operations[] = $column .' '. $operator[0] .' '. $date;
+						if ( $include_blank_dates == TRUE ) {
+							$operations[] = '('. $column .' '. $operator[0] .' '. $date .' OR ( '. $column .' is NULL OR '. $column .' = 0 ) )';
+						} else {
+							$operations[] = $column .' '. $operator[0] .' '. $date;
+						}
 					} else {
-
+						//FIXME: Need to handle date filters without any operators better.
+						//for example JobListFactory and JobSummaryReport and the time period is specified.
 						$date1 = TTDate::getBeginDayEpoch( $date );
 						$date2 = TTDate::getEndDayEpoch( $date );
 						if ( $format == 'timestamp' )  {
 							$date1 = '\''.$this->db->bindTimeStamp( $date1 ).'\'';
 							$date2 = '\''.$this->db->bindTimeStamp( $date2 ).'\'';
 						} elseif ( $format == 'datestamp' ) {
-							$date1 = '\''.$this->db->bindDateStamp( $date1 ).'\'';
-							$date2 = '\''.$this->db->bindDateStamp( $date2 ).'\'';
+							$date1 = '\''.$this->db->bindDate( $date1 ).'\'';
+							$date2 = '\''.$this->db->bindDate( $date2 ).'\'';
 						}
 
-						//Debug::text(' No operator specified... Using a 24hr period', __FILE__, __LINE__, __METHOD__,10);
-						$operations[] = $column .' >= '. $date1;
-						$operations[] = $column .' <= '. $date2;
+						//Debug::text(' No operator specified... Using a 24hr period', __FILE__, __LINE__, __METHOD__, 10);
+						if ( $include_blank_dates == TRUE ) {
+							$operations[] = '('. $column .' >= '. $date1 .' OR ( '. $column .' is NULL OR '. $column .' = 0 ) )';
+							$operations[] = '('. $column .' <= '. $date2 .' OR ( '. $column .' is NULL OR '. $column .' = 0 ) )';
+						} else {
+							$operations[] = $column .' >= '. $date1;
+							$operations[] = $column .' <= '. $date2;
+						}
 					}
 				}
 			}
 		}
 
-		//Debug::Arr($operations, ' Operations: ', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($operations, ' Operations: ', __FILE__, __LINE__, __METHOD__, 10);
 		if ( is_array($operations) ) {
 			$retval = ' ( '. implode(' AND ', $operations ) .' )';
-			Debug::text(' Query parts: '. $retval, __FILE__, __LINE__, __METHOD__,10);
+			//Debug::text(' Query parts: '. $retval, __FILE__, __LINE__, __METHOD__, 10);
 			return $retval;
 		}
 
@@ -843,15 +946,16 @@ abstract class Factory {
 	}
 
 	///SQL where clause Syntax:
-	//  * or % as wildcard.
-	//  "<query>" as exact match, no default wildcard and no metaphone
+	//	* or % as wildcard.
+	//	"<query>" as exact match, no default wildcard and no metaphone
 
 	//Handles '*' and '%' as wildcards, defaults to wildcard on the end always.
 	//If no wildcard is to be added, the last character should be |
 	protected function handleSQLSyntax( $arg ) {
 		$arg = str_replace('*', '%', trim($arg) );
 
-		if ( strpos($arg, '%') === FALSE AND ( strpos( $arg, '|') === FALSE AND strpos( $arg, '"') === FALSE ) ) {
+		//Make sure we don't add '%' if $arg is blank.
+		if ( $arg != '' AND strpos($arg, '%') === FALSE AND ( strpos( $arg, '|') === FALSE AND strpos( $arg, '"') === FALSE ) ) {
 			$arg .= '%';
 		}
 
@@ -863,9 +967,9 @@ abstract class Factory {
 	}
 
 	protected function getWhereClauseSQL( $columns, $args, $type, &$ph, $query_stub = NULL, $and = TRUE ) {
-		//Debug::Text('Type: '. $type .' Query Stub: '. $query_stub .' AND: '. (int)$and, __FILE__, __LINE__, __METHOD__,10);
-		//Debug::Arr($columns, 'Columns: ', __FILE__, __LINE__, __METHOD__,10);
-		//Debug::Arr($args, 'Args: ', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Text('Type: '. $type .' Query Stub: '. $query_stub .' AND: '. (int)$and, __FILE__, __LINE__, __METHOD__, 10);
+		//Debug::Arr($columns, 'Columns: ', __FILE__, __LINE__, __METHOD__, 10);
+		//Debug::Arr($args, 'Args: ', __FILE__, __LINE__, __METHOD__, 10);
 		switch( strtolower($type) ) {
 			case 'text':
 				if ( isset($args) AND !is_array($args) AND trim($args) != '' ) {
@@ -886,7 +990,7 @@ abstract class Factory {
 					if ( strpos($args, '"') !== FALSE ) { //ignores metaphone search.
 						$ph[] = '';
 					} else {
-						$ph[] = $this->handleSQLSyntax( metaphone( $args ) );
+						$ph[] = $this->handleSQLSyntax( metaphone( Misc::stripThe( $args ) ) ); //Strip "The " from metaphones so its easier to find company names.
 					}
 					$retval = $query_stub;
 				}
@@ -895,13 +999,16 @@ abstract class Factory {
 			case 'lower_text_list':
 			case 'upper_text_list':
 				if ( !is_array($args) ) {
-					$args = (array)$args;
+					$args = array( (string)$args );
 				}
 
+				$sql_text_case_function = NULL;
 				if ( $type == 'upper_text_list' OR $type == 'lower_text_list' ) {
 					if ( $type == 'upper_text_list' ) {
+						$sql_text_case_function = 'UPPER';
 						$text_case = CASE_UPPER;
 					} else {
+						$sql_text_case_function = 'LOWER';
 						$text_case = CASE_LOWER;
 					}
 					$args = array_flip( array_change_key_case( array_flip( $args ), $text_case ) );
@@ -909,9 +1016,9 @@ abstract class Factory {
 
 				if ( isset($args) AND isset($args[0]) AND !in_array( -1, $args) AND !in_array( '00', $args) ) {
 					if ( $query_stub == '' AND !is_array($columns) ) {
-						$query_stub = $columns .' in (?)';
+						$query_stub = $sql_text_case_function.'('. $columns .') IN (?)';
 					}
-					$retval = str_replace('?', $this->getListSQL($args, $ph), $query_stub );
+					$retval = str_replace('?', $this->getListSQL($args, $ph, 'string' ), $query_stub );
 				}
 
 				break;
@@ -922,7 +1029,7 @@ abstract class Factory {
 
 				if ( isset($args) AND isset($args[0]) AND !in_array( -1, $args) AND !in_array( '00', $args) ) {
 					if ( $query_stub == '' AND !is_array($columns) ) {
-						$query_stub = $columns .' in (?)';
+						$query_stub = $columns .' IN (?)';
 					}
 					$retval = str_replace('?', $this->getListSQL($args, $ph), $query_stub );
 				}
@@ -933,17 +1040,20 @@ abstract class Factory {
 						$query_stub = "( replace( replace( replace( replace( replace( replace( ". $columns .", ' ', ''), '-', ''), '(', ''), ')', ''), '+', ''), '.', '') LIKE ? OR ". $columns ." LIKE ? )";
 					}
 
-					$ph[] = $ph[] = $this->handleSQLSyntax( preg_replace('/[^0-9\%\*\"]/','', strtolower($args) ) ); //Need the same value twice for the query stub.
+					$ph[] = $ph[] = $this->handleSQLSyntax( preg_replace('/[^0-9\%\*\"]/', '', strtolower($args) ) ); //Need the same value twice for the query stub.
 					$retval = $query_stub;
 				}
 				break;
+			case 'smallint':
+			case 'int':
+			case 'bigint':
 			case 'numeric':
 				if ( !is_array($args) ) { //Can't check isset() on a NULL value.
 					if ( $query_stub == '' AND !is_array($columns) ) {
 						if ( $args === NULL ) {
 							$query_stub = $columns .' is NULL';
 						} else {
-							$args = $this->Validator->stripNonNumeric( $args );
+							$args = $this->castInteger( $this->Validator->stripNonNumeric( $args ), $type );
 							if ( is_numeric( $args ) ) {
 								$ph[] = $args;
 								$query_stub = $columns .' = ?';
@@ -954,26 +1064,43 @@ abstract class Factory {
 					$retval = $query_stub;
 				}
 				break;
+			case 'smallint_list':
+			case 'int_list':
+			case 'bigint_list':
 			case 'numeric_list':
 				if ( !is_array($args) ) {
 					$args = (array)$args;
 				}
 				if ( isset($args) AND isset($args[0]) AND !in_array( -1, $args) ) {
 					if ( $query_stub == '' AND !is_array($columns) ) {
-						$query_stub = $columns .' in (?)';
+						$query_stub = $columns .' IN (?)';
 					}
-					$retval = str_replace('?', $this->getListSQL($args, $ph), $query_stub );
+					$retval = str_replace('?', $this->getListSQL($args, $ph, str_replace( '_list', '', $type ) ), $query_stub );
 				}
 				break;
+			case 'numeric_list_with_all': //Doesn't check for -1 and ignore the filter completely. Used in KPIListFactory.
+				if ( !is_array($args) ) {
+					$args = (array)$args;
+				}
+				if ( isset($args) AND isset($args[0]) ) {
+					if ( $query_stub == '' AND !is_array($columns) ) {
+						$query_stub = $columns .' IN (?)';
+					}
+					$retval = str_replace('?', $this->getListSQL($args, $ph, str_replace( '_list', '', 'numeric_list' ) ), $query_stub );
+				}
+				break;
+			case 'not_smallint_list':
+			case 'not_int_list':
+			case 'not_bigint_list':
 			case 'not_numeric_list':
 				if ( !is_array($args) ) {
 					$args = (array)$args;
 				}
 				if ( isset($args) AND isset($args[0]) AND !in_array( -1, $args) ) {
 					if ( $query_stub == '' AND !is_array($columns) ) {
-						$query_stub = $columns .' not in (?)';
+						$query_stub = $columns .' NOT IN (?)';
 					}
-					$retval = str_replace('?', $this->getListSQL($args, $ph), $query_stub );
+					$retval = str_replace('?', $this->getListSQL($args, $ph, str_replace( array('not_', '_list'), '', $type ) ), $query_stub );
 				}
 				break;
 			case 'tag':
@@ -981,11 +1108,11 @@ abstract class Factory {
 				if ( isset($args['company_id']) AND isset($args['object_type_id']) AND isset($args['tag']) ) {
 					//Parse the tags search syntax to determine ANY, AND, OR searches.
 					$parsed_tags = CompanyGenericTagFactory::parseTags($args['tag']);
-					//Debug::Arr($parsed_tags, 'Parsed Tags: ', __FILE__, __LINE__, __METHOD__,10);
+					//Debug::Arr($parsed_tags, 'Parsed Tags: ', __FILE__, __LINE__, __METHOD__, 10);
 					if ( is_array($parsed_tags) ) {
 						$retval = '';
 						if ( isset($parsed_tags['add']) AND count($parsed_tags['add']) > 0 ) {
-							$query_stub = ' EXISTS 	(
+							$query_stub = ' EXISTS	(
 														select 1
 														from company_generic_tag_map as cgtm
 														INNER JOIN company_generic_tag as cgt ON (cgtm.tag_id = cgt.id)
@@ -1003,7 +1130,7 @@ abstract class Factory {
 						}
 
 						if ( isset($parsed_tags['delete']) AND count($parsed_tags['delete']) > 0 ) {
-							$query_stub = ' NOT EXISTS 	(
+							$query_stub = ' NOT EXISTS	(
 														select 1
 														from company_generic_tag_map as cgtm
 														INNER JOIN company_generic_tag as cgt ON (cgtm.tag_id = cgt.id)
@@ -1022,59 +1149,138 @@ abstract class Factory {
 					$retval = '';
 				}
 				break;
-            case 'date_range': //Uses EPOCH values only, used for integer datatype columns
-            case 'date_range_timestamp': //Uses text timestamp values, used for timestamp datatype columns
-                if ( isset($args) AND !is_array($args) AND trim($args) != '' ) {
-                    if ( $query_stub == '' AND !is_array($columns) ) {
-						if ( $type == 'date_range_timestamp' ) {
-							$query_stub = $this->getDateRangeSQL($args, $columns, 'timestamp' );
-						} elseif ( $type == 'date_range_datestamp' ) {
-							$query_stub = $this->getDateRangeSQL($args, $columns, 'datestamp' );
-						} else {
-							$query_stub = $this->getDateRangeSQL($args, $columns, 'epoch' );
-						}
+			case 'date_stamp': //Input epoch values, but convert bind to datestamp for datastamp datatypes.
+				if ( !is_array($args) ) {
+					$args = (array)$args;
+				}
+				if ( isset($args) AND isset($args[0]) AND !in_array( -1, $args) ) {
+					foreach( $args as $tmp_arg ) {
+						$converted_args[] = $this->db->bindDate( (int)$tmp_arg );
+					}
 
-                    }
-					Debug::Text('Query Stub: '. $query_stub, __FILE__, __LINE__, __METHOD__,10);
-                    $retval = $query_stub;
-                }
+					if ( $query_stub == '' AND !is_array($columns) ) {
+						$query_stub = $columns .' IN (?)';
+					}
+					$retval = str_replace('?', $this->getListSQL($converted_args, $ph ), $query_stub );
+				}
 				break;
-            case 'user_id_or_name':                
-                if ( isset( $args ) AND is_array( $args ) ) {
+			case 'start_datestamp': //Uses EPOCH values only, used for date/timestamp datatype columns
+			case 'end_datestamp': //Uses EPOCH values only, used for date/timestamp datatype columns
+				if ( !is_array($args) ) { //Can't check isset() on a NULL value.
+					if ( $query_stub == '' AND !is_array($columns) ) {
+						$args = $this->castInteger( $this->Validator->stripNonNumeric( $args ), 'int' );
+						if ( is_numeric( $args ) ) {
+							$ph[] = $this->db->bindDate( $args );
+							if ( strtolower($type) == 'start_datestamp' ) {
+								$query_stub = $columns .' >= ?';
+							} else {
+								$query_stub = $columns .' <= ?';
+							}
+						}
+					}
+
+					$retval = $query_stub;
+				}
+				break;
+			case 'start_timestamp': //Uses EPOCH values only, used for date/timestamp datatype columns
+			case 'end_timestamp': //Uses EPOCH values only, used for date/timestamp datatype columns
+				if ( !is_array($args) ) { //Can't check isset() on a NULL value.
+					if ( $query_stub == '' AND !is_array($columns) ) {
+						$args = $this->castInteger( $this->Validator->stripNonNumeric( $args ), 'int' );
+						if ( is_numeric( $args ) ) {
+							$ph[] = $this->db->bindTimeStamp( $args );
+							if ( strtolower($type) == 'start_timestamp' ) {
+								$query_stub = $columns .' >= ?';
+							} else {
+								$query_stub = $columns .' <= ?';
+							}
+						}
+					}
+
+					$retval = $query_stub;
+				}
+				break;
+			case 'start_date': //Uses EPOCH values only, used for integer datatype columns
+			case 'end_date':
+				if ( !is_array($args) ) { //Can't check isset() on a NULL value.
+					if ( $query_stub == '' AND !is_array($columns) ) {
+						$args = $this->castInteger( $this->Validator->stripNonNumeric( $args ), 'int' );
+						if ( is_numeric( $args ) ) {
+							$ph[] = $args;
+							if ( strtolower($type) == 'start_date' ) {
+								$query_stub = $columns .' >= ?';
+							} else {
+								$query_stub = $columns .' <= ?';
+							}
+						}
+					}
+
+					$retval = $query_stub;
+				}
+				break;
+			case 'date_range': //Uses EPOCH values only, used for integer datatype columns
+			case 'date_range_include_blank': //Include NULL/Blank dates.
+			case 'date_range_datestamp': 
+			case 'date_range_datestamp_include_blank': //Include NULL/Blank dates.
+			case 'date_range_timestamp': //Uses text timestamp values, used for timestamp datatype columns
+			case 'date_range_timestamp_include_blank': //Include NULL/Blank dates.
+				if ( isset($args) AND !is_array($args) AND trim($args) != '' ) {
+					if ( $query_stub == '' AND !is_array($columns) ) {
+						$include_blank_dates = ( strpos( $type, '_include_blank' ) !== FALSE ) ? TRUE : FALSE;
+						switch( $type ) {
+							case 'date_range_timestamp':
+							case 'date_range_timestamp_and_blank':
+								$query_stub = $this->getDateRangeSQL($args, $columns, 'timestamp', $include_blank_dates );
+								break;
+							case 'date_range_datestamp':
+							case 'date_range_datestamp_and_blank':
+								$query_stub = $this->getDateRangeSQL($args, $columns, 'datestamp', $include_blank_dates );
+								break;
+							default:
+								$query_stub = $this->getDateRangeSQL($args, $columns, 'epoch', $include_blank_dates );
+								break;
+						}
+					}
+					//Debug::Text('Query Stub: '. $query_stub, __FILE__, __LINE__, __METHOD__, 10);
+					$retval = $query_stub;
+				}
+				break;
+			case 'user_id_or_name':
+				if ( isset( $args ) AND is_array( $args ) ) {
 					$retval = $this->getWhereClauseSQL( $columns[0], $args, 'numeric_list', $ph, '', FALSE );
-                }
-                if ( isset( $args ) AND !is_array( $args ) AND trim( $args ) != '' ) {
-                    $ph[] = $ph[] = $this->handleSQLSyntax(strtolower( trim( $args ) ));
-			        $retval = '(lower('.$columns[1].') LIKE ? OR lower('.$columns[2].') LIKE ? ) ';
-                }
-                break;
-            case 'boolean':
-                if ( isset($args) AND !is_array($args) AND trim($args) != '' AND !is_numeric($args) ) {
-                    if ( $query_stub == '' AND !is_array($columns) ) {
-                        switch( strtolower( trim($args) ) ) {
-                            case 'yes':
-                            case 'y':
-                            case 'true':
-                            case 't':
-                            case 'on':
-                                $ph[] = 1; 
-                                $query_stub = $columns .' = ?';                             
-                                break;
-                            case 'no':
-                            case 'n':
-                            case 'false':
-                            case 'f':
-                            case 'off':
-                                $ph[] = 0; 
-                                $query_stub = $columns .' = ?'; 
-                                break;
-                        }
-                    }                    
-                    $retval = $query_stub;                                        
-                }                
-                break;
+				}
+				if ( isset( $args ) AND !is_array( $args ) AND trim( $args ) != '' ) {
+					$ph[] = $ph[] = $this->handleSQLSyntax(strtolower( trim( $args ) ));
+					$retval = '(lower('.$columns[1].') LIKE ? OR lower('.$columns[2].') LIKE ? ) ';
+				}
+				break;
+			case 'boolean':
+				if ( isset($args) AND !is_array($args) AND trim($args) != '' AND !is_numeric($args) ) {
+					if ( $query_stub == '' AND !is_array($columns) ) {
+						switch( strtolower( trim($args) ) ) {
+							case 'yes':
+							case 'y':
+							case 'true':
+							case 't':
+							case 'on':
+								$ph[] = 1;
+								$query_stub = $columns .' = ?';
+								break;
+							case 'no':
+							case 'n':
+							case 'false':
+							case 'f':
+							case 'off':
+								$ph[] = 0;
+								$query_stub = $columns .' = ?';
+								break;
+						}
+					}
+					$retval = $query_stub;
+				}
+				break;
 			default:
-				Debug::Text('Invalid type: '. $type, __FILE__, __LINE__, __METHOD__,10);
+				Debug::Text('Invalid type: '. $type, __FILE__, __LINE__, __METHOD__, 10);
 				break;
 		}
 
@@ -1084,7 +1290,7 @@ abstract class Factory {
 				$and_sql = 'AND ';
 			}
 
-			//Debug::Arr($ph, 'Query Stub: '. $and_sql.$retval, __FILE__, __LINE__, __METHOD__,10);
+			//Debug::Arr($ph, 'Query Stub: '. $and_sql.$retval, __FILE__, __LINE__, __METHOD__, 10);
 			return ' '.$and_sql.$retval.' '; //Wrap each query stub in spaces.
 		}
 
@@ -1108,7 +1314,7 @@ abstract class Factory {
 			$retval = $tmp_column[1];
 			unset($tmp_column);
 		}
-		//Debug::Text('Column: '. $column .' RetVal: '. $retval, __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Text('Column: '. $column .' RetVal: '. $retval, __FILE__, __LINE__, __METHOD__, 10);
 
 		return $retval;
 	}
@@ -1117,26 +1323,39 @@ abstract class Factory {
 		//Make this a multi-dimensional array, the first entry
 		//is the WHERE clauses with '?' for placeholders, the second is
 		//the array to replace the placeholders with.
-		if (is_array($array) ) {
+		if ( is_array($array) ) {
 			$rs = $this->getEmptyRecordSet();
 			$fields = $this->getRecordSetColumnList($rs);
 
 			foreach ($array as $orig_column => $expression) {
-				$orig_column = trim($orig_column);
-				$column = $this->parseColumnName( $orig_column );
+				if ( is_array( $expression ) ) { //Handle nested arrays, so we the same column can be specified multiple times.
+					foreach ($expression as $orig_column => $expression) {
+						$orig_column = trim($orig_column);
+						$column = $this->parseColumnName( $orig_column );
+						$expression = trim($expression);
 
-				$expression = trim($expression);
+						if ( in_array($column, $fields) ) {
+							$sql_chunks[] = $orig_column .' '. $expression;
+						}
+					}
+				} else {
+					$orig_column = trim($orig_column);
+					$column = $this->parseColumnName( $orig_column );
+					$expression = trim($expression);
 
-				if ( in_array($column, $fields) ) {
-					$sql_chunks[] = $orig_column.' '.$expression;
+					if ( in_array($column, $fields) ) {
+						$sql_chunks[] = $orig_column .' '. $expression;
+					}
 				}
 			}
 
 			if ( isset($sql_chunks) ) {
-				$sql = $this->db->escape( implode(' AND ', $sql_chunks) );
+				//Don't escape this, as prevents quotes from being used in cases where they are required link bindTimeStamp
+				//$sql = $this->db->escape( implode(' AND ', $sql_chunks) );
+				$sql = implode(' AND ', $sql_chunks);
 
 				if ($append_where == TRUE) {
-					return ' where '.$sql;
+					return ' WHERE '.$sql;
 				} else {
 					return ' AND '.$sql;
 				}
@@ -1155,7 +1374,7 @@ abstract class Factory {
 		if ( is_array($columns) AND is_array( $aliases ) ) {
 			$columns = $this->convertFlexArray( $columns );
 
-			//Debug::Arr($columns, 'Columns before: ', __FILE__, __LINE__, __METHOD__,10);
+			//Debug::Arr($columns, 'Columns before: ', __FILE__, __LINE__, __METHOD__, 10);
 
 			foreach( $columns as $column => $sort_order ) {
 				if ( isset($aliases[$column]) AND !isset($columns[$aliases[$column]]) ) {
@@ -1165,7 +1384,7 @@ abstract class Factory {
 				}
 
 			}
-			//Debug::Arr($retarr, 'Columns after: ', __FILE__, __LINE__, __METHOD__,10);
+			//Debug::Arr($retarr, 'Columns after: ', __FILE__, __LINE__, __METHOD__, 10);
 
 			if ( isset($retarr) ) {
 				return $retarr;
@@ -1184,9 +1403,9 @@ abstract class Factory {
 		//		)
 
 		if ( isset($array[0]) AND is_array($array[0]) ) {
-			Debug::text('Found Flex Sort Array, converting to proper format...', __FILE__, __LINE__, __METHOD__,10);
+			Debug::text('Found Flex Sort Array, converting to proper format...', __FILE__, __LINE__, __METHOD__, 10);
 
-			//Debug::Arr($array, 'Before conversion...', __FILE__, __LINE__, __METHOD__,10);
+			//Debug::Arr($array, 'Before conversion...', __FILE__, __LINE__, __METHOD__, 10);
 
 			$new_arr = array();
 			foreach( $array as $tmp_order => $tmp_arr ) {
@@ -1198,7 +1417,7 @@ abstract class Factory {
 			}
 			$array = $new_arr;
 			unset($tmp_key, $tmp_arr, $tmp_order, $tmp_column, $new_arr);
-			//Debug::Arr($array, 'Converted format...', __FILE__, __LINE__, __METHOD__,10);
+			//Debug::Arr($array, 'Converted format...', __FILE__, __LINE__, __METHOD__, 10);
 		}
 
 		return $array;
@@ -1218,7 +1437,7 @@ abstract class Factory {
 			if ( is_array($additional_fields) ) {
 				$fields = array_merge( $fields, $additional_fields);
 			}
-			//Debug::Arr($fields, 'Column List:', __FILE__, __LINE__, __METHOD__,10);
+			//Debug::Arr($fields, 'Column List:', __FILE__, __LINE__, __METHOD__, 10);
 
 			foreach ( $array as $orig_column => $order ) {
 				$orig_column = trim($orig_column);
@@ -1233,7 +1452,7 @@ abstract class Factory {
 				}
 
 				if ( $strict == FALSE
-						OR ( 	(
+						OR (	(
 									in_array($column, $fields)
 									OR
 									in_array($orig_column, $fields)
@@ -1245,10 +1464,10 @@ abstract class Factory {
 					if ( $strict == TRUE OR ( $strict == FALSE AND strpos( $orig_column, ';') === FALSE AND strpos( $order, ';') === FALSE ) ) {
 						$sql_chunks[] = $orig_column.' '.$order;
 					} else {
-						Debug::text('ERROR: Found ";" in SQL order string: '. $orig_column .' Order: '. $order, __FILE__, __LINE__, __METHOD__,10);
+						Debug::text('ERROR: Found ";" in SQL order string: '. $orig_column .' Order: '. $order, __FILE__, __LINE__, __METHOD__, 10);
 					}
 				} else {
-					Debug::text('Invalid Sort Column/Order: '. $column .' Order: '. $order, __FILE__, __LINE__, __METHOD__,10);
+					Debug::text('Invalid Sort Column/Order: '. $column .' Order: '. $order, __FILE__, __LINE__, __METHOD__, 10);
 				}
 			}
 
@@ -1263,7 +1482,6 @@ abstract class Factory {
 	}
 
 	public function getColumnList() {
-
 		if ( is_array($this->data) AND count($this->data) > 0) {
 			//Possible errors can happen if $this->data[<invalid_column>] is passed to save/update the database,
 			//like what happens with APIPunch when attempting to delete a punch.
@@ -1289,11 +1507,16 @@ abstract class Factory {
 			if ( $this->getDeleted() == FALSE AND $this->setUpdatedBy() !== FALSE ) {
 				$column_list[] = 'updated_by';
 			}
+			//Make sure if the record is deleted we update the deleted columns.
+			if ( $this->getDeleted() == TRUE AND $this->setDeletedDate() !== FALSE AND $this->setDeletedBy() !== FALSE ) {
+				$column_list[] = 'deleted_date';
+				$column_list[] = 'deleted_by';
+			}
 
 			$column_list = array_unique($column_list);
 
-			//Debug::Arr($this->data,'aColumn List', __FILE__, __LINE__, __METHOD__,10);
-			//Debug::Arr($column_list,'bColumn List', __FILE__, __LINE__, __METHOD__,10);
+			//Debug::Arr($this->data, 'aColumn List', __FILE__, __LINE__, __METHOD__, 10);
+			//Debug::Arr($column_list, 'bColumn List', __FILE__, __LINE__, __METHOD__, 10);
 
 			return $column_list;
 		}
@@ -1337,7 +1560,7 @@ abstract class Factory {
 				$rs = $this->getCache($cache_id);
 				if ( $rs === FALSE ) {
 					$rs = $this->db->Execute($query);
-					$this->saveCache($rs,$cache_id);
+					$this->saveCache($rs, $cache_id);
 				}
 				*/
 				$save_error_handlers = $this->db->IgnoreErrors(); //Prevent a cache write error from causing a transaction rollback.
@@ -1346,7 +1569,7 @@ abstract class Factory {
 				} catch (Exception $e) {
 					if ( $e->getCode() == -32000 OR $e->getCode() == -32001 ) { //Cache write error/cache file lock error.
 						//Likely a cache write error occurred, fall back to non-cached query and log this error.
-						Debug::Text('ERROR: Unable to write cache file, likely due to permissions or locking! Code: '. $e->getCode() .' Msg: '. $e->getMessage(), __FILE__, __LINE__, __METHOD__,10);
+						Debug::Text('ERROR: Unable to write cache file, likely due to permissions or locking! Code: '. $e->getCode() .' Msg: '. $e->getMessage(), __FILE__, __LINE__, __METHOD__, 10);
 					}
 
 					//Execute non-cached query
@@ -1368,8 +1591,8 @@ abstract class Factory {
 		return $rs;
 	}
 
-	private function getUpdateQuery($data = NULL) {
-		//Debug::text('Update' , __FILE__, __LINE__, __METHOD__,9);
+	private function getUpdateQuery() {
+		//Debug::text('Update', __FILE__, __LINE__, __METHOD__, 9);
 
 		//
 		// If the table has timestamp columns without timezone set
@@ -1377,7 +1600,7 @@ abstract class Factory {
 		// PayStubFactory() had this issue.
 		//
 
-		//Debug::arr($this->data,'Data Arr', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::arr($this->data, 'Data Arr', __FILE__, __LINE__, __METHOD__, 10);
 
 		//Add new columns to record set.
 		//Check to make sure the columns exist in the table first though
@@ -1389,7 +1612,7 @@ abstract class Factory {
 			throw new DBError($e);
 		}
 		if (!$rs) {
-			Debug::text('No Record Found! (ID: '. $this->getID() .' Insert instead?' , __FILE__, __LINE__, __METHOD__,9);
+			Debug::text('No Record Found! (ID: '. $this->getID() .' Insert instead?', __FILE__, __LINE__, __METHOD__, 9);
 			//Throw exception?
 		}
 
@@ -1412,10 +1635,10 @@ abstract class Factory {
 		return $query;
 	}
 
-	private function getInsertQuery($data = NULL) {
-		Debug::text('Insert' , __FILE__, __LINE__, __METHOD__,9);
+	private function getInsertQuery() {
+		Debug::text('Insert', __FILE__, __LINE__, __METHOD__, 9);
 
-		//Debug::arr($this->data,'Data Arr', __FILE__, __LINE__, __METHOD__, 10);
+		//Debug::arr($this->data, 'Data Arr', __FILE__, __LINE__, __METHOD__, 10);
 
 		try {
 			$rs = $this->getEmptyRecordSet();
@@ -1451,16 +1674,27 @@ abstract class Factory {
 
 	//Call class specific validation function just before saving.
 	function isValid() {
-		if ( method_exists($this,'Validate') ) {
-			Debug::text('Calling Validate()' , __FILE__, __LINE__, __METHOD__,10);
+		if ( method_exists($this, 'Validate') ) {
+			Debug::text('Calling Validate()', __FILE__, __LINE__, __METHOD__, 10);
 			$this->Validate();
 		}
 
-        return $this->Validator->isValid();
+		return $this->Validator->isValid();
 	}
 
+	function getSequenceName() {
+		if ( isset($this->pk_sequence_name) ) {
+			return $this->pk_sequence_name;
+		}
+
+		return FALSE;
+	}
 	function getNextInsertId() {
-		return $this->db->GenID( $this->pk_sequence_name );
+		if ( isset($this->pk_sequence_name) ) {
+			return $this->db->GenID( $this->pk_sequence_name );
+		}
+		
+		return FALSE;
 	}
 
 	//Execute SQL queries and handle paging properly for select statements.
@@ -1473,7 +1707,7 @@ abstract class Factory {
 				$this->rs = $this->db->PageExecute($query, $limit, $page, $ph);
 			}
 			//$total_time = (microtime(TRUE)-$start_time);
-			//Debug::text('Slow Query Executed in: '. $total_time .'ms. Query: '. $query, __FILE__, __LINE__, __METHOD__,10);
+			//Debug::text('Slow Query Executed in: '. $total_time .'ms. Query: '. $query, __FILE__, __LINE__, __METHOD__, 10);
 		} catch (Exception $e) {
 			throw new DBError($e);
 		}
@@ -1487,10 +1721,10 @@ abstract class Factory {
 		$this->StartTransaction();
 
 		//Run Pre-Save function
-		//This is called before validate so it can do extra calculations,etc before validation.
+		//This is called before validate so it can do extra calculations, etc before validation.
 		//Should this AND validate() NOT be called when delete flag is set?
-		if ( method_exists($this,'preSave') ) {
-			Debug::text('Calling preSave()' , __FILE__, __LINE__, __METHOD__,10);
+		if ( method_exists($this, 'preSave') ) {
+			Debug::text('Calling preSave()', __FILE__, __LINE__, __METHOD__, 10);
 			if ( $this->preSave() === FALSE ) {
 				throw new GeneralError('preSave() failed.');
 			}
@@ -1528,7 +1762,7 @@ abstract class Factory {
 				if ( $insert_id === 0 ) { //Sometimes with MYSQL the _seq tables might not be initialized properly and cause insert_id=0.
 					throw new DBError('ERROR: Insert ID returned as 0, sequence likely not setup correctly.');
 				} else {
-					Debug::text('Insert ID: '. $insert_id , __FILE__, __LINE__, __METHOD__, 9);
+					Debug::text('Insert ID: '. $insert_id .' Table: '. $this->getTable(), __FILE__, __LINE__, __METHOD__, 9);
 					$this->setId($insert_id);
 				}
 			}
@@ -1541,12 +1775,12 @@ abstract class Factory {
 			$retval = (int)$insert_id;
 			$log_action = 10; //'Add';
 		} else {
-			Debug::text(' Updating...' , __FILE__, __LINE__, __METHOD__,10);
+			Debug::text(' Updating...', __FILE__, __LINE__, __METHOD__, 10);
 
 			//Update
 			$query = $this->getUpdateQuery(); //Don't pass data, too slow
 
-			//Debug::Arr($this->data, 'Save(): Query: ', __FILE__, __LINE__, __METHOD__,10);
+			//Debug::Arr($this->data, 'Save(): Query: ', __FILE__, __LINE__, __METHOD__, 10);
 			$retval = TRUE;
 
 			if ( $this->getDeleted() === TRUE ) {
@@ -1556,8 +1790,8 @@ abstract class Factory {
 			}
 		}
 
-		//Debug::text('Save(): Query: '. $query , __FILE__, __LINE__, __METHOD__,10);
-		//Debug::Arr($query, 'Save(): Query: ', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::text('Save(): Query: '. $query, __FILE__, __LINE__, __METHOD__, 10);
+		//Debug::Arr($query, 'Save(): Query: ', __FILE__, __LINE__, __METHOD__, 10);
 		if ( $query != '' OR $query === TRUE ) {
 
 			if ( is_string($query) AND $query != '' ) {
@@ -1565,11 +1799,11 @@ abstract class Factory {
 					$this->db->Execute($query);
 				} catch (Exception $e) {
 					//Comment this out to see some errors on MySQL.
-					//throw new DBError($e);
+					throw new DBError($e);
 				}
 			}
 
-			if ( method_exists($this,'addLog') ) {
+			if ( method_exists($this, 'addLog') ) {
 				//In some cases, like deleting users, this function will fail because the user is deleted before they are removed from other
 				//tables like PayPeriodSchedule, so addLog() can't get the user information.
 				global $config_vars;
@@ -1579,8 +1813,8 @@ abstract class Factory {
 			}
 
 			//Run postSave function.
-			if ( method_exists($this,'postSave') ) {
-				Debug::text('Calling postSave()' , __FILE__, __LINE__, __METHOD__,10);
+			if ( method_exists($this, 'postSave') ) {
+				Debug::text('Calling postSave()', __FILE__, __LINE__, __METHOD__, 10);
 				if ( $this->postSave( array_diff_assoc( (array)$this->old_data, (array)$this->data ) ) === FALSE ) {
 					throw new GeneralError('postSave() failed.');
 				}
@@ -1595,12 +1829,12 @@ abstract class Factory {
 
 			$this->CommitTransaction();
 
-			//Debug::Arr($retval, 'Save Retval: ', __FILE__, __LINE__, __METHOD__,10);
+			//Debug::Arr($retval, 'Save Retval: ', __FILE__, __LINE__, __METHOD__, 10);
 
 			return $retval;
 		}
 
-		Debug::text('Save(): returning FALSE! Very BAD!' , __FILE__, __LINE__, __METHOD__,10);
+		Debug::text('Save(): returning FALSE! Very BAD!', __FILE__, __LINE__, __METHOD__, 10);
 
 		throw new GeneralError('Save(): failed.');
 
@@ -1620,7 +1854,7 @@ abstract class Factory {
 			try {
 				$this->db->Execute($query, $ph);
 
-				if ( method_exists($this,'addLog') ) {
+				if ( method_exists($this, 'addLog') ) {
 					//In some cases, like deleting users, this function will fail because the user is deleted before they are removed from other
 					//tables like PayPeriodSchedule, so addLog() can't get the user information.
 					$this->addLog( 31 );
@@ -1659,7 +1893,7 @@ abstract class Factory {
 		if ( is_array($ids) AND count($ids) > 0 ) {
 			$ph = array();
 
-			$query = 'DELETE FROM '. $this->getTable() .' WHERE id in ('. $this->getListSQL( $ids, $ph ) .')';
+			$query = 'DELETE FROM '. $this->getTable() .' WHERE id in ('. $this->getListSQL( $ids, $ph, 'int' ) .')';
 			Debug::text('Bulk Delete Query: '. $query, __FILE__, __LINE__, __METHOD__, 9);
 
 			try {

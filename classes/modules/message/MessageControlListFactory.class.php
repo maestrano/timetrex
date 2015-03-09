@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2408 $
- * $Id: MessageListFactory.class.php 2408 2009-02-04 01:03:51Z ipso $
- * $Date: 2009-02-03 17:03:51 -0800 (Tue, 03 Feb 2009) $
- */
+
 
 /**
  * @package Modules\Message
@@ -46,7 +42,7 @@ class MessageControlListFactory extends MessageControlFactory implements Iterato
 
 	function getAll($limit = NULL, $page = NULL, $where = NULL, $order = NULL) {
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					WHERE deleted = 0';
 		$query .= $this->getWhereSQL( $where );
@@ -67,7 +63,7 @@ class MessageControlListFactory extends MessageControlFactory implements Iterato
 					);
 
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					where	id = ?
 					AND deleted = 0';
@@ -92,10 +88,10 @@ class MessageControlListFactory extends MessageControlFactory implements Iterato
 					);
 
 		$query = '
-					select 	a.*
+					select	a.*
 					from	'. $this->getTable() .' as a
 					LEFT JOIN '. $mrf->getTable() .'	as mrf ON a.id = mrf.message_sender_id
-					LEFT JOIN '. $uf->getTable() .' 	as uf ON mrf.user_id = uf.id
+					LEFT JOIN '. $uf->getTable() .'		as uf ON mrf.user_id = uf.id
 					where	uf.company_id = ?
 						AND ( a.deleted = 0 AND uf.deleted = 0 )';
 		$query .= $this->getWhereSQL( $where );
@@ -133,16 +129,16 @@ class MessageControlListFactory extends MessageControlFactory implements Iterato
 			$query = '
 						SELECT count(*)
 						FROM '. $mrf->getTable() .' as a
-							LEFT JOIN '. $msf->getTable() .' 	as b ON a.message_sender_id = b.id
-							LEFT JOIN '. $uf->getTable() .' 	as bb ON b.user_id = bb.id
-							LEFT JOIN '. $this->getTable() .' 	as c ON b.message_control_id = c.id
-							LEFT JOIN '. $uf->getTable() .' 	as d ON c.object_type_id = 5 AND c.object_id = d.id
-							LEFT JOIN '. $rf->getTable() .' 	as f ON c.object_type_id = 50 AND c.object_id = f.id
+							LEFT JOIN '. $msf->getTable() .'	as b ON a.message_sender_id = b.id
+							LEFT JOIN '. $uf->getTable() .'		as bb ON b.user_id = bb.id
+							LEFT JOIN '. $this->getTable() .'	as c ON b.message_control_id = c.id
+							LEFT JOIN '. $uf->getTable() .'		as d ON c.object_type_id = 5 AND c.object_id = d.id
+							LEFT JOIN '. $rf->getTable() .'		as f ON c.object_type_id = 50 AND c.object_id = f.id
 							LEFT JOIN '. $pptsvf->getTable() .' as h ON c.object_type_id = 90 AND c.object_id = h.id
 						WHERE
 								a.user_id = ?
 								AND bb.company_id = ?
-								AND c.object_type_id in (5,50,90)
+								AND c.object_type_id in (5, 50, 90)
 								AND a.status_id = 10
 								AND ( ( a.deleted = 0 AND c.deleted = 0 )
 										AND ( d.id IS NULL OR ( d.id IS NOT NULL AND d.deleted = 0 ) )
@@ -150,10 +146,10 @@ class MessageControlListFactory extends MessageControlFactory implements Iterato
 										AND ( h.id IS NULL OR ( h.id IS NOT NULL AND h.deleted = 0 ) )
 									)
 						';
-			//Debug::Arr($ph, ' Query: '. $query, __FILE__, __LINE__, __METHOD__,10);
+			//Debug::Arr($ph, ' Query: '. $query, __FILE__, __LINE__, __METHOD__, 10);
 
 			$unread_messages = (int)$this->db->GetOne($query, $ph);
-			$this->saveCache($unread_messages,$user_id);
+			$this->saveCache($unread_messages, $user_id);
 		}
 
 		return $unread_messages;
@@ -207,16 +203,16 @@ class MessageControlListFactory extends MessageControlFactory implements Iterato
 								bb.middle_name as from_middle_name,
 								bb.last_name as from_last_name
 						FROM '. $mrf->getTable() .' as a
-							LEFT JOIN '. $msf->getTable() .' 	as b ON a.message_sender_id = b.id
-							LEFT JOIN '. $uf->getTable() .' 	as bb ON b.user_id = bb.id
-							LEFT JOIN '. $this->getTable() .' 	as c ON b.message_control_id = c.id
-							LEFT JOIN '. $uf->getTable() .' 	as d ON c.object_type_id = 5 AND c.object_id = d.id
-							LEFT JOIN '. $rf->getTable() .' 	as f ON c.object_type_id = 50 AND c.object_id = f.id
+							LEFT JOIN '. $msf->getTable() .'	as b ON a.message_sender_id = b.id
+							LEFT JOIN '. $uf->getTable() .'		as bb ON b.user_id = bb.id
+							LEFT JOIN '. $this->getTable() .'	as c ON b.message_control_id = c.id
+							LEFT JOIN '. $uf->getTable() .'		as d ON c.object_type_id = 5 AND c.object_id = d.id
+							LEFT JOIN '. $rf->getTable() .'		as f ON c.object_type_id = 50 AND c.object_id = f.id
 							LEFT JOIN '. $pptsvf->getTable() .' as h ON c.object_type_id = 90 AND c.object_id = h.id
 						WHERE
 								a.user_id = ?
 								AND bb.company_id = ?
-								AND c.object_type_id in (5,50,90)
+								AND c.object_type_id in (5, 50, 90)
 								AND ( a.deleted = 0 AND c.deleted = 0
 										AND ( d.id IS NULL OR ( d.id IS NOT NULL AND d.deleted = 0 ) )
 										AND ( f.id IS NULL OR ( f.id IS NOT NULL AND f.deleted = 0 ) )
@@ -237,16 +233,16 @@ class MessageControlListFactory extends MessageControlFactory implements Iterato
 								bb.middle_name as to_middle_name,
 								bb.last_name as to_last_name
 						FROM '. $mrf->getTable() .' as a
-							LEFT JOIN '. $msf->getTable() .' 	as b ON a.message_sender_id = b.id
-							LEFT JOIN '. $uf->getTable() .' 	as bb ON a.user_id = bb.id
-							LEFT JOIN '. $this->getTable() .' 	as c ON b.message_control_id = c.id
-							LEFT JOIN '. $uf->getTable() .' 	as d ON c.object_type_id = 5 AND c.object_id = d.id
-							LEFT JOIN '. $rf->getTable() .' 	as f ON c.object_type_id = 50 AND c.object_id = f.id
+							LEFT JOIN '. $msf->getTable() .'	as b ON a.message_sender_id = b.id
+							LEFT JOIN '. $uf->getTable() .'		as bb ON a.user_id = bb.id
+							LEFT JOIN '. $this->getTable() .'	as c ON b.message_control_id = c.id
+							LEFT JOIN '. $uf->getTable() .'		as d ON c.object_type_id = 5 AND c.object_id = d.id
+							LEFT JOIN '. $rf->getTable() .'		as f ON c.object_type_id = 50 AND c.object_id = f.id
 							LEFT JOIN '. $pptsvf->getTable() .' as h ON c.object_type_id = 90 AND c.object_id = h.id
 						WHERE
 								b.user_id = ?
 								AND bb.company_id = ?
-								AND c.object_type_id in (5,50,90)
+								AND c.object_type_id in (5, 50, 90)
 								AND ( b.deleted = 0 AND c.deleted = 0
 										AND ( d.id IS NULL OR ( d.id IS NOT NULL AND d.deleted = 0 ) )
 										AND ( f.id IS NULL OR ( f.id IS NOT NULL AND f.deleted = 0 ) )
@@ -307,7 +303,7 @@ class MessageControlListFactory extends MessageControlFactory implements Iterato
 
 		//Need to include all threads that user has posted to.
 		$query = '
-					SELECT 	a.*,
+					SELECT	a.*,
 							b.id as id,
 							c.status_id as status_id,
 							b.user_id as from_user_id,
@@ -319,10 +315,10 @@ class MessageControlListFactory extends MessageControlFactory implements Iterato
 							cb.middle_name as to_middle_name,
 							cb.last_name as to_last_name
 					FROM '. $this->getTable() .' as a
-						LEFT JOIN '. $msf->getTable() .' 	as b ON a.id = b.message_control_id
-						LEFT JOIN '. $uf->getTable() .' 	as bb ON b.user_id = bb.id
-						LEFT JOIN '. $mrf->getTable() .' 	as c ON b.id = c.message_sender_id
-						LEFT JOIN '. $uf->getTable() .' 	as cb ON c.user_id = cb.id
+						LEFT JOIN '. $msf->getTable() .'	as b ON a.id = b.message_control_id
+						LEFT JOIN '. $uf->getTable() .'		as bb ON b.user_id = bb.id
+						LEFT JOIN '. $mrf->getTable() .'	as c ON b.id = c.message_sender_id
+						LEFT JOIN '. $uf->getTable() .'		as cb ON c.user_id = cb.id
 					WHERE
 							cb.company_id = ? AND cb.company_id = bb.company_id
 							AND ( b.id = ?
@@ -372,8 +368,8 @@ class MessageControlListFactory extends MessageControlFactory implements Iterato
 		$uf = new UserFactory();
 
 		$ph = array(
-					'user_id' => $user_id,
-					'user_id_b' => $user_id,
+					//'user_id' => $user_id,
+					//'user_id_b' => $user_id,
 					//'user_id_c' => $user_id,
 					'company_id' => $company_id,
 					'object_type_id' => $object_type_id,
@@ -384,21 +380,33 @@ class MessageControlListFactory extends MessageControlFactory implements Iterato
 		//Make sure we don't display duplicate messages when it was sent to multiple superiors.
 		//Include messages even if sender/recipeints have deleted theirs.
 		//The sub-selects are required so we attempt to return message_ids that were sent to the user currently viewing the messages, that way we can mark them as read.
-		//  without this we are unable to mark messages as read, because we are returning essentially random message_recipient id's.
-		//  Because PostgreSQL/MySQL don't come with first() aggregate functions, this is pretty much the fastest way to work around it.
+		//	without this we are unable to mark messages as read, because we are returning essentially random message_recipient id's.
+		//	Because PostgreSQL/MySQL don't come with first() aggregate functions, this is pretty much the fastest way to work around it.
+		//  NOTE: Need to list all columns in "a." table otherwise MySQL gets a duplicate column error.
 		$query = '
-					SELECT 	a.*,
-							(select xx.id from message_recipient as zz LEFT JOIN message_sender as xx ON zz.message_sender_id = xx.id where xx.message_control_id = a.id order by zz.user_id = ? desc limit 1 ) as id,
-							(select zz.status_id from message_recipient as zz LEFT JOIN message_sender as xx ON zz.message_sender_id = xx.id where xx.message_control_id = a.id order by zz.user_id = ? desc limit 1 ) as status_id,
+					SELECT	a.object_type_id,
+							a.object_id,
+							a.require_ack,
+							a.priority_id,
+							a.subject,
+							a.body,
+							(SELECT xx.id FROM message_recipient as zz LEFT JOIN message_sender as xx ON zz.message_sender_id = xx.id where xx.message_control_id = a.id ORDER BY zz.user_id = '. (int)$user_id .' DESC LIMIT 1 ) as id,
+							(SELECT zz.status_id FROM message_recipient as zz LEFT JOIN message_sender as xx ON zz.message_sender_id = xx.id where xx.message_control_id = a.id ORDER BY zz.user_id = '. (int)$user_id .' DESC LIMIT 1 ) as status_id,
 							b.user_id as from_user_id,
 							bb.first_name as from_first_name,
 							bb.middle_name as from_middle_name,
-							bb.last_name as from_last_name
+							bb.last_name as from_last_name,
+							a.created_date,
+							a.created_by,
+							a.updated_date,
+							a.updated_by,
+							a.deleted_date,
+							a.deleted
 					FROM '. $this->getTable() .' as a
-						LEFT JOIN ( select message_control_id,min(a.id) as message_sender_id from '. $msf->getTable() .' as a group by a.message_control_id ) as z ON a.id = z.message_control_id
-						LEFT JOIN '. $msf->getTable() .' 	as b ON b.id = z.message_sender_id
-						LEFT JOIN '. $uf->getTable() .' 	as bb ON b.user_id = bb.id
-						LEFT JOIN '. $mrf->getTable() .' 	as c ON b.id = c.message_sender_id
+						LEFT JOIN ( select message_control_id, min(a.id) as message_sender_id from '. $msf->getTable() .' as a group by a.message_control_id ) as z ON a.id = z.message_control_id
+						LEFT JOIN '. $msf->getTable() .'	as b ON b.id = z.message_sender_id
+						LEFT JOIN '. $uf->getTable() .'		as bb ON b.user_id = bb.id
+						LEFT JOIN '. $mrf->getTable() .'	as c ON b.id = c.message_sender_id
 					WHERE
 							bb.company_id = ?
 							AND ( a.object_type_id = ? AND a.object_id = ? )
@@ -408,7 +416,7 @@ class MessageControlListFactory extends MessageControlFactory implements Iterato
 		/*
 		//This query works as well, but is about twice as slow interestingly enough.
 		$query = '
-					SELECT 	a.*,
+					SELECT	a.*,
 							b.id,
 							c.status_id,
 							b.user_id as from_user_id,
@@ -416,12 +424,12 @@ class MessageControlListFactory extends MessageControlFactory implements Iterato
 							bb.middle_name as from_middle_name,
 							bb.last_name as from_last_name
 					FROM '. $this->getTable() .' as a
-						LEFT JOIN 	(
+						LEFT JOIN	(
 									select a.message_control_id, CASE WHEN min(CASE WHEN b.user_id = ? THEN b.id*-1 ELSE b.id END) < 0 THEN min(CASE WHEN b.user_id = ? THEN b.id*-1 ELSE b.id END)*-1 ELSE min(CASE WHEN b.user_id = ? THEN b.id*-1 ELSE b.id END) END as message_sender_id from message_sender as a LEFT JOIN message_recipient as b ON a.id = b.message_sender_id group by message_control_id
 									) as z ON a.id = z.message_control_id
-						LEFT JOIN '. $msf->getTable() .' 	as b ON b.id = z.message_sender_id
-						LEFT JOIN '. $uf->getTable() .' 	as bb ON b.user_id = bb.id
-						LEFT JOIN '. $mrf->getTable() .' 	as c ON b.id = c.message_sender_id
+						LEFT JOIN '. $msf->getTable() .'	as b ON b.id = z.message_sender_id
+						LEFT JOIN '. $uf->getTable() .'		as bb ON b.user_id = bb.id
+						LEFT JOIN '. $mrf->getTable() .'	as c ON b.id = c.message_sender_id
 					WHERE
 							bb.company_id = ?
 							AND ( a.object_type_id = ? AND a.object_id = ? )
@@ -472,18 +480,29 @@ class MessageControlListFactory extends MessageControlFactory implements Iterato
 		//Make sure we don't display duplicate messages when it was sent to multiple superiors.
 		//Include messages even if sender/recipeints have deleted theirs.
 		$query = '
-					SELECT 	a.*,
+					SELECT	a.object_type_id,
+							a.object_id,
+							a.require_ack,
+							a.priority_id,
+							a.subject,
+							a.body,
 							b.id as id,
 							c.status_id as status_id,
 							b.user_id as from_user_id,
 							bb.first_name as from_first_name,
 							bb.middle_name as from_middle_name,
-							bb.last_name as from_last_name
+							bb.last_name as from_last_name,
+							a.created_date,
+							a.created_by,
+							a.updated_date,
+							a.updated_by,
+							a.deleted_date,
+							a.deleted
 					FROM '. $this->getTable() .' as a
-						LEFT JOIN ( select message_control_id,min(a.id) as message_sender_id from '. $msf->getTable() .' as a group by a.message_control_id ) as z ON a.id = z.message_control_id
-						LEFT JOIN '. $msf->getTable() .' 	as b ON b.id = z.message_sender_id
-						LEFT JOIN '. $uf->getTable() .' 	as bb ON b.user_id = bb.id
-						LEFT JOIN '. $mrf->getTable() .' 	as c ON b.id = c.message_sender_id
+						LEFT JOIN ( select message_control_id, min(a.id) as message_sender_id from '. $msf->getTable() .' as a group by a.message_control_id ) as z ON a.id = z.message_control_id
+						LEFT JOIN '. $msf->getTable() .'	as b ON b.id = z.message_sender_id
+						LEFT JOIN '. $uf->getTable() .'		as bb ON b.user_id = bb.id
+						LEFT JOIN '. $mrf->getTable() .'	as c ON b.id = c.message_sender_id
 					WHERE
 							bb.company_id = ?
 							AND ( a.object_type_id = ? AND a.object_id = ? )
@@ -525,7 +544,7 @@ class MessageControlListFactory extends MessageControlFactory implements Iterato
 
 		$query = '
 					SELECT b.user_id as from_user_id,
-						   c.user_id as to_user_id
+							c.user_id as to_user_id
 					FROM '. $this->getTable() .' as a
 						LEFT JOIN '. $msf->getTable() .' as b ON a.id = b.message_control_id
 						LEFT JOIN '. $uf->getTable() .' as bb ON b.user_id = bb.id
@@ -551,7 +570,7 @@ class MessageControlListFactory extends MessageControlFactory implements Iterato
 			}
 
 			$retarr = array_unique($retarr);
-			//Debug::Arr($retarr, ' Retarr: ', __FILE__, __LINE__, __METHOD__,10);
+			//Debug::Arr($retarr, ' Retarr: ', __FILE__, __LINE__, __METHOD__, 10);
 
 			return $retarr;
 		}
@@ -561,6 +580,10 @@ class MessageControlListFactory extends MessageControlFactory implements Iterato
 
 	function getAPISearchByCompanyIdAndArrayCriteria( $company_id, $filter_data, $limit = NULL, $page = NULL, $where = NULL, $order = NULL ) {
 		if ( $company_id == '') {
+			return FALSE;
+		}
+
+		if ( !isset( $filter_data['current_user_id'] ) ) {
 			return FALSE;
 		}
 
@@ -574,10 +597,10 @@ class MessageControlListFactory extends MessageControlFactory implements Iterato
 		$additional_order_fields = array('status_id');
 
 		$sort_column_aliases = array(
-									 'status' => 'a.status_id',
-									 'created_date' => 'c.created_date',
-									 'created_by' => 'c.created_by',
-									 );
+									'status' => 'a.status_id',
+									'created_date' => 'c.created_date',
+									'created_by' => 'c.created_by',
+									);
 
 		$order = $this->getColumnsFromAliases( $order, $sort_column_aliases );
 
@@ -587,8 +610,8 @@ class MessageControlListFactory extends MessageControlFactory implements Iterato
 		} else {
 			$strict = TRUE;
 		}
-		//Debug::Arr($order,'Order Data:', __FILE__, __LINE__, __METHOD__,10);
-		Debug::Arr($filter_data,'Filter Data:', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($order, 'Order Data:', __FILE__, __LINE__, __METHOD__, 10);
+		//Debug::Arr($filter_data, 'Filter Data:', __FILE__, __LINE__, __METHOD__, 10);
 
 		if ( !isset($filter_data['folder_id']) ) {
 			$filter_data['folder_id'] = 10; //Inbox.
@@ -626,38 +649,25 @@ class MessageControlListFactory extends MessageControlFactory implements Iterato
 								bb.middle_name as from_middle_name,
 								bb.last_name as from_last_name
 						FROM '. $mrf->getTable() .' as a
-							LEFT JOIN '. $uf->getTable() .' 	as aa ON a.user_id = aa.id
-							LEFT JOIN '. $msf->getTable() .' 	as b ON a.message_sender_id = b.id
-							LEFT JOIN '. $uf->getTable() .' 	as bb ON b.user_id = bb.id
-							LEFT JOIN '. $this->getTable() .' 	as c ON b.message_control_id = c.id
-							LEFT JOIN '. $uf->getTable() .' 	as d ON c.object_type_id = 5 AND c.object_id = d.id
-							LEFT JOIN '. $rf->getTable() .' 	as f ON c.object_type_id = 50 AND c.object_id = f.id
+							LEFT JOIN '. $uf->getTable() .'		as aa ON a.user_id = aa.id
+							LEFT JOIN '. $msf->getTable() .'	as b ON a.message_sender_id = b.id
+							LEFT JOIN '. $uf->getTable() .'		as bb ON b.user_id = bb.id
+							LEFT JOIN '. $this->getTable() .'	as c ON b.message_control_id = c.id
+							LEFT JOIN '. $uf->getTable() .'		as d ON c.object_type_id = 5 AND c.object_id = d.id
+							LEFT JOIN '. $rf->getTable() .'		as f ON c.object_type_id = 50 AND c.object_id = f.id
 							LEFT JOIN '. $pptsvf->getTable() .' as h ON c.object_type_id = 90 AND c.object_id = h.id
 						WHERE
 								a.user_id = ?
-								AND bb.company_id = ?
-								AND c.object_type_id in (5,50,90)';
+								AND ( bb.company_id = ? AND aa.company_id = bb.company_id )
+								AND c.object_type_id in (5, 50, 90)';
 
-			if ( isset($filter_data['id']) AND isset($filter_data['id'][0]) AND !in_array(-1, (array)$filter_data['id']) ) {
-				$query  .=	' AND b.id in ('. $this->getListSQL($filter_data['id'], $ph) .') ';
-			}
-			if ( isset($filter_data['object_type_id']) AND isset($filter_data['object_type_id'][0]) AND !in_array(-1, (array)$filter_data['object_type_id']) ) {
-				$query  .=	' AND c.object_type_id in ('. $this->getListSQL($filter_data['object_type_id'], $ph) .') ';
-			}
-			if ( isset($filter_data['status_id']) AND isset($filter_data['status_id'][0]) AND !in_array(-1, (array)$filter_data['status_id']) ) {
-				$query  .=	' AND a.status_id in ('. $this->getListSQL($filter_data['status_id'], $ph) .') ';
-			}
-			if ( isset($filter_data['user_id']) AND isset($filter_data['user_id'][0]) AND !in_array(-1, (array)$filter_data['user_id']) ) {
-				$query  .=	' AND b.user_id in ('. $this->getListSQL($filter_data['user_id'], $ph) .') ';
-			}
-			if ( isset($filter_data['subject']) AND trim($filter_data['subject']) != '' ) {
-				$ph[] = strtolower(trim($filter_data['subject']));
-				$query  .=	' AND lower(c.subject) LIKE ?';
-			}
-			if ( isset($filter_data['body']) AND trim($filter_data['body']) != '' ) {
-				$ph[] = strtolower(trim($filter_data['body']));
-				$query  .=	' AND lower(c.body) LIKE ?';
-			}
+			$query .= ( isset($filter_data['id']) ) ? $this->getWhereClauseSQL( 'b.id', $filter_data['id'], 'numeric_list', $ph ) : NULL;
+			$query .= ( isset($filter_data['object_type_id']) ) ? $this->getWhereClauseSQL( 'c.object_type_id', $filter_data['object_type_id'], 'numeric_list', $ph ) : NULL;
+			$query .= ( isset($filter_data['status_id']) ) ? $this->getWhereClauseSQL( 'a.status_id', $filter_data['status_id'], 'numeric_list', $ph ) : NULL;
+			$query .= ( isset($filter_data['user_id']) ) ? $this->getWhereClauseSQL( 'b.user_id', $filter_data['user_id'], 'numeric_list', $ph ) : NULL;
+
+			$query .= ( isset($filter_data['subject']) ) ? $this->getWhereClauseSQL( 'c.subject', $filter_data['subject'], 'text', $ph ) : NULL;
+			$query .= ( isset($filter_data['body']) ) ? $this->getWhereClauseSQL( 'c.body', $filter_data['body'], 'text', $ph ) : NULL;
 
 			$query .= '			AND ( a.deleted = 0 AND c.deleted = 0
 										AND ( d.id IS NULL OR ( d.id IS NOT NULL AND d.deleted = 0 ) )
@@ -683,39 +693,26 @@ class MessageControlListFactory extends MessageControlFactory implements Iterato
 								bb.middle_name as from_middle_name,
 								bb.last_name as from_last_name
 						FROM '. $mrf->getTable() .' as a
-							LEFT JOIN '. $uf->getTable() .' 	as aa ON a.user_id = aa.id
-							LEFT JOIN '. $msf->getTable() .' 	as b ON a.message_sender_id = b.id
-							LEFT JOIN '. $uf->getTable() .' 	as bb ON b.user_id = bb.id
-							LEFT JOIN '. $this->getTable() .' 	as c ON b.message_control_id = c.id
-							LEFT JOIN '. $uf->getTable() .' 	as d ON c.object_type_id = 5 AND c.object_id = d.id
-							LEFT JOIN '. $rf->getTable() .' 	as f ON c.object_type_id = 50 AND c.object_id = f.id
+							LEFT JOIN '. $uf->getTable() .'		as aa ON a.user_id = aa.id
+							LEFT JOIN '. $msf->getTable() .'	as b ON a.message_sender_id = b.id
+							LEFT JOIN '. $uf->getTable() .'		as bb ON b.user_id = bb.id
+							LEFT JOIN '. $this->getTable() .'	as c ON b.message_control_id = c.id
+							LEFT JOIN '. $uf->getTable() .'		as d ON c.object_type_id = 5 AND c.object_id = d.id
+							LEFT JOIN '. $rf->getTable() .'		as f ON c.object_type_id = 50 AND c.object_id = f.id
 							LEFT JOIN '. $pptsvf->getTable() .' as h ON c.object_type_id = 90 AND c.object_id = h.id
 						WHERE
 								b.user_id = ?
-								AND bb.company_id = ?
-								AND c.object_type_id in (5,50,90)';
+								AND ( bb.company_id = ? AND aa.company_id = bb.company_id )
+								AND c.object_type_id in (5, 50, 90)';
 
-			if ( isset($filter_data['id']) AND isset($filter_data['id'][0]) AND !in_array(-1, (array)$filter_data['id']) ) {
-				$query  .=	' AND b.id in ('. $this->getListSQL($filter_data['id'], $ph) .') ';
-			}
-			if ( isset($filter_data['object_type_id']) AND isset($filter_data['object_type_id'][0]) AND !in_array(-1, (array)$filter_data['object_type_id']) ) {
-				$query  .=	' AND c.object_type_id in ('. $this->getListSQL($filter_data['object_type_id'], $ph) .') ';
-			}
-			if ( isset($filter_data['status_id']) AND isset($filter_data['status_id'][0]) AND !in_array(-1, (array)$filter_data['status_id']) ) {
-				$query  .=	' AND a.status_id in ('. $this->getListSQL($filter_data['status_id'], $ph) .') ';
-			}
-			if ( isset($filter_data['user_id']) AND isset($filter_data['user_id'][0]) AND !in_array(-1, (array)$filter_data['user_id']) ) {
-				$query  .=	' AND a.user_id in ('. $this->getListSQL($filter_data['user_id'], $ph) .') ';
-			}
-			if ( isset($filter_data['subject']) AND trim($filter_data['subject']) != '' ) {
-				$ph[] = strtolower(trim($filter_data['subject']));
-				$query  .=	' AND lower(c.subject) LIKE ?';
-			}
-			if ( isset($filter_data['body']) AND trim($filter_data['body']) != '' ) {
-				$ph[] = strtolower(trim($filter_data['body']));
-				$query  .=	' AND lower(c.body) LIKE ?';
-			}
+			$query .= ( isset($filter_data['id']) ) ? $this->getWhereClauseSQL( 'b.id', $filter_data['id'], 'numeric_list', $ph ) : NULL;
+			$query .= ( isset($filter_data['object_type_id']) ) ? $this->getWhereClauseSQL( 'c.object_type_id', $filter_data['object_type_id'], 'numeric_list', $ph ) : NULL;
+			$query .= ( isset($filter_data['status_id']) ) ? $this->getWhereClauseSQL( 'a.status_id', $filter_data['status_id'], 'numeric_list', $ph ) : NULL;
+			$query .= ( isset($filter_data['user_id']) ) ? $this->getWhereClauseSQL( 'a.user_id', $filter_data['user_id'], 'numeric_list', $ph ) : NULL;
 
+			$query .= ( isset($filter_data['subject']) ) ? $this->getWhereClauseSQL( 'c.subject', $filter_data['subject'], 'text', $ph ) : NULL;
+			$query .= ( isset($filter_data['body']) ) ? $this->getWhereClauseSQL( 'c.body', $filter_data['body'], 'text', $ph ) : NULL;
+			
 			$query .= '			AND ( b.deleted = 0 AND c.deleted = 0
 										AND ( d.id IS NULL OR ( d.id IS NOT NULL AND d.deleted = 0 ) )
 										AND ( f.id IS NULL OR ( f.id IS NOT NULL AND f.deleted = 0 ) )
@@ -724,7 +721,7 @@ class MessageControlListFactory extends MessageControlFactory implements Iterato
 						';
 		}
 
-		//Debug::Arr($ph, ' Query: '. $query, __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($ph, ' Query: '. $query, __FILE__, __LINE__, __METHOD__, 10);
 		$query .= $this->getWhereSQL( $where );
 		$query .= $this->getSortSQL( $order, $strict, $additional_order_fields );
 
@@ -759,9 +756,7 @@ class MessageControlListFactory extends MessageControlFactory implements Iterato
 		$uf = new UserFactory();
 		$udf = new UserDateFactory();
 		$pptsvf = new PayPeriodTimeSheetVerifyFactory();
-
-
-
+		
 		$ph = array(
 					'company_id' => $company_id,
 
@@ -778,7 +773,7 @@ class MessageControlListFactory extends MessageControlFactory implements Iterato
 
 		//Need to include all threads that user has posted to.
 		$query = '
-					SELECT 	a.*,
+					SELECT	a.*,
 							b.id as id,
 							c.status_id as status_id,
 							b.user_id as from_user_id,
@@ -790,10 +785,10 @@ class MessageControlListFactory extends MessageControlFactory implements Iterato
 							cb.middle_name as to_middle_name,
 							cb.last_name as to_last_name
 					FROM '. $this->getTable() .' as a
-						LEFT JOIN '. $msf->getTable() .' 	as b ON a.id = b.message_control_id
-						LEFT JOIN '. $uf->getTable() .' 	as bb ON b.user_id = bb.id
-						LEFT JOIN '. $mrf->getTable() .' 	as c ON b.id = c.message_sender_id
-						LEFT JOIN '. $uf->getTable() .' 	as cb ON c.user_id = cb.id
+						LEFT JOIN '. $msf->getTable() .'	as b ON a.id = b.message_control_id
+						LEFT JOIN '. $uf->getTable() .'		as bb ON b.user_id = bb.id
+						LEFT JOIN '. $mrf->getTable() .'	as c ON b.id = c.message_sender_id
+						LEFT JOIN '. $uf->getTable() .'		as cb ON c.user_id = cb.id
 					WHERE
 							cb.company_id = ? AND cb.company_id = bb.company_id
 							AND ( b.id = ?

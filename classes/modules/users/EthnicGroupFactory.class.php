@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,14 +33,10 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 6681 $
- * $Id: EthnicGroupFactory.class.php 6681 2012-04-25 04:08:29Z ipso $
- * $Date: 2012-04-25 12:08:29 +0800 (Wed, 25 Apr 2012) $
- */
+
 
 /**
- * @package Module_Users
+ * @package Modules\Users
  */
 class EthnicGroupFactory extends Factory {
 	protected $table = 'ethnic_group';
@@ -87,14 +83,14 @@ class EthnicGroupFactory extends Factory {
 										'company_id' => 'Company',
 										'name' => 'Name',
 										'deleted' => 'Deleted',
- 										);
+										);
 		return $variable_function_map;
 	}
 
 	function getCompany() {
-	    if ( isset( $this->data['company_id'] ) ) {
-	       return $this->data['company_id'];
-	    }
+		if ( isset( $this->data['company_id'] ) ) {
+			return (int)$this->data['company_id'];
+		}
 		return FALSE;
 	}
 	function setCompany($id) {
@@ -125,9 +121,9 @@ class EthnicGroupFactory extends Factory {
 					where company_id = ?
 						AND name = ?
 						AND deleted = 0';
-        $name_id = $this->db->GetOne($query, $ph);
+		$name_id = $this->db->GetOne($query, $ph);
 
-		Debug::Arr($name_id,'Unique Name: '. $name, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Arr($name_id, 'Unique Name: '. $name, __FILE__, __LINE__, __METHOD__, 10);
 
 		if ( $name_id === FALSE ) {
 			return TRUE;
@@ -141,15 +137,15 @@ class EthnicGroupFactory extends Factory {
 	}
 
 	function getName() {
-        if ( isset( $this->data['name'] ) ) {
-            return $this->data['name'];
-        }
-        return FALSE;
+		if ( isset( $this->data['name'] ) ) {
+			return $this->data['name'];
+		}
+		return FALSE;
 	}
 	function setName($name) {
 		$name = trim($name);
 
-		if 	(	$this->Validator->isLength(		'name',
+		if	(	$this->Validator->isLength(		'name',
 												$name,
 												TTi18n::gettext('Ethnic group is too short or too long'),
 												2,
@@ -171,7 +167,7 @@ class EthnicGroupFactory extends Factory {
 
 	function postSave() {
 		if ( $this->getDeleted() == TRUE ) {
-			Debug::Text('UnAssign ethnic group from employees: '. $this->getId(), __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text('UnAssign ethnic group from employees: '. $this->getId(), __FILE__, __LINE__, __METHOD__, 10);
 			//Unassign hours from this job.
 			$uf = TTnew( 'UserFactory' );
 			//$udf = TTnew( 'UserDefaultFactory' );
@@ -184,7 +180,7 @@ class EthnicGroupFactory extends Factory {
 		}
 	}
 
-	//Support setting created_by,updated_by especially for importing data.
+	//Support setting created_by, updated_by especially for importing data.
 	//Make sure data is set based on the getVariableToFunctionMap order.
 	function setObjectFromArray( $data ) {
 		if ( is_array( $data ) ) {

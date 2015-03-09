@@ -1,0 +1,168 @@
+
+.t-alert {
+    background-color: #f8f8f8;
+    border-bottom: 35px solid #355f87;
+    border-top: 40px solid #355f87;;
+    border-left: 20px solid #355f87;;
+    border-right: 20px solid #355f87;;
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    margin: -130px 0 0 -130px;
+    height: auto;
+   
+    width: 260px;
+    font-size: 12px;
+    text-align: center;
+    z-index: 100;
+    border-radius: 15px;
+    padding: 6px;
+
+    -moz-box-shadow: 3px 3px 4px rgba(0, 0, 0, 0.3);
+    -webkit-box-shadow: 3px 3px 4px rgba(0, 0, 0, 0.3);
+    box-shadow: 3px 3px 4px rgba(0, 0, 0, 0.3);
+    /* For IE 8 */
+    -ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=135, Color='#000000')";
+    /* For IE 5.5 - 7 */
+    filter: progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=135, Color='#000000');
+
+}
+
+.t-alert .content-div{
+    min-height: 100px;
+    max-height: 200px;
+    overflow: auto;
+}
+
+.t-alert .title {
+    color: #ffffff;
+    position: absolute;
+    top: -30px;
+    left: 0px;
+    font-size: 14px;
+}
+
+.t-alert .content {
+
+    font-size: 12px;
+}
+
+.t-alert .bottom-bar {
+    position: absolute;
+    height: 30px;
+    border: none;
+    bottom: -35px;
+    width: 100%;
+}
+
+.t-alert .button {
+    /*position: relative;*/
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(1, #c6c4c4), color-stop(0, #ffffff));
+    background: -moz-linear-gradient(center top, #ffffff, #c6c4c4);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#c6c4c4');
+    -ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='#ffffff, endColorstr='#c6c4c4)";
+
+    border-radius: 6px;
+    border: none;
+    color: #333333;
+    font-family: arial;
+    font-size: 12px;
+    font-weight: normal;
+    padding: 2px 6px;
+    text-decoration: none;
+}
+
+.t-alert .button:hover {
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(1, #f6f6f6), color-stop(1, #c6c4c4));
+    background: -moz-linear-gradient(center top, #c6c4c4, #f6f6f6);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#c6c4c4', endColorstr='#f6f6f6');
+    -ms-filter: "progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='#c6c4c4, endColorstr='#f6f6f6)";
+}
+
+.confirm-alert {
+    background-color: #f8f8f8;
+    border-bottom: 35px solid #355f87;
+    border-top: 40px solid #355f87;;
+    border-left: 20px solid #355f87;;
+    border-right: 20px solid #355f87;;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: -130px 0 0 -130px;
+    height: auto;
+    min-height: 100px;
+    width: 260px;
+    font-size: 12px;
+    text-align: center;
+    z-index: 100;
+    border-radius: 15px;
+    padding: 6px;
+
+    -moz-box-shadow: 3px 3px 4px rgba(0, 0, 0, 0.3);
+    -webkit-box-shadow: 3px 3px 4px rgba(0, 0, 0, 0.3);
+    box-shadow: 3px 3px 4px rgba(0, 0, 0, 0.3);
+    /* For IE 8 */
+    -ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=135, Color='#000000')";
+    /* For IE 5.5 - 7 */
+    filter: progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=135, Color='#000000');
+
+}
+
+.confirm-alert .title {
+    color: #ffffff;
+    position: absolute;
+    top: -30px;
+    left: 0px;
+    font-size: 14px;
+}
+
+.confirm-alert .content {
+
+    font-size: 12px;
+}
+
+.confirm-alert .bottom-bar {
+    position: absolute;
+    height: 30px;
+    border: none;
+    bottom: -35px;
+    width: 100%;
+}
+
+.confirm-alert .button {
+
+    margin-right: 10px;
+}
+
+.session-alert {
+    position: fixed;
+    width: 200px;
+    height: 30px;
+    text-align: center;
+    bottom: 3px;
+    right: 0px;
+    left: 0px;
+    margin-left: auto;
+    margin-right: auto;
+    background: url("../../../../images/50_bg.png") repeat;
+    cursor: default;
+    z-index: 100;
+
+}
+
+.session-alert .content {
+    color: #FFFFFF;
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 30px;
+}
+
+.session-alert .close-icon {
+    cursor: pointer;
+    font-size: 10px;
+    position: absolute;
+    right: 7px;
+    top: 3px;
+    color: #ffffff;
+
+}

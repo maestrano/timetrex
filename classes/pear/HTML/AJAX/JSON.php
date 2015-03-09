@@ -1,9 +1,11 @@
 <?php
-/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
 /**
- * This is an embedded version of HTML_AJAX_JSON since it has yet to have a PEAR release
- * it has been renamed to HTML_AJAX_JSON so no problems will be caused by an eventual release
+ * This is an embedded version of HTML_AJAX_JSON since it has yet to have 
+ * a PEAR release it has been renamed to HTML_AJAX_JSON so no problems 
+ * will be caused by an eventual release
  * Feel free to report bugs against it to HTML_AJAX
+ *
+ * SVN Rev: $Id$
  */
 
 /**
@@ -758,7 +760,7 @@ class HTML_AJAX_JSON
     /**
      * @todo Ultimately, this should just call PEAR::isError()
      */
-    static function isError($data, $code = null)
+    function isError($data, $code = null)
     {
         if (HTML_AJAX_class_exists('pear', false)) {
             return PEAR::isError($data, $code);
@@ -798,4 +800,5 @@ if (HTML_AJAX_class_exists('pear_error', false)) {
 
 }
     
+/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
 ?>

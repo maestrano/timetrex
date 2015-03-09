@@ -45,14 +45,14 @@ class GeneralLedgerExport {
 	var $file_format = NULL; //File format
 	var $set_journal_entry_errors = 0;
 
-	function __construct( $options = NULL ) {
-		Debug::Text(' Contruct... ', __FILE__, __LINE__, __METHOD__,10);
+	function __construct() {
+		Debug::Text(' Contruct... ', __FILE__, __LINE__, __METHOD__, 10);
 
 		return TRUE;
 	}
 
 	function isFloat( $value ) {
-		if ( preg_match('/^[-0-9\.]+$/',$value) ) {
+		if ( preg_match('/^[-0-9\.]+$/', $value) ) {
 			return TRUE;
 		}
 
@@ -89,7 +89,7 @@ class GeneralLedgerExport {
 	}
 
 	/*
-	  Functions to help process the data.
+	Functions to help process the data.
 	*/
 
 	function getCompiledData() {
@@ -106,7 +106,7 @@ class GeneralLedgerExport {
 			return FALSE;
 		}
 
-		switch ( strtolower( $this->getFileFormat() ) )  {
+		switch ( strtolower( $this->getFileFormat() ) )	 {
 			case 'simply':
 				$file_format_obj = new GeneralLedgerExport_File_Format_Simply( $this->data );
 				break;
@@ -164,8 +164,8 @@ class GeneralLedgerExport {
 class GeneralLedgerExport_JournalEntry extends GeneralLedgerExport {
 	var $journal_entry_data = NULL;
 
-	function __construct( $options = NULL ) {
-		Debug::Text(' GLE_JournalEntry Contruct... ', __FILE__, __LINE__, __METHOD__,10);
+	function __construct() {
+		Debug::Text(' GLE_JournalEntry Contruct... ', __FILE__, __LINE__, __METHOD__, 10);
 
 		return TRUE;
 	}
@@ -246,11 +246,11 @@ class GeneralLedgerExport_JournalEntry extends GeneralLedgerExport {
 		//If so, combine them in to one.
 		$records = $this->getRecords();
 
-		$i=0;
+		$i = 0;
 		foreach( $records as $record ) {
 			if ( isset($account_list[$record->getType()][$record->getAccount()]) ) {
 				$original_id = $account_list[$record->getType()][$record->getAccount()];
-				Debug::Text(' Found duplicate Account, combining: '. $i .' with '. $original_id .' Type: '. $record->getType() .' Account: '. $record->getAccount(), __FILE__, __LINE__, __METHOD__,10);
+				Debug::Text(' Found duplicate Account, combining: '. $i .' with '. $original_id .' Type: '. $record->getType() .' Account: '. $record->getAccount(), __FILE__, __LINE__, __METHOD__, 10);
 
 				//Combine two accounts in to one.
 				$new_record = new GeneralLedgerExport_Record();
@@ -277,7 +277,7 @@ class GeneralLedgerExport_JournalEntry extends GeneralLedgerExport {
 	}
 
 	function checkBalance() {
-		Debug::Text(' Checking Balance of Journal Entry...', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text(' Checking Balance of Journal Entry...', __FILE__, __LINE__, __METHOD__, 10);
 		$records = $this->getRecords();
 		if ( $records == FALSE ) {
 			return FALSE;
@@ -286,29 +286,29 @@ class GeneralLedgerExport_JournalEntry extends GeneralLedgerExport {
 		$debit_amount = 0;
 		$credit_amount = 0;
 
-		$i=0;
+		$i = 0;
 		foreach($records as $record) {
-			Debug::Text($i.'. Type: '. $record->getType() .' Amount: '. $record->getAmount() .' Account: '. $record->getAccount() , __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text($i.'. Type: '. $record->getType() .' Amount: '. $record->getAmount() .' Account: '. $record->getAccount(), __FILE__, __LINE__, __METHOD__, 10);
 			if ( $record->getType() == 'debit' ) {
 				$debit_amount += $record->getAmount();
 			} elseif($record->getType() == 'credit') {
 				$credit_amount += $record->getAmount();
 			} else {
-				Debug::Text('NO ACCOUNT TYPE BAD!!', __FILE__, __LINE__, __METHOD__,10);
+				Debug::Text('NO ACCOUNT TYPE BAD!!', __FILE__, __LINE__, __METHOD__, 10);
 			}
 
 			$i++;
 		}
 
 
-		Debug::Text(' Debit Amount: '. $debit_amount .' Credit Amount: '. $credit_amount, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text(' Debit Amount: '. $debit_amount .' Credit Amount: '. $credit_amount, __FILE__, __LINE__, __METHOD__, 10);
 		if ( $debit_amount != 0 AND $credit_amount != 0
-				AND round($debit_amount,2) == round($credit_amount,2) ) {
-			Debug::Text(' JE balances!', __FILE__, __LINE__, __METHOD__,10);
+				AND round($debit_amount, 2) == round($credit_amount, 2) ) {
+			Debug::Text(' JE balances!', __FILE__, __LINE__, __METHOD__, 10);
 			return TRUE;
 		}
 
-		Debug::Text(' Journal Entry DOES NOT BALANCE!', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text(' Journal Entry DOES NOT BALANCE!', __FILE__, __LINE__, __METHOD__, 10);
 
 		return FALSE;
 	}
@@ -325,7 +325,7 @@ class GeneralLedgerExport_Record extends GeneralLedgerExport_JournalEntry {
 	var $record_data = NULL;
 /*
 	function __construct( $options = NULL ) {
-		Debug::Text(' GLE_Record Contruct... ', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text(' GLE_Record Contruct... ', __FILE__, __LINE__, __METHOD__, 10);
 
 		return TRUE;
 	}
@@ -407,7 +407,7 @@ class GeneralLedgerExport_File_Format_Simply Extends GeneralLedgerExport {
 	var $data = NULL;
 
 	function __construct( $data ) {
-		Debug::Text(' General Ledger Format Simply Contruct... ', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text(' General Ledger Format Simply Contruct... ', __FILE__, __LINE__, __METHOD__, 10);
 
 		$this->data = $data;
 
@@ -443,7 +443,7 @@ class GeneralLedgerExport_File_Format_Simply Extends GeneralLedgerExport {
 				$line[] = $record->getAccount();
 				if ( $record->getType() == 'credit' ) {
 					//Credits are negative.
-					$amount = number_format( ($record->getAmount()*-1), 2, '.', '');
+					$amount = number_format( ( $record->getAmount() * -1 ), 2, '.', '');
 				} else {
 					$amount = $record->getAmount();
 				}
@@ -467,7 +467,7 @@ class GeneralLedgerExport_File_Format_Simply Extends GeneralLedgerExport {
 
 	function _compile() {
 		//Processes all the data, padding it, converting dates to julian, incrementing
-        //record numbers.
+		//record numbers.
 
 		$compiled_data = @implode("\r\n", $this->compileRecords() );
 
@@ -490,7 +490,7 @@ class GeneralLedgerExport_File_Format_CSV Extends GeneralLedgerExport {
 	var $data = NULL;
 
 	function __construct( $data ) {
-		Debug::Text(' General Ledger Format CSV Contruct... ', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text(' General Ledger Format CSV Contruct... ', __FILE__, __LINE__, __METHOD__, 10);
 
 		$this->data = $data;
 
@@ -511,7 +511,7 @@ class GeneralLedgerExport_File_Format_CSV Extends GeneralLedgerExport {
 		}
 
 		//Column headers
-		$retval[] = 'Date,Source,Comment,Account,Debit,Credit';
+		$retval[] = 'Date, Source, Comment, Account, Debit, Credit';
 
 		foreach ( $this->data as $key => $journal_entry ) {
 			//Debug::Arr($record, 'Record Object:', __FILE__, __LINE__, __METHOD__, 10);
@@ -561,7 +561,7 @@ class GeneralLedgerExport_File_Format_CSV Extends GeneralLedgerExport {
 
 	function _compile() {
 		//Processes all the data, padding it, converting dates to julian, incrementing
-        //record numbers.
+		//record numbers.
 
 		$compiled_data = @implode("\r\n", $this->compileRecords() );
 
@@ -583,7 +583,7 @@ class GeneralLedgerExport_File_Format_QuickBooks Extends GeneralLedgerExport {
 	var $data = NULL;
 
 	function __construct( $data ) {
-		Debug::Text(' General Ledger Format QuickBooks Contruct... ', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text(' General Ledger Format QuickBooks Contruct... ', __FILE__, __LINE__, __METHOD__, 10);
 
 		$this->data = $data;
 
@@ -605,11 +605,11 @@ class GeneralLedgerExport_File_Format_QuickBooks Extends GeneralLedgerExport {
 
 
 		/*
-		!TRNS   TRNSID  TRNSTYPE        DATE    ACCNT   CLASS   AMOUNT  DOCNUM  MEMO
-		!SPL    SPLID   TRNSTYPE        DATE    ACCNT   CLASS   AMOUNT  DOCNUM  MEMO
+		!TRNS	TRNSID	TRNSTYPE		DATE	ACCNT	CLASS	AMOUNT	DOCNUM	MEMO
+		!SPL	SPLID	TRNSTYPE		DATE	ACCNT	CLASS	AMOUNT	DOCNUM	MEMO
 		!ENDTRNS
-		TRNS            GENERAL JOURNAL 7/1/1998        Checking                650
-		SPL             GENERAL JOURNAL 7/1/1998        Expense Account         -650
+		TRNS			GENERAL JOURNAL 7/1/1998		Checking				650
+		SPL				GENERAL JOURNAL 7/1/1998		Expense Account			-650
 		ENDTRNS
 		*/
 		//Column headers
@@ -621,7 +621,7 @@ class GeneralLedgerExport_File_Format_QuickBooks Extends GeneralLedgerExport {
 			//Debug::Arr($record, 'Record Object:', __FILE__, __LINE__, __METHOD__, 10);
 
 			$records = $journal_entry->getRecords();
-			$i=0;
+			$i = 0;
 			foreach ($records as $record) {
 				if( $i == 0 ) {
 					$line[] = 'TRANS';
@@ -640,7 +640,7 @@ class GeneralLedgerExport_File_Format_QuickBooks Extends GeneralLedgerExport {
 				if ( $record->getType() == 'debit' ) {
 					$line[] = $record->getAmount();
 				} else {
-					$line[] = $record->getAmount()*-1; //Credits are negative.
+					$line[] = ( $record->getAmount() * -1 ); //Credits are negative.
 				}
 
 				$line[] = NULL; //DOCNUM
@@ -668,7 +668,7 @@ class GeneralLedgerExport_File_Format_QuickBooks Extends GeneralLedgerExport {
 
 	function _compile() {
 		//Processes all the data, padding it, converting dates to julian, incrementing
-        //record numbers.
+		//record numbers.
 
 		$compiled_data = @implode("\r\n", $this->compileRecords() );
 

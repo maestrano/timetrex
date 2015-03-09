@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 11018 $
- * $Id: HierarchyControlFactory.class.php 11018 2013-09-24 23:39:40Z ipso $
- * $Date: 2013-09-24 16:39:40 -0700 (Tue, 24 Sep 2013) $
- */
+
 
 /**
  * @package Modules\Hierarchy
@@ -114,7 +110,7 @@ class HierarchyControlFactory extends Factory {
 	}
 
 	function getCompany() {
-		return $this->data['company_id'];
+		return (int)$this->data['company_id'];
 	}
 	function setCompany($id) {
 		$id = trim($id);
@@ -142,7 +138,7 @@ class HierarchyControlFactory extends Factory {
 
 		$query = 'select id from '. $this->getTable() .' where company_id = ? AND name = ? AND deleted = 0';
 		$hierarchy_control_id = $this->db->GetOne($query, $ph);
-		Debug::Arr($hierarchy_control_id,'Unique Hierarchy Control ID: '. $hierarchy_control_id, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Arr($hierarchy_control_id, 'Unique Hierarchy Control ID: '. $hierarchy_control_id, __FILE__, __LINE__, __METHOD__, 10);
 
 		if ( $hierarchy_control_id === FALSE ) {
 			return TRUE;
@@ -163,7 +159,7 @@ class HierarchyControlFactory extends Factory {
 		if (	$this->Validator->isLength(	'name',
 											$name,
 											TTi18n::gettext('Name is invalid'),
-											2,250)
+											2, 250)
 				AND	$this->Validator->isTrue(	'name',
 												$this->isUniqueName($name),
 												TTi18n::gettext('Name is already in use')
@@ -188,7 +184,7 @@ class HierarchyControlFactory extends Factory {
 				OR $this->Validator->isLength(	'description',
 											$description,
 											TTi18n::gettext('Description is invalid'),
-											1,250) ) {
+											1, 250) ) {
 
 			$this->data['description'] = $description;
 
@@ -379,10 +375,9 @@ class HierarchyControlFactory extends Factory {
 						if ( $ulf->getRecordCount() > 0 ) {
 							$obj = $ulf->getCurrent();
 							TTi18n::gettext('Selected subordinate is invalid or already assigned to another hierarchy with the same objects ').' ('. $obj->getFullName() .')';
-							if ( $this->Validator->isTrue(		'user',
-																$huf->isUniqueUser( $user_id, $this->getID() ),
-																TTi18n::gettext('Selected subordinate is invalid or already assigned to another hierarchy with the same objects ').' ('. $obj->getFullName() .')' )) {
-							}
+							$this->Validator->isTrue(		'user',
+															$huf->isUniqueUser( $user_id, $this->getID() ),
+															TTi18n::gettext('Selected subordinate is invalid or already assigned to another hierarchy with the same objects ').' ('. $obj->getFullName() .')' );
 						} else {
 							TTi18n::gettext('Selected subordinate is invalid or already assigned to another hierarchy with the same object. User ID: '. $user_id);
 						}

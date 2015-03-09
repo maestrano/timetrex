@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 11018 $
- * $Id: ExceptionFactory.class.php 11018 2013-09-24 23:39:40Z ipso $
- * $Date: 2013-09-24 16:39:40 -0700 (Tue, 24 Sep 2013) $
- */
+
 
 /**
  * @package Core
@@ -46,7 +42,7 @@ class ExceptionFactory extends Factory {
 	protected $table = 'exception';
 	protected $pk_sequence_name = 'exception_id_seq'; //PK Sequence name
 
-	protected $user_date_obj = NULL;
+	protected $user_obj = NULL;
 	protected $exception_policy_obj = NULL;
 
 	function _getFactoryOptions( $name ) {
@@ -57,7 +53,7 @@ class ExceptionFactory extends Factory {
 				//Exception life-cycle
 				//
 				// - Exception occurs, such as missed out punch, in late.
-				//   - If the exception is pre-mature, we wait 16-24hrs for it to become a full-blown exception
+				//	 - If the exception is pre-mature, we wait 16-24hrs for it to become a full-blown exception
 				// - If the exception requires authorization, it sits in a pending state waiting for supervsior intervention.
 				// - Supervisor authorizes the exception, or makes a correction, leaves a note or something.
 				//	 - Exception no longer appears on timesheet/exception list.
@@ -82,16 +78,16 @@ class ExceptionFactory extends Factory {
 										'-1060-default_department' => TTi18n::gettext('Default Department'),
 										'-1070-branch' => TTi18n::gettext('Branch'),
 										'-1080-department' => TTi18n::gettext('Department'),
-                                        '-1090-country' => TTi18n::gettext('Country'),
-                                        '-1100-province' => TTi18n::gettext('Province'),
+										'-1090-country' => TTi18n::gettext('Country'),
+										'-1100-province' => TTi18n::gettext('Province'),
 
 										'-1120-date_stamp' => TTi18n::gettext('Date'),
 										'-1130-severity' => TTi18n::gettext('Severity'),
 										'-1140-exception_policy_type' => TTi18n::gettext('Exception'),
 										'-1150-exception_policy_type_id' => TTi18n::gettext('Code'),
-                                        '-1160-policy_group' => TTi18n::gettext('Policy Group'),
-                                        '-1170-permission_group' => TTi18n::gettext('Permission Group'),
-                                        '-1200-pay_period_schedule' => TTi18n::gettext('Pay Period Schedule'),
+										'-1160-policy_group' => TTi18n::gettext('Policy Group'),
+										'-1170-permission_group' => TTi18n::gettext('Permission Group'),
+										'-1200-pay_period_schedule' => TTi18n::gettext('Pay Period Schedule'),
 
 										'-2000-created_by' => TTi18n::gettext('Created By'),
 										'-2010-created_date' => TTi18n::gettext('Created Date'),
@@ -100,7 +96,7 @@ class ExceptionFactory extends Factory {
 							);
 				break;
 			case 'list_columns':
-				$retval = Misc::arrayIntersectByKey( array('date_stamp','severity', 'exception_policy_type', 'exception_policy_type_id'), Misc::trimSortPrefix( $this->getOptions('columns') ) );
+				$retval = Misc::arrayIntersectByKey( array('date_stamp', 'severity', 'exception_policy_type', 'exception_policy_type_id'), Misc::trimSortPrefix( $this->getOptions('columns') ) );
 				break;
 			case 'default_display_columns': //Columns that are displayed by default.
 				$retval = array(
@@ -128,12 +124,11 @@ class ExceptionFactory extends Factory {
 	function _getVariableToFunctionMap( $data ) {
 			$variable_function_map = array(
 											'id' => 'ID',
-											'user_date_id' => 'UserDateID',
 											'date_stamp' => FALSE,
-                                            'pay_period_start_date' => FALSE,
-                                            'pay_period_end_date' => FALSE,
-                                            'pay_period_transaction_date' => FALSE,
-                                            'pay_period' => FALSE,
+											'pay_period_start_date' => FALSE,
+											'pay_period_end_date' => FALSE,
+											'pay_period_transaction_date' => FALSE,
+											'pay_period' => FALSE,
 											'exception_policy_id' => 'ExceptionPolicyID',
 											'punch_control_id' => 'PunchControlID',
 											'punch_id' => 'PunchID',
@@ -145,9 +140,9 @@ class ExceptionFactory extends Factory {
 											'exception_background_color' => 'BackgroundColor',
 											'exception_policy_type_id' => FALSE,
 											'exception_policy_type' => FALSE,
-                                            'policy_group' => FALSE,
-                                            'permission_group' => FALSE,
-                                            'pay_period_schedule' => FALSE,
+											'policy_group' => FALSE,
+											'permission_group' => FALSE,
+											'pay_period_schedule' => FALSE,
 											//'enable_demerit' => 'EnableDemerits',
 
 											'pay_period_id' => FALSE,
@@ -156,8 +151,8 @@ class ExceptionFactory extends Factory {
 											'user_id' => FALSE,
 											'first_name' => FALSE,
 											'last_name' => FALSE,
-                                            'country' => FALSE,
-                                            'province' => FALSE,
+											'country' => FALSE,
+											'province' => FALSE,
 											'user_status_id' => FALSE,
 											'user_status' => FALSE,
 											'group_id' => FALSE,
@@ -179,45 +174,30 @@ class ExceptionFactory extends Factory {
 			return $variable_function_map;
 	}
 
-	function getUserDateObject() {
-		if ( is_object($this->user_date_obj) ) {
-			return $this->user_date_obj;
-		} else {
-			$udlf = TTnew( 'UserDateListFactory' );
-			$this->user_date_obj = $udlf->getById( $this->getUserDateID() )->getCurrent();
-
-			return $this->user_date_obj;
-		}
+	function getUserObject() {
+		return $this->getGenericObject( 'UserListFactory', $this->getUser(), 'user_obj' );
 	}
 
 	function getExceptionPolicyObject() {
-		if ( is_object($this->exception_policy_obj) ) {
-			return $this->exception_policy_obj;
-		} else {
-			$eplf = TTnew( 'ExceptionPolicyListFactory' );
-			$this->exception_policy_obj = $eplf->getById( $this->getExceptionPolicyID() )->getCurrent();
-
-			return $this->exception_policy_obj;
+		return $this->getGenericObject( 'ExceptionPolicyListFactory', $this->getExceptionPolicyID(), 'exception_policy_obj' );
+	}
+	
+	function getUser() {
+		if ( isset($this->data['user_id']) ) {
+			return (int)$this->data['user_id'];
 		}
 	}
-
-	function getUserDateID() {
-		if ( isset($this->data['user_date_id']) ) {
-			return $this->data['user_date_id'];
-		}
-
-		return FALSE;
-	}
-	function setUserDateID($id = NULL) {
+	function setUser($id) {
 		$id = trim($id);
 
-		$udlf = TTnew( 'UserDateListFactory' );
+		$ulf = TTnew( 'UserListFactory' );
 
-		if (  $this->Validator->isResultSetWithRows(	'user_date',
-														$udlf->getByID($id),
-														TTi18n::gettext('Invalid User Date ID')
-														) ) {
-			$this->data['user_date_id'] = $id;
+		//Need to be able to support user_id=0 for open shifts. But this can cause problems with importing punches with user_id=0.
+		if ( $this->Validator->isResultSetWithRows(	'user',
+															$ulf->getByID($id),
+															TTi18n::gettext('Invalid User')
+															) ) {
+			$this->data['user_id'] = $id;
 
 			return TRUE;
 		}
@@ -225,9 +205,78 @@ class ExceptionFactory extends Factory {
 		return FALSE;
 	}
 
+	function getPayPeriod() {
+		if ( isset($this->data['pay_period_id']) ) {
+			return (int)$this->data['pay_period_id'];
+		}
+
+		return FALSE;
+	}
+	function setPayPeriod($id = NULL) {
+		$id = trim($id);
+
+		if ( $id == NULL ) {
+			$id = (int)PayPeriodListFactory::findPayPeriod( $this->getUser(), $this->getDateStamp() );
+		}
+
+		$pplf = TTnew( 'PayPeriodListFactory' );
+
+		//Allow NULL pay period, incase its an absence or something in the future.
+		//Cron will fill in the pay period later.
+		if (
+				$id == 0
+				OR
+				$this->Validator->isResultSetWithRows(	'pay_period',
+														$pplf->getByID($id),
+														TTi18n::gettext('Invalid Pay Period')
+														) ) {
+			$this->data['pay_period_id'] = $id;
+
+			return TRUE;
+		}
+
+		return FALSE;
+	}
+
+	function getDateStamp( $raw = FALSE ) {
+		if ( isset($this->data['date_stamp']) ) {
+			if ( $raw === TRUE ) {
+				return $this->data['date_stamp'];
+			} else {
+				return TTDate::strtotime( $this->data['date_stamp'] );
+			}
+		}
+
+		return FALSE;
+	}
+	function setDateStamp($epoch) {
+		$epoch = trim($epoch);
+
+		if	(	$this->Validator->isDate(		'date_stamp',
+												$epoch,
+												TTi18n::gettext('Incorrect date'))
+			) {
+
+			if	( $epoch > 0 ) {
+				$this->data['date_stamp'] = $epoch;
+
+				$this->setPayPeriod(); //Force pay period to be set as soon as the date is.
+				return TRUE;
+			} else {
+				$this->Validator->isTRUE(		'date_stamp',
+												FALSE,
+												TTi18n::gettext('Incorrect date'));
+			}
+
+
+		}
+
+		return FALSE;
+	}
+
 	function getExceptionPolicyID() {
 		if ( isset($this->data['exception_policy_id']) ) {
-			return $this->data['exception_policy_id'];
+			return (int)$this->data['exception_policy_id'];
 		}
 
 		return FALSE;
@@ -257,7 +306,7 @@ class ExceptionFactory extends Factory {
 
 	function getPunchControlID() {
 		if ( isset($this->data['punch_control_id']) ) {
-			return $this->data['punch_control_id'];
+			return (int)$this->data['punch_control_id'];
 		}
 
 		return FALSE;
@@ -288,7 +337,7 @@ class ExceptionFactory extends Factory {
 
 	function getPunchID() {
 		if ( isset($this->data['punch_id']) ) {
-			return $this->data['punch_id'];
+			return (int)$this->data['punch_id'];
 		}
 
 		return FALSE;
@@ -318,7 +367,7 @@ class ExceptionFactory extends Factory {
 
 	function getType() {
 		if ( isset($this->data['type_id']) ) {
-			return $this->data['type_id'];
+			return (int)$this->data['type_id'];
 		}
 
 		return FALSE;
@@ -413,7 +462,7 @@ class ExceptionFactory extends Factory {
 	}
 
 	function getEmailExceptionAddresses( $u_obj = NULL, $ep_obj = NULL ) {
-		Debug::text(' Attempting to Email Notification...', __FILE__, __LINE__, __METHOD__,10);
+		Debug::text(' Attempting to Email Notification...', __FILE__, __LINE__, __METHOD__, 10);
 
 		//Make sure type is not pre-mature.
 		if ( $this->getType() > 5 ) {
@@ -424,7 +473,7 @@ class ExceptionFactory extends Factory {
 			//Make sure exception policy email notifications are enabled.
 			if ( $ep_obj->getEmailNotification() > 0 ) {
 				if ( !is_object($u_obj) ) {
-					$u_obj = $this->getUserDateObject()->getUserObject();
+					$u_obj = $this->getUserObject();
 				}
 
 				//Make sure user email notifications are enabled and user is *not* terminated.
@@ -432,15 +481,15 @@ class ExceptionFactory extends Factory {
 						AND is_object( $u_obj->getUserPreferenceObject() )
 						AND $u_obj->getUserPreferenceObject()->getEnableEmailNotificationException() == TRUE
 						AND $u_obj->getStatus() == 10 ) {
-					Debug::Text(' Emailing exception to user!', __FILE__, __LINE__, __METHOD__,10);
-					if ( $u_obj->getWorkEmail() != '' ) {
+					Debug::Text(' Emailing exception to user!', __FILE__, __LINE__, __METHOD__, 10);
+					if ( $u_obj->getWorkEmail() != '' AND $u_obj->getWorkEmailIsValid() == TRUE ) {
 						$retarr[] = $u_obj->getWorkEmail();
 					}
-					if ( $u_obj->getUserPreferenceObject()->getEnableEmailNotificationHome() == TRUE AND $u_obj->getHomeEmail() != '' ) {
+					if ( $u_obj->getUserPreferenceObject()->getEnableEmailNotificationHome() == TRUE AND $u_obj->getHomeEmail() != '' AND $u_obj->getHomeEmailIsValid() == TRUE ) {
 						$retarr[] = $u_obj->getHomeEmail();
 					}
 				} else {
-					Debug::Text(' Skipping email to user.', __FILE__, __LINE__, __METHOD__,10);
+					Debug::Text(' Skipping email to user.', __FILE__, __LINE__, __METHOD__, 10);
 				}
 
 				//Make sure supervisor email notifcations are enabled
@@ -458,7 +507,7 @@ class ExceptionFactory extends Factory {
 								if ( is_object( $parent_user_obj->getUserPreferenceObject() )
 										AND $parent_user_obj->getUserPreferenceObject()->getEnableEmailNotificationException() == TRUE
 										AND $parent_user_obj->getStatus() == 10 ) {
-									Debug::Text(' Emailing exception to supervisor!', __FILE__, __LINE__, __METHOD__,10);
+									Debug::Text(' Emailing exception to supervisor!', __FILE__, __LINE__, __METHOD__, 10);
 									if ( $parent_user_obj->getWorkEmail() != '' ) {
 										$retarr[] = $parent_user_obj->getWorkEmail();
 									}
@@ -467,25 +516,25 @@ class ExceptionFactory extends Factory {
 										$retarr[] = $parent_user_obj->getHomeEmail();
 									}
 								} else {
-									Debug::Text(' Skipping email to supervisor.', __FILE__, __LINE__, __METHOD__,10);
+									Debug::Text(' Skipping email to supervisor.', __FILE__, __LINE__, __METHOD__, 10);
 								}
 							}
 						}
 					} else {
-						Debug::Text(' No Hierarchy Parent Found, skipping email to supervisor.', __FILE__, __LINE__, __METHOD__,10);
+						Debug::Text(' No Hierarchy Parent Found, skipping email to supervisor.', __FILE__, __LINE__, __METHOD__, 10);
 					}
 				}
 
 				if ( isset($retarr) AND is_array($retarr) ) {
-					return $retarr;
+					return array_unique($retarr);
 				} else {
-					Debug::text(' No user objects to email too...', __FILE__, __LINE__, __METHOD__,10);
+					Debug::text(' No user objects to email too...', __FILE__, __LINE__, __METHOD__, 10);
 				}
 			} else {
-				Debug::text(' Exception Policy Email Exceptions are disabled, skipping email...', __FILE__, __LINE__, __METHOD__,10);
+				Debug::text(' Exception Policy Email Exceptions are disabled, skipping email...', __FILE__, __LINE__, __METHOD__, 10);
 			}
 		} else {
-			Debug::text(' Pre-Mature exception, or not in production mode, skipping email...', __FILE__, __LINE__, __METHOD__,10);
+			Debug::text(' Pre-Mature exception, or not in production mode, skipping email...', __FILE__, __LINE__, __METHOD__, 10);
 		}
 
 		return FALSE;
@@ -498,14 +547,12 @@ class ExceptionFactory extends Factory {
 			To address, CC address (home email) and Bcc (supervisor) address?
 
 	*/
-	function emailException( $u_obj, $user_date_obj, $punch_obj = NULL, $schedule_obj = NULL, $ep_obj = NULL ) {
-		global $config_vars;
-
+	function emailException( $u_obj, $date_stamp, $punch_obj = NULL, $schedule_obj = NULL, $ep_obj = NULL ) {
 		if ( !is_object( $u_obj ) ) {
 			return FALSE;
 		}
 
-		if ( !is_object( $user_date_obj ) ) {
+		if ( $date_stamp == '' ) {
 			return FALSE;
 		}
 
@@ -523,19 +570,11 @@ class ExceptionFactory extends Factory {
 			return FALSE;
 		}
 
-		$from = 'DoNotReply@'.Misc::getHostName( FALSE );
+		$from = $reply_to = '"'. APPLICATION_NAME .' - '. TTi18n::gettext('Exception') .'"<DoNotReply@'. Misc::getEmailDomain() .'>';
+		Debug::Text('To: '. implode(',', $email_to_arr), __FILE__, __LINE__, __METHOD__, 10);
 
-		$to = array_shift( $email_to_arr );
-		if ( is_array($email_to_arr) AND count($email_to_arr) > 0 ) {
-			$bcc = implode(',', $email_to_arr);
-		} else {
-			$bcc = NULL;
-		}
-		Debug::Text('To: '. $to .' Bcc: '. $bcc, __FILE__, __LINE__, __METHOD__,10);
-
-		$protocol = 'http';
-		if ( isset($config_vars['other']['force_ssl']) AND $config_vars['other']['force_ssl'] == 1 ) {
-			$protocol .= 's';
+		if ( is_array($email_to_arr) ) {
+			$reply_to = $email_to_arr[0];
 		}
 
 		//Define subject/body variables here.
@@ -569,11 +608,11 @@ class ExceptionFactory extends Factory {
 							$ep_obj->getType(),
 							Option::getByKey( $ep_obj->getType(), $ep_obj->getOptions('type') ),
 							Option::getByKey( $ep_obj->getSeverity(), $ep_obj->getOptions('severity') ),
-							TTDate::getDate('DATE', $user_date_obj->getDateStamp() ),
+							TTDate::getDate('DATE', $date_stamp ),
 							( is_object( $u_obj->getCompanyObject() ) ) ? $u_obj->getCompanyObject()->getName() : NULL,
 							NULL,
 							( is_object( $schedule_obj ) ) ? TTDate::getDate('TIME', $schedule_obj->getStartTime() ) : NULL,
-							( is_object( $schedule_obj ) ) ? TTDate::getDate('TIME',  $schedule_obj->getEndTime() ) : NULL,
+							( is_object( $schedule_obj ) ) ? TTDate::getDate('TIME', $schedule_obj->getEndTime() ) : NULL,
 							( is_object( $schedule_obj ) AND is_object($schedule_obj->getBranchObject()) ) ? $schedule_obj->getBranchObject()->getName() : NULL,
 							( is_object( $schedule_obj ) AND is_object($schedule_obj->getDepartmentObject()) ) ? $schedule_obj->getDepartmentObject()->getName() : NULL,
 							( is_object( $punch_obj ) ) ? TTDate::getDate('TIME', $punch_obj->getTimeStamp() ) : NULL,
@@ -602,29 +641,28 @@ class ExceptionFactory extends Factory {
 		$exception_email_body .= ( $replace_arr[5] != '' ) ? TTi18n::gettext('Title').': #employee_title#'."\n" : NULL;
 
 		$exception_email_body .= "\n";
-		$exception_email_body .= TTi18n::gettext('Link:').' <a href="'. $protocol .'://'. Misc::getHostName().Environment::getDefaultInterfaceBaseURL().'">'.APPLICATION_NAME.' '. TTi18n::gettext('Login') .'</a>';
+		$exception_email_body .= TTi18n::gettext('Link:').' <a href="'. Misc::getURLProtocol() .'://'. Misc::getHostName().Environment::getDefaultInterfaceBaseURL().'">'.APPLICATION_NAME.' '. TTi18n::gettext('Login') .'</a>';
 
 		$exception_email_body .= ( $replace_arr[10] != '' ) ? "\n\n\n".TTi18n::gettext('Company').': #company_name#'."\n" : NULL; //Always put at the end
 
 		$exception_email_body .= "\n\n".TTi18n::gettext('Email sent').': '. TTDate::getDate('DATE+TIME', time() )."\n";
 
 		$subject = str_replace( $search_arr, $replace_arr, $exception_email_subject );
-		//Debug::Text('Subject: '. $subject, __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Text('Subject: '. $subject, __FILE__, __LINE__, __METHOD__, 10);
 
 		$headers = array(
-							'From'    => $from,
+							'From'	  => $from,
 							'Subject' => $subject,
-							'Bcc'	  => $bcc,
-							'Reply-To' => $to,
-							'Return-Path' => $to,
-							'Errors-To' => $to,
-						 );
+							'Reply-To' => $reply_to,
+							'Return-Path' => $reply_to,
+							'Errors-To' => $reply_to,
+						);
 
-		$body = '<pre>'.str_replace( $search_arr, $replace_arr, $exception_email_body ).'</pre>';
-		Debug::Text('Body: '. $body, __FILE__, __LINE__, __METHOD__,10);
+		$body = '<html><body><pre>'.str_replace( $search_arr, $replace_arr, $exception_email_body ).'</pre></body></html>';
+		Debug::Text('Body: '. $body, __FILE__, __LINE__, __METHOD__, 10);
 
 		$mail = new TTMail();
-		$mail->setTo( $to );
+		$mail->setTo( $email_to_arr );
 		$mail->setHeaders( $headers );
 
 		@$mail->getMIMEObject()->setHTMLBody($body);
@@ -633,17 +671,33 @@ class ExceptionFactory extends Factory {
 		$retval = $mail->Send();
 
 		if ( $retval == TRUE ) {
-			TTLog::addEntry( $this->getId(), 500,  TTi18n::getText('Email Exception').': '. Option::getByKey( $ep_obj->getType(), $ep_obj->getOptions('type') ) .' To: '. $to .' Bcc: '. $headers['Bcc'], $u_obj->getID(), $this->getTable() ); //Make sure this log entry is assigned to the user triggering the exception so it can be viewed in the audit log.
+			TTLog::addEntry( $this->getId(), 500, TTi18n::getText('Email Exception').': '. Option::getByKey( $ep_obj->getType(), $ep_obj->getOptions('type') ) .' To: '. implode(', ', $email_to_arr), $u_obj->getID(), $this->getTable() ); //Make sure this log entry is assigned to the user triggering the exception so it can be viewed in the audit log.
 		}
 
 		return TRUE;
 	}
 
 	function Validate() {
+		if ( $this->getUser() == FALSE ) {
+			$this->Validator->isTRUE(	'user_id',
+										FALSE,
+										TTi18n::gettext('Employee is invalid') );
+		}
+
+		if ( $this->getDeleted() == FALSE AND $this->getDateStamp() == FALSE ) {
+			$this->Validator->isTRUE(	'date_stamp',
+										FALSE,
+										TTi18n::gettext('Date/Time is incorrect, or pay period does not exist for this date. Please create a pay period schedule and assign this employee to it if you have not done so already') );
+		}
+
 		return TRUE;
 	}
 
 	function preSave() {
+		if ( $this->getPayPeriod() == FALSE ) {
+			$this->setPayPeriod();
+		}
+
 		return TRUE;
 	}
 
@@ -676,7 +730,7 @@ class ExceptionFactory extends Factory {
 		return FALSE;
 	}
 
-	function getObjectAsArray( $include_columns = NULL ) {
+	function getObjectAsArray( $include_columns = NULL, $permission_children_ids = FALSE  ) {
 		$variable_function_map = $this->getVariableToFunctionMap();
 
 		$epf = TTnew( 'ExceptionPolicyFactory' );
@@ -696,8 +750,8 @@ class ExceptionFactory extends Factory {
 						case 'user_id':
 						case 'first_name':
 						case 'last_name':
-                        case 'country':
-                        case 'province':
+						case 'country':
+						case 'province':
 						case 'user_status_id':
 						case 'group_id':
 						case 'group':
@@ -713,9 +767,9 @@ class ExceptionFactory extends Factory {
 						case 'department':
 						case 'severity_id':
 						case 'exception_policy_type_id':
-                        case 'policy_group':
-                        case 'permission_group':
-                        case 'pay_period_schedule':
+						case 'policy_group':
+						case 'permission_group':
+						case 'pay_period_schedule':
 							$data[$variable] = $this->getColumn( $variable );
 							break;
 						case 'severity':
@@ -731,18 +785,18 @@ class ExceptionFactory extends Factory {
 							}
 							break;
 						case 'date_stamp':
-							$data[$variable] = TTDate::getAPIDate( 'DATE', TTDate::strtotime( $this->getColumn( 'date_stamp' ) ) );
+							$data[$variable] = TTDate::getAPIDate( 'DATE', $this->getDateStamp() );
 							break;
-                        case 'pay_period_start_date':
-                            $data[$variable] = TTDate::getAPIDate( 'DATE', TTDate::strtotime( $this->getColumn( 'pay_period_start_date' ) ) );
-                            break;
-                        case 'pay_period_end_date':
-                            $data[$variable] = TTDate::getAPIDate( 'DATE', TTDate::strtotime( $this->getColumn( 'pay_period_end_date' ) ) );
-                            break;
-                        case 'pay_period':
-                        case 'pay_period_transaction_date':
-                            $data[$variable] = TTDate::getAPIDate( 'DATE', TTDate::strtotime( $this->getColumn( 'pay_period_transaction_date' ) ) );
-                            break;
+						case 'pay_period_start_date':
+							$data[$variable] = TTDate::getAPIDate( 'DATE', TTDate::strtotime( $this->getColumn( 'pay_period_start_date' ) ) );
+							break;
+						case 'pay_period_end_date':
+							$data[$variable] = TTDate::getAPIDate( 'DATE', TTDate::strtotime( $this->getColumn( 'pay_period_end_date' ) ) );
+							break;
+						case 'pay_period':
+						case 'pay_period_transaction_date':
+							$data[$variable] = TTDate::getAPIDate( 'DATE', TTDate::strtotime( $this->getColumn( 'pay_period_transaction_date' ) ) );
+							break;
 						default:
 							if ( method_exists( $this, $function ) ) {
 								$data[$variable] = $this->$function();
@@ -752,6 +806,7 @@ class ExceptionFactory extends Factory {
 
 				}
 			}
+			$this->getPermissionColumns( $data, $this->getColumn( 'user_id' ), $this->getCreatedBy(), $permission_children_ids, $include_columns );
 			$this->getCreatedAndUpdatedColumns( $data, $include_columns );
 		}
 

@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 11018 $
- * $Id: PermissionListFactory.class.php 11018 2013-09-24 23:39:40Z ipso $
- * $Date: 2013-09-24 16:39:40 -0700 (Tue, 24 Sep 2013) $
- */
+
 
 /**
  * @package Core
@@ -45,7 +41,7 @@
 class PermissionListFactory extends PermissionFactory implements IteratorAggregate {
 	function getAll($limit = NULL, $page = NULL, $where = NULL, $order = NULL) {
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 						WHERE deleted = 0';
 		$query .= $this->getWhereSQL( $where );
@@ -66,7 +62,7 @@ class PermissionListFactory extends PermissionFactory implements IteratorAggrega
 					);
 
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					where	id = ?
 						AND deleted = 0';
@@ -90,10 +86,10 @@ class PermissionListFactory extends PermissionFactory implements IteratorAggrega
 		$pcf = new PermissionControlFactory();
 
 		$query = '
-					select 	a.*
+					select	a.*
 					from	'. $this->getTable() .' as a,
 							'. $pcf->getTable() .' as b
-					where 	b.id = a.permission_control_id
+					where	b.id = a.permission_control_id
 						AND b.company_id = ?
 						AND ( a.deleted = 0 AND b.deleted = 0 )';
 		$query .= $this->getWhereSQL( $where );
@@ -121,10 +117,10 @@ class PermissionListFactory extends PermissionFactory implements IteratorAggrega
 		$pcf = new PermissionControlFactory();
 
 		$query = '
-					select 	a.*
+					select	a.*
 					from	'. $this->getTable() .' as a,
 							'. $pcf->getTable() .' as b
-					where 	b.id = a.permission_control_id
+					where	b.id = a.permission_control_id
 						AND b.company_id = ?
 						AND a.permission_control_id = ?
 						AND ( a.deleted = 0 AND b.deleted = 0 )';
@@ -163,14 +159,112 @@ class PermissionListFactory extends PermissionFactory implements IteratorAggrega
 		$pcf = new PermissionControlFactory();
 
 		$query = '
-					select 	a.*
+					select	a.*
 					from	'. $this->getTable() .' as a,
 							'. $pcf->getTable() .' as b
-					where 	b.id = a.permission_control_id
+					where	b.id = a.permission_control_id
 						AND b.company_id = ?
 						AND a.permission_control_id = ?
 						AND a.section = ?
 						AND a.name in ('. $this->getListSQL($name, $ph) .')
+						AND ( a.deleted = 0 AND b.deleted = 0)';
+		$query .= $this->getWhereSQL( $where );
+		$query .= $this->getSortSQL( $order );
+
+		$this->ExecuteSQL( $query, $ph );
+
+		return $this;
+	}
+
+	function getByCompanyIdAndPermissionControlIdAndSectionAndNameAndValue($company_id, $permission_control_id, $section, $name, $value, $where = NULL, $order = NULL) {
+		if ( $company_id == '') {
+			return FALSE;
+		}
+
+		if ( $permission_control_id == '') {
+			return FALSE;
+		}
+
+		if ( $section == '') {
+			return FALSE;
+		}
+
+		if ( $name == '') {
+			return FALSE;
+		}
+
+		$ph = array(
+					'company_id' => $company_id,
+					'permission_control_id' => $permission_control_id,
+					'section' => $section,
+					'value' => (int)$value,
+					//'name' => $name, //Allow a list of names.
+					);
+
+		$pcf = new PermissionControlFactory();
+
+		$query = '
+					select	a.*
+					from	'. $this->getTable() .' as a,
+							'. $pcf->getTable() .' as b
+					where	b.id = a.permission_control_id
+						AND b.company_id = ?
+						AND a.permission_control_id = ?
+						AND a.section = ?
+						AND a.value = ?
+						AND a.name in ('. $this->getListSQL($name, $ph) .')
+						AND ( a.deleted = 0 AND b.deleted = 0)';
+		$query .= $this->getWhereSQL( $where );
+		$query .= $this->getSortSQL( $order );
+
+		$this->ExecuteSQL( $query, $ph );
+
+		return $this;
+	}
+
+	function getByCompanyIdAndSectionAndDateAndValidIDs($company_id, $section, $date = NULL, $valid_ids = array(), $where = NULL, $order = NULL) {
+		if ( $company_id == '') {
+			return FALSE;
+		}
+
+		if ( $section == '') {
+			return FALSE;
+		}
+
+		if ( $date == '') {
+			$date = 0;
+		}
+
+		$ph = array(
+					'company_id' => $company_id,
+					);
+
+		$pcf = new PermissionControlFactory();
+
+		$query = '
+					select	a.*
+					from	'. $this->getTable() .' as a,
+							'. $pcf->getTable() .' as b
+					where	b.id = a.permission_control_id
+						AND b.company_id = ?
+						AND (
+								(
+								a.section in ('. $this->getListSQL($section, $ph) .') ';
+
+		if ( isset($date) AND $date > 0 ) {
+			//Append the same date twice for created and updated.
+			$ph[] = (int)$date;
+			$ph[] = (int)$date;
+			$query	.=	'		AND ( a.created_date >= ? OR a.updated_date >= ? ) ) ';
+		} else {
+			$query	.=	' ) ';
+		}
+
+		if ( isset($valid_ids) AND is_array($valid_ids) AND count($valid_ids) > 0 ) {
+			$query	.=	' OR a.id in ('. $this->getListSQL($valid_ids, $ph) .') ';
+		}
+
+		$query .= '	)
 						AND ( a.deleted = 0 AND b.deleted = 0)';
 		$query .= $this->getWhereSQL( $where );
 		$query .= $this->getSortSQL( $order );
@@ -198,7 +292,7 @@ class PermissionListFactory extends PermissionFactory implements IteratorAggrega
 		$puf = new PermissionUserFactory();
 
 		$query = '
-					select  a.*,
+					select	a.*,
 							b.level as level
 					from	'. $this->getTable() .' as a,
 							'. $pcf->getTable() .' as b,
@@ -215,150 +309,45 @@ class PermissionListFactory extends PermissionFactory implements IteratorAggrega
 		return $this;
 	}
 
-/*
-	function getByUserIdAndSectionAndName($user_id,$section, $name, $where = NULL, $order = NULL) {
-		if ( $user_id == '') {
-			return FALSE;
-		}
-
-		if ( $section == '') {
-			return FALSE;
-		}
-
-		if ( $name == '') {
-			return FALSE;
-		}
-
-		$ph = array(
-					'user_id' => $user_id,
-					'section' => $section,
-					'name' => $name,
-					);
-
-		$query = '
-					select 	*
-					from	'. $this->getTable() .'
-					where	user_id = ?
-						AND section = ?
-						AND name = ?
-						AND deleted = 0';
-		$query .= $this->getWhereSQL( $where );
-		$query .= $this->getSortSQL( $order );
-
-		$this->ExecuteSQL( $query, $ph );
-
-		return $this;
-	}
-
-	function getByCompanyIdAndUserIdAndSectionAndName($company_id,$user_id,$section, $name, $where = NULL, $order = NULL) {
+	function getIsModifiedByCompanyIdAndDate($company_id, $date, $where = NULL, $order = NULL) {
 		if ( $company_id == '') {
 			return FALSE;
 		}
 
-		if ( $user_id == '') {
-			return FALSE;
-		}
-
-		if ( $section == '') {
-			return FALSE;
-		}
-
-		if ( $name == '') {
+		if ( $date == '') {
 			return FALSE;
 		}
 
 		$ph = array(
 					'company_id' => $company_id,
-					'user_id' => $user_id,
-					'section' => $section,
-					'name' => $name,
+					'created_date' => $date,
+					'updated_date' => $date,
 					);
 
+		$pcf = new PermissionControlFactory();
+
+		//INCLUDE Deleted rows in this query.
 		$query = '
-					select 	*
-					from	'. $this->getTable() .'
-					where 	company_id = ?
-						AND user_id = ?
-						AND section = ?
-						AND name = ?
-						AND deleted = 0';
+					select	a.*
+					from	'. $this->getTable() .' as a,
+							'. $pcf->getTable() .' as b
+					where
+							b.company_id = ?
+						AND
+							( a.created_date >=	 ? OR a.updated_date >= ? )
+					LIMIT 1
+					';
 		$query .= $this->getWhereSQL( $where );
 		$query .= $this->getSortSQL( $order );
 
 		$this->ExecuteSQL( $query, $ph );
+		if ( $this->getRecordCount() > 0 ) {
+			Debug::text('Rows have been modified: '. $this->getRecordCount(), __FILE__, __LINE__, __METHOD__, 10);
 
-		return $this;
+			return TRUE;
+		}
+		Debug::text('Rows have NOT been modified', __FILE__, __LINE__, __METHOD__, 10);
+		return FALSE;
 	}
-
-	function getByCompanyIdAndUserId($company_id,$user_id,$where = NULL, $order = NULL) {
-		if ( $company_id == '') {
-			return FALSE;
-		}
-
-		if ( $user_id == '') {
-			return FALSE;
-		}
-
-		$ph = array(
-					'company_id' => $company_id,
-					'user_id' => $user_id,
-					);
-
-		$query = '
-					select 	*
-					from	'. $this->getTable() .'
-					where 	company_id = ?
-						AND user_id = ?
-						AND deleted = 0';
-		$query .= $this->getWhereSQL( $where );
-		$query .= $this->getSortSQL( $order );
-
-		$this->ExecuteSQL( $query, $ph );
-
-		return $this;
-	}
-
-	function getBySectionAndNameAndUserIdAndCompanyId($section, $name, $user_id, $company_id) {
-		if ( $company_id == '') {
-			return FALSE;
-		}
-
-		if ( $user_id == '') {
-			return FALSE;
-		}
-
-		if ( $section == '') {
-			return FALSE;
-		}
-
-		if ( $name == '') {
-			return FALSE;
-		}
-
-		$ph = array(
-					'company_id' => $company_id,
-					'user_id' => $user_id,
-					'section' => $section,
-					'name' => $name,
-					);
-
-		$query = '
-					select 	*
-					from	'. $this->getTable() .'
-					where	company_id = ?
-						AND	user_id in (-1, ? )
-						AND section = ?
-						AND name = ?
-						AND deleted = 0
-					ORDER BY company_id DESC, user_id DESC
-					LIMIT 1';
-
-		Debug::Text('Query: '. $query , __FILE__, __LINE__, __METHOD__,9);
-
-		$this->ExecuteSQL( $query, $ph );
-
-		return $this;
-	}
-*/
 }
 ?>

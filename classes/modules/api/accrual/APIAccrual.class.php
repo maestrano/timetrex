@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2196 $
- * $Id: APIAccrual.class.php 2196 2008-10-14 16:08:54Z ipso $
- * $Date: 2008-10-14 09:08:54 -0700 (Tue, 14 Oct 2008) $
- */
+
 
 /**
  * @package API\Accrual
@@ -59,8 +55,8 @@ class APIAccrual extends APIFactory {
 	 */
 	function getOptions( $name, $parent = NULL ) {
 		if ( $name == 'columns'
-				AND ( !$this->getPermissionObject()->Check('accrual','enabled')
-					OR !( $this->getPermissionObject()->Check('accrual','view') OR $this->getPermissionObject()->Check('accrual','view_child') ) ) ) {
+				AND ( !$this->getPermissionObject()->Check('accrual', 'enabled')
+					OR !( $this->getPermissionObject()->Check('accrual', 'view') OR $this->getPermissionObject()->Check('accrual', 'view_child') ) ) ) {
 			$name = 'list_columns';
 		}
 
@@ -74,7 +70,7 @@ class APIAccrual extends APIFactory {
 	function getAccrualDefaultData() {
 		$company_obj = $this->getCurrentCompanyObject();
 
-		Debug::Text('Getting accrual default data...', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Getting accrual default data...', __FILE__, __LINE__, __METHOD__, 10);
 
 		$data = array(
 						'company_id' => $company_obj->getId(),
@@ -91,8 +87,8 @@ class APIAccrual extends APIFactory {
 	 * @return array
 	 */
 	function getAccrual( $data = NULL, $disable_paging = FALSE ) {
-		if ( !$this->getPermissionObject()->Check('accrual','enabled')
-				OR !( $this->getPermissionObject()->Check('accrual','view') OR $this->getPermissionObject()->Check('accrual','view_own') OR $this->getPermissionObject()->Check('accrual','view_child')  ) ) {
+		if ( !$this->getPermissionObject()->Check('accrual', 'enabled')
+				OR !( $this->getPermissionObject()->Check('accrual', 'view') OR $this->getPermissionObject()->Check('accrual', 'view_own') OR $this->getPermissionObject()->Check('accrual', 'view_child')	) ) {
 			return $this->getPermissionObject()->PermissionDenied();
 		}
 		$data = $this->initializeFilterAndPager( $data, $disable_paging );
@@ -152,9 +148,9 @@ class APIAccrual extends APIFactory {
 			return $this->returnHandler( FALSE );
 		}
 
-		if ( !$this->getPermissionObject()->Check('accrual','enabled')
-				OR !( $this->getPermissionObject()->Check('accrual','edit') OR $this->getPermissionObject()->Check('accrual','edit_own') OR $this->getPermissionObject()->Check('accrual','edit_child') OR $this->getPermissionObject()->Check('accrual','add') ) ) {
-			return  $this->getPermissionObject()->PermissionDenied();
+		if ( !$this->getPermissionObject()->Check('accrual', 'enabled')
+				OR !( $this->getPermissionObject()->Check('accrual', 'edit') OR $this->getPermissionObject()->Check('accrual', 'edit_own') OR $this->getPermissionObject()->Check('accrual', 'edit_child') OR $this->getPermissionObject()->Check('accrual', 'add') ) ) {
+			return	$this->getPermissionObject()->PermissionDenied();
 		}
 
 		if ( $validate_only == TRUE ) {
@@ -184,12 +180,12 @@ class APIAccrual extends APIFactory {
 					if ( $lf->getRecordCount() == 1 ) {
 						//Object exists, check edit permissions
 						if (
-							  $validate_only == TRUE
-							  OR
+							$validate_only == TRUE
+							OR
 								(
-								$this->getPermissionObject()->Check('accrual','edit')
-									OR ( $this->getPermissionObject()->Check('accrual','edit_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getUser() ) === TRUE )
-									OR ( $this->getPermissionObject()->Check('accrual','edit_child') AND $this->getPermissionObject()->isChild( $lf->getCurrent()->getUser(), $permission_children_ids ) === TRUE )
+								$this->getPermissionObject()->Check('accrual', 'edit')
+									OR ( isset($row['user_id']) AND $this->getPermissionObject()->Check('accrual', 'edit_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $row['user_id'] ) === TRUE )
+									OR ( isset($row['user_id']) AND $this->getPermissionObject()->Check('accrual', 'edit_child') AND $this->getPermissionObject()->isChild( $row['user_id'], $permission_children_ids ) === TRUE )
 								) ) {
 
 							Debug::Text('Row Exists, getting current data: ', $row['id'], __FILE__, __LINE__, __METHOD__, 10);
@@ -204,14 +200,14 @@ class APIAccrual extends APIFactory {
 					}
 				} else {
 					//Adding new object, check ADD permissions.
-					if (    !( $validate_only == TRUE
+					if (	!( $validate_only == TRUE
 								OR
-								( $this->getPermissionObject()->Check('accrual','add')
+								( $this->getPermissionObject()->Check('accrual', 'add')
 									AND
 									(
-										$this->getPermissionObject()->Check('accrual','edit')
-										OR ( isset($row['user_id']) AND $this->getPermissionObject()->Check('accrual','edit_own') AND $this->getPermissionObject()->isOwner( FALSE, $row['user_id'] ) === TRUE ) //We don't know the created_by of the user at this point, but only check if the user is assigned to the logged in person.
-										OR ( isset($row['user_id']) AND $this->getPermissionObject()->Check('accrual','edit_child') AND $this->getPermissionObject()->isChild( $row['user_id'], $permission_children_ids ) === TRUE )
+										$this->getPermissionObject()->Check('accrual', 'edit')
+										OR ( isset($row['user_id']) AND $this->getPermissionObject()->Check('accrual', 'edit_own') AND $this->getPermissionObject()->isOwner( FALSE, $row['user_id'] ) === TRUE ) //We don't know the created_by of the user at this point, but only check if the user is assigned to the logged in person.
+										OR ( isset($row['user_id']) AND $this->getPermissionObject()->Check('accrual', 'edit_child') AND $this->getPermissionObject()->isChild( $row['user_id'], $permission_children_ids ) === TRUE )
 									)
 								)
 							) ) {
@@ -296,16 +292,16 @@ class APIAccrual extends APIFactory {
 			return $this->returnHandler( FALSE );
 		}
 
-		if ( !$this->getPermissionObject()->Check('accrual','enabled')
-				OR !( $this->getPermissionObject()->Check('accrual','delete') OR $this->getPermissionObject()->Check('accrual','delete_own') OR $this->getPermissionObject()->Check('accrual','delete_child') ) ) {
-			return  $this->getPermissionObject()->PermissionDenied();
+		if ( !$this->getPermissionObject()->Check('accrual', 'enabled')
+				OR !( $this->getPermissionObject()->Check('accrual', 'delete') OR $this->getPermissionObject()->Check('accrual', 'delete_own') OR $this->getPermissionObject()->Check('accrual', 'delete_child') ) ) {
+			return	$this->getPermissionObject()->PermissionDenied();
 		}
 
 		Debug::Text('Received data for: '. count($data) .' Accruals', __FILE__, __LINE__, __METHOD__, 10);
 		Debug::Arr($data, 'Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		$total_records = count($data);
-        $validator_stats = array('total_records' => $total_records, 'valid_records' => 0 );
+		$validator_stats = array('total_records' => $total_records, 'valid_records' => 0 );
 		if ( is_array($data) ) {
 			$this->getProgressBarObject()->start( $this->getAMFMessageID(), $total_records );
 
@@ -319,8 +315,8 @@ class APIAccrual extends APIFactory {
 					$lf->getByIdAndCompanyId( $id, $this->getCurrentCompanyObject()->getId() );
 					if ( $lf->getRecordCount() == 1 ) {
 						//Object exists, check edit permissions
-						if ( $this->getPermissionObject()->Check('accrual','delete')
-								OR ( $this->getPermissionObject()->Check('accrual','delete_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE ) ) {
+						if ( $this->getPermissionObject()->Check('accrual', 'delete')
+								OR ( $this->getPermissionObject()->Check('accrual', 'delete_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE ) ) {
 							Debug::Text('Record Exists, deleting record: ', $id, __FILE__, __LINE__, __METHOD__, 10);
 							$lf = $lf->getCurrent();
 						} else {
@@ -401,7 +397,8 @@ class APIAccrual extends APIFactory {
 		Debug::Text('Received data for: '. count($data) .' Accruals', __FILE__, __LINE__, __METHOD__, 10);
 		Debug::Arr($data, 'Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
-		$src_rows = $this->stripReturnHandler( $this->getAccrual( array('filter_data' => array('id' => $data) ), TRUE ) );
+		//Make sure only user_type accruals can be copied, not system types.
+		$src_rows = $this->stripReturnHandler( $this->getAccrual( array('filter_data' => array('id' => $data, 'type_id' => array_keys( (array)$this->getOptions('user_type') ) ) ), TRUE ) );
 		if ( is_array( $src_rows ) AND count($src_rows) > 0 ) {
 			Debug::Arr($src_rows, 'SRC Rows: ', __FILE__, __LINE__, __METHOD__, 10);
 			foreach( $src_rows as $key => $row ) {

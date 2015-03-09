@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 7121 $
- * $Id: SystemSettingFactory.class.php 7121 2012-06-22 22:55:40Z ipso $
- * $Date: 2012-06-22 15:55:40 -0700 (Fri, 22 Jun 2012) $
- */
+
 
 /**
  * @package Core
@@ -52,7 +48,7 @@ class SystemSettingFactory extends Factory {
 
 		$query = 'select id from '. $this->getTable() .' where name = ?';
 		$name_id = $this->db->GetOne($query, $ph);
-		Debug::Arr($name_id,'Unique Name: '. $name, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Arr($name_id, 'Unique Name: '. $name, __FILE__, __LINE__, __METHOD__, 10);
 
 		if ( $name_id === FALSE ) {
 			return TRUE;
@@ -76,7 +72,7 @@ class SystemSettingFactory extends Factory {
 		if (	$this->Validator->isLength(	'name',
 											$value,
 											TTi18n::gettext('Name is too short or too long'),
-											1,250)
+											1, 250)
 				AND
 						$this->Validator->isTrue(		'name',
 														$this->isUniqueName($value),
@@ -105,7 +101,7 @@ class SystemSettingFactory extends Factory {
 		if (	$this->Validator->isLength(	'value',
 											$value,
 											TTi18n::gettext('Value is too short or too long'),
-											1,4096)
+											1, 4096)
 						) {
 
 			$this->data['value'] = $value;
@@ -175,7 +171,7 @@ class SystemSettingFactory extends Factory {
 	}
 
 	function addLog( $log_action ) {
-		return TTLog::addEntry( $this->getId(), $log_action,  TTi18n::getText('System Setting - Name').': '. $this->getName() .' '. TTi18n::getText('Value').': '. $this->getValue(), NULL, $this->getTable() );
+		return TTLog::addEntry( $this->getId(), $log_action, TTi18n::getText('System Setting - Name').': '. $this->getName() .' '. TTi18n::getText('Value').': '. $this->getValue(), NULL, $this->getTable() );
 	}
 }
 ?>

@@ -1,0 +1,62 @@
+<div class="login-view" id="loginViewContainer" style="opacity: 0">
+
+    <div class="form-container">
+        <table id="form" class="form">
+            <tr>
+                <td colspan="2" class="error-info"></td>
+            </tr>
+            <tr>
+                <td colspan="2" class="secure-login"><%= secure_login %></td>
+            </tr>
+            <tr>
+                <td class="labels"><span><%= user_name %>:</span></td>
+                <td><input class="form-input" type="text" id="user_name"/></td>
+            </tr>
+            <tr>
+                <td class="labels"><span><%= password %>:</span></td>
+                <td><input class="form-input" type="password" id="password"/></td>
+            </tr>
+            <tr>
+                <td class="labels"><span><%= language %>:</span></td>
+                <td>
+                    <select class="form-selector language-selector">
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" class="login-btn-td">
+                    <span id="forgot_password" class="forgot-password"><%= forgot_your_password %>?</span>
+                    <button id="login_btn" class="login-button">
+                        <%= login %>
+                    </button>
+                </td>
+            </tr>
+        </table>
+
+        <span id="quick_punch" class="quick-punch"><%= quick_punch %></span>
+
+
+    </div>
+
+
+    <img class="company-logo" id="companyLogo" alt="Workforce Management"/>
+
+    <img class="app-type" id="appTypeLogo" alt="Time and Attendance"/>
+
+    <span id="versionNumber" class="version-label"></span>
+
+    <div id="social_div" class="social-div">
+        <a href="http://www.timetrex.com/r.php?id=451" target="_blank"><img
+                class="facebook-img" border="0"></a>
+        <a href="http://www.timetrex.com/r.php?id=455" target="_blank"><img
+                class="twitter-img" border="0"></a>
+    </div>
+
+    <img id="powered_by" alt="Workforce Management"/>
+    <span id="login_copy_right_info" class="copy-right-info-1"></span>
+
+</div>
+
+<script type="text/javascript">
+    var loginViewController = new LoginViewController();
+</script>

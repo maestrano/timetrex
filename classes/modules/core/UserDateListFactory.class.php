@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 11018 $
- * $Id: UserDateListFactory.class.php 11018 2013-09-24 23:39:40Z ipso $
- * $Date: 2013-09-24 16:39:40 -0700 (Tue, 24 Sep 2013) $
- */
+
 
 /**
  * @package Core
@@ -46,7 +42,7 @@ class UserDateListFactory extends UserDateFactory implements IteratorAggregate {
 
 	function getAll($limit = NULL, $page = NULL, $where = NULL, $order = NULL) {
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					WHERE deleted = 0';
 		$query .= $this->getWhereSQL( $where );
@@ -70,7 +66,7 @@ class UserDateListFactory extends UserDateFactory implements IteratorAggregate {
 		if ( $this->rs === FALSE ) {
 
 			$query = '
-						select 	*
+						select	*
 						from	'. $this->getTable() .'
 						where	id = ?
 							AND deleted = 0';
@@ -79,7 +75,7 @@ class UserDateListFactory extends UserDateFactory implements IteratorAggregate {
 
 			$this->ExecuteSQL( $query, $ph );
 
-			$this->saveCache($this->rs,$id);
+			$this->saveCache($this->rs, $id);
 		}
 
 		return $this;
@@ -93,7 +89,7 @@ class UserDateListFactory extends UserDateFactory implements IteratorAggregate {
 		$ph = array();
 
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					where	id in ('. $this->getListSQL($id, $ph) .')
 						AND deleted = 0';
@@ -117,8 +113,8 @@ class UserDateListFactory extends UserDateFactory implements IteratorAggregate {
 					);
 
 		$query = '
-					select 	a.*
-					from 	'. $this->getTable() .' as a,
+					select	a.*
+					from	'. $this->getTable() .' as a,
 							'. $uf->getTable() .' as b
 					where	a.user_id = b.id
 						AND	b.company_id = ?
@@ -147,8 +143,8 @@ class UserDateListFactory extends UserDateFactory implements IteratorAggregate {
 					);
 
 		$query = '
-					select 	a.*
-					from 	'. $this->getTable() .' as a,
+					select	a.*
+					from	'. $this->getTable() .' as a,
 							'. $uf->getTable() .' as b
 					where	a.user_id = b.id
 						AND	b.company_id = ?
@@ -191,7 +187,7 @@ class UserDateListFactory extends UserDateFactory implements IteratorAggregate {
 					);
 
 		$query = '
-					select 	a.*
+					select	a.*
 					from	'. $this->getTable() .' as a
 						LEFT JOIN '. $uf->getTable() .' as b ON a.user_id = b.id
 						LEFT JOIN '. $ppf->getTable() .' as c ON a.pay_period_id = c.id
@@ -219,7 +215,7 @@ class UserDateListFactory extends UserDateFactory implements IteratorAggregate {
 					);
 
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					where	user_id = ?
 						AND deleted = 0';
@@ -240,7 +236,7 @@ class UserDateListFactory extends UserDateFactory implements IteratorAggregate {
 					);
 
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					where	pay_period_id = ?
 						AND deleted = 0';
@@ -263,7 +259,7 @@ class UserDateListFactory extends UserDateFactory implements IteratorAggregate {
 					);
 
 		$query = '
-					select 	a.*
+					select	a.*
 					from	'. $this->getTable() .' as a
 						LEFT JOIN '. $uf->getTable() .' as b ON a.user_id = b.id
 					where
@@ -293,7 +289,7 @@ class UserDateListFactory extends UserDateFactory implements IteratorAggregate {
 					);
 
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					where
 						user_id = ?
@@ -335,7 +331,7 @@ class UserDateListFactory extends UserDateFactory implements IteratorAggregate {
 					);
 
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					where
 						date_stamp >= ?
@@ -379,7 +375,7 @@ class UserDateListFactory extends UserDateFactory implements IteratorAggregate {
 					);
 
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					where
 						date_stamp >= ?
@@ -415,7 +411,7 @@ class UserDateListFactory extends UserDateFactory implements IteratorAggregate {
 		}
 
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					where
 						user_id in ('. $this->getListSQL($user_id, $ph) .')
@@ -457,7 +453,7 @@ class UserDateListFactory extends UserDateFactory implements IteratorAggregate {
 					);
 
 		$query = '
-					select 	a.*
+					select	a.*
 					from	'. $this->getTable() .' as a,
 							'. $uf->getTable() .' as b
 					where
@@ -504,7 +500,7 @@ class UserDateListFactory extends UserDateFactory implements IteratorAggregate {
 
 		$current_epoch = time();
 
-		if ( strncmp($this->db->databaseType,'mysql',5) == 0 ) {
+		if ( strncmp($this->db->databaseType, 'mysql', 5) == 0 ) {
 				$to_timestamp_sql = 'FROM_UNIXTIME';
 		} else {
 				$to_timestamp_sql = 'to_timestamp';
@@ -525,7 +521,7 @@ class UserDateListFactory extends UserDateFactory implements IteratorAggregate {
 		// Loop through exception policies where In Late/Out Late/Missed CheckIn are enabled.
 		// Loop through ACTIVE users assigned to these exceptions policies.
 		// Only find days that are scheduled AND ( NO punch after schedule start time OR NO punch after schedule end time )
-		//      For Missed CheckIn they do not need to be scheduled.
+		//		For Missed CheckIn they do not need to be scheduled.
 		// Exclude days that already have the exceptions triggered on them (?) (What about split shifts?)
 		//	- Just exclude exceptions not assigned to punch/punch_control_id, if there is more than one in the day I don't think it helps much anyways.
 		//
@@ -542,7 +538,7 @@ class UserDateListFactory extends UserDateFactory implements IteratorAggregate {
 					LEFT JOIN '. $ef->getTable() .' as ef ON ( udf.id = ef.user_date_id AND ef.exception_policy_id = epf.id AND ef.type_id != 5 )
 					LEFT JOIN '. $sf->getTable() .' as sf ON ( udf.id = sf.user_date_id AND ( sf.start_time <= ? OR sf.end_time <= ? ) )
 					LEFT JOIN '. $pcf->getTable() .' as pcf ON ( udf.id = pcf.user_date_id AND pcf.deleted = 0 )
-					LEFT JOIN '. $pf->getTable() .' as pf ON 	(
+					LEFT JOIN '. $pf->getTable() .' as pf ON	(
 																pcf.id = pf.punch_control_id AND pf.deleted = 0
 																AND (
 																		( epf.type_id = \'S4\' AND ( pf.time_stamp >= sf.start_time OR pf.time_stamp <= sf.end_time ) )
@@ -552,11 +548,11 @@ class UserDateListFactory extends UserDateFactory implements IteratorAggregate {
 																		( epf.type_id = \'C1\' AND ( pf.status_id = 10 AND pf.time_stamp <= '. $to_timestamp_sql .'(?-epf.grace) ) )
 																	)
 																)
-					WHERE ( epf.type_id in (\'S4\',\'S6\', \'C1\') AND epf.active = 1 )
+					WHERE ( epf.type_id in (\'S4\', \'S6\', \'C1\') AND epf.active = 1 )
 						AND ( uf.status_id = 10 AND cf.status_id != 30 )
 						AND ( udf.date_stamp >= ? AND udf.date_stamp <= ? )
 						AND ppf.status_id in ('. $this->getListSQL($pay_period_status_id, $ph) .')
-						AND ( ( ( epf.type_id in (\'S4\',\'S6\') AND ( sf.id IS NOT NULL AND sf.deleted = 0 ) AND pf.id IS NULL ) OR epf.type_id = \'C1\' ) AND ef.id IS NULL  )
+						AND ( ( ( epf.type_id in (\'S4\', \'S6\') AND ( sf.id IS NOT NULL AND sf.deleted = 0 ) AND pf.id IS NULL ) OR epf.type_id = \'C1\' ) AND ef.id IS NULL	)
 						AND ( epf.deleted = 0 AND epcf.deleted = 0 AND pgf.deleted = 0 AND uf.deleted = 0 AND cf.deleted = 0 AND udf.deleted = 0 )
 				';
 				//Don't check deleted = 0 on PCF/PF tables, as we need to check IS NULL on them instead.
@@ -574,7 +570,7 @@ class UserDateListFactory extends UserDateFactory implements IteratorAggregate {
 
 	*/
 
-	function getDaysWorkedByTimePeriodAndUserIdAndCompanyIdAndStartDateAndEndDate($time_period, $user_ids, $company_id, $start_date, $end_date, $where = NULL, $order = NULL) {
+	function getDaysWorkedByTimePeriodAndUserIdAndCompanyIdAndStartDateAndEndDate($time_period, $user_ids, $company_id, $start_date, $end_date ) {
 		if ( $time_period == '' ) {
 			return FALSE;
 		}
@@ -614,18 +610,18 @@ class UserDateListFactory extends UserDateFactory implements IteratorAggregate {
 					);
 
 		$query = '
-					select 	user_id,
+					select	user_id,
 							avg(total) as avg,
 							min(total) as min,
 							max(total) as max
 					from (
 
-						select 	a.user_id,
+						select	a.user_id,
 								(EXTRACT('.$time_period.' FROM a.date_stamp) || \'-\' || EXTRACT(year FROM a.date_stamp) ) as date,
 								count(*) as total
 						from	'. $this->getTable() .' as a,
 								'. $uf->getTable() .' as b
-						where 	a.user_id = b.id
+						where	a.user_id = b.id
 							AND b.company_id = ?
 							AND a.date_stamp >= ?
 							AND a.date_stamp <= ?
@@ -637,43 +633,10 @@ class UserDateListFactory extends UserDateFactory implements IteratorAggregate {
 										AND z.deleted=0
 										)
 							AND ( a.deleted = 0 AND b.deleted=0 )
-							GROUP BY user_id,(EXTRACT('.$time_period.' FROM a.date_stamp) || \'-\' || EXTRACT(year FROM a.date_stamp) )
+							GROUP BY user_id, (EXTRACT('.$time_period.' FROM a.date_stamp) || \'-\' || EXTRACT(year FROM a.date_stamp) )
 						) tmp
 					GROUP BY user_id
 					';
-
-/*
-		$query = '
-					select 	user_id,
-							avg(total) as avg,
-							min(total) as min,
-							max(total) as max
-					from (
-
-						select 	a.user_id,
-								(date_part(\''.$time_period.'\', a.date_stamp) || \'-\' || date_part(\'year\', a.date_stamp) ) as date,
-								count(*) as total
-						from	'. $this->getTable() .' as a,
-								'. $uf->getTable() .' as b
-						where 	a.user_id = b.id
-							AND b.company_id = ?
-							AND a.date_stamp >= ?
-							AND a.date_stamp <= ?
-							AND a.user_id in ('. $this->getListSQL($user_ids, $ph) .')
-							AND exists(
-										select id
-										from '. $pcf->getTable() .' as z
-										where z.user_date_id = a.id
-										AND z.deleted=0
-										)
-							AND ( a.deleted = 0 AND b.deleted=0 )
-							GROUP BY user_id,(date_part(\''. $time_period.'\', a.date_stamp) || \'-\' ||  date_part(\'year\', a.date_stamp) )
-						) tmp
-					GROUP BY user_id
-					';
-*/
-		//$query .= $this->getWhereSQL( $where );
-		//$query .= $this->getSortSQL( $order );
 
 		$this->ExecuteSQL( $query, $ph );
 

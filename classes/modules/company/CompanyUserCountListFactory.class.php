@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 8371 $
- * $Id: CompanyUserCountListFactory.class.php 8371 2012-11-22 21:18:57Z ipso $
- * $Date: 2012-11-22 13:18:57 -0800 (Thu, 22 Nov 2012) $
- */
+
 
 /**
  * @package Modules\Company
@@ -46,7 +42,7 @@ class CompanyUserCountListFactory extends CompanyUserCountFactory implements Ite
 
 	function getAll($limit = NULL, $page = NULL, $where = NULL, $order = NULL) {
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					';
 		$query .= $this->getWhereSQL( $where );
@@ -69,7 +65,7 @@ class CompanyUserCountListFactory extends CompanyUserCountFactory implements Ite
 						);
 
 			$query = '
-						select 	*
+						select	*
 						from	'. $this->getTable() .'
 						where	id = ?
 						';
@@ -78,7 +74,7 @@ class CompanyUserCountListFactory extends CompanyUserCountFactory implements Ite
 
 			$this->ExecuteSQL( $query, $ph );
 
-			$this->saveCache($this->rs,$id);
+			$this->saveCache($this->rs, $id);
 		}
 
 		return $this;
@@ -94,7 +90,7 @@ class CompanyUserCountListFactory extends CompanyUserCountFactory implements Ite
 					);
 
 		$query = '
-					select 	*
+					select	*
 					from	'. $this->getTable() .'
 					where	company_id = ?
 						';
@@ -111,7 +107,7 @@ class CompanyUserCountListFactory extends CompanyUserCountFactory implements Ite
 		$uf = new UserFactory();
 
 		$query = '
-					select 	company_id,
+					select	company_id,
 							count(*) as total
 					from	'. $uf->getTable() .'
 					where
@@ -132,7 +128,7 @@ class CompanyUserCountListFactory extends CompanyUserCountFactory implements Ite
 		$uf = new UserFactory();
 
 		$query = '
-					select 	company_id,
+					select	company_id,
 							count(*) as total
 					from	'. $uf->getTable() .'
 					where
@@ -153,7 +149,7 @@ class CompanyUserCountListFactory extends CompanyUserCountFactory implements Ite
 		$uf = new UserFactory();
 
 		$query = '
-					select 	company_id,
+					select	company_id,
 							count(*) as total
 					from	'. $uf->getTable() .'
 					where
@@ -255,7 +251,7 @@ class CompanyUserCountListFactory extends CompanyUserCountFactory implements Ite
 						AND date_stamp <= ? ';
 
 		if ( $id != '' AND ( isset($id[0]) AND !in_array(-1, (array)$id) ) ) {
-			$query  .=	' AND company_id in ('. $this->getListSQL($id, $ph) .') ';
+			$query	.=	' AND company_id in ('. $this->getListSQL($id, $ph) .') ';
 		}
 
 		$query .= ' group by company_id';
@@ -287,7 +283,7 @@ class CompanyUserCountListFactory extends CompanyUserCountFactory implements Ite
 					'end_date' => $this->db->BindDate( $end_date ),
 					);
 
-		if ( strncmp($this->db->databaseType,'mysql',5) == 0 ) {
+		if ( strncmp($this->db->databaseType, 'mysql', 5) == 0 ) {
 			//$month_sql = '(month( date_stamp ))';
 			$month_sql = '( date_format( date_stamp, \'%Y-%m-01\') )';
 		} else {
@@ -338,7 +334,7 @@ class CompanyUserCountListFactory extends CompanyUserCountFactory implements Ite
 					'end_date' => $this->db->BindDate( $end_date ),
 					);
 
-		if ( strncmp($this->db->databaseType,'mysql',5) == 0 ) {
+		if ( strncmp($this->db->databaseType, 'mysql', 5) == 0 ) {
 			//$month_sql = '(month( date_stamp ))';
 			$month_sql = '( date_format( date_stamp, \'%Y-%m-01\') )';
 		} else {
@@ -366,8 +362,8 @@ class CompanyUserCountListFactory extends CompanyUserCountFactory implements Ite
 					where
 						date_stamp >= ?
 						AND date_stamp <= ?
-					GROUP BY company_id,'. $month_sql .'
-					ORDER BY company_id,'. $month_sql .'
+					GROUP BY company_id, '. $month_sql .'
+					ORDER BY company_id, '. $month_sql .'
 						';
 		$query .= $this->getWhereSQL( $where );
 		$query .= $this->getSortSQL( $order );
@@ -395,7 +391,7 @@ class CompanyUserCountListFactory extends CompanyUserCountFactory implements Ite
 					'end_date' => $this->db->BindDate( $end_date ),
 					);
 
-		if ( strncmp($this->db->databaseType,'mysql',5) == 0 ) {
+		if ( strncmp($this->db->databaseType, 'mysql', 5) == 0 ) {
 			//$month_sql = '(month( date_stamp ))';
 			$month_sql = '( date_format( a.date_stamp, \'%Y-%m-01\') )';
 		} else {
@@ -440,7 +436,7 @@ class CompanyUserCountListFactory extends CompanyUserCountFactory implements Ite
 								AND a.date_stamp >= ?
 								AND a.date_stamp <= ?
 								AND ( cf.deleted = 0 )
-							GROUP BY company_id,'. $month_sql .'
+							GROUP BY company_id, '. $month_sql .'
 						) as tmp
 					GROUP BY date_stamp
 						';
@@ -462,8 +458,8 @@ class CompanyUserCountListFactory extends CompanyUserCountFactory implements Ite
 					);
 
 		$query = '
-					select 	*
-					from 	'. $this->getTable() .'
+					select	*
+					from	'. $this->getTable() .'
 					where	company_id = ?
 					ORDER BY date_stamp desc
 					LIMIT 1
@@ -490,8 +486,8 @@ class CompanyUserCountListFactory extends CompanyUserCountFactory implements Ite
 					);
 
 		$query = '
-					select 	*
-					from 	'. $this->getTable() .'
+					select	*
+					from	'. $this->getTable() .'
 					where	company_id = ?
 						AND	id = ?
 						';

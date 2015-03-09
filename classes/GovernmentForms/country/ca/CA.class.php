@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2286 $
- * $Id: CA.class.php 2286 2008-12-12 23:12:41Z ipso $
- * $Date: 2008-12-12 15:12:41 -0800 (Fri, 12 Dec 2008) $
- */
+
 
 include_once( dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'GovernmentForms_Base.class.php' );
 
@@ -45,5 +41,35 @@ include_once( dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARAT
  * @package GovernmentForms
  */
 class GovernmentForms_CA extends GovernmentForms_Base {
+	function filterMiddleName( $value ) {
+		//Return just initial
+		$value = substr( $value, 0, 1);
+		return $value;
+	}
+
+	function filterCompanyAddress( $value ) {
+		//Combine company address for multicell display.
+		return Misc::formatAddress( NULL, $this->company_address1, $this->company_address2, $this->company_city, $this->company_province, $this->company_postal_code );
+	}
+	
+	function filterAddress( $value ) {
+		//Combine company address for multicell display.
+		return Misc::formatAddress( NULL, $this->address1, $this->address2, $this->city, $this->province, $this->postal_code, $this->country ); //Include country in case they are outside of Canada.
+	}
+	
+	function formatPayrollAccountNumber( $value ) {
+		$value = str_replace(' ', '', $value );
+		return $value;
+	}
+	
+	function filterPayrollAccountNumber( $value ) {
+		$value = $this->formatPayrollAccountNumber( $value );
+		if ( $this->getType() == 'employee' ) {
+			$value = $this->payroll_account_number = '***************'; //Hide payroll account number on employees copy for security reasons.
+		} else {
+			$value = $this->payroll_account_number;
+		}
+		return $value;
+	}
 }
 ?>

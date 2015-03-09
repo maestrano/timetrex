@@ -2,7 +2,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -35,10 +35,6 @@
  * the words "Powered by TimeTrex".
  ********************************************************************************/
 /*
- * $Revision: 924 $
- * $Id: notify_translator.php 924 2007-06-05 21:02:29Z ipso $
- * $Date: 2007-06-05 14:02:29 -0700 (Tue, 05 Jun 2007) $
- *
  * File Contributed By: Open Source Consulting, S.A.   San Jose, Costa Rica.
  * http://osc.co.cr
  */

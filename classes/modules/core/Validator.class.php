@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 10430 $
- * $Id: Validator.class.php 10430 2013-07-12 18:10:24Z ipso $
- * $Date: 2013-07-12 11:10:24 -0700 (Fri, 12 Jul 2013) $
- */
+
 
 /**
  * @package Core
@@ -148,7 +144,7 @@ class Validator {
 	function isNumeric($label, $value, $msg = NULL) {
 		//Debug::Text('Value:'. $value, __FILE__, __LINE__, __METHOD__, $this->verbosity);
 
-		//if ( preg_match('/^[-0-9]+$/',$value) ) {
+		//if ( preg_match('/^[-0-9]+$/', $value) ) {
 		if ( is_numeric( $value ) == TRUE ) {
 			return TRUE;
 		}
@@ -177,7 +173,7 @@ class Validator {
 		//Debug::Text('Value:'. $value, __FILE__, __LINE__, __METHOD__, $this->verbosity);
 
 		if ( $min == '' ) {
-			$min = -1*PHP_INT_MAX;
+			$min = ( -1 * PHP_INT_MAX );
 		}
 
 		if ( $value >= $min ) {
@@ -193,8 +189,8 @@ class Validator {
 	function isFloat($label, $value, $msg = NULL) {
 		//Debug::Text('Value:'. $value, __FILE__, __LINE__, __METHOD__, $this->verbosity);
 
-		//if ( preg_match('/^[-0-9\.]+$/',$value) ) {
-		if ( preg_match('/^((\.[0-9]+)|([-0-9]+(\.[0-9]*)?))$/',$value) ) {
+		//if ( preg_match('/^[-0-9\.]+$/', $value) ) {
+		if ( preg_match('/^((\.[0-9]+)|([-0-9]+(\.[0-9]*)?))$/', $value) ) {
 			return TRUE;
 		}
 
@@ -205,7 +201,7 @@ class Validator {
 
 	function isRegEx($label, $value, $msg, $regex) {
 		//Debug::text('Value: '. $value .' RegEx: '. $regex, __FILE__, __LINE__, __METHOD__, $this->verbosity);
-		if ( preg_match($regex,$value) ) {
+		if ( preg_match($regex, $value) ) {
 			return TRUE;
 		}
 
@@ -215,7 +211,7 @@ class Validator {
 	}
 	function isNotRegEx($label, $value, $msg, $regex) {
 		//Debug::text('Value: '. $value .' RegEx: '. $regex, __FILE__, __LINE__, __METHOD__, $this->verbosity);
-		if ( preg_match($regex,$value) == FALSE ) {
+		if ( preg_match($regex, $value) == FALSE ) {
 			return TRUE;
 		}
 
@@ -278,7 +274,7 @@ class Validator {
 			$prev_char_int = ord($char_arr[0]);
 			foreach( $char_arr as $char ) {
 				$curr_char_int = ord($char);
-				if ( abs($prev_char_int-$curr_char_int) > 1 ) {
+				if ( abs($prev_char_int - $curr_char_int) > 1 ) {
 					return TRUE;
 				}
 				$prev_char_int = $curr_char_int;
@@ -301,7 +297,7 @@ class Validator {
 			$prev_char_int = ord($char_arr[0]);
 			foreach( $char_arr as $char ) {
 				$curr_char_int = ord($char);
-				if ( abs($prev_char_int-$curr_char_int) > 1 ) {
+				if ( abs($prev_char_int - $curr_char_int) > 1 ) {
 					if ( $consecutive_only == TRUE ) {
 						$duplicate_chars = 0; //Reset duplicate count.
 					}
@@ -312,7 +308,7 @@ class Validator {
 				$prev_char_int = $curr_char_int;
 			}
 
-			$duplicate_percent = ( $duplicate_chars/strlen($value) ) * 100;
+			$duplicate_percent = ( ( $duplicate_chars / strlen($value) ) * 100 );
 			Debug::text('Duplicate Chars: '. $duplicate_chars .' Percent: '. $duplicate_percent .' Max Percent: '. $max_duplicate_percent .' Consec: '. (int)$consecutive_only, __FILE__, __LINE__, __METHOD__, $this->verbosity);
 
 			if ( $duplicate_percent < $max_duplicate_percent ) {
@@ -327,7 +323,7 @@ class Validator {
 		return TRUE;
 	}
 
-	function isAllowedWords( $label, $value, $msg = NULL, $bad_words, $fuzzy = FALSE ) {
+	function isAllowedWords( $label, $value, $msg = NULL, $bad_words ) {
 		$words = explode(' ', $value );
 		if ( is_array($words) ) {
 			foreach( $words as $word ) {
@@ -344,7 +340,7 @@ class Validator {
 		return TRUE;
 	}
 
-	function isAllowedValues( $label, $value, $msg = NULL, $bad_words, $fuzzy = FALSE ) {
+	function isAllowedValues( $label, $value, $msg = NULL, $bad_words ) {
 		foreach( $bad_words as $bad_word ) {
 			if ( strtolower($value) == strtolower($bad_word) ) {
 				$this->Error($label, $msg, $value );
@@ -363,8 +359,7 @@ class Validator {
 
 		//Debug::text('Raw Phone: '. $value .' Phone: '. $phone, __FILE__, __LINE__, __METHOD__, $this->verbosity);
 
-		if ( strlen($phone) >= 6 AND strlen($phone) <= 20
-			 AND preg_match('/^[0-9\(\)\-\.\+\ ]{6,20}$/i',$value) ) {
+		if ( strlen($phone) >= 6 AND strlen($phone) <= 20 AND preg_match('/^[0-9\(\)\-\.\+\ ]{6,20}$/i', $value) ) {
 			return TRUE;
 		}
 
@@ -384,7 +379,7 @@ class Validator {
 		switch ( strtolower(trim($country)) ) {
 			case 'us':
 				//US zip code
-				if ( preg_match('/^[0-9]{5}$/i',$value) OR preg_match('/^[0-9]{5}\-[0-9]{4}$/i',$value) ) {
+				if ( preg_match('/^[0-9]{5}$/i', $value) OR preg_match('/^[0-9]{5}\-[0-9]{4}$/i', $value) ) {
 
 					if ( $province != '' ) {
 						$province_postal_code_map = array (
@@ -450,10 +445,7 @@ class Validator {
 									return TRUE;
 								}
 							}
-						} else {
-							//Debug::text('Postal Code does not match province!', __FILE__, __LINE__, __METHOD__, $this->verbosity);
-						}
-
+						} // else { //Debug::text('Postal Code does not match province!', __FILE__, __LINE__, __METHOD__, $this->verbosity);
 					} else {
 						return TRUE;
 					}
@@ -461,7 +453,7 @@ class Validator {
 				break;
 			case 'ca':
 				//Canada postal code
-				if ( preg_match('/^[a-zA-Z]{1}[0-9]{1}[a-zA-Z]{1}[-]?[0-9]{1}[a-zA-Z]{1}[0-9]{1}$/i',$value) ) {
+				if ( preg_match('/^[a-zA-Z]{1}[0-9]{1}[a-zA-Z]{1}[-]?[0-9]{1}[a-zA-Z]{1}[0-9]{1}$/i', $value) ) {
 					if ( $province != '' ) {
 						//Debug::text('Verifying postal code against province!', __FILE__, __LINE__, __METHOD__, $this->verbosity);
 						$province_postal_code_map = array(
@@ -470,7 +462,7 @@ class Validator {
 												'sk' => array('s'),
 												'mb' => array('r'),
 												'qc' => array('g', 'h', 'j'),
-												'on' => array('k','l','m','n','p'),
+												'on' => array('k', 'l', 'm', 'n', 'p'),
 												'nl' => array('a'),
 												'nb' => array('e'),
 												'ns' => array('b'),
@@ -481,11 +473,9 @@ class Validator {
 											);
 
 						//Debug::Arr($province_postal_code_map[$province], 'Valid Postal Codes for Province', __FILE__, __LINE__, __METHOD__, $this->verbosity);
-						if ( isset($province_postal_code_map[$province]) AND in_array( substr( strtolower($value), 0, 1), $province_postal_code_map[$province] ) )  {
+						if ( isset($province_postal_code_map[$province]) AND in_array( substr( strtolower($value), 0, 1), $province_postal_code_map[$province] ) )	{
 							return TRUE;
-						} else {
-							//Debug::text('Postal Code does not match province!', __FILE__, __LINE__, __METHOD__, $this->verbosity);
-						}
+						} // else { //Debug::text('Postal Code does not match province!', __FILE__, __LINE__, __METHOD__, $this->verbosity);
 					} else {
 						return TRUE;
 					}
@@ -493,17 +483,17 @@ class Validator {
 				break;
 			default:
 				//US
-				if ( preg_match('/^[0-9]{5}$/i',$value) OR preg_match('/^[0-9]{5}\-[0-9]{4}$/i',$value) ) {
+				if ( preg_match('/^[0-9]{5}$/i', $value) OR preg_match('/^[0-9]{5}\-[0-9]{4}$/i', $value) ) {
 					return TRUE;
 				}
 
 				//CA
-				if ( preg_match('/^[a-zA-Z]{1}[0-9]{1}[a-zA-Z]{1}[-]?[0-9]{1}[a-zA-Z]{1}[0-9]{1}$/i',$value) ) {
+				if ( preg_match('/^[a-zA-Z]{1}[0-9]{1}[a-zA-Z]{1}[-]?[0-9]{1}[a-zA-Z]{1}[0-9]{1}$/i', $value) ) {
 					return TRUE;
 				}
 
 				//Other
-				if ( preg_match('/^[a-zA-Z0-9]{1,10}$/i',$value) ) {
+				if ( preg_match('/^[a-zA-Z0-9]{1,10}$/i', $value) ) {
 					return TRUE;
 				}
 
@@ -518,7 +508,7 @@ class Validator {
 	function isEmail($label, $value, $msg = NULL) {
 		//Debug::text('Raw Email: '. $value, __FILE__, __LINE__, __METHOD__, $this->verbosity);
 
-		if ( preg_match('/^[\w\.\-\&\+]+\@[\w\.\-]+\.[a-z]{2,5}$/i',$value) ) { //Allow 5 char suffixes to support .local domains.
+		if ( preg_match('/^[\w\.\-\&\+]+\@[\w\.\-]+\.[a-z]{2,5}$/i', $value) ) { //Allow 5 char suffixes to support .local domains.
 			return TRUE;
 		}
 
@@ -603,7 +593,7 @@ class Validator {
 						$a_SIN[7] -= 9;
 					}
 
-					if ( array_sum($a_SIN) % 10 != 0 ) {
+					if ( ( array_sum($a_SIN) % 10 ) != 0 ) {
 						$retval = FALSE;
 					} else {
 						$retval = TRUE;
@@ -672,16 +662,16 @@ class Validator {
 	}
 
 	function stripNumeric($value) {
-		$retval = preg_replace('/[0-9]/','',$value);
+		$retval = preg_replace('/[0-9]/', '', $value);
 		return $retval;
 	}
 	function stripNonNumeric($value) {
-		$retval = preg_replace('/[^0-9]/','',$value);
+		$retval = preg_replace('/[^0-9]/', '', $value);
 		return $retval;
 	}
 
 	function stripNonAlphaNumeric($value) {
-		$retval = preg_replace('/[^A-Za-z0-9]/','',$value);
+		$retval = preg_replace('/[^A-Za-z0-9]/', '', $value);
 
 		//Debug::Text('Alpha Numeric String:'. $retval, __FILE__, __LINE__, __METHOD__, $this->verbosity);
 
@@ -689,11 +679,47 @@ class Validator {
 	}
 
 	function stripNonFloat($value) {
-		$retval = preg_replace('/[^-0-9\.]/','',$value);
+		$retval = preg_replace('/[^-0-9\.]/', '', $value);
 
 		//Debug::Text('Float String:'. $retval, __FILE__, __LINE__, __METHOD__, $this->verbosity);
 
 		return $retval;
+	}
+
+	function stripNonTimeUnit($value) { //Suitable to passing to parseTimeUnit() after.
+		$retval = preg_replace('/[^-0-9\.:]/', '', $value);
+
+		//Debug::Text('Float String:'. $retval, __FILE__, __LINE__, __METHOD__, $this->verbosity);
+
+		return $retval;
+	}
+
+	function stripHTML($value) {
+		return strip_tags($value);
+	}
+
+	function escapeHTML($value) {
+		return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+	}
+
+	function purifyHTML( $value ) {
+		global $config_vars;
+		
+		//Require inside this function as HTMLPurifier is a huge file.
+		require_once( dirname( __FILE__ ) . DIRECTORY_SEPARATOR .'..'. DIRECTORY_SEPARATOR .'..'. DIRECTORY_SEPARATOR .'HTMLPurifier'. DIRECTORY_SEPARATOR .'HTMLPurifier.standalone.php');
+
+		$config = HTMLPurifier_Config::createDefault();
+		if ( isset($config_vars['cache']['enable']) AND $config_vars['cache']['enable'] == TRUE
+			AND $config_vars['cache']['dir'] != '' AND is_writable( $config_vars['cache']['dir'] ) ) {
+			$config->set('Cache.SerializerPath', $config_vars['cache']['dir'] );
+			//Debug::Text('Caching HTMLPurifier...', __FILE__, __LINE__, __METHOD__, $this->verbosity);
+		} else {
+			$config->set('Cache.DefinitionImpl', NULL );
+			Debug::Text('NOT caching HTMLPurifier...', __FILE__, __LINE__, __METHOD__, $this->verbosity);
+		}
+
+		$purifier = new HTMLPurifier( $config );
+		return $purifier->purify( $value );
 	}
 
 	function getPhoneNumberAreaCode($value) {
@@ -746,7 +772,7 @@ class Validator {
 	function getTextErrors() {
 		if ( count($this->errors ) > 0) {
 			$output = '';
-			$i=1;
+			$i = 1;
 			foreach ($this->errors as $label) {
 				foreach ($label as $key => $msg) {
 					$output .= $i.'. '.$msg."\n";
@@ -767,7 +793,7 @@ class Validator {
 			//Debug::text('Num Errors: '. $this->num_errors, __FILE__, __LINE__, __METHOD__, $this->verbosity);
 
 			//Check to see if a single form variable is valid.
-            if ( !isset($this->errors[$label]) ) {
+			if ( !isset($this->errors[$label]) ) {
 				return TRUE;
 			} else {
 				return FALSE;

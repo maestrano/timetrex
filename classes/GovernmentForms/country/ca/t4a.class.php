@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2286 $
- * $Id: CA.class.php 2286 2008-12-12 23:12:41Z ipso $
- * $Date: 2008-12-12 15:12:41 -0800 (Fri, 12 Dec 2008) $
- */
+
 
 include_once( 'CA.class.php' );
 
@@ -156,6 +152,7 @@ class GovernmentForms_CA_T4A extends GovernmentForms_CA {
 																'type' => 'B' )
 									),
 								'payroll_account_number' => array(
+										'function' => array('filterPayrollAccountNumber', 'drawNormal' ),
 										'coordinates' => array(
 															'x' => 50,
 															'y' => 95,
@@ -581,22 +578,6 @@ class GovernmentForms_CA_T4A extends GovernmentForms_CA {
 			return $template_schema;
 		}
 	}
-
-	function filterMiddleName( $value ) {
-		//Return just initial
-		$value = substr( $value, 0, 1);
-		return $value;
-	}
-	function filterAddress( $value ) {
-		//Combine company address for multicell display.
-		$retarr[] = $this->address1;
-		if ( $this->address2 != '' ) {
-			$retarr[] = $this->address2;
-		}
-		$retarr[] = $this->city. ', '.$this->province . ' ' . $this->postal_code;
-
-		return implode("\n", $retarr );
-	}
 	
 	function _outputXML() {
 
@@ -665,7 +646,7 @@ class GovernmentForms_CA_T4A extends GovernmentForms_CA {
 
 			$e=0;
 			foreach( $records as $employee_data ) {
-				Debug::Arr($employee_data, 'Employee Data: ', __FILE__, __LINE__, __METHOD__,10);
+				Debug::Arr($employee_data, 'Employee Data: ', __FILE__, __LINE__, __METHOD__, 10);
 				$this->arrayToObject( $employee_data ); //Convert record array to object
 
 				$xml->Return->T4A->addChild('T4ASlip');
@@ -676,8 +657,8 @@ class GovernmentForms_CA_T4A extends GovernmentForms_CA {
 				if ( $this->filterMiddleName($this->middle_name) != '' ) { $xml->Return->T4A->T4ASlip[$e]->RCPNT_NM->addChild('init', $this->filterMiddleName($this->middle_name) ); }
 
 				$xml->Return->T4A->T4ASlip[$e]->addChild('RCPNT_ADDR'); //Employee Address
-				if ( $this->address1 != '' ) { $xml->Return->T4A->T4ASlip[$e]->RCPNT_ADDR->addChild('addr_l1_txt', substr( $this->address1, 0, 30) ); }
-				if ( $this->address2 != '' ) { $xml->Return->T4A->T4ASlip[$e]->RCPNT_ADDR->addChild('addr_l2_txt', substr( $this->address2, 0, 30) ); }
+				if ( $this->address1 != '' ) { $xml->Return->T4A->T4ASlip[$e]->RCPNT_ADDR->addChild('addr_l1_txt', substr( Misc::stripHTMLSpecialChars( $this->address1 ), 0, 30) ); }
+				if ( $this->address2 != '' ) { $xml->Return->T4A->T4ASlip[$e]->RCPNT_ADDR->addChild('addr_l2_txt', substr( Misc::stripHTMLSpecialChars( $this->address2 ), 0, 30) ); }
 				if ( $this->city != '' ) { $xml->Return->T4A->T4ASlip[$e]->RCPNT_ADDR->addChild('cty_nm', $this->city ); }
 				if ( $this->province != '' ) { $xml->Return->T4A->T4ASlip[$e]->RCPNT_ADDR->addChild('prov_cd', $this->province ); }
 				$xml->Return->T4A->T4ASlip[$e]->RCPNT_ADDR->addChild('cntry_cd', 'CAN' );
@@ -762,7 +743,7 @@ class GovernmentForms_CA_T4A extends GovernmentForms_CA {
 					}
 				}
 
-				if ( $employees_per_page == 1 OR ( $employees_per_page == 2 AND  $e % $employees_per_page != 0 ) ) {
+				if ( $employees_per_page == 1 OR ( $employees_per_page == 2 AND $e % $employees_per_page != 0 ) ) {
 					$this->resetTemplatePage();
 					if ( $this->getShowInstructionPage() == TRUE ) {
 						$this->addPage( array('template_page' => 2) );

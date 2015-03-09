@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2490 $
- * $Id: SharedMemory.class.php 2490 2009-04-24 22:13:40Z ipso $
- * $Date: 2009-04-24 15:13:40 -0700 (Fri, 24 Apr 2009) $
- */
+
 
 /**
  * @package Core
@@ -45,7 +41,7 @@
 
 //Use this class to serializer arrays in PHP, XML, and JSON formats.
 class Serializer {
-	protected $available_formats = array('PHP','XML','JSON');
+	protected $available_formats = array('PHP', 'XML', 'JSON');
 	protected $format = NULL;
 
 	protected $simple_xml_obj = NULL;
@@ -98,14 +94,14 @@ class Serializer {
 
 			//The first level should be the class name as a key.
 			/*
-			  //Example array:
+			//Example array:
 			array
-			  'UserFactory' =>
+			'UserFactory' =>
 				array
-				  0 =>
+				0 =>
 					array
-					  'id' => string '6217' (length=4)
-					  'company_id' => string '1064' (length=4)
+					'id' => string '6217' (length=4)
+					'company_id' => string '1064' (length=4)
 			*/
 			foreach( $data as $class => $objects ) {
 				$this->simple_xml_obj = new SimpleXMLElement('<timetrex></timetrex>');

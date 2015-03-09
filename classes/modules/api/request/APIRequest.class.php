@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2196 $
- * $Id: APIRequest.class.php 2196 2008-10-14 16:08:54Z ipso $
- * $Date: 2008-10-14 09:08:54 -0700 (Tue, 14 Oct 2008) $
- */
+
 
 /**
  * @package API\Request
@@ -59,8 +55,8 @@ class APIRequest extends APIFactory {
 	 */
 	function getOptions( $name, $parent = NULL ) {
 		if ( $name == 'columns'
-				AND ( !$this->getPermissionObject()->Check('request','enabled')
-					OR !( $this->getPermissionObject()->Check('request','view') OR $this->getPermissionObject()->Check('request','view_child') ) ) ) {
+				AND ( !$this->getPermissionObject()->Check('request', 'enabled')
+					OR !( $this->getPermissionObject()->Check('request', 'view') OR $this->getPermissionObject()->Check('request', 'view_child') ) ) ) {
 			$name = 'list_columns';
 		}
 
@@ -74,7 +70,7 @@ class APIRequest extends APIFactory {
 	function getRequestDefaultData() {
 		$company_obj = $this->getCurrentCompanyObject();
 
-		Debug::Text('Getting request default data...', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Getting request default data...', __FILE__, __LINE__, __METHOD__, 10);
 
 		$data = array(
 						'date_stamp' => TTDate::getAPIDate('DATE', TTDate::getTime() )
@@ -95,7 +91,7 @@ class APIRequest extends APIFactory {
 			if ( in_array(-1, $type_id) ) {
 				$type_id = array_keys( $this->getOptions('type') );
 			}
-			Debug::Arr( $type_id,  'Type ID: ', __FILE__, __LINE__, __METHOD__,10);
+			Debug::Arr( $type_id, 'Type ID: ', __FILE__, __LINE__, __METHOD__, 10);
 
 			$blf = TTnew( 'RequestListFactory' );
 			$object_type_id = $blf->getHierarchyTypeId( $type_id );
@@ -103,7 +99,7 @@ class APIRequest extends APIFactory {
 				$hl = new APIHierarchyLevel();
 				return $hl->getHierarchyLevelOptions( $object_type_id );
 			} else {
-				Debug::Text( 'Invalid Request type ID!', __FILE__, __LINE__, __METHOD__,10);
+				Debug::Text( 'Invalid Request type ID!', __FILE__, __LINE__, __METHOD__, 10);
 			}
 		}
 
@@ -116,8 +112,8 @@ class APIRequest extends APIFactory {
 	 * @return array
 	 */
 	function getRequest( $data = NULL, $disable_paging = FALSE ) {
-		if ( !$this->getPermissionObject()->Check('request','enabled')
-				OR !( $this->getPermissionObject()->Check('request','view') OR $this->getPermissionObject()->Check('request','view_own') OR $this->getPermissionObject()->Check('request','view_child') ) ) {
+		if ( !$this->getPermissionObject()->Check('request', 'enabled')
+				OR !( $this->getPermissionObject()->Check('request', 'view') OR $this->getPermissionObject()->Check('request', 'view_own') OR $this->getPermissionObject()->Check('request', 'view_child') ) ) {
 			return $this->getPermissionObject()->PermissionDenied();
 		}
 
@@ -127,9 +123,9 @@ class APIRequest extends APIFactory {
 
 		//If type_id and hierarchy_level is passed, assume we are in the authorization view.
 		if ( isset($data['filter_data']['type_id']) AND is_array($data['filter_data']['type_id']) AND isset($data['filter_data']['hierarchy_level'])
-				AND ( $this->getPermissionObject()->Check('authorization','enabled')
-						AND $this->getPermissionObject()->Check('authorization','view')
-						AND $this->getPermissionObject()->Check('request','authorize') ) ) {
+				AND ( $this->getPermissionObject()->Check('authorization', 'enabled')
+						AND $this->getPermissionObject()->Check('authorization', 'view')
+						AND $this->getPermissionObject()->Check('request', 'authorize') ) ) {
 
 			//FIXME: If type_id = -1 (ANY) is used, it may show more requests then if type_id is specified to a specific ID.
 			//This is because if the hierarchy objects are changed when pending requests exist, the ANY type_id will catch them and display them,
@@ -142,9 +138,9 @@ class APIRequest extends APIFactory {
 
 			$hllf = TTnew( 'HierarchyLevelListFactory' );
 			$hierarchy_level_arr = $hllf->getLevelsAndHierarchyControlIDsByUserIdAndObjectTypeID( $this->getCurrentUserObject()->getId(), $blf->getHierarchyTypeId( $data['filter_data']['type_id'] ) );
-			Debug::Arr( $data['filter_data']['type_id'], 'Type ID: ',__FILE__, __LINE__, __METHOD__,10);
-			Debug::Arr( $blf->getHierarchyTypeId( $data['filter_data']['type_id'] ), 'Hierarchy Type ID: ',__FILE__, __LINE__, __METHOD__,10);
-			Debug::Arr( $hierarchy_level_arr, 'Hierarchy Levels: ', __FILE__, __LINE__, __METHOD__,10);
+			Debug::Arr( $data['filter_data']['type_id'], 'Type ID: ', __FILE__, __LINE__, __METHOD__, 10);
+			Debug::Arr( $blf->getHierarchyTypeId( $data['filter_data']['type_id'] ), 'Hierarchy Type ID: ', __FILE__, __LINE__, __METHOD__, 10);
+			Debug::Arr( $hierarchy_level_arr, 'Hierarchy Levels: ', __FILE__, __LINE__, __METHOD__, 10);
 
 			$data['filter_data']['hierarchy_level_map'] = FALSE;
 			if ( isset($data['filter_data']['hierarchy_level']) AND isset($hierarchy_level_arr[$data['filter_data']['hierarchy_level']]) ) {
@@ -215,9 +211,9 @@ class APIRequest extends APIFactory {
 			return $this->returnHandler( FALSE );
 		}
 
-		if ( !$this->getPermissionObject()->Check('request','enabled')
-				OR !( $this->getPermissionObject()->Check('request','edit') OR $this->getPermissionObject()->Check('request','edit_own') OR $this->getPermissionObject()->Check('request','edit_child') OR $this->getPermissionObject()->Check('request','add') ) ) {
-			return  $this->getPermissionObject()->PermissionDenied();
+		if ( !$this->getPermissionObject()->Check('request', 'enabled')
+				OR !( $this->getPermissionObject()->Check('request', 'edit') OR $this->getPermissionObject()->Check('request', 'edit_own') OR $this->getPermissionObject()->Check('request', 'edit_child') OR $this->getPermissionObject()->Check('request', 'add') ) ) {
+			return	$this->getPermissionObject()->PermissionDenied();
 		}
 
 		if ( $validate_only == TRUE ) {
@@ -243,11 +239,11 @@ class APIRequest extends APIFactory {
 					if ( $lf->getRecordCount() == 1 ) {
 						//Object exists, check edit permissions
 						if (
-							  $validate_only == TRUE
-							  OR
+							$validate_only == TRUE
+							OR
 								(
-								$this->getPermissionObject()->Check('request','edit')
-									OR ( $this->getPermissionObject()->Check('request','edit_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE )
+								$this->getPermissionObject()->Check('request', 'edit')
+									OR ( $this->getPermissionObject()->Check('request', 'edit_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE )
 								) ) {
 
 							Debug::Text('Row Exists, getting current data: ', $row['id'], __FILE__, __LINE__, __METHOD__, 10);
@@ -262,7 +258,7 @@ class APIRequest extends APIFactory {
 					}
 				} else {
 					//Adding new object, check ADD permissions.
-					$primary_validator->isTrue( 'permission', $this->getPermissionObject()->Check('request','add'), TTi18n::gettext('Add permission denied') );
+					$primary_validator->isTrue( 'permission', $this->getPermissionObject()->Check('request', 'add'), TTi18n::gettext('Add permission denied') );
 				}
 				Debug::Arr($row, 'Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
@@ -341,16 +337,16 @@ class APIRequest extends APIFactory {
 			return $this->returnHandler( FALSE );
 		}
 
-		if ( !$this->getPermissionObject()->Check('request','enabled')
-				OR !( $this->getPermissionObject()->Check('request','delete') OR $this->getPermissionObject()->Check('request','delete_own') OR $this->getPermissionObject()->Check('request','delete_child') ) ) {
-			return  $this->getPermissionObject()->PermissionDenied();
+		if ( !$this->getPermissionObject()->Check('request', 'enabled')
+				OR !( $this->getPermissionObject()->Check('request', 'delete') OR $this->getPermissionObject()->Check('request', 'delete_own') OR $this->getPermissionObject()->Check('request', 'delete_child') ) ) {
+			return	$this->getPermissionObject()->PermissionDenied();
 		}
 
 		Debug::Text('Received data for: '. count($data) .' Requests', __FILE__, __LINE__, __METHOD__, 10);
 		Debug::Arr($data, 'Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		$total_records = count($data);
-        $validator_stats = array('total_records' => $total_records, 'valid_records' => 0 );
+		$validator_stats = array('total_records' => $total_records, 'valid_records' => 0 );
 		if ( is_array($data) ) {
 			$this->getProgressBarObject()->start( $this->getAMFMessageID(), $total_records );
 
@@ -364,8 +360,8 @@ class APIRequest extends APIFactory {
 					$lf->getByIdAndCompanyId( $id, $this->getCurrentCompanyObject()->getId() );
 					if ( $lf->getRecordCount() == 1 ) {
 						//Object exists, check edit permissions
-						if ( $this->getPermissionObject()->Check('request','delete')
-								OR ( $this->getPermissionObject()->Check('request','delete_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE ) ) {
+						if ( $this->getPermissionObject()->Check('request', 'delete')
+								OR ( $this->getPermissionObject()->Check('request', 'delete_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE ) ) {
 							Debug::Text('Record Exists, deleting record: ', $id, __FILE__, __LINE__, __METHOD__, 10);
 							$lf = $lf->getCurrent();
 						} else {
@@ -448,7 +444,7 @@ class APIRequest extends APIFactory {
 		if ( is_array( $src_rows ) AND count($src_rows) > 0 ) {
 			Debug::Arr($src_rows, 'SRC Rows: ', __FILE__, __LINE__, __METHOD__, 10);
 			foreach( $src_rows as $key => $row ) {
-				unset($src_rows[$key]['id'],$src_rows[$key]['manual_id'] ); //Clear fields that can't be copied
+				unset($src_rows[$key]['id'], $src_rows[$key]['manual_id'] ); //Clear fields that can't be copied
 				$src_rows[$key]['name'] = Misc::generateCopyName( $row['name'] ); //Generate unique name
 			}
 			//Debug::Arr($src_rows, 'bSRC Rows: ', __FILE__, __LINE__, __METHOD__, 10);

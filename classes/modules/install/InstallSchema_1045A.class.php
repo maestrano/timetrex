@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 1246 $
- * $Id: InstallSchema_1001B.class.php 1246 2007-09-14 23:47:42Z ipso $
- * $Date: 2007-09-14 16:47:42 -0700 (Fri, 14 Sep 2007) $
- */
+
 
 /**
  * @package Modules\Install
@@ -45,55 +41,55 @@
 class InstallSchema_1045A extends InstallSchema_Base {
 
 	function preInstall() {
-		Debug::text('preInstall: '. $this->getVersion() , __FILE__, __LINE__, __METHOD__,9);
+		Debug::text('preInstall: '. $this->getVersion(), __FILE__, __LINE__, __METHOD__, 9);
 
 		return TRUE;
 	}
 
 	function postInstall() {
-		Debug::text('postInstall: '. $this->getVersion(), __FILE__, __LINE__, __METHOD__,9);
+		Debug::text('postInstall: '. $this->getVersion(), __FILE__, __LINE__, __METHOD__, 9);
 
 		//Go through each permission group, and enable absence/schedule edit field permissions for anyone who can edit absence/schedules.
 		$clf = TTnew( 'CompanyListFactory' );
 		$clf->getAll();
 		if ( $clf->getRecordCount() > 0 ) {
 			foreach( $clf as $c_obj ) {
-				Debug::text('Company: '. $c_obj->getName(), __FILE__, __LINE__, __METHOD__,9);
+				Debug::text('Company: '. $c_obj->getName(), __FILE__, __LINE__, __METHOD__, 9);
 				if ( $c_obj->getStatus() != 30 ) {
 					$pclf = TTnew( 'PermissionControlListFactory' );
 					$pclf->getByCompanyId( $c_obj->getId(), NULL, NULL, NULL, array( 'name' => 'asc' ) ); //Force order to prevent references to columns that haven't been created yet.
 					if ( $pclf->getRecordCount() > 0 ) {
 						foreach( $pclf as $pc_obj ) {
-							Debug::text('Permission Group: '. $pc_obj->getName(), __FILE__, __LINE__, __METHOD__,9);
+							Debug::text('Permission Group: '. $pc_obj->getName(), __FILE__, __LINE__, __METHOD__, 9);
 							$plf = TTnew( 'PermissionListFactory' );
-							$plf->getByCompanyIdAndPermissionControlIdAndSectionAndName( $c_obj->getId(), $pc_obj->getId(), 'absence', array('edit','edit_own','edit_child'));
+							$plf->getByCompanyIdAndPermissionControlIdAndSectionAndNameAndValue( $c_obj->getId(), $pc_obj->getId(), 'absence', array('edit', 'edit_own', 'edit_child'), 1 );
 							if ( $plf->getRecordCount() > 0 ) {
-								Debug::text('Found permission group with Edit Absence enabled: '. $plf->getCurrent()->getValue(), __FILE__, __LINE__, __METHOD__,9);
+								Debug::text('Found permission group with Edit Absence enabled: '. $plf->getCurrent()->getValue(), __FILE__, __LINE__, __METHOD__, 9);
 								$pc_obj->setPermission(
-													   array(   'absence' => array(
+														array(	'absence' => array(
 																					'edit_branch' => TRUE,
 																					'edit_department' => TRUE,
-																				  )
+																				)
 															)
-													   );
+														);
 							} else {
-								Debug::text('Permission group does NOT have absences enabled...', __FILE__, __LINE__, __METHOD__,9);
+								Debug::text('Permission group does NOT have absences enabled...', __FILE__, __LINE__, __METHOD__, 9);
 							}
 
-							$plf->getByCompanyIdAndPermissionControlIdAndSectionAndName( $c_obj->getId(), $pc_obj->getId(), 'schedule', array('edit','edit_own','edit_child'));
+							$plf->getByCompanyIdAndPermissionControlIdAndSectionAndNameAndValue( $c_obj->getId(), $pc_obj->getId(), 'schedule', array('edit', 'edit_own', 'edit_child'), 1 );
 							if ( $plf->getRecordCount() > 0 ) {
-								Debug::text('Found permission group with Edit Schedule enabled: '. $plf->getCurrent()->getValue(), __FILE__, __LINE__, __METHOD__,9);
+								Debug::text('Found permission group with Edit Schedule enabled: '. $plf->getCurrent()->getValue(), __FILE__, __LINE__, __METHOD__, 9);
 								$pc_obj->setPermission(
-													   array(   'schedule' => array(
+														array(	'schedule' => array(
 																					'edit_branch' => TRUE,
 																					'edit_department' => TRUE,
 																					'edit_job' => TRUE,
 																					'edit_job_item' => TRUE,
-																				  )
+																				)
 															)
-													   );
+														);
 							} else {
-								Debug::text('Permission group does NOT have schedules enabled...', __FILE__, __LINE__, __METHOD__,9);
+								Debug::text('Permission group does NOT have schedules enabled...', __FILE__, __LINE__, __METHOD__, 9);
 							}
 
 						}

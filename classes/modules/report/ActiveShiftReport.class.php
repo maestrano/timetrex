@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 2095 $
- * $Id: Sort.class.php 2095 2008-09-01 07:04:25Z ipso $
- * $Date: 2008-09-01 00:04:25 -0700 (Mon, 01 Sep 2008) $
- */
+
 
 /**
  * @package Modules\Report
@@ -54,12 +50,23 @@ class ActiveShiftReport extends Report {
 	}
 
 	protected function _checkPermissions( $user_id, $company_id ) {
-		if ( $this->getPermissionObject()->Check('report','enabled', $user_id, $company_id )
-				AND $this->getPermissionObject()->Check('report','view_active_shift', $user_id, $company_id ) ) {
+		if ( $this->getPermissionObject()->Check('report', 'enabled', $user_id, $company_id )
+				AND $this->getPermissionObject()->Check('report', 'view_active_shift', $user_id, $company_id ) ) {
 			return TRUE;
 		}
 
 		return FALSE;
+	}
+
+	protected function _validateConfig() {
+		$config = $this->getConfig();
+
+		//Make sure some time period is selected.
+		if ( !isset($config['filter']['time_period']) AND !isset($config['filter']['pay_period_id']) ) {
+			$this->validator->isTrue( 'time_period', FALSE, TTi18n::gettext('No time period defined for this report') );
+		}
+
+		return TRUE;
 	}
 
 	protected function _getOptions( $name, $params = NULL ) {
@@ -73,7 +80,7 @@ class ActiveShiftReport extends Report {
 										'template',
 										//'time_period',
 										'columns',
-							   );
+								);
 				break;
 			case 'setup_fields':
 				$retval = array(
@@ -89,13 +96,13 @@ class ActiveShiftReport extends Report {
 										'-2050-exclude_user_id' => TTi18n::gettext('Employee Exclude'),
 										'-2060-default_branch_id' => TTi18n::gettext('Default Branch'),
 										'-2070-default_department_id' => TTi18n::gettext('Default Department'),
-                                        '-2100-custom_filter' => TTi18n::gettext('Custom Filter'),
+										'-2100-custom_filter' => TTi18n::gettext('Custom Filter'),
 
 										'-5000-columns' => TTi18n::gettext('Display Columns'),
 										'-5010-group' => TTi18n::gettext('Group By'),
 										'-5020-sub_total' => TTi18n::gettext('SubTotal By'),
 										'-5030-sort' => TTi18n::gettext('Sort By'),
-							   );
+								);
 
 				if ( $this->getUserObject()->getCompanyObject()->getProductEdition() >= TT_PRODUCT_CORPORATE ) {
 					$professional_edition_setup_fields = array(
@@ -132,7 +139,7 @@ class ActiveShiftReport extends Report {
 					$retval = Misc::addSortPrefix( $other_field_names, 9000 );
 				}
 				break;
-            case 'report_custom_column':
+			case 'report_custom_column':
 				if ( getTTProductEdition() >= TT_PRODUCT_PROFESSIONAL ) {
 					$rcclf = TTnew( 'ReportCustomColumnListFactory' );
 					// Because the Filter type is just only a filter criteria and not need to be as an option of Display Columns, Group By, Sub Total, Sort By dropdowns.
@@ -142,14 +149,14 @@ class ActiveShiftReport extends Report {
 						$retval = Misc::addSortPrefix( $custom_column_labels, 9500 );
 					}
 				}
-                break; 
-            case 'report_custom_filters':
+				break;
+			case 'report_custom_filters':
 				if ( getTTProductEdition() >= TT_PRODUCT_PROFESSIONAL ) {
 					$rcclf = TTnew( 'ReportCustomColumnListFactory' );
 					$retval = $rcclf->getByCompanyIdAndTypeIdAndFormatIdAndScriptArray( $this->getUserObject()->getCompany(), $rcclf->getOptions('filter_column_type_ids'), NULL, 'ActiveShiftReport', 'custom_column' );
 				}
-                break;
-            case 'report_dynamic_custom_column':
+				break;
+			case 'report_dynamic_custom_column':
 				if ( getTTProductEdition() >= TT_PRODUCT_PROFESSIONAL ) {
 					$rcclf = TTnew( 'ReportCustomColumnListFactory' );
 					$report_dynamic_custom_column_labels = $rcclf->getByCompanyIdAndTypeIdAndFormatIdAndScriptArray( $this->getUserObject()->getCompany(), $rcclf->getOptions('display_column_type_ids'), $rcclf->getOptions('dynamic_format_ids'), 'ActiveShiftReport', 'custom_column' );
@@ -157,8 +164,8 @@ class ActiveShiftReport extends Report {
 						$retval = Misc::addSortPrefix( $report_dynamic_custom_column_labels, 9700 );
 					}
 				}
-                break;
-            case 'report_static_custom_column':
+				break;
+			case 'report_static_custom_column':
 				if ( getTTProductEdition() >= TT_PRODUCT_PROFESSIONAL ) {
 					$rcclf = TTnew( 'ReportCustomColumnListFactory' );
 					$report_static_custom_column_labels = $rcclf->getByCompanyIdAndTypeIdAndFormatIdAndScriptArray( $this->getUserObject()->getCompany(), $rcclf->getOptions('display_column_type_ids'), $rcclf->getOptions('static_format_ids'), 'ActiveShiftReport', 'custom_column' );
@@ -166,13 +173,13 @@ class ActiveShiftReport extends Report {
 						$retval = Misc::addSortPrefix( $report_static_custom_column_labels, 9700 );
 					}
 				}
-                break;
-            case 'formula_columns':
-                $retval = TTMath::formatFormulaColumns( array_merge( array_diff( $this->getOptions('static_columns'), (array)$this->getOptions('report_static_custom_column') ), $this->getOptions('dynamic_columns') ) );
-                break; 
-            case 'filter_columns':
-                $retval = TTMath::formatFormulaColumns( array_merge( $this->getOptions('static_columns'), $this->getOptions('dynamic_columns'), (array)$this->getOptions('report_dynamic_custom_column') ) );
-                break;
+				break;
+			case 'formula_columns':
+				$retval = TTMath::formatFormulaColumns( array_merge( array_diff( $this->getOptions('static_columns'), (array)$this->getOptions('report_static_custom_column') ), $this->getOptions('dynamic_columns') ) );
+				break;
+			case 'filter_columns':
+				$retval = TTMath::formatFormulaColumns( array_merge( $this->getOptions('static_columns'), $this->getOptions('dynamic_columns'), (array)$this->getOptions('report_dynamic_custom_column') ) );
+				break;
 			case 'static_columns':
 				$retval = array(
 										//Static Columns - Aggregate functions can't be used on these.
@@ -230,14 +237,14 @@ class ActiveShiftReport extends Report {
 										'-1900-time_stamp' => TTi18n::gettext('Punch Time'),
 										'-1910-actual_time_stamp' => TTi18n::gettext('Actual Punch Time'),
 										'-2010-note' => TTi18n::gettext('Note'),
-							   );
+								);
 
 				if ( $this->getUserObject()->getCompanyObject()->getProductEdition() >= TT_PRODUCT_CORPORATE ) {
 					$professional_edition_static_columns = array(
 											//Static Columns - Aggregate functions can't be used on these.
 											'-1825-job' => TTi18n::gettext('Job'),
 											'-1826-job_item' => TTi18n::gettext('Task'),
-								   );
+									);
 					$retval = array_merge( $retval, $professional_edition_static_columns, (array)$this->getOptions('report_static_custom_column') );
 				}
 				break;
@@ -297,7 +304,7 @@ class ActiveShiftReport extends Report {
 										'-1130-by_station_type_by_employee' => TTi18n::gettext('Punches By Station Type'),
 
 										//'-1230-by_branch+total_user' => TTi18n::gettext('Total Employees By Branch'),
-							   );
+								);
 				if ( $this->getUserObject()->getCompanyObject()->getProductEdition() >= TT_PRODUCT_CORPORATE ) {
 					$professional_edition_setup_fields = array(
 										'-1112-by_job_by_job_item_by_employee' => TTi18n::gettext('Punches By Job/Task'),
@@ -523,7 +530,7 @@ class ActiveShiftReport extends Report {
 							$retval['sort'][] = array('first_name' => 'asc');
 							break;
 						default:
-							Debug::Text(' Parsing template name: '. $template, __FILE__, __LINE__, __METHOD__,10);
+							Debug::Text(' Parsing template name: '. $template, __FILE__, __LINE__, __METHOD__, 10);
 							break;
 					}
 				}
@@ -552,7 +559,7 @@ class ActiveShiftReport extends Report {
 					$retval['-5040-sort'] = $retval['sort'];
 					unset($retval['sort']);
 				}
-				Debug::Arr($retval, ' Template Config for: '. $template, __FILE__, __LINE__, __METHOD__,10);
+				Debug::Arr($retval, ' Template Config for: '. $template, __FILE__, __LINE__, __METHOD__, 10);
 
 				break;
 			default:
@@ -571,27 +578,27 @@ class ActiveShiftReport extends Report {
 		$columns = $this->getColumnDataConfig();
 		$filter_data = $this->getFilterConfig();
 
-		if ( $this->getPermissionObject()->Check('user','view') == FALSE ) {
+		if ( $this->getPermissionObject()->Check('user', 'view') == FALSE ) {
 			$hlf = TTnew( 'HierarchyListFactory' );
 			$permission_children_ids = $hlf->getHierarchyChildrenByCompanyIdAndUserIdAndObjectTypeID( $this->getUserObject()->getCompany(), $this->getUserObject()->getID() );
-			Debug::Arr($permission_children_ids,'Permission Children Ids:', __FILE__, __LINE__, __METHOD__,10);
+			Debug::Arr($permission_children_ids, 'Permission Children Ids:', __FILE__, __LINE__, __METHOD__, 10);
 		} else {
 			//Get Permission Hierarchy Children first, as this can be used for viewing, or editing.
 			$permission_children_ids = array();
 		}
-		if ( $this->getPermissionObject()->Check('user','view') == FALSE ) {
-			if ( $this->getPermissionObject()->Check('user','view_child') == FALSE ) {
+		if ( $this->getPermissionObject()->Check('user', 'view') == FALSE ) {
+			if ( $this->getPermissionObject()->Check('user', 'view_child') == FALSE ) {
 				$permission_children_ids = array();
 			}
-			if ( $this->getPermissionObject()->Check('user','view_own') ) {
+			if ( $this->getPermissionObject()->Check('user', 'view_own') ) {
 				$permission_children_ids[] = $this->getUserObject()->getID();
 			}
 
 			$filter_data['permission_children_ids'] = $permission_children_ids;
 		}
-		//Debug::Text(' Permission Children: '. count($permission_children_ids) .' Wage Children: '. count($wage_permission_children_ids), __FILE__, __LINE__, __METHOD__,10);
-		//Debug::Arr($permission_children_ids, 'Permission Children: '. count($permission_children_ids), __FILE__, __LINE__, __METHOD__,10);
-		//Debug::Arr($wage_permission_children_ids, 'Wage Children: '. count($wage_permission_children_ids), __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Text(' Permission Children: '. count($permission_children_ids) .' Wage Children: '. count($wage_permission_children_ids), __FILE__, __LINE__, __METHOD__, 10);
+		//Debug::Arr($permission_children_ids, 'Permission Children: '. count($permission_children_ids), __FILE__, __LINE__, __METHOD__, 10);
+		//Debug::Arr($wage_permission_children_ids, 'Wage Children: '. count($wage_permission_children_ids), __FILE__, __LINE__, __METHOD__, 10);
 
 		//
 		//FIXME: Figure out way to only show users with punches if they specify that. Perhaps some sort of array intersect?
@@ -600,7 +607,7 @@ class ActiveShiftReport extends Report {
 		//Get user data for joining.
 		$ulf = TTnew( 'UserListFactory' );
 		$ulf->getAPISearchByCompanyIdAndArrayCriteria( $this->getUserObject()->getCompany(), $filter_data );
-		Debug::Text(' User Rows: '. $ulf->getRecordCount(), __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text(' User Rows: '. $ulf->getRecordCount(), __FILE__, __LINE__, __METHOD__, 10);
 		$this->getProgressBarObject()->start( $this->getAMFMessageID(), $ulf->getRecordCount(), NULL, TTi18n::getText('Retrieving Data...') );
 		foreach ( $ulf as $key => $u_obj ) {
 			$this->tmp_data['user'][$u_obj->getId()] = (array)$u_obj->getObjectAsArray( $columns );
@@ -617,31 +624,31 @@ class ActiveShiftReport extends Report {
 		//Get user preference data for joining.
 		$uplf = TTnew( 'UserPreferenceListFactory' );
 		$uplf->getAPISearchByCompanyIdAndArrayCriteria( $this->getUserObject()->getCompany(), $filter_data );
-		Debug::Text(' User Preference Rows: '. $uplf->getRecordCount(), __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text(' User Preference Rows: '. $uplf->getRecordCount(), __FILE__, __LINE__, __METHOD__, 10);
 		$this->getProgressBarObject()->start( $this->getAMFMessageID(), $uplf->getRecordCount(), NULL, TTi18n::getText('Retrieving Data...') );
 		foreach ( $uplf as $key => $up_obj ) {
 			$this->tmp_data['user_preference'][$up_obj->getUser()] = (array)$up_obj->getObjectAsArray( $this->getColumnDataConfig() );
 			$this->getProgressBarObject()->set( $this->getAMFMessageID(), $key );
 		}
-		//Debug::Arr($this->tmp_data['user_preference'], 'TMP Data: ', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($this->tmp_data['user_preference'], 'TMP Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		//Get last punch (active shift) data for joining with users. That way we can full data from both tables.
 		$plf = TTnew( 'PunchListFactory' );
 		$plf->getAPIActiveShiftReportByCompanyIdAndArrayCriteria( $this->getUserObject()->getCompany(), $filter_data );
-		Debug::Text(' Active Shift Rows: '. $plf->getRecordCount(), __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text(' Active Shift Rows: '. $plf->getRecordCount(), __FILE__, __LINE__, __METHOD__, 10);
 		$this->getProgressBarObject()->start( $this->getAMFMessageID(), $plf->getRecordCount(), NULL, TTi18n::getText('Retrieving Data...') );
 		foreach ( $plf as $key => $p_obj ) {
-			$this->tmp_data['punch'][$p_obj->getColumn('user_id')] = (array)$p_obj->getObjectAsArray( $this->getColumnDataConfig() );
+			$this->tmp_data['punch'][$p_obj->getUser()] = (array)$p_obj->getObjectAsArray( $this->getColumnDataConfig() );
 			if ( $p_obj->getStatus() == 10 ) {
-				$this->tmp_data['punch'][$p_obj->getColumn('user_id')]['_bgcolor'] = array(225,255,225);
-				//$this->tmp_data['punch'][$p_obj->getColumn('user_id')]['_fontcolor'] = array(25,225,25); //Green
+				$this->tmp_data['punch'][$p_obj->getUser()]['_bgcolor'] = array(225, 255, 225);
+				//$this->tmp_data['punch'][$p_obj->getUser()]['_fontcolor'] = array(25, 225, 25); //Green
 			} else {
-				$this->tmp_data['punch'][$p_obj->getColumn('user_id')]['_bgcolor'] = array(255,225,225);
-				//$this->tmp_data['punch'][$p_obj->getColumn('user_id')]['_fontcolor'] = array(225,25,25); //Red
+				$this->tmp_data['punch'][$p_obj->getUser()]['_bgcolor'] = array(255, 225, 225);
+				//$this->tmp_data['punch'][$p_obj->getUser()]['_fontcolor'] = array(225, 25, 25); //Red
 			}
 			$this->getProgressBarObject()->set( $this->getAMFMessageID(), $key );
 		}
-		//Debug::Arr($this->tmp_data['punch'], 'TMP Data (punch): ', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($this->tmp_data['punch'], 'TMP Data (punch): ', __FILE__, __LINE__, __METHOD__, 10);
 
 		return TRUE;
 	}
@@ -653,7 +660,7 @@ class ActiveShiftReport extends Report {
 		//Use the punch data is the primary dataset and merge user/user preference data to it. This will make it
 		//so the report only shows employees with punches within the time period specified.
 		//If the user wants to see more employees they can increase the time period to "All".
-		$key=0;
+		$key = 0;
 		if ( isset($this->tmp_data['punch']) ) {
 			foreach( $this->tmp_data['punch'] as $user_id => $row ) {
 				$processed_data = array();
@@ -673,7 +680,7 @@ class ActiveShiftReport extends Report {
 			}
 			unset($this->tmp_data, $row, $date_columns, $user_id, $processed_data );
 		}
-		//Debug::Arr($this->data, 'preProcess Data: ', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($this->data, 'preProcess Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		return TRUE;
 	}

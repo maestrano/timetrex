@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 8371 $
- * $Id: HierarchyFactory.class.php 8371 2012-11-22 21:18:57Z ipso $
- * $Date: 2012-11-22 13:18:57 -0800 (Thu, 22 Nov 2012) $
- */
+
 
 /**
  * @package Modules\Hierarchy
@@ -76,7 +72,7 @@ class HierarchyFactory extends Factory {
 
 	function getHierarchyControl() {
 		if ( isset($this->data['hierarchy_control_id']) ) {
-			return $this->data['hierarchy_control_id'];
+			return (int)$this->data['hierarchy_control_id'];
 		}
 
 		return FALSE;
@@ -92,7 +88,7 @@ class HierarchyFactory extends Factory {
 	//Basically "old_id".
 	function getPreviousUser() {
 		if ( isset($this->data['previous_user_id']) ) {
-			return $this->data['previous_user_id'];
+			return (int)$this->data['previous_user_id'];
 		}
 
 		return FALSE;
@@ -106,7 +102,7 @@ class HierarchyFactory extends Factory {
 
 	function getParent() {
 		if ( isset($this->data['parent_user_id']) ) {
-			return $this->data['parent_user_id'];
+			return (int)$this->data['parent_user_id'];
 		}
 
 		return FALSE;
@@ -120,7 +116,7 @@ class HierarchyFactory extends Factory {
 
 	function getUser() {
 		if ( isset($this->data['user_id']) ) {
-			return $this->data['user_id'];
+			return (int)$this->data['user_id'];
 		}
 
 		return FALSE;
@@ -142,7 +138,7 @@ class HierarchyFactory extends Factory {
 	function setShared($bool) {
 		$this->data['shared'] = $this->toBool($bool);
 
-		return true;
+		return TRUE;
 	}
 
 
@@ -183,7 +179,7 @@ class HierarchyFactory extends Factory {
 
 		if ( $user_company_id > 0 AND $parent_company_id > 0 ) {
 
-			Debug::Text(' User Company: '. $user_company_id .' Parent Company: '. $parent_company_id, __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text(' User Company: '. $user_company_id .' Parent Company: '. $parent_company_id, __FILE__, __LINE__, __METHOD__, 10);
 			if ( $user_company_id != $parent_company_id ) {
 					$this->Validator->isTrue(	'parent',
 												FALSE,
@@ -197,7 +193,7 @@ class HierarchyFactory extends Factory {
 				$children_ids = array_keys( $children_arr );
 
 				if ( isset($children_ids) AND is_array($children_ids) AND in_array( $this->getParent(), $children_ids) == TRUE ) {
-					Debug::Text(' Objects cant be re-parented to their own children...' , __FILE__, __LINE__, __METHOD__,10);
+					Debug::Text(' Objects cant be re-parented to their own children...', __FILE__, __LINE__, __METHOD__, 10);
 					$this->Validator->isTrue(	'parent',
 												FALSE,
 												TTi18n::gettext('Unable to change parent to a child of itself')
@@ -210,10 +206,10 @@ class HierarchyFactory extends Factory {
 			$uhlf = TTnew( 'UserHierarchyListFactory' );
 			$hierarchy = $uhlf->getByCompanyIdArray( $parent_company_id );
 
-			Debug::Text(' User ID: '. $this->getUser() .' Parent ID: '. $this->getParent(), __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text(' User ID: '. $this->getUser() .' Parent ID: '. $this->getParent(), __FILE__, __LINE__, __METHOD__, 10);
 			if ( is_array( $hierarchy ) ) {
 				if ( in_array( $this->getParent(), array_keys( $hierarchy[$this->getUser()] ) ) ) {
-					Debug::Text(' Trying to re-parent to a child! ', __FILE__, __LINE__, __METHOD__,10);
+					Debug::Text(' Trying to re-parent to a child! ', __FILE__, __LINE__, __METHOD__, 10);
 
 					$this->Validator->isTrue(	'parent',
 												FALSE,
@@ -221,10 +217,10 @@ class HierarchyFactory extends Factory {
 												);
 
 				} else {
-					Debug::Text(' NOT Trying to re-parent to a child! ', __FILE__, __LINE__, __METHOD__,10);
+					Debug::Text(' NOT Trying to re-parent to a child! ', __FILE__, __LINE__, __METHOD__, 10);
 				}
 			} else {
-				Debug::Text(' NOT Trying to re-parent to a child! 22', __FILE__, __LINE__, __METHOD__,10);
+				Debug::Text(' NOT Trying to re-parent to a child! 22', __FILE__, __LINE__, __METHOD__, 10);
 			}
 */
 		}
@@ -239,12 +235,12 @@ class HierarchyFactory extends Factory {
 
 		$retval = TRUE;
 		if ( $this->getId() === FALSE ) {
-			Debug::Text(' Adding Node ', __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text(' Adding Node ', __FILE__, __LINE__, __METHOD__, 10);
 			$log_action = 10;
 
 			//Add node to tree
 			if ( $this->getFastTreeObject()->add( $this->getUser(), $this->getParent() ) === FALSE ) {
-				Debug::Text(' Failed adding Node ', __FILE__, __LINE__, __METHOD__,10);
+				Debug::Text(' Failed adding Node ', __FILE__, __LINE__, __METHOD__, 10);
 
 				$this->Validator->isTrue(	'user',
 											FALSE,
@@ -253,14 +249,14 @@ class HierarchyFactory extends Factory {
 				$retval = FALSE;
 			}
 		} else {
-			Debug::Text(' Editing Node ', __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text(' Editing Node ', __FILE__, __LINE__, __METHOD__, 10);
 			$log_action = 20;
 
 			//Edit node.
-			if ( $this->getFastTreeObject()->edit( $this->getPreviousUser() , $this->getUser() ) === TRUE ) {
-				$retval = $this->getFastTreeObject()->move( $this->getUser() , $this->getParent() );
+			if ( $this->getFastTreeObject()->edit( $this->getPreviousUser(), $this->getUser() ) === TRUE ) {
+				$retval = $this->getFastTreeObject()->move( $this->getUser(), $this->getParent() );
 			} else {
-				Debug::Text(' Failed editing Node ', __FILE__, __LINE__, __METHOD__,10);
+				Debug::Text(' Failed editing Node ', __FILE__, __LINE__, __METHOD__, 10);
 
 				//$retval = FALSE;
 				$retval = TRUE;
@@ -269,19 +265,19 @@ class HierarchyFactory extends Factory {
 
 		/*
 		if ( $retval === TRUE ) {
-			Debug::Text(' Retval true, Setting Shared flag ', __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text(' Retval true, Setting Shared flag ', __FILE__, __LINE__, __METHOD__, 10);
 
 			$hslf = TTnew( 'HierarchyShareListFactory' );
 			$hslf->getByHierarchyControlIdAndUserId( $this->getHierarchyControl(), $this->getUser() );
 			if ( $hslf->getRecordCount() > 0 ) {
-				Debug::Text(' Deleting already set shared flag ', __FILE__, __LINE__, __METHOD__,10);
+				Debug::Text(' Deleting already set shared flag ', __FILE__, __LINE__, __METHOD__, 10);
 
 				$shared_obj = $hslf->getCurrent();
 				$shared_obj->Delete();
 			}
 
 			if ( $this->getShared() === TRUE ) {
-				Debug::Text(' Setting Shared flag ', __FILE__, __LINE__, __METHOD__,10);
+				Debug::Text(' Setting Shared flag ', __FILE__, __LINE__, __METHOD__, 10);
 
 				$hsf = TTnew( 'HierarchyShareFactory' );
 				$hsf->setHierarchyControl( $this->getHierarchyControl() );
@@ -290,7 +286,7 @@ class HierarchyFactory extends Factory {
 
 			}
 		} else {
-			Debug::Text(' Retval NOT true, Setting Shared flag ', __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text(' Retval NOT true, Setting Shared flag ', __FILE__, __LINE__, __METHOD__, 10);
 		}
 		*/
 
@@ -316,18 +312,18 @@ class HierarchyFactory extends Factory {
 
 			//FIXME: When deleting recursively, we don't clear out the hierarhcy share table for all the children.
 			$hslf = TTnew( 'HierarchyShareListFactory' );
-			Debug::Text(' Hierarchy Control ID: '. $this->getHierarchyControl() , __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text(' Hierarchy Control ID: '. $this->getHierarchyControl(), __FILE__, __LINE__, __METHOD__, 10);
 			$hslf->getByHierarchyControlIdAndUserId( $this->getHierarchyControl(), $this->getUser() );
 			if ( $hslf->getRecordCount() > 0 ) {
-				Debug::Text(' Deleting already set shared flag ', __FILE__, __LINE__, __METHOD__,10);
+				Debug::Text(' Deleting already set shared flag ', __FILE__, __LINE__, __METHOD__, 10);
 
 				$shared_obj = $hslf->getCurrent();
 				$shared_obj->Delete();
 			} else {
-				Debug::Text(' NOT Deleting already set shared flag ', __FILE__, __LINE__, __METHOD__,10);
+				Debug::Text(' NOT Deleting already set shared flag ', __FILE__, __LINE__, __METHOD__, 10);
 			}
 
-			TTLog::addEntry( $this->getUser(), 30, TTi18n::getText('Hierarchy Tree - Control ID: ').$this->getHierarchyControl() , NULL, $this->getTable() );
+			TTLog::addEntry( $this->getUser(), 30, TTi18n::getText('Hierarchy Tree - Control ID: ').$this->getHierarchyControl(), NULL, $this->getTable() );
 
 			$this->CommitTransaction();
 			*/

@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 11115 $
- * $Id: PermissionFactory.class.php 11115 2013-10-11 18:29:20Z ipso $
- * $Date: 2013-10-11 11:29:20 -0700 (Fri, 11 Oct 2013) $
- */
+
 
 /**
  * @package Core
@@ -127,7 +123,7 @@ class PermissionFactory extends Factory {
 											'payroll' => TTi18n::gettext('Payroll'),
 											'policy' => TTi18n::gettext('Policies'),
 											'report' => TTi18n::gettext('Reports'),
-                                            'hr' => TTi18n::gettext('Human Resources (HR)'),
+											'hr' => TTi18n::gettext('Human Resources (HR)'),
 											'recruitment' => TTi18n::gettext('Recruitment'),
 											);
 
@@ -139,8 +135,9 @@ class PermissionFactory extends Factory {
 					$product_edition = getTTProductEdition();
 				}
 				
-				if ( $product_edition == TT_PRODUCT_ENTERPRISE ) { //Enterprise
-				} elseif ( $product_edition == TT_PRODUCT_CORPORATE ) { //Corporate
+				//if ( $product_edition == TT_PRODUCT_ENTERPRISE ) { //Enterprise
+				// } elseif {
+				if ( $product_edition == TT_PRODUCT_CORPORATE ) { //Corporate
 					unset( $retval['recruitment'] );
 				} elseif ( $product_edition == TT_PRODUCT_COMMUNITY OR $product_edition == TT_PRODUCT_PROFESSIONAL ) { //Community or Professional
 					unset( $retval['job'], $retval['invoice'], $retval['recruitment'] );
@@ -171,29 +168,29 @@ class PermissionFactory extends Factory {
 															'permission',
 															'pay_period_schedule',
 															),
-										'user' 	=> array(
+										'user'	=> array(
 															'user',
 															'user_preference',
 															'user_tax_deduction',
-                                                            'user_contact'
+															'user_contact'
 														),
-										'schedule' 	=> array(
+										'schedule'	=> array(
 															'schedule',
 															'recurring_schedule',
 															'recurring_schedule_template',
 														),
-										'attendance' 	=> array(
+										'attendance'	=> array(
 															'punch',
 															'absence',
 															'accrual',
 															'request',
 														),
-										'job' 	=> array(
+										'job'	=> array(
 															'job',
 															'job_item',
 															'job_report',
 														),
-										'invoice' 	=> array(
+										'invoice'	=> array(
 															'invoice_config',
 															'client',
 															'client_payment',
@@ -206,11 +203,16 @@ class PermissionFactory extends Factory {
 															'invoice',
 															'invoice_report'
 														),
-										'policy' 	=> array(
+										'policy'	=> array(
 															'policy_group',
+															'pay_code',
+															'pay_formula_policy',
+															'contributing_pay_code_policy',
+															'contributing_shift_policy',
 															'schedule_policy',
 															'meal_policy',
 															'break_policy',
+															'regular_time_policy',
 															'over_time_policy',
 															'premium_policy',
 															'accrual_policy',
@@ -218,41 +220,41 @@ class PermissionFactory extends Factory {
 															'round_policy',
 															'exception_policy',
 															'holiday_policy',
-                                                            'expense_policy',
+															'expense_policy',
 														),
-										'payroll' 	=> array(
+										'payroll'	=> array(
 															'pay_stub_account',
 															'pay_stub',
 															'pay_stub_amendment',
 															'wage',
 															'roe',
 															'company_tax_deduction',
-                                                            'user_expense',
+															'user_expense',
 														),
-										'report' 	=> array(
+										'report'	=> array(
 															'report',
-                                                            'report_custom_column',
+															'report_custom_column',
 														),
-                                        'hr' => array(
-                                                        'qualification',
-                                                        'user_education',
-                                                        'user_license',
-                                                        'user_skill',
-                                                        'user_membership',
-                                                        'user_language',
-                                                        'kpi',
-                                                        'user_review',
-                                                        'job_vacancy',
-                                                        'job_applicant',
-                                                        'job_application',
-                                                        'hr_report',
-                                                        ),
-                                        'recruitment' => array(
-                                                        'job_vacancy',
-                                                        'job_applicant',
-                                                        'job_application',
-                                                        'recruitment_report',
-                                                        ),
+										'hr' => array(
+														'qualification',
+														'user_education',
+														'user_license',
+														'user_skill',
+														'user_membership',
+														'user_language',
+														'kpi',
+														'user_review',
+														'job_vacancy',
+														'job_applicant',
+														'job_application',
+														'hr_report',
+														),
+										'recruitment' => array(
+														'job_vacancy',
+														'job_applicant',
+														'job_application',
+														'recruitment_report',
+														),
 										);
 
 				//Remove sections that don't apply to the current product edition.
@@ -263,8 +265,9 @@ class PermissionFactory extends Factory {
 					$product_edition = getTTProductEdition();
 				}
 
-				if ( $product_edition == TT_PRODUCT_ENTERPRISE ) { //Enterprise
-				} elseif ( $product_edition == TT_PRODUCT_CORPORATE ) { //Corporate
+				//if ( $product_edition == TT_PRODUCT_ENTERPRISE ) { //Enterprise
+				//} else
+				if ( $product_edition == TT_PRODUCT_CORPORATE ) { //Corporate
 					unset( $retval['recruitment'] );
 					unset( $retval['payroll'][array_search( 'user_expense', $retval['payroll'])], $retval['policy'][array_search( 'expense_policy', $retval['policy'])] );
 				} elseif ( $product_edition == TT_PRODUCT_COMMUNITY OR $product_edition == TT_PRODUCT_PROFESSIONAL ) { //Community or Professional
@@ -292,7 +295,7 @@ class PermissionFactory extends Factory {
 										'user' => TTi18n::gettext('Employees'),
 										'user_preference' => TTi18n::gettext('Employee Preferences'),
 										'user_tax_deduction' => TTi18n::gettext('Employee Tax / Deductions'),
-                                        'user_contact' => TTi18n::gettext('Employee Contact'),
+										'user_contact' => TTi18n::gettext('Employee Contact'),
 
 										'schedule' => TTi18n::gettext('Schedule'),
 										'recurring_schedule' => TTi18n::gettext('Recurring Schedule'),
@@ -320,9 +323,14 @@ class PermissionFactory extends Factory {
 										'invoice_report' => TTi18n::gettext('Invoice Reports'),
 
 										'policy_group' => TTi18n::gettext('Policy Group'),
+										'pay_code' => TTi18n::gettext('Pay Codes'),
+										'pay_formula_policy' => TTi18n::gettext('Pay Formulas'),
+										'contributing_pay_code_policy' => TTi18n::gettext('Contributing Pay Code Policies'),
+										'contributing_shift_policy' => TTi18n::gettext('Contributing Shift Policies'),
 										'schedule_policy' => TTi18n::gettext('Schedule Policies'),
 										'meal_policy' => TTi18n::gettext('Meal Policies'),
 										'break_policy' => TTi18n::gettext('Break Policies'),
+										'regular_time_policy' => TTi18n::gettext('Regular Time Policies'),
 										'over_time_policy' => TTi18n::gettext('Overtime Policies'),
 										'premium_policy' => TTi18n::gettext('Premium Policies'),
 										'accrual_policy' => TTi18n::gettext('Accrual Policies'),
@@ -330,7 +338,7 @@ class PermissionFactory extends Factory {
 										'round_policy' => TTi18n::gettext('Rounding Policies'),
 										'exception_policy' => TTi18n::gettext('Exception Policies'),
 										'holiday_policy' => TTi18n::gettext('Holiday Policies'),
-                                        'expense_policy' => TTi18n::gettext('Expense Policies'),
+										'expense_policy' => TTi18n::gettext('Expense Policies'),
 
 										'pay_stub_account' => TTi18n::gettext('Pay Stub Accounts'),
 										'pay_stub' => TTi18n::gettext('Employee Pay Stubs'),
@@ -339,26 +347,26 @@ class PermissionFactory extends Factory {
 										'pay_period_schedule' => TTi18n::gettext('Pay Period Schedule'),
 										'roe' => TTi18n::gettext('Record of Employment'),
 										'company_tax_deduction' => TTi18n::gettext('Company Tax / Deductions'),
-                                        'user_expense' => TTi18n::gettext('Employee Expenses'),
+										'user_expense' => TTi18n::gettext('Employee Expenses'),
 
 										'report' => TTi18n::gettext('Reports'),
-                                        'report_custom_column' => TTi18n::gettext('Report Custom Column'),
+										'report_custom_column' => TTi18n::gettext('Report Custom Column'),
 
-                                        'qualification' => TTi18n::gettext('Qualifications'),
-                                        'user_education' => TTi18n::gettext('Employee Education'),
-                                        'user_license' => TTi18n::gettext('Employee Licenses'),
-                                        'user_skill' => TTi18n::gettext('Employee Skills'),
-                                        'user_membership' => TTi18n::gettext('Employee Memberships'),
-                                        'user_language' => TTi18n::gettext('Employee Language'),
+										'qualification' => TTi18n::gettext('Qualifications'),
+										'user_education' => TTi18n::gettext('Employee Education'),
+										'user_license' => TTi18n::gettext('Employee Licenses'),
+										'user_skill' => TTi18n::gettext('Employee Skills'),
+										'user_membership' => TTi18n::gettext('Employee Memberships'),
+										'user_language' => TTi18n::gettext('Employee Language'),
 
-                                        'kpi' => TTi18n::gettext('Key Performance Indicators'),
-                                        'user_review' => TTi18n::gettext('Employee Review'),
+										'kpi' => TTi18n::gettext('Key Performance Indicators'),
+										'user_review' => TTi18n::gettext('Employee Review'),
 
-                                        'job_vacancy' => TTi18n::gettext('Job Vacancy'),
-                                        'job_applicant' => TTi18n::gettext('Job Applicant'),
-                                        'job_application' => TTi18n::gettext('Job Application'),
+										'job_vacancy' => TTi18n::gettext('Job Vacancy'),
+										'job_applicant' => TTi18n::gettext('Job Applicant'),
+										'job_application' => TTi18n::gettext('Job Application'),
 
-                                        'hr_report' => TTi18n::gettext('HR Reports'),
+										'hr_report' => TTi18n::gettext('HR Reports'),
 										'recruitment_report' => TTi18n::gettext('Recruitment Reports'),
 									);
 				break;
@@ -367,7 +375,7 @@ class PermissionFactory extends Factory {
 											'system' => array(
 																'login' => TTi18n::gettext('Login Enabled'),
 															),
-											'company' => 	array(
+											'company' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view' => TTi18n::gettext('View'),
@@ -380,7 +388,7 @@ class PermissionFactory extends Factory {
 																'edit_own_bank' => TTi18n::gettext('Edit Own Banking Information'),
 																'login_other_user' => TTi18n::gettext('Login as Other Employee')
 															),
-											'user' => 	array(
+											'user' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view_child' => TTi18n::gettext('View Subordinate'),
@@ -408,7 +416,7 @@ class PermissionFactory extends Factory {
 																'view_sin' => TTi18n::gettext('View SIN/SSN'),
 																//'undelete' => TTi18n::gettext('Un-Delete')
 															),
-                                            'user_contact' => array(
+											'user_contact' => array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view_child' => TTi18n::gettext('View Subordinate'),
@@ -423,7 +431,7 @@ class PermissionFactory extends Factory {
 																//'view_sin' => TTi18n::gettext('View SIN/SSN'),
 																//'undelete' => TTi18n::gettext('Un-Delete')
 															),
-											'user_preference' => 	array(
+											'user_preference' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view_child' => TTi18n::gettext('View Subordinate'),
@@ -437,7 +445,7 @@ class PermissionFactory extends Factory {
 																'delete' => TTi18n::gettext('Delete'),
 																//'undelete' => TTi18n::gettext('Un-Delete')
 															),
-											'user_tax_deduction' => 	array(
+											'user_tax_deduction' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view_child' => TTi18n::gettext('View Subordinate'),
@@ -451,7 +459,7 @@ class PermissionFactory extends Factory {
 																'delete' => TTi18n::gettext('Delete'),
 																//'undelete' => TTi18n::gettext('Un-Delete')
 															),
-											'roe' => 	array(
+											'roe' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view_child' => TTi18n::gettext('View Subordinate'),
@@ -465,7 +473,7 @@ class PermissionFactory extends Factory {
 																'delete' => TTi18n::gettext('Delete'),
 																//'undelete' => TTi18n::gettext('Un-Delete')
 															),
-											'company_tax_deduction' => 	array(
+											'company_tax_deduction' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view' => TTi18n::gettext('View'),
@@ -476,7 +484,7 @@ class PermissionFactory extends Factory {
 																'delete' => TTi18n::gettext('Delete'),
 																//'undelete' => TTi18n::gettext('Un-Delete')
 															),
-                                            'user_expense' => 	array(
+											'user_expense' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view_child' => TTi18n::gettext('View Subordinate'),
@@ -488,10 +496,10 @@ class PermissionFactory extends Factory {
 																'delete_own' => TTi18n::gettext('Delete Own'),
 																'delete' => TTi18n::gettext('Delete'),
 																'delete_child' => TTi18n::gettext('Delete Subordinate'),
-                                                                'authorize' => TTi18n::gettext('Authorize Expense')
+																'authorize' => TTi18n::gettext('Authorize Expense')
 																//'undelete' => TTi18n::gettext('Un-Delete')
 															),
-											'pay_stub_account' => 	array(
+											'pay_stub_account' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view' => TTi18n::gettext('View'),
@@ -502,21 +510,7 @@ class PermissionFactory extends Factory {
 																'delete' => TTi18n::gettext('Delete'),
 																//'undelete' => TTi18n::gettext('Un-Delete')
 															),
-											'pay_stub' => 	array(
-																'enabled' => TTi18n::gettext('Enabled'),
-																'view_own' => TTi18n::gettext('View Own'),
-																'view_child' => TTi18n::gettext('View Subordinate'),
-																'view' => TTi18n::gettext('View'),
-																'add' => TTi18n::gettext('Add'),
-																'edit_own' => TTi18n::gettext('Edit Own'),
-																'edit_child' => TTi18n::gettext('Edit Subordinate'),
-																'edit' => TTi18n::gettext('Edit'),
-																'delete_own' => TTi18n::gettext('Delete Own'),
-																'delete_child' => TTi18n::gettext('Delete Subordinate'),
-																'delete' => TTi18n::gettext('Delete'),
-																//'undelete' => TTi18n::gettext('Un-Delete')
-															),
-											'pay_stub_amendment' => 	array(
+											'pay_stub' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view_child' => TTi18n::gettext('View Subordinate'),
@@ -530,7 +524,7 @@ class PermissionFactory extends Factory {
 																'delete' => TTi18n::gettext('Delete'),
 																//'undelete' => TTi18n::gettext('Un-Delete')
 															),
-											'wage' => 	array(
+											'pay_stub_amendment' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view_child' => TTi18n::gettext('View Subordinate'),
@@ -544,7 +538,21 @@ class PermissionFactory extends Factory {
 																'delete' => TTi18n::gettext('Delete'),
 																//'undelete' => TTi18n::gettext('Un-Delete')
 															),
-											'currency' => 	array(
+											'wage' =>	array(
+																'enabled' => TTi18n::gettext('Enabled'),
+																'view_own' => TTi18n::gettext('View Own'),
+																'view_child' => TTi18n::gettext('View Subordinate'),
+																'view' => TTi18n::gettext('View'),
+																'add' => TTi18n::gettext('Add'),
+																'edit_own' => TTi18n::gettext('Edit Own'),
+																'edit_child' => TTi18n::gettext('Edit Subordinate'),
+																'edit' => TTi18n::gettext('Edit'),
+																'delete_own' => TTi18n::gettext('Delete Own'),
+																'delete_child' => TTi18n::gettext('Delete Subordinate'),
+																'delete' => TTi18n::gettext('Delete'),
+																//'undelete' => TTi18n::gettext('Un-Delete')
+															),
+											'currency' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view' => TTi18n::gettext('View'),
@@ -555,7 +563,7 @@ class PermissionFactory extends Factory {
 																'delete' => TTi18n::gettext('Delete'),
 																//'undelete' => TTi18n::gettext('Un-Delete')
 															),
-											'branch' => 	array(
+											'branch' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view' => TTi18n::gettext('View'),
@@ -566,7 +574,7 @@ class PermissionFactory extends Factory {
 																'delete' => TTi18n::gettext('Delete'),
 																//'undelete' => TTi18n::gettext('Un-Delete')
 															),
-											'department' => 	array(
+											'department' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view' => TTi18n::gettext('View'),
@@ -579,7 +587,7 @@ class PermissionFactory extends Factory {
 																'assign' => TTi18n::gettext('Assign Employees')
 
 															),
-											'station' => 	array(
+											'station' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view' => TTi18n::gettext('View'),
@@ -591,7 +599,7 @@ class PermissionFactory extends Factory {
 																//'undelete' => TTi18n::gettext('Un-Delete'),
 																'assign' => TTi18n::gettext('Assign Employees')
 															),
-											'pay_period_schedule' => 	array(
+											'pay_period_schedule' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view' => TTi18n::gettext('View'),
@@ -603,11 +611,12 @@ class PermissionFactory extends Factory {
 																//'undelete' => TTi18n::gettext('Un-Delete'),
 																'assign' => TTi18n::gettext('Assign Employees')
 															),
-											'schedule' => 	array(
+											'schedule' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view_child' => TTi18n::gettext('View Subordinate'),
 																'view' => TTi18n::gettext('View'),
+																'view_open' => TTi18n::gettext('View Open Shifts'),
 																'add' => TTi18n::gettext('Add'),
 																'edit_own' => TTi18n::gettext('Edit Own'),
 																'edit_child' => TTi18n::gettext('Edit Subordinate'),
@@ -621,7 +630,7 @@ class PermissionFactory extends Factory {
 																'edit_job' => TTi18n::gettext('Edit Job Field'),
 																'edit_job_item' => TTi18n::gettext('Edit Task Field'),
 															),
-											'other_field' => 	array(
+											'other_field' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view' => TTi18n::gettext('View'),
@@ -632,7 +641,7 @@ class PermissionFactory extends Factory {
 																'delete' => TTi18n::gettext('Delete'),
 																//'undelete' => TTi18n::gettext('Un-Delete'),
 															),
-											'document' => 	array(
+											'document' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view' => TTi18n::gettext('View'),
@@ -646,7 +655,7 @@ class PermissionFactory extends Factory {
 																'delete_private' => TTi18n::gettext('Delete Private'),
 																//'undelete' => TTi18n::gettext('Un-Delete'),
 															),
-											'accrual' => 	array(
+											'accrual' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view_child' => TTi18n::gettext('View Subordinate'),
@@ -660,7 +669,7 @@ class PermissionFactory extends Factory {
 																'delete' => TTi18n::gettext('Delete'),
 																//'undelete' => TTi18n::gettext('Un-Delete')
 															),
-											'policy_group' => 	array(
+											'pay_code' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view' => TTi18n::gettext('View'),
@@ -671,7 +680,7 @@ class PermissionFactory extends Factory {
 																'delete' => TTi18n::gettext('Delete'),
 																//'undelete' => TTi18n::gettext('Un-Delete')
 															),
-											'schedule_policy' => 	array(
+											'pay_formula_policy' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view' => TTi18n::gettext('View'),
@@ -682,7 +691,7 @@ class PermissionFactory extends Factory {
 																'delete' => TTi18n::gettext('Delete'),
 																//'undelete' => TTi18n::gettext('Un-Delete')
 															),
-											'meal_policy' => 	array(
+											'policy_group' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view' => TTi18n::gettext('View'),
@@ -693,7 +702,7 @@ class PermissionFactory extends Factory {
 																'delete' => TTi18n::gettext('Delete'),
 																//'undelete' => TTi18n::gettext('Un-Delete')
 															),
-											'break_policy' => 	array(
+											'contributing_pay_code_policy' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view' => TTi18n::gettext('View'),
@@ -704,7 +713,7 @@ class PermissionFactory extends Factory {
 																'delete' => TTi18n::gettext('Delete'),
 																//'undelete' => TTi18n::gettext('Un-Delete')
 															),
-											'absence_policy' => 	array(
+											'contributing_shift_policy' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view' => TTi18n::gettext('View'),
@@ -715,7 +724,7 @@ class PermissionFactory extends Factory {
 																'delete' => TTi18n::gettext('Delete'),
 																//'undelete' => TTi18n::gettext('Un-Delete')
 															),
-											'accrual_policy' => 	array(
+											'schedule_policy' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view' => TTi18n::gettext('View'),
@@ -726,7 +735,7 @@ class PermissionFactory extends Factory {
 																'delete' => TTi18n::gettext('Delete'),
 																//'undelete' => TTi18n::gettext('Un-Delete')
 															),
-											'over_time_policy' => 	array(
+											'meal_policy' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view' => TTi18n::gettext('View'),
@@ -737,7 +746,7 @@ class PermissionFactory extends Factory {
 																'delete' => TTi18n::gettext('Delete'),
 																//'undelete' => TTi18n::gettext('Un-Delete')
 															),
-											'premium_policy' => 	array(
+											'break_policy' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view' => TTi18n::gettext('View'),
@@ -748,18 +757,7 @@ class PermissionFactory extends Factory {
 																'delete' => TTi18n::gettext('Delete'),
 																//'undelete' => TTi18n::gettext('Un-Delete')
 															),
-											'round_policy' => 	array(
-																'enabled' => TTi18n::gettext('Enabled'),
-																'view' => TTi18n::gettext('View'),
-																'view_own' => TTi18n::gettext('View Own'),
-																'add' => TTi18n::gettext('Add'),
-																'edit_own' => TTi18n::gettext('Edit Own'),
-																'edit' => TTi18n::gettext('Edit'),
-																'delete_own' => TTi18n::gettext('Delete Own'),
-																'delete' => TTi18n::gettext('Delete'),
-																//'undelete' => TTi18n::gettext('Un-Delete')
-															),
-											'exception_policy' => 	array(
+											'absence_policy' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view' => TTi18n::gettext('View'),
@@ -770,7 +768,7 @@ class PermissionFactory extends Factory {
 																'delete' => TTi18n::gettext('Delete'),
 																//'undelete' => TTi18n::gettext('Un-Delete')
 															),
-											'holiday_policy' => 	array(
+											'accrual_policy' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view' => TTi18n::gettext('View'),
@@ -781,7 +779,73 @@ class PermissionFactory extends Factory {
 																'delete' => TTi18n::gettext('Delete'),
 																//'undelete' => TTi18n::gettext('Un-Delete')
 															),
-                                            'expense_policy' => 	array(
+											'regular_time_policy' =>	array(
+																'enabled' => TTi18n::gettext('Enabled'),
+																'view_own' => TTi18n::gettext('View Own'),
+																'view' => TTi18n::gettext('View'),
+																'add' => TTi18n::gettext('Add'),
+																'edit_own' => TTi18n::gettext('Edit Own'),
+																'edit' => TTi18n::gettext('Edit'),
+																'delete_own' => TTi18n::gettext('Delete Own'),
+																'delete' => TTi18n::gettext('Delete'),
+																//'undelete' => TTi18n::gettext('Un-Delete')
+															),
+											'over_time_policy' =>	array(
+																'enabled' => TTi18n::gettext('Enabled'),
+																'view_own' => TTi18n::gettext('View Own'),
+																'view' => TTi18n::gettext('View'),
+																'add' => TTi18n::gettext('Add'),
+																'edit_own' => TTi18n::gettext('Edit Own'),
+																'edit' => TTi18n::gettext('Edit'),
+																'delete_own' => TTi18n::gettext('Delete Own'),
+																'delete' => TTi18n::gettext('Delete'),
+																//'undelete' => TTi18n::gettext('Un-Delete')
+															),
+											'premium_policy' =>	array(
+																'enabled' => TTi18n::gettext('Enabled'),
+																'view_own' => TTi18n::gettext('View Own'),
+																'view' => TTi18n::gettext('View'),
+																'add' => TTi18n::gettext('Add'),
+																'edit_own' => TTi18n::gettext('Edit Own'),
+																'edit' => TTi18n::gettext('Edit'),
+																'delete_own' => TTi18n::gettext('Delete Own'),
+																'delete' => TTi18n::gettext('Delete'),
+																//'undelete' => TTi18n::gettext('Un-Delete')
+															),
+											'round_policy' =>	array(
+																'enabled' => TTi18n::gettext('Enabled'),
+																'view' => TTi18n::gettext('View'),
+																'view_own' => TTi18n::gettext('View Own'),
+																'add' => TTi18n::gettext('Add'),
+																'edit_own' => TTi18n::gettext('Edit Own'),
+																'edit' => TTi18n::gettext('Edit'),
+																'delete_own' => TTi18n::gettext('Delete Own'),
+																'delete' => TTi18n::gettext('Delete'),
+																//'undelete' => TTi18n::gettext('Un-Delete')
+															),
+											'exception_policy' =>	array(
+																'enabled' => TTi18n::gettext('Enabled'),
+																'view_own' => TTi18n::gettext('View Own'),
+																'view' => TTi18n::gettext('View'),
+																'add' => TTi18n::gettext('Add'),
+																'edit_own' => TTi18n::gettext('Edit Own'),
+																'edit' => TTi18n::gettext('Edit'),
+																'delete_own' => TTi18n::gettext('Delete Own'),
+																'delete' => TTi18n::gettext('Delete'),
+																//'undelete' => TTi18n::gettext('Un-Delete')
+															),
+											'holiday_policy' =>	array(
+																'enabled' => TTi18n::gettext('Enabled'),
+																'view_own' => TTi18n::gettext('View Own'),
+																'view' => TTi18n::gettext('View'),
+																'add' => TTi18n::gettext('Add'),
+																'edit_own' => TTi18n::gettext('Edit Own'),
+																'edit' => TTi18n::gettext('Edit'),
+																'delete_own' => TTi18n::gettext('Delete Own'),
+																'delete' => TTi18n::gettext('Delete'),
+																//'undelete' => TTi18n::gettext('Un-Delete')
+															),
+											'expense_policy' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view' => TTi18n::gettext('View'),
@@ -793,7 +857,7 @@ class PermissionFactory extends Factory {
 																//'undelete' => TTi18n::gettext('Un-Delete')
 															),
 
-											'recurring_schedule_template' => 	array(
+											'recurring_schedule_template' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view' => TTi18n::gettext('View'),
@@ -804,7 +868,7 @@ class PermissionFactory extends Factory {
 																'delete' => TTi18n::gettext('Delete'),
 																//'undelete' => TTi18n::gettext('Un-Delete')
 															),
-											'recurring_schedule' => 	array(
+											'recurring_schedule' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view_child' => TTi18n::gettext('View Subordinate'),
@@ -818,7 +882,7 @@ class PermissionFactory extends Factory {
 																'delete' => TTi18n::gettext('Delete'),
 																//'undelete' => TTi18n::gettext('Un-Delete')
 															),
-											'request' => 	array(
+											'request' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view_child' => TTi18n::gettext('View Subordinate'),
@@ -833,7 +897,7 @@ class PermissionFactory extends Factory {
 																//'undelete' => TTi18n::gettext('Un-Delete'),
 																'authorize' => TTi18n::gettext('Authorize')
 															),
-											'punch' => 	array(
+											'punch' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view_child' => TTi18n::gettext('View Subordinate'),
@@ -864,7 +928,7 @@ class PermissionFactory extends Factory {
 																'edit_other_id4' => TTi18n::gettext('Edit Other ID4 Field'),
 																'edit_other_id5' => TTi18n::gettext('Edit Other ID5 Field'),
 															),
-											'absence' => 	array(
+											'absence' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view_child' => TTi18n::gettext('View Subordinate'),
@@ -882,7 +946,7 @@ class PermissionFactory extends Factory {
 																'edit_job' => TTi18n::gettext('Edit Job Field'),
 																'edit_job_item' => TTi18n::gettext('Edit Task Field'),
 															),
-											'hierarchy' => 	array(
+											'hierarchy' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view' => TTi18n::gettext('View'),
@@ -893,11 +957,11 @@ class PermissionFactory extends Factory {
 																'delete' => TTi18n::gettext('Delete'),
 																//'undelete' => TTi18n::gettext('Un-Delete')
 															),
-											'authorization' => 	array(
+											'authorization' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view' => TTi18n::gettext('View')
 															),
-											'message' => 	array(
+											'message' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view' => TTi18n::gettext('View'),
@@ -911,7 +975,7 @@ class PermissionFactory extends Factory {
 																'send_to_child' => TTi18n::gettext('Send to Subordinate')
 																//'undelete' => TTi18n::gettext('Un-Delete')
 															),
-											'help' => 	array(
+											'help' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view' => TTi18n::gettext('View'),
@@ -922,7 +986,7 @@ class PermissionFactory extends Factory {
 																'delete' => TTi18n::gettext('Delete'),
 																//'undelete' => TTi18n::gettext('Un-Delete')
 															),
-											'report' => 		array(
+											'report' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_active_shift' => TTi18n::gettext('Whos In Summary'),
 																'view_user_information' => TTi18n::gettext('Employee Information'),
@@ -951,12 +1015,12 @@ class PermissionFactory extends Factory {
 																'view_affordable_care' => TTi18n::gettext('Affordable Care'),
 																'view_user_barcode' => TTi18n::gettext('Employee Barcodes'),
 																'view_general_ledger_summary' => TTi18n::gettext('General Ledger Summary'),
-                                                                'view_exception_summary' => TTi18n::gettext('Exception Summary'),
-                                                                //'view_roe' => TTi18n::gettext('Record of employment'), //Disable for now as its not needed, use 'roe','view' instead.
-                                                                'view_expense' => TTi18n::gettext('Expense Summary'),
+																'view_exception_summary' => TTi18n::gettext('Exception Summary'),
+																//'view_roe' => TTi18n::gettext('Record of employment'), //Disable for now as its not needed, use 'roe', 'view' instead.
+																'view_expense' => TTi18n::gettext('Expense Summary'),
 															),
-                                            'report_custom_column' => array(
-                                                                'enabled' => TTi18n::gettext('Enabled'),
+											'report_custom_column' => array(
+																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view_child' => TTi18n::gettext('View Subordinate'),
 																'view' => TTi18n::gettext('View'),
@@ -968,8 +1032,8 @@ class PermissionFactory extends Factory {
 																'delete_child' => TTi18n::gettext('Delete Subordinate'),
 																'delete' => TTi18n::gettext('Delete'),
 																//'undelete' => TTi18n::gettext('Un-Delete')
-                                                            ),
-											'job' => 	array(
+															),
+											'job' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view' => TTi18n::gettext('View'),
@@ -980,7 +1044,7 @@ class PermissionFactory extends Factory {
 																'delete' => TTi18n::gettext('Delete'),
 																//'undelete' => TTi18n::gettext('Un-Delete')
 															),
-											'job_item' => 	array(
+											'job_item' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view' => TTi18n::gettext('View'),
@@ -991,21 +1055,21 @@ class PermissionFactory extends Factory {
 																'delete' => TTi18n::gettext('Delete'),
 																//'undelete' => TTi18n::gettext('Un-Delete')
 															),
-											'job_report' => 		array(
+											'job_report' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_job_summary' => TTi18n::gettext('Job Summary'),
 																'view_job_analysis' => TTi18n::gettext('Job Analysis'),
 																'view_job_payroll_analysis' => TTi18n::gettext('Job Payroll Analysis'),
 																'view_job_barcode' => TTi18n::gettext('Job Barcode')
 															),
-											'invoice_config' => 	array(
+											'invoice_config' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'add' => TTi18n::gettext('Add'),
 																'edit' => TTi18n::gettext('Edit'),
 																'delete' => TTi18n::gettext('Delete'),
 																//'undelete' => TTi18n::gettext('Un-Delete')
 															),
-											'client' => 	array(
+											'client' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view' => TTi18n::gettext('View'),
@@ -1016,7 +1080,7 @@ class PermissionFactory extends Factory {
 																'delete' => TTi18n::gettext('Delete'),
 																//'undelete' => TTi18n::gettext('Un-Delete')
 															),
-											'client_payment' => 	array(
+											'client_payment' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view' => TTi18n::gettext('View'),
@@ -1028,7 +1092,7 @@ class PermissionFactory extends Factory {
 																'view_credit_card' => TTi18n::gettext('View Credit Card #'),
 																//'undelete' => TTi18n::gettext('Un-Delete')
 															),
-											'product' => 	array(
+											'product' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view' => TTi18n::gettext('View'),
@@ -1039,7 +1103,7 @@ class PermissionFactory extends Factory {
 																'delete' => TTi18n::gettext('Delete'),
 																//'undelete' => TTi18n::gettext('Un-Delete')
 															),
-											'tax_policy' => 	array(
+											'tax_policy' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view' => TTi18n::gettext('View'),
@@ -1050,7 +1114,7 @@ class PermissionFactory extends Factory {
 																'delete' => TTi18n::gettext('Delete'),
 																//'undelete' => TTi18n::gettext('Un-Delete')
 															),
-											'shipping_policy' => 	array(
+											'shipping_policy' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view' => TTi18n::gettext('View'),
@@ -1061,7 +1125,7 @@ class PermissionFactory extends Factory {
 																'delete' => TTi18n::gettext('Delete'),
 																//'undelete' => TTi18n::gettext('Un-Delete')
 															),
-											'area_policy' => 	array(
+											'area_policy' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view' => TTi18n::gettext('View'),
@@ -1072,7 +1136,7 @@ class PermissionFactory extends Factory {
 																'delete' => TTi18n::gettext('Delete'),
 																//'undelete' => TTi18n::gettext('Un-Delete')
 															),
-											'payment_gateway' => 	array(
+											'payment_gateway' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view' => TTi18n::gettext('View'),
@@ -1083,7 +1147,7 @@ class PermissionFactory extends Factory {
 																'delete' => TTi18n::gettext('Delete'),
 																//'undelete' => TTi18n::gettext('Un-Delete')
 															),
-											'transaction' => 	array(
+											'transaction' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view' => TTi18n::gettext('View'),
@@ -1094,7 +1158,7 @@ class PermissionFactory extends Factory {
 																'delete' => TTi18n::gettext('Delete'),
 																//'undelete' => TTi18n::gettext('Un-Delete')
 															),
-											'invoice' => 	array(
+											'invoice' => array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view' => TTi18n::gettext('View'),
@@ -1105,11 +1169,11 @@ class PermissionFactory extends Factory {
 																'delete' => TTi18n::gettext('Delete'),
 																//'undelete' => TTi18n::gettext('Un-Delete')
 															),
-											'invoice_report' => 		array(
+											'invoice_report' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_transaction_summary' => TTi18n::gettext('View Transaction Summary'),
 															),
-											'permission' => 	array(
+											'permission' =>	array(
 																'enabled' => TTi18n::gettext('Enabled'),
 																'view_own' => TTi18n::gettext('View Own'),
 																'view_child' => TTi18n::gettext('View Subordinate'),
@@ -1123,173 +1187,173 @@ class PermissionFactory extends Factory {
 																'delete' => TTi18n::gettext('Delete'),
 																//'undelete' => TTi18n::gettext('Un-Delete')
 															),
-                                            'qualification' =>  array(
-                                                                'enabled' => TTi18n::gettext('Enabled'),
-                                                                'view_own' => TTi18n::gettext('View Own'),
-                                                                'view_child' => TTi18n::gettext('View Subordinate'),
-                                                                'view' => TTi18n::gettext('View'),
-                                                                'add' => TTi18n::gettext('Add'),
-                                                                'edit_own' => TTi18n::gettext('Edit Own'),
-                                                                'edit_child' => TTi18n::gettext('Edit Subordinate'),
-                                                                'edit' => TTi18n::gettext('Edit'),
-                                                                'delete_own' => TTi18n::gettext('Delete Own'),
-                                                                'delete_child' => TTi18n::gettext('Delete Subordinate'),
-                                                                'delete' => TTi18n::gettext('Delete'),
-                                                                //'undelete' => TTi18n::gettext('Un-Delete')
-                                                            ),
-                                            'user_education'  =>  array(
-                                                                'enabled' => TTi18n::gettext('Enabled'),
-                                                                'view_own' => TTi18n::gettext('View Own'),
-                                                                'view_child' => TTi18n::gettext('View Subordinate'),
-                                                                'view' => TTi18n::gettext('View'),
-                                                                'add' => TTi18n::gettext('Add'),
-                                                                'edit_own' => TTi18n::gettext('Edit Own'),
-                                                                'edit_child' => TTi18n::gettext('Edit Subordinate'),
-                                                                'edit' => TTi18n::gettext('Edit'),
-                                                                'delete_own' => TTi18n::gettext('Delete Own'),
-                                                                'delete_child' => TTi18n::gettext('Delete Subordinate'),
-                                                                'delete' => TTi18n::gettext('Delete'),
-                                                                //'undelete' => TTi18n::gettext('Un-Delete')
-                                                            ),
-                                            'user_license'   =>  array(
-                                                                'enabled' => TTi18n::gettext('Enabled'),
-                                                                'view_own' => TTi18n::gettext('View Own'),
-                                                                'view_child' => TTi18n::gettext('View Subordinate'),
-                                                                'view' => TTi18n::gettext('View'),
-                                                                'add' => TTi18n::gettext('Add'),
-                                                                'edit_own' => TTi18n::gettext('Edit Own'),
-                                                                'edit_child' => TTi18n::gettext('Edit Subordinate'),
-                                                                'edit' => TTi18n::gettext('Edit'),
-                                                                'delete_own' => TTi18n::gettext('Delete Own'),
-                                                                'delete_child' => TTi18n::gettext('Delete Subordinate'),
-                                                                'delete' => TTi18n::gettext('Delete'),
-                                                                //'undelete' => TTi18n::gettext('Un-Delete')
-                                                            ),
-                                            'user_skill'  =>  array(
-                                                                'enabled' => TTi18n::gettext('Enabled'),
-                                                                'view_own' => TTi18n::gettext('View Own'),
-                                                                'view_child' => TTi18n::gettext('View Subordinate'),
-                                                                'view' => TTi18n::gettext('View'),
-                                                                'add' => TTi18n::gettext('Add'),
-                                                                'edit_own' => TTi18n::gettext('Edit Own'),
-                                                                'edit_child' => TTi18n::gettext('Edit Subordinate'),
-                                                                'edit' => TTi18n::gettext('Edit'),
-                                                                'delete_own' => TTi18n::gettext('Delete Own'),
-                                                                'delete_child' => TTi18n::gettext('Delete Subordinate'),
-                                                                'delete' => TTi18n::gettext('Delete'),
-                                                                //'undelete' => TTi18n::gettext('Un-Delete')
-                                                            ),
-                                            'user_membership'  =>  array(
-                                                                'enabled' => TTi18n::gettext('Enabled'),
-                                                                'view_own' => TTi18n::gettext('View Own'),
-                                                                'view_child' => TTi18n::gettext('View Subordinate'),
-                                                                'view' => TTi18n::gettext('View'),
-                                                                'add' => TTi18n::gettext('Add'),
-                                                                'edit_own' => TTi18n::gettext('Edit Own'),
-                                                                'edit_child' => TTi18n::gettext('Edit Subordinate'),
-                                                                'edit' => TTi18n::gettext('Edit'),
-                                                                'delete_own' => TTi18n::gettext('Delete Own'),
-                                                                'delete_child' => TTi18n::gettext('Delete Subordinate'),
-                                                                'delete' => TTi18n::gettext('Delete'),
-                                                                //'undelete' => TTi18n::gettext('Un-Delete')
-                                                            ),
-                                            'user_language'  =>  array(
-                                                                'enabled' => TTi18n::gettext('Enabled'),
-                                                                'view_own' => TTi18n::gettext('View Own'),
-                                                                'view_child' => TTi18n::gettext('View Subordinate'),
-                                                                'view' => TTi18n::gettext('View'),
-                                                                'add' => TTi18n::gettext('Add'),
-                                                                'edit_own' => TTi18n::gettext('Edit Own'),
-                                                                'edit_child' => TTi18n::gettext('Edit Subordinate'),
-                                                                'edit' => TTi18n::gettext('Edit'),
-                                                                'delete_own' => TTi18n::gettext('Delete Own'),
-                                                                'delete_child' => TTi18n::gettext('Delete Subordinate'),
-                                                                'delete' => TTi18n::gettext('Delete'),
-                                                                //'undelete' => TTi18n::gettext('Un-Delete')
-                                                            ),
-                                            'kpi'  =>  array(
-                                                                'enabled' => TTi18n::gettext('Enabled'),
-                                                                'view_own' => TTi18n::gettext('View Own'),
-                                                                'view_child' => TTi18n::gettext('View Subordinate'),
-                                                                'view' => TTi18n::gettext('View'),
-                                                                'add' => TTi18n::gettext('Add'),
-                                                                'edit_own' => TTi18n::gettext('Edit Own'),
-                                                                'edit_child' => TTi18n::gettext('Edit Subordinate'),
-                                                                'edit' => TTi18n::gettext('Edit'),
-                                                                'delete_own' => TTi18n::gettext('Delete Own'),
-                                                                'delete_child' => TTi18n::gettext('Delete Subordinate'),
-                                                                'delete' => TTi18n::gettext('Delete'),
-                                                                //'undelete' => TTi18n::gettext('Un-Delete')
-                                                            ),
-                                            'user_review'  =>  array(
-                                                                'enabled' => TTi18n::gettext('Enabled'),
-                                                                'view_own' => TTi18n::gettext('View Own'),
-                                                                'view_child' => TTi18n::gettext('View Subordinate'),
-                                                                'view' => TTi18n::gettext('View'),
-                                                                'add' => TTi18n::gettext('Add'),
-                                                                'edit_own' => TTi18n::gettext('Edit Own'),
-                                                                'edit_child' => TTi18n::gettext('Edit Subordinate'),
-                                                                'edit' => TTi18n::gettext('Edit'),
-                                                                'delete_own' => TTi18n::gettext('Delete Own'),
-                                                                'delete_child' => TTi18n::gettext('Delete Subordinate'),
-                                                                'delete' => TTi18n::gettext('Delete'),
-                                                                //'undelete' => TTi18n::gettext('Un-Delete')
-                                                            ),
-                                            'job_vacancy' => array(
-								                                'enabled' => TTi18n::gettext('Enabled'),
-                                                                'view_own' => TTi18n::gettext('View Own'),
-                                                                'view_child' => TTi18n::gettext('View Subordinate'),
-                                                                'view' => TTi18n::gettext('View'),
-                                                                'add' => TTi18n::gettext('Add'),
-                                                                'edit_own' => TTi18n::gettext('Edit Own'),
-                                                                'edit_child' => TTi18n::gettext('Edit Subordinate'),
-                                                                'edit' => TTi18n::gettext('Edit'),
-                                                                'delete_own' => TTi18n::gettext('Delete Own'),
-                                                                'delete_child' => TTi18n::gettext('Delete Subordinate'),
-                                                                'delete' => TTi18n::gettext('Delete'),
-                                                                //'undelete' => TTi18n::gettext('Un-Delete')
-                                                            ),
-                                            'job_applicant' => array(
-								                                'enabled' => TTi18n::gettext('Enabled'),
-                                                                'view_own' => TTi18n::gettext('View Own'),
-                                                                'view_child' => TTi18n::gettext('View Subordinate'),
-                                                                'view' => TTi18n::gettext('View'),
-                                                                'add' => TTi18n::gettext('Add'),
-                                                                'edit_own' => TTi18n::gettext('Edit Own'),
-                                                                'edit_child' => TTi18n::gettext('Edit Subordinate'),
-                                                                'edit' => TTi18n::gettext('Edit'),
-                                                                'delete_own' => TTi18n::gettext('Delete Own'),
-                                                                'delete_child' => TTi18n::gettext('Delete Subordinate'),
-                                                                'delete' => TTi18n::gettext('Delete'),
-                                                                //'undelete' => TTi18n::gettext('Un-Delete')
+											'qualification' => array(
+																'enabled' => TTi18n::gettext('Enabled'),
+																'view_own' => TTi18n::gettext('View Own'),
+																'view_child' => TTi18n::gettext('View Subordinate'),
+																'view' => TTi18n::gettext('View'),
+																'add' => TTi18n::gettext('Add'),
+																'edit_own' => TTi18n::gettext('Edit Own'),
+																'edit_child' => TTi18n::gettext('Edit Subordinate'),
+																'edit' => TTi18n::gettext('Edit'),
+																'delete_own' => TTi18n::gettext('Delete Own'),
+																'delete_child' => TTi18n::gettext('Delete Subordinate'),
+																'delete' => TTi18n::gettext('Delete'),
+																//'undelete' => TTi18n::gettext('Un-Delete')
+															),
+											'user_education' => array(
+																'enabled' => TTi18n::gettext('Enabled'),
+																'view_own' => TTi18n::gettext('View Own'),
+																'view_child' => TTi18n::gettext('View Subordinate'),
+																'view' => TTi18n::gettext('View'),
+																'add' => TTi18n::gettext('Add'),
+																'edit_own' => TTi18n::gettext('Edit Own'),
+																'edit_child' => TTi18n::gettext('Edit Subordinate'),
+																'edit' => TTi18n::gettext('Edit'),
+																'delete_own' => TTi18n::gettext('Delete Own'),
+																'delete_child' => TTi18n::gettext('Delete Subordinate'),
+																'delete' => TTi18n::gettext('Delete'),
+																//'undelete' => TTi18n::gettext('Un-Delete')
+															),
+											'user_license'	=>	array(
+																'enabled' => TTi18n::gettext('Enabled'),
+																'view_own' => TTi18n::gettext('View Own'),
+																'view_child' => TTi18n::gettext('View Subordinate'),
+																'view' => TTi18n::gettext('View'),
+																'add' => TTi18n::gettext('Add'),
+																'edit_own' => TTi18n::gettext('Edit Own'),
+																'edit_child' => TTi18n::gettext('Edit Subordinate'),
+																'edit' => TTi18n::gettext('Edit'),
+																'delete_own' => TTi18n::gettext('Delete Own'),
+																'delete_child' => TTi18n::gettext('Delete Subordinate'),
+																'delete' => TTi18n::gettext('Delete'),
+																//'undelete' => TTi18n::gettext('Un-Delete')
+															),
+											'user_skill' => array(
+																'enabled' => TTi18n::gettext('Enabled'),
+																'view_own' => TTi18n::gettext('View Own'),
+																'view_child' => TTi18n::gettext('View Subordinate'),
+																'view' => TTi18n::gettext('View'),
+																'add' => TTi18n::gettext('Add'),
+																'edit_own' => TTi18n::gettext('Edit Own'),
+																'edit_child' => TTi18n::gettext('Edit Subordinate'),
+																'edit' => TTi18n::gettext('Edit'),
+																'delete_own' => TTi18n::gettext('Delete Own'),
+																'delete_child' => TTi18n::gettext('Delete Subordinate'),
+																'delete' => TTi18n::gettext('Delete'),
+																//'undelete' => TTi18n::gettext('Un-Delete')
+															),
+											'user_membership' => array(
+																'enabled' => TTi18n::gettext('Enabled'),
+																'view_own' => TTi18n::gettext('View Own'),
+																'view_child' => TTi18n::gettext('View Subordinate'),
+																'view' => TTi18n::gettext('View'),
+																'add' => TTi18n::gettext('Add'),
+																'edit_own' => TTi18n::gettext('Edit Own'),
+																'edit_child' => TTi18n::gettext('Edit Subordinate'),
+																'edit' => TTi18n::gettext('Edit'),
+																'delete_own' => TTi18n::gettext('Delete Own'),
+																'delete_child' => TTi18n::gettext('Delete Subordinate'),
+																'delete' => TTi18n::gettext('Delete'),
+																//'undelete' => TTi18n::gettext('Un-Delete')
+															),
+											'user_language'	=> array(
+																'enabled' => TTi18n::gettext('Enabled'),
+																'view_own' => TTi18n::gettext('View Own'),
+																'view_child' => TTi18n::gettext('View Subordinate'),
+																'view' => TTi18n::gettext('View'),
+																'add' => TTi18n::gettext('Add'),
+																'edit_own' => TTi18n::gettext('Edit Own'),
+																'edit_child' => TTi18n::gettext('Edit Subordinate'),
+																'edit' => TTi18n::gettext('Edit'),
+																'delete_own' => TTi18n::gettext('Delete Own'),
+																'delete_child' => TTi18n::gettext('Delete Subordinate'),
+																'delete' => TTi18n::gettext('Delete'),
+																//'undelete' => TTi18n::gettext('Un-Delete')
+															),
+											'kpi' => array(
+																'enabled' => TTi18n::gettext('Enabled'),
+																'view_own' => TTi18n::gettext('View Own'),
+																'view_child' => TTi18n::gettext('View Subordinate'),
+																'view' => TTi18n::gettext('View'),
+																'add' => TTi18n::gettext('Add'),
+																'edit_own' => TTi18n::gettext('Edit Own'),
+																'edit_child' => TTi18n::gettext('Edit Subordinate'),
+																'edit' => TTi18n::gettext('Edit'),
+																'delete_own' => TTi18n::gettext('Delete Own'),
+																'delete_child' => TTi18n::gettext('Delete Subordinate'),
+																'delete' => TTi18n::gettext('Delete'),
+																//'undelete' => TTi18n::gettext('Un-Delete')
+															),
+											'user_review' => array(
+																'enabled' => TTi18n::gettext('Enabled'),
+																'view_own' => TTi18n::gettext('View Own'),
+																'view_child' => TTi18n::gettext('View Subordinate'),
+																'view' => TTi18n::gettext('View'),
+																'add' => TTi18n::gettext('Add'),
+																'edit_own' => TTi18n::gettext('Edit Own'),
+																'edit_child' => TTi18n::gettext('Edit Subordinate'),
+																'edit' => TTi18n::gettext('Edit'),
+																'delete_own' => TTi18n::gettext('Delete Own'),
+																'delete_child' => TTi18n::gettext('Delete Subordinate'),
+																'delete' => TTi18n::gettext('Delete'),
+																//'undelete' => TTi18n::gettext('Un-Delete')
+															),
+											'job_vacancy' => array(
+																'enabled' => TTi18n::gettext('Enabled'),
+																'view_own' => TTi18n::gettext('View Own'),
+																'view_child' => TTi18n::gettext('View Subordinate'),
+																'view' => TTi18n::gettext('View'),
+																'add' => TTi18n::gettext('Add'),
+																'edit_own' => TTi18n::gettext('Edit Own'),
+																'edit_child' => TTi18n::gettext('Edit Subordinate'),
+																'edit' => TTi18n::gettext('Edit'),
+																'delete_own' => TTi18n::gettext('Delete Own'),
+																'delete_child' => TTi18n::gettext('Delete Subordinate'),
+																'delete' => TTi18n::gettext('Delete'),
+																//'undelete' => TTi18n::gettext('Un-Delete')
+															),
+											'job_applicant' => array(
+																'enabled' => TTi18n::gettext('Enabled'),
+																'view_own' => TTi18n::gettext('View Own'),
+																'view_child' => TTi18n::gettext('View Subordinate'),
+																'view' => TTi18n::gettext('View'),
+																'add' => TTi18n::gettext('Add'),
+																'edit_own' => TTi18n::gettext('Edit Own'),
+																'edit_child' => TTi18n::gettext('Edit Subordinate'),
+																'edit' => TTi18n::gettext('Edit'),
+																'delete_own' => TTi18n::gettext('Delete Own'),
+																'delete_child' => TTi18n::gettext('Delete Subordinate'),
+																'delete' => TTi18n::gettext('Delete'),
+																//'undelete' => TTi18n::gettext('Un-Delete')
 
-                                                            ),
-                                            'job_application' => array(
-								                                'enabled' => TTi18n::gettext('Enabled'),
-                                                                'view_own' => TTi18n::gettext('View Own'),
-                                                                'view_child' => TTi18n::gettext('View Subordinate'),
-                                                                'view' => TTi18n::gettext('View'),
-                                                                'add' => TTi18n::gettext('Add'),
-                                                                'edit_own' => TTi18n::gettext('Edit Own'),
-                                                                'edit_child' => TTi18n::gettext('Edit Subordinate'),
-                                                                'edit' => TTi18n::gettext('Edit'),
-                                                                'delete_own' => TTi18n::gettext('Delete Own'),
-                                                                'delete_child' => TTi18n::gettext('Delete Subordinate'),
-                                                                'delete' => TTi18n::gettext('Delete'),
-                                                                //'undelete' => TTi18n::gettext('Un-Delete')
+															),
+											'job_application' => array(
+																'enabled' => TTi18n::gettext('Enabled'),
+																'view_own' => TTi18n::gettext('View Own'),
+																'view_child' => TTi18n::gettext('View Subordinate'),
+																'view' => TTi18n::gettext('View'),
+																'add' => TTi18n::gettext('Add'),
+																'edit_own' => TTi18n::gettext('Edit Own'),
+																'edit_child' => TTi18n::gettext('Edit Subordinate'),
+																'edit' => TTi18n::gettext('Edit'),
+																'delete_own' => TTi18n::gettext('Delete Own'),
+																'delete_child' => TTi18n::gettext('Delete Subordinate'),
+																'delete' => TTi18n::gettext('Delete'),
+																//'undelete' => TTi18n::gettext('Un-Delete')
 
-                                                            ),
+															),
 
-                                            'hr_report' => array(
-                                                                'enabled' => TTi18n::gettext('Enabled'),
-                                                                'user_qualification' => TTi18n::gettext('Employee Qualifications'),
-                                                                'user_review' => TTi18n::getText('Employee Review'),
-                                                                'user_recruitment' => TTi18n::gettext('Employee Recruitment'),
-                                                            ),
-                                            'recruitment_report' => array(
-                                                                'enabled' => TTi18n::gettext('Enabled'),
-                                                                'user_recruitment' => TTi18n::gettext('Employee Recruitment'),
-                                                            ),
+											'hr_report' => array(
+																'enabled' => TTi18n::gettext('Enabled'),
+																'user_qualification' => TTi18n::gettext('Employee Qualifications'),
+																'user_review' => TTi18n::getText('Employee Review'),
+																'user_recruitment' => TTi18n::gettext('Employee Recruitment'),
+															),
+											'recruitment_report' => array(
+																'enabled' => TTi18n::gettext('Enabled'),
+																'user_recruitment' => TTi18n::gettext('Employee Recruitment'),
+															),
 									);
 				break;
 
@@ -1332,7 +1396,7 @@ class PermissionFactory extends Factory {
 
 	function getPermissionControl() {
 		if ( isset($this->data['permission_control_id']) ) {
-			return $this->data['permission_control_id'];
+			return (int)$this->data['permission_control_id'];
 		}
 
 		return FALSE;
@@ -1392,7 +1456,7 @@ class PermissionFactory extends Factory {
 	function setName($name, $disable_error_check = FALSE ) {
 		$name = trim($name);
 
-		//Debug::Arr($this->getOptions('name', $this->getSection() ), 'Options: ', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($this->getOptions('name', $this->getSection() ), 'Options: ', __FILE__, __LINE__, __METHOD__, 10);
 		if ( $disable_error_check === TRUE
 				OR
 				$this->Validator->inArrayKey(	'name',
@@ -1418,9 +1482,9 @@ class PermissionFactory extends Factory {
 	function setValue($value) {
 		$value = trim($value);
 
-		//Debug::Arr($value, 'Value: ', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($value, 'Value: ', __FILE__, __LINE__, __METHOD__, 10);
 
-		if 	(	$this->Validator->isLength(		'value',
+		if	(	$this->Validator->isLength(		'value',
 												$value,
 												TTi18n::gettext('Value is invalid'),
 												1,
@@ -1435,7 +1499,7 @@ class PermissionFactory extends Factory {
 	}
 
 	function filterPresetPermissions( $preset, $filter_sections = FALSE, $filter_permissions = FALSE ) {
-		//Debug::Arr( array($filter_sections, $filter_permissions), 'Preset: '. $preset, __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr( array($filter_sections, $filter_permissions), 'Preset: '. $preset, __FILE__, __LINE__, __METHOD__, 10);
 		if ( $preset == 0 ) {
 			$preset = 40; //Administrator.
 		}
@@ -1445,7 +1509,7 @@ class PermissionFactory extends Factory {
 			$filter_sections = FALSE;
 		}
 
-		//Always add enabled,system to the filter_permissions.
+		//Always add enabled, system to the filter_permissions.
 		$filter_permissions[] = 'enabled';
 		$filter_permissions[] = 'login';
 		$filter_permissions = Misc::trimSortPrefix( $filter_permissions, TRUE );
@@ -1455,7 +1519,7 @@ class PermissionFactory extends Factory {
 
 		//Get presets based on all flags.
 		$preset_permissions = $this->getPresetPermissions( $preset, array_keys( $this->getOptions('preset_flags') ) );
-		//Debug::Arr($preset_permissions, 'Preset Permissions: ', __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($preset_permissions, 'Preset Permissions: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		if ( is_array($preset_permissions) ) {
 			foreach($preset_permissions as $section => $permissions) {
@@ -1463,38 +1527,40 @@ class PermissionFactory extends Factory {
 					foreach($permissions as $name => $value) {
 						//Other permission basically matches anything that is not in filter list. Things like edit_own_password, etc...
 						if ( $filter_permissions === FALSE OR in_array( $name, $filter_permissions ) OR ( in_array( 'other', $filter_permissions ) AND !in_array( $name, $filter_permissions ) ) ) {
-							//Debug::Text('aSetting Permission - Section: '. $section .' Name: '. $name .' Value: '. (int)$value, __FILE__, __LINE__, __METHOD__,10);
+							//Debug::Text('aSetting Permission - Section: '. $section .' Name: '. $name .' Value: '. (int)$value, __FILE__, __LINE__, __METHOD__, 10);
 							$retarr[$section][$name] = $value;
-						} else {
-							//Debug::Text('bNOT Setting Permission - Section: '. $section .' Name: '. $name .' Value: '. (int)$value, __FILE__, __LINE__, __METHOD__,10);
-						}
+						} //else { //Debug::Text('bNOT Setting Permission - Section: '. $section .' Name: '. $name .' Value: '. (int)$value, __FILE__, __LINE__, __METHOD__, 10);
 					}
 				}
 			}
 		}
 
 		if ( isset($retarr) ) {
-			Debug::Arr($retarr, 'Filtered Permissions', __FILE__, __LINE__, __METHOD__,10);
+			Debug::Arr($retarr, 'Filtered Permissions', __FILE__, __LINE__, __METHOD__, 10);
 			return $retarr;
 		}
 
 		return FALSE;
 	}
 
-	function getPresetPermissions( $preset, $preset_flags = array() ) {
+	function getPresetPermissions( $preset, $preset_flags = array(), $force_system_presets = TRUE ) {
 		$key = Option::getByValue($preset, $this->getOptions('preset') );
 		if ($key !== FALSE) {
 			$preset = $key;
 		}
 
-		$preset_flags[] = 0; //Always add system presets.
+		//Always add system presets when using the Permission wizard, so employees can login and such.
+		//However when upgrading this causes a problem as it resets custom permission groups.
+		if ( $force_system_presets == TRUE ) {
+			$preset_flags[] = 0;
+		}
 		asort($preset_flags);
 
-		Debug::Text('Preset: '. $preset, __FILE__, __LINE__, __METHOD__,10);
-		Debug::Arr($preset_flags, 'Preset Flags... ', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Preset: '. $preset, __FILE__, __LINE__, __METHOD__, 10);
+		Debug::Arr($preset_flags, 'Preset Flags... ', __FILE__, __LINE__, __METHOD__, 10);
 
 		if ( !isset($preset) OR $preset == '' OR $preset == -1 ) {
-			Debug::Text('No Preset set... Skipping!', __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text('No Preset set... Skipping!', __FILE__, __LINE__, __METHOD__, 10);
 			return FALSE;
 		}
 
@@ -1506,35 +1572,35 @@ class PermissionFactory extends Factory {
 															'system' => array(
 																				'login' => TRUE,
 																			),
-															'user' => 	array(
+															'user' =>	array(
 																				'enabled' => TRUE,
 																				'view_own' => TRUE,
 																				'edit_own' => TRUE,
 																				'edit_own_password' => TRUE,
 																				'edit_own_phone_password' => TRUE,
 																			),
-															'user_preference' => 	array(
+															'user_preference' =>	array(
 																				'enabled' => TRUE,
 																				'view_own' => TRUE,
 																				'add' => TRUE,
 																				'edit_own' => TRUE,
 																				'delete_own' => TRUE,
 																			),
-															'request' => 	array(
+															'request' =>	array(
 																				'enabled' => TRUE,
 																				'view_own' => TRUE,
 																				'add' => TRUE,
 																				'edit_own' => TRUE,
 																				'delete_own' => TRUE,
 																			),
-															'message' => 	array(
+															'message' =>	array(
 																				'enabled' => TRUE,
 																				'view_own' => TRUE,
 																				'add' => TRUE,
 																				'edit_own' => TRUE,
 																				'delete_own' => TRUE,
 																			),
-															'help' => 	array(
+															'help' =>	array(
 																				'enabled' => TRUE,
 																				'view' => TRUE,
 																			),
@@ -1542,22 +1608,22 @@ class PermissionFactory extends Factory {
 														),
 													10 => //Module: Scheduling
 														array(
-															'schedule' => 	array(
+															'schedule' =>	array(
 																				'enabled' => TRUE,
 																				'view_own' => TRUE,
 																			),
-															'accrual' => 	array(
+															'accrual' =>	array(
 																				'enabled' => TRUE,
 																				'view_own' => TRUE
 																			),
-															'absence' => 	array(
+															'absence' =>	array(
 																				'enabled' => TRUE,
 																				'view_own' => TRUE,
 																			),
 														),
 													20 => //Module: Time & Attendance
 														array(
-															'punch' => 	array(
+															'punch' =>	array(
 																				'enabled' => TRUE,
 																				'view_own' => TRUE,
 																				'add' => TRUE,
@@ -1573,11 +1639,11 @@ class PermissionFactory extends Factory {
 																				'edit_other_id4' => TRUE,
 																				'edit_other_id5' => TRUE,
 																			),
-															'accrual' => 	array(
+															'accrual' =>	array(
 																				'enabled' => TRUE,
 																				'view_own' => TRUE
 																			),
-															'absence' => 	array(
+															'absence' =>	array(
 																				'enabled' => TRUE,
 																				'view_own' => TRUE,
 																			),
@@ -1585,11 +1651,11 @@ class PermissionFactory extends Factory {
 														),
 													30 => //Module: Payroll
 														array(
-															'user' => 	array(
+															'user' =>	array(
 																				'enabled' => TRUE,
 																				'edit_own_bank' => TRUE,
 																			),
-															'pay_stub' => 	array(
+															'pay_stub' =>	array(
 																				'enabled' => TRUE,
 																				'view_own' => TRUE,
 																			),
@@ -1602,13 +1668,13 @@ class PermissionFactory extends Factory {
 																				'edit_quantity' => TRUE,
 																				'edit_bad_quantity' => TRUE,
 																			),
-															'job' => 	array(
+															'job' =>	array(
 																				'enabled' => TRUE,
 																			),
 														),
 													50 => //Module: Document Management
 														array(
-															'document' => 	array(
+															'document' =>	array(
 																				'enabled' => TRUE,
 																				'view' => TRUE,
 																			),
@@ -1624,11 +1690,11 @@ class PermissionFactory extends Factory {
 														),
 													80 => //Module: Expenses
 														array(
-															'user_expense' => 	array(
+															'user_expense' =>	array(
 																				'enabled' => TRUE,
 																				'view_own' => TRUE,
 																				'add' => TRUE,
-																				//'edit_own' => TRUE, //Don't allow editing expenses once they are submitted?
+																				'edit_own' => TRUE, //Allow editing expenses once they are submitted, but not once authorized/declined. This is required to add though.
 																				'delete_own' => TRUE,
 																			),
 														),
@@ -1637,11 +1703,11 @@ class PermissionFactory extends Factory {
 											array(
 													20 => //Module: Time & Attendance
 														array(
-															'punch' => 	array(
+															'punch' =>	array(
 																				'edit_own' => TRUE,
 																				'delete_own' => TRUE,
 																			),
-															'absence' => 	array(
+															'absence' =>	array(
 																				'add' => TRUE,
 																				'edit_own' => TRUE,
 																				'delete_own' => TRUE,
@@ -1652,75 +1718,76 @@ class PermissionFactory extends Factory {
 											array(
 													0 => //Module: System
 														array(
-															'user' => 	array(
+															'user' =>	array(
 																				'add' => TRUE, //Can only add user with permissions level equal or lower.
 																				'view_child' => TRUE,
 																				'edit_child' => TRUE,
 																				'edit_advanced' => TRUE,
 																				'enroll_child' => TRUE,
-																				'delete_child' => TRUE,
+																				//'delete_child' => TRUE, //Disable deleting of users by default as a precautionary measure.
 																				'edit_pay_period_schedule' => TRUE,
 																				'edit_permission_group' => TRUE,
 																				'edit_policy_group' => TRUE,
 																				'edit_hierarchy' => TRUE,
 																			),
-															'user_preference' => 	array(
+															'user_preference' =>	array(
 																				'view_child' => TRUE,
 																				'edit_child' => TRUE,
 																			),
-															'request' => 	array(
+															'request' =>	array(
 																				'view_child' => TRUE,
 																				'edit_child' => TRUE,
 																				'delete_child' => TRUE,
 																				'authorize' => TRUE
 																			),
-															'authorization' => 	array(
+															'authorization' =>	array(
 																				'enabled' => TRUE,
 																				'view' => TRUE
 																			),
-															'message' => 	array(
+															'message' =>	array(
 																				'add_advanced' => TRUE,
 																				'send_to_child' => TRUE,
 																			),
-															'report' => 		array(
+															'report' =>	array(
 																				'enabled' => TRUE,
 																				'view_user_information' => TRUE,
 																				'view_user_detail' => TRUE,
 																				'view_user_barcode' => TRUE,
 																			),
-                                                            'report_custom_column' =>   array(
-                                                                                'enabled'   => TRUE,
-                                                                                'view_own' => TRUE,
+															'report_custom_column' =>	array(
+																				'enabled'	=> TRUE,
+																				'view_own' => TRUE,
 																				'add' => TRUE,
 																				'edit_own' => TRUE,
 																				'delete_own' => TRUE,
-                                                                            ),
+																			),
 														),
 													10 => //Module: Scheduling
 														array(
-															'schedule' => 	array(
+															'schedule' =>	array(
 																				'add' => TRUE,
 																				'view_child' => TRUE,
+																				'view_open' => TRUE,
 																				'edit_child' => TRUE,
 																				'delete_child' => TRUE,
 																				'edit_branch' => TRUE,
 																				'edit_department' => TRUE,
 																			),
-															'recurring_schedule_template' => 	array(
+															'recurring_schedule_template' =>	array(
 																				'enabled' => TRUE,
 																				'view_own' => TRUE,
 																				'add' => TRUE,
 																				'edit_own' => TRUE,
 																				'delete_own' => TRUE,
 																			),
-															'recurring_schedule' => 	array(
+															'recurring_schedule' =>	array(
 																				'enabled' => TRUE,
 																				'view_child' => TRUE,
 																				'add' => TRUE,
 																				'edit_child' => TRUE,
 																				'delete_child' => TRUE,
 																			),
-															'absence' => 	array(
+															'absence' =>	array(
 																				'add' => TRUE,
 																				'view_child' => TRUE,
 																				'edit_child' => TRUE,
@@ -1728,7 +1795,7 @@ class PermissionFactory extends Factory {
 																				'edit_branch' => TRUE,
 																				'edit_department' => TRUE,
 																			),
-															'accrual' => 	array(
+															'accrual' =>	array(
 																				'add' => TRUE,
 																				'view_child' => TRUE,
 																				'edit_own' => FALSE,
@@ -1736,7 +1803,7 @@ class PermissionFactory extends Factory {
 																				'delete_own' => FALSE,
 																				'delete_child' => TRUE,
 																			),
-															'report' => 		array(
+															'report' =>	array(
 																				'view_schedule_summary' => TRUE,
 																				'view_accrual_balance_summary' => TRUE,
 																			),
@@ -1744,13 +1811,13 @@ class PermissionFactory extends Factory {
 														),
 													20 => //Module: Time & Attendance
 														array(
-															'punch' => 	array(
+															'punch' =>	array(
 																				'view_child' => TRUE,
 																				'edit_child' => TRUE,
 																				'delete_child' => TRUE,
 																				'authorize' => TRUE
 																			),
-															'absence' => 	array(
+															'absence' =>	array(
 																				'add' => TRUE,
 																				'view_child' => TRUE,
 																				'edit_own' => FALSE,
@@ -1760,13 +1827,13 @@ class PermissionFactory extends Factory {
 																				'delete_own' => FALSE,
 																				'delete_child' => TRUE,
 																			),
-															'accrual' => 	array(
+															'accrual' =>	array(
 																				'view_child' => TRUE,
 																				'add' => TRUE,
 																				'edit_child' => TRUE,
 																				'delete_child' => TRUE,
 																			),
-															'report' => 		array(
+															'report' =>	array(
 																				'view_active_shift' => TRUE,
 																				'view_timesheet_summary' => TRUE,
 																				'view_punch_summary' => TRUE,
@@ -1780,21 +1847,22 @@ class PermissionFactory extends Factory {
 														),
 													40 => //Module: Job Costing
 														array(
-															'schedule' => 	array(
+															'schedule' =>	array(
 																				'edit_job' => TRUE,
 																				'edit_job_item' => TRUE,
 																			),
-															'absence' => 	array(
+															'absence' =>	array(
 																				'edit_job' => TRUE,
 																				'edit_job_item' => TRUE,
 																			),
-															'job' => 	array(
+															'job' =>	array(
 																				'add' => TRUE,
+																				'view' => TRUE, //Must be able to view all jobs so they can punch in/out.
 																				'view_own' => TRUE,
 																				'edit_own' => TRUE,
 																				'delete_own' => TRUE,
 																			),
-															'job_item' => 	array(
+															'job_item' =>	array(
 																				'enabled' => TRUE,
 																				'view' => TRUE,
 																				'add' => TRUE,
@@ -1811,7 +1879,7 @@ class PermissionFactory extends Factory {
 														),
 													50 => //Module: Document Management
 														array(
-															'document' => 	array(
+															'document' =>	array(
 																				'add' => TRUE,
 																				'view_private' => TRUE,
 																				'edit' => TRUE,
@@ -1823,28 +1891,28 @@ class PermissionFactory extends Factory {
 														),
 													60 => //Module: Invoicing
 														array(
-															'client' => 	array(
+															'client' =>	array(
 																				'enabled' => TRUE,
 																				'view' => TRUE,
 																				'add' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE,
 																			),
-															'client_payment' => 	array(
+															'client_payment' =>	array(
 																				'enabled' => TRUE,
 																				'view' => TRUE,
 																				'add' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE,
 																			),
-															'transaction' => 	array(
+															'transaction' => array(
 																				'enabled' => TRUE,
 																				'view' => TRUE,
 																				'add' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE,
 																			),
-															'invoice' => 	array(
+															'invoice' => array(
 																				'enabled' => TRUE,
 																				'view' => TRUE,
 																				'add' => TRUE,
@@ -1854,7 +1922,7 @@ class PermissionFactory extends Factory {
 														),
 													70 => //Module: Human Resources
 														array(
-															'user_contact' => 	array(
+															'user_contact' => array(
 																				'enabled' => TRUE,
 																				'add' => TRUE, //Can only add user with permissions level equal or lower.
 																				'view_child' => TRUE,
@@ -1864,60 +1932,82 @@ class PermissionFactory extends Factory {
 															'qualification' => array(
 																				'enabled' => TRUE,
 																				'add' => TRUE,
+																				'view' => TRUE,
+																				'edit_own' => TRUE,
+																				'delete_own' => TRUE,
 																				'view_child' => TRUE,
 																				'edit_child' => TRUE,
 																				'delete_child' => TRUE,
 																			),
-															'user_education' => 	array(
+															'user_education' =>	array(
 																				'enabled' => TRUE,
 																				'add' => TRUE,
+																				'view' => TRUE,
+																				'edit_own' => TRUE,
+																				'delete_own' => TRUE,
 																				'view_child' => TRUE,
 																				'edit_child' => TRUE,
 																				'delete_child' => TRUE,
 																			),
-															'user_license' => 	array(
+															'user_license' => array(
 																				'enabled' => TRUE,
 																				'add' => TRUE,
+																				'view' => TRUE,
+																				'edit_own' => TRUE,
+																				'delete_own' => TRUE,
 																				'view_child' => TRUE,
 																				'edit_child' => TRUE,
 																				'delete_child' => TRUE,
 																			),
-															'user_skill' => 	array(
+															'user_skill' =>	array(
 																				'enabled' => TRUE,
 																				'add' => TRUE,
+																				'view' => TRUE,
+																				'edit_own' => TRUE,
+																				'delete_own' => TRUE,
 																				'view_child' => TRUE,
 																				'edit_child' => TRUE,
 																				'delete_child' => TRUE,
 																			),
-															'user_membership' => 	array(
+															'user_membership' => array(
 																				'enabled' => TRUE,
 																				'add' => TRUE,
+																				'view' => TRUE,
+																				'edit_own' => TRUE,
+																				'delete_own' => TRUE,
 																				'view_child' => TRUE,
 																				'edit_child' => TRUE,
 																				'delete_child' => TRUE,
 																			),
-															'user_language' => 	array(
+															'user_language' => array(
 																				'enabled' => TRUE,
 																				'add' => TRUE,
+																				'view' => TRUE,
+																				'edit_own' => TRUE,
+																				'delete_own' => TRUE,
 																				'view_child' => TRUE,
 																				'edit_child' => TRUE,
 																				'delete_child' => TRUE,
 																			),
-															'kpi' => 	array(
+															'kpi' => array(
 																				'enabled' => TRUE,
 																				'add' => TRUE,
+																				'view' => TRUE,
+																				'edit_own' => TRUE,
+																				'delete_own' => TRUE,
 																				'view_child' => TRUE,
 																				'edit_child' => TRUE,
 																				'delete_child' => TRUE,
 																			),
-															'user_review' => 	array(
+															'user_review' => array(
 																				'enabled' => TRUE,
 																				'add' => TRUE,
+																				'view_own' => TRUE,
 																				'view_child' => TRUE,
 																				'edit_child' => TRUE,
 																				'delete_child' => TRUE,
 																			),
-															'hr_report' =>  array(
+															'hr_report' =>	array(
 																				'enabled' => TRUE,
 																				'user_qualification' => TRUE,
 																				'user_review' => TRUE,
@@ -1926,28 +2016,28 @@ class PermissionFactory extends Factory {
 														),
 													75 => //Module: Recruitement
 														array(
-															'job_vacancy' => 	array(
+															'job_vacancy' => array(
 																				'enabled' => TRUE,
 																				'add' => TRUE,
 																				'view_child' => TRUE,
 																				'edit_child' => TRUE,
 																				'delete_child' => TRUE,
 																			),
-															'job_applicant' => 	array(
+															'job_applicant' => array(
 																				'enabled' => TRUE,
 																				'add' => TRUE,
 																				'view_child' => TRUE,
 																				'edit_child' => TRUE,
 																				'delete_child' => TRUE,
 																			),
-                                                            'job_application' => 	array(
+															'job_application' => array(
 																				'enabled' => TRUE,
 																				'add' => TRUE,
 																				'view_child' => TRUE,
 																				'edit_child' => TRUE,
 																				'delete_child' => TRUE,
 																			),
-															'recruitment_report' =>  array(
+															'recruitment_report' =>	array(
 																				'enabled' => TRUE,
 																				'user_recruitment' => TRUE,
 																			),
@@ -1955,7 +2045,7 @@ class PermissionFactory extends Factory {
 														),
 													80 => //Module: Expenses
 														array(
-															'user_expense' => 	array(
+															'user_expense' => array(
 																				'view_child' => TRUE,
 																				'add' => TRUE,
 																				'edit_child' => TRUE,
@@ -1968,48 +2058,48 @@ class PermissionFactory extends Factory {
 											array(
 													0 => //Module: System
 														array(
-															'user' => 	array(
+															'user' =>	array(
 																				'view' => TRUE,
 																				'edit' => TRUE,
 																				'enroll' => TRUE,
-																				'delete' => TRUE
+																				//'delete' => TRUE, //Disable deleting of users by default as a precautionary measure.
 																			),
-															'user_preference' => 	array(
+															'user_preference' =>	array(
 																				'view' => TRUE,
 																				'edit' => TRUE,
 																			),
-															'request' => 	array(
+															'request' =>	array(
 																				'view' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE,
 																			),
-															'message' => 	array(
+															'message' =>	array(
 																				'send_to_any' => TRUE,
 																			),
 														),
 													10 => //Module: Scheduling
 														array(
-															'schedule' => 	array(
+															'schedule' =>	array(
 																				'view' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE
 																			),
-															'recurring_schedule_template' => 	array(
+															'recurring_schedule_template' =>	array(
 																				'view' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE,
 																			),
-															'recurring_schedule' => 	array(
+															'recurring_schedule' =>	array(
 																				'view' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE,
 																			),
-															'absence' => 	array(
+															'absence' =>	array(
 																				'view' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE,
 																			),
-															'accrual' => 	array(
+															'accrual' =>	array(
 																				'view' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE,
@@ -2018,19 +2108,19 @@ class PermissionFactory extends Factory {
 														),
 													20 => //Module: Time & Attendance
 														array(
-															'punch' => 	array(
+															'punch' =>	array(
 																				'view' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE,
 																			),
-															'absence' => 	array(
+															'absence' =>	array(
 																				'view' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE,
 																				'edit_own' => TRUE,
 																				'delete_own' => TRUE,
 																			),
-															'accrual' => 	array(
+															'accrual' =>	array(
 																				'view' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE,
@@ -2041,12 +2131,12 @@ class PermissionFactory extends Factory {
 														),
 													40 => //Module: Job Costing
 														array(
-															'job' => 	array(
+															'job' =>	array(
 																				'view' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE,
 																			),
-															'job_item' => 	array(
+															'job_item' =>	array(
 																				'enabled' => TRUE,
 																				'view' => TRUE,
 																				'add' => TRUE,
@@ -2069,41 +2159,34 @@ class PermissionFactory extends Factory {
 																				'delete' => TRUE,
 																			),
 															'qualification' => array(
-																				'view' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE
 																			),
-															'user_education' => 	array(
-																				'view' => TRUE,
+															'user_education' =>	array(
 																				'edit' => TRUE,
 																				'delete' => TRUE,
 																			),
-															'user_license' => 	array(
-																				'view' => TRUE,
+															'user_license' =>	array(
 																				'edit' => TRUE,
 																				'delete' => TRUE,
 																			),
-															'user_skill' => 	array(
-																				'view' => TRUE,
+															'user_skill' =>	array(
 																				'edit' => TRUE,
 																				'delete' => TRUE,
 																			),
-															'user_membership' => 	array(
-																				'view' => TRUE,
+															'user_membership' => array(
 																				'edit' => TRUE,
 																				'delete' => TRUE,
 																			),
-															'user_language' => 	array(
-																				'view' => TRUE,
+															'user_language' => array(
 																				'edit' => TRUE,
 																				'delete' => TRUE,
 																			),
-															'kpi' => 	array(
-																				'view' => TRUE,
+															'kpi' => array(
 																				'edit' => TRUE,
 																				'delete' => TRUE,
 																			),
-															'user_review' => 	array(
+															'user_review' => array(
 																				'view' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE,
@@ -2111,17 +2194,17 @@ class PermissionFactory extends Factory {
 														),
 													75 => //Module: Recruitement
 														array(
-															'job_vacancy' => 	array(
+															'job_vacancy' =>	array(
 																				'view' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE,
 																			),
-															'job_applicant' => 	array(
+															'job_applicant' =>	array(
 																				'view' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE,
 																			),
-                                                            'job_application' => 	array(
+															'job_application' =>	array(
 																				'view' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE,
@@ -2129,7 +2212,7 @@ class PermissionFactory extends Factory {
 														),
 													80 => //Module: Expenses
 														array(
-															'user_expense' => 	array(
+															'user_expense' =>	array(
 																				'view' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE,
@@ -2161,7 +2244,7 @@ class PermissionFactory extends Factory {
 														),
 													70 => //Module: Human Resources
 														array(
-															'qualification' => 	array(
+															'qualification' =>	array(
 																				'enabled' => TRUE,
 																				'view' => TRUE,
 																				'add' => TRUE,
@@ -2180,25 +2263,25 @@ class PermissionFactory extends Factory {
 											array(
 													0 => //Module: System
 														array(
-															'company' => 	array(
+															'company' =>	array(
 																				'enabled' => TRUE,
 																				'view_own' => TRUE,
 																				'edit_own' => TRUE,
 																				'edit_own_bank' => TRUE
 																			),
-															'user' => 	array(
+															'user' =>	array(
 																				'add' => TRUE,
 																				'edit_bank' => TRUE,
 																				'view_sin' => TRUE,
 																			),
-															'wage' => 		array(
+															'wage' =>	array(
 																				'enabled' => TRUE,
 																				'view' => TRUE,
 																				'add' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE
 																			),
-															'pay_period_schedule' => 	array(
+															'pay_period_schedule' =>	array(
 																				'enabled' => TRUE,
 																				'view' => TRUE,
 																				'add' => TRUE,
@@ -2206,7 +2289,21 @@ class PermissionFactory extends Factory {
 																				'delete' => TRUE,
 																				'assign' => TRUE
 																			),
-															'report' => 		array(
+															'pay_code' =>	array(
+																				'enabled' => TRUE,
+																				'view' => TRUE,
+																				'add' => TRUE,
+																				'edit' => TRUE,
+																				'delete' => TRUE,
+																			),
+															'pay_formula_policy' =>	array(
+																				'enabled' => TRUE,
+																				'view' => TRUE,
+																				'add' => TRUE,
+																				'edit' => TRUE,
+																				'delete' => TRUE,
+																			),
+															'report' =>	array(
 																				'view_system_log' => TRUE,
 																				'view_employee_summary' => TRUE,
 																			),
@@ -2219,48 +2316,48 @@ class PermissionFactory extends Factory {
 														),
 													30 => //Module: Payroll
 														array(
-															'user_tax_deduction' => 	array(
+															'user_tax_deduction' =>	array(
 																				'enabled' => TRUE,
 																				'view' => TRUE,
 																				'add' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE,
 																			),
-															'roe' => 		array(
+															'roe' => array(
 																				'enabled' => TRUE,
 																				'view' => TRUE,
 																				'add' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE,
 																			),
-															'company_tax_deduction' => 	array(
+															'company_tax_deduction' =>	array(
 																				'enabled' => TRUE,
 																				'view' => TRUE,
 																				'add' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE,
 																			),
-															'pay_stub_account' => 	array(
+															'pay_stub_account' =>	array(
 																				'enabled' => TRUE,
 																				'view' => TRUE,
 																				'add' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE
 																			),
-															'pay_stub' => 	array(
+															'pay_stub' =>	array(
 																				'view' => TRUE,
 																				'add' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE
 																			),
-															'pay_stub_amendment' => 	array(
+															'pay_stub_amendment' =>	array(
 																				'enabled' => TRUE,
 																				'view' => TRUE,
 																				'add' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE
 																			),
-															'report' => 	array(
+															'report' =>	array(
 																				'view_pay_stub_summary' => TRUE,
 																				'view_payroll_export' => TRUE,
 																				//'view_employee_pay_stub_summary' => TRUE,
@@ -2285,42 +2382,42 @@ class PermissionFactory extends Factory {
 														),
 													60 => //Module: Invoicing
 														array(
-															'product' => 	array(
+															'product' =>	array(
 																				'enabled' => TRUE,
 																				'view' => TRUE,
 																				'add' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE,
 																			),
-															'tax_policy' => 	array(
+															'tax_policy' =>	array(
 																				'enabled' => TRUE,
 																				'view' => TRUE,
 																				'add' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE,
 																			),
-															'shipping_policy' => 	array(
+															'shipping_policy' =>	array(
 																				'enabled' => TRUE,
 																				'view' => TRUE,
 																				'add' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE,
 																			),
-															'area_policy' => 	array(
+															'area_policy' =>	array(
 																				'enabled' => TRUE,
 																				'view' => TRUE,
 																				'add' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE,
 																			),
-															'payment_gateway' => 	array(
+															'payment_gateway' =>	array(
 																				'enabled' => TRUE,
 																				'view' => TRUE,
 																				'add' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE,
 																			),
-															'invoice_report' => 	array(
+															'invoice_report' =>	array(
 																				'enabled' => TRUE,
 																				'view_transaction_summary' => TRUE,
 																			),
@@ -2333,7 +2430,7 @@ class PermissionFactory extends Factory {
 														),
 													80 => //Module: Expenses
 														array(
-															'report' => 	array(
+															'report' =>	array(
 																				'view_expense' => TRUE
 																			),
 														),
@@ -2342,108 +2439,129 @@ class PermissionFactory extends Factory {
 											array(
 													0 => //Module: System
 														array(
-															'user' => 	array(
+															'user' =>	array(
 																				'timeclock_admin' => TRUE,
 																			),
-															'policy_group' => 	array(
+															'policy_group' =>	array(
 																				'enabled' => TRUE,
 																				'view' => TRUE,
 																				'add' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE,
 																			),
-															'schedule_policy' => 	array(
+															'contributing_pay_code_policy' =>	array(
 																				'enabled' => TRUE,
 																				'view' => TRUE,
 																				'add' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE,
 																			),
-															'meal_policy' => 	array(
+															'contributing_shift_policy' =>	array(
 																				'enabled' => TRUE,
 																				'view' => TRUE,
 																				'add' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE,
 																			),
-															'break_policy' => 	array(
+															'regular_time_policy' =>	array(
 																				'enabled' => TRUE,
 																				'view' => TRUE,
 																				'add' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE,
 																			),
-															'over_time_policy' => 	array(
+															'schedule_policy' =>	array(
 																				'enabled' => TRUE,
 																				'view' => TRUE,
 																				'add' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE,
 																			),
-															'premium_policy' => 	array(
+															'meal_policy' =>	array(
 																				'enabled' => TRUE,
 																				'view' => TRUE,
 																				'add' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE,
 																			),
-															'accrual_policy' => 	array(
+															'break_policy' =>	array(
 																				'enabled' => TRUE,
 																				'view' => TRUE,
 																				'add' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE,
 																			),
-															'absence_policy' => 	array(
+															'over_time_policy' =>	array(
 																				'enabled' => TRUE,
 																				'view' => TRUE,
 																				'add' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE,
 																			),
-															'round_policy' => 	array(
+															'premium_policy' =>	array(
 																				'enabled' => TRUE,
 																				'view' => TRUE,
 																				'add' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE,
 																			),
-															'exception_policy' => 	array(
+															'accrual_policy' =>	array(
 																				'enabled' => TRUE,
 																				'view' => TRUE,
 																				'add' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE,
 																			),
-															'holiday_policy' => 	array(
+															'absence_policy' =>	array(
 																				'enabled' => TRUE,
 																				'view' => TRUE,
 																				'add' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE,
 																			),
-															'round_policy' => 	array(
+															'round_policy' => array(
 																				'enabled' => TRUE,
 																				'view' => TRUE,
 																				'add' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE,
 																			),
-															'currency' => 	array(
+															'exception_policy' =>	array(
 																				'enabled' => TRUE,
 																				'view' => TRUE,
 																				'add' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE,
 																			),
-															'branch' => 	array(
+															'holiday_policy' =>	array(
 																				'enabled' => TRUE,
 																				'view' => TRUE,
 																				'add' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE,
 																			),
-															'department' => 	array(
+															'round_policy' =>	array(
+																				'enabled' => TRUE,
+																				'view' => TRUE,
+																				'add' => TRUE,
+																				'edit' => TRUE,
+																				'delete' => TRUE,
+																			),
+															'currency' =>	array(
+																				'enabled' => TRUE,
+																				'view' => TRUE,
+																				'add' => TRUE,
+																				'edit' => TRUE,
+																				'delete' => TRUE,
+																			),
+															'branch' =>	array(
+																				'enabled' => TRUE,
+																				'view' => TRUE,
+																				'add' => TRUE,
+																				'edit' => TRUE,
+																				'delete' => TRUE,
+																			),
+															'department' =>	array(
 																				'enabled' => TRUE,
 																				'view' => TRUE,
 																				'add' => TRUE,
@@ -2451,7 +2569,7 @@ class PermissionFactory extends Factory {
 																				'delete' => TRUE,
 																				'assign' => TRUE
 																			),
-															'station' => 	array(
+															'station' =>	array(
 																				'enabled' => TRUE,
 																				'view' => TRUE,
 																				'add' => TRUE,
@@ -2459,35 +2577,35 @@ class PermissionFactory extends Factory {
 																				'delete' => TRUE,
 																				'assign' => TRUE
 																			),
-															'report' => 		array(
+															'report' =>	array(
 																				//'view_shift_actual_time' => TRUE,
 																			),
-															'hierarchy' => 	array(
+															'hierarchy' =>	array(
 																				'enabled' => TRUE,
 																				'view' => TRUE,
 																				'add' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE,
 																			),
-															'other_field' => 	array(
+															'other_field' =>	array(
 																				'enabled' => TRUE,
 																				'view' => TRUE,
 																				'add' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE,
 																			),
-															'permission' => 	array(
+															'permission' =>	array(
 																				'enabled' => TRUE,
 																				'view' => TRUE,
 																				'add' => TRUE,
 																				'edit' => TRUE,
 																				'delete' => TRUE,
 																			),
-                                                            'report_custom_column' => array(
+															'report_custom_column' => array(
 																				'view' => TRUE,
 																				'edit' => TRUE,
-                                                                                'delete' => TRUE,
-                                                                            ),
+																				'delete' => TRUE,
+																			),
 														),
 													10 => //Module: Scheduling
 														array(
@@ -2506,7 +2624,7 @@ class PermissionFactory extends Factory {
 														),
 													60 => //Module: Invoicing
 														array(
-															'invoice_config' => 	array(
+															'invoice_config' =>	array(
 																				'enabled' => TRUE,
 																				'add' => TRUE,
 																				'edit' => TRUE,
@@ -2542,7 +2660,7 @@ class PermissionFactory extends Factory {
 				if ( isset($preset_permissions[$preset_option]) AND $preset_option <= $preset ) {
 					foreach( $preset_flags as $preset_flag ) {
 						if ( isset($preset_permissions[$preset_option][$preset_flag]) ) {
-							Debug::Text('Applying Preset: '. $preset_option .' Preset Flag: '. $preset_flag, __FILE__, __LINE__, __METHOD__,10);
+							Debug::Text('Applying Preset: '. $preset_option .' Preset Flag: '. $preset_flag, __FILE__, __LINE__, __METHOD__, 10);
 							$retarr = Misc::arrayMergeRecursive( $retarr, $preset_permissions[$preset_option][$preset_flag] );
 						}
 					}
@@ -2565,18 +2683,29 @@ class PermissionFactory extends Factory {
 		$this->setPermissionControl( $permission_control_id );
 
 		$product_edition = $this->getPermissionControlObject()->getCompanyObject()->getProductEdition();
-		//Debug::Arr($preset_flags, 'Preset: '. $preset .' Product Edition: '. $product_edition, __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($preset_flags, 'Preset: '. $preset .' Product Edition: '. $product_edition, __FILE__, __LINE__, __METHOD__, 10);
 
 		$pf = TTnew( 'PermissionFactory' );
 		$pf->StartTransaction();
 
-		//Delete all previous permissions for this user.
+		//Delete all previous permissions for this control record..
 		$this->deletePermissions( $this->getCompany(), $permission_control_id );
 		
+		$created_date = time();
 		foreach($preset_permissions as $section => $permissions) {
 			foreach($permissions as $name => $value) {
 				if ( $pf->isIgnore( $section, $name, $product_edition ) == FALSE ) {
-					//Debug::Text('Setting Permission - Section: '. $section .' Name: '. $name .' Value: '. (int)$value, __FILE__, __LINE__, __METHOD__,10);
+					//Put all inserts into a single query, this speeds things up greatly (9s to less than .5s),
+					//but we are by-passing the audit log so make sure we add a new entry describing what took place.
+					$ph[] = $permission_control_id;
+					$ph[] = $section;
+					$ph[] = $name;
+					$ph[] = (int)$value;
+					$ph[] = $created_date;
+					$data[] = '(?, ?, ?, ?, ?)';
+					
+					/*
+					//Debug::Text('Setting Permission - Section: '. $section .' Name: '. $name .' Value: '. (int)$value, __FILE__, __LINE__, __METHOD__, 10);
 					$pf->setPermissionControl( $permission_control_id );
 					$pf->setSection( $section );
 					$pf->setName( $name );
@@ -2584,14 +2713,34 @@ class PermissionFactory extends Factory {
 					if ( $pf->isValid() ) {
 						$pf->save();
 					} else {
-						Debug::Text('ERROR: Setting Permission - Section: '. $section .' Name: '. $name .' Value: '. (int)$value, __FILE__, __LINE__, __METHOD__,10);
+						Debug::Text('ERROR: Setting Permission - Section: '. $section .' Name: '. $name .' Value: '. (int)$value, __FILE__, __LINE__, __METHOD__, 10);
 					}
+					*/
 				}
 			}
 		}
 
-		//Clear cache for all users assigned to this permission_control_id
 		$pclf = TTnew( 'PermissionControlListFactory' );
+		if ( isset($data) ) {
+			//Save data in a single SQL query.
+			$query = 'INSERT INTO '. $this->getTable() .'(PERMISSION_CONTROL_ID, SECTION, NAME, VALUE, CREATED_DATE) VALUES'. implode(',', $data );
+			//Debug::Text('Query: '. $query, __FILE__, __LINE__, __METHOD__, 10);
+			$this->db->Execute($query, $ph);
+
+			//Make sure we keep the seqenence in sync, only required for MySQL.
+			if ( strncmp($this->db->databaseType, 'mysql', 5) == 0 ) {
+				Debug::Text('Keeping MySQL sequence in sync...', __FILE__, __LINE__, __METHOD__, 10);
+				$install = TTNew('Install');
+				$install->initializeSequence( $this, $this->getTable(), get_class( $this ), $this->db );
+				unset($install);
+			}
+
+			//Debug::Text('Logged detail records in: '. (microtime(TRUE) - $start_time), __FILE__, __LINE__, __METHOD__, 10);
+			TTLog::addEntry( $permission_control_id, 20, TTi18n::getText('Applying Permission Preset').': '. Option::getByKey( $preset, $this->getOptions('preset') ), NULL, $pclf->getTable(), $this );
+		}
+		unset($ph, $data, $created_date, $preset_permissions, $permissions, $section, $name, $value );
+
+		//Clear cache for all users assigned to this permission_control_id
 		$pclf->getById( $permission_control_id );
 		if ( $pclf->getRecordCount() > 0 ) {
 			$pc_obj = $pclf->getCurrent();
@@ -2610,7 +2759,7 @@ class PermissionFactory extends Factory {
 		return TRUE;
 	}
 
-	function deletePermissions( $company_id, $permission_control_id ){
+	function deletePermissions( $company_id, $permission_control_id ) {
 		if ( $company_id == '' ) {
 			return FALSE;
 		}
@@ -2637,30 +2786,30 @@ class PermissionFactory extends Factory {
 			return TRUE;
 		}
 
-		//Debug::Text(' Product Edition: '. $product_edition .' Primary Company ID: '. PRIMARY_COMPANY_ID, __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Text(' Product Edition: '. $product_edition .' Primary Company ID: '. PRIMARY_COMPANY_ID, __FILE__, __LINE__, __METHOD__, 10);
 		if ( $product_edition == TT_PRODUCT_ENTERPRISE ) { //Enterprise
 			//Company ignore permissions must be enabled always, and unset below if this is the primary company
 			$ignore_permissions = array('help' => 'ALL',
-										'company' => array('add','delete','delete_own','undelete','view','edit','login_other_user'),
+										'company' => array('add', 'delete', 'delete_own', 'undelete', 'view', 'edit', 'login_other_user'),
 										);
 		} elseif ( $product_edition == TT_PRODUCT_CORPORATE ) { //Corporate
 			//Company ignore permissions must be enabled always, and unset below if this is the primary company
 			$ignore_permissions = array('help' => 'ALL',
-										'company' => array('add','delete','delete_own','undelete','view','edit','login_other_user'),
-                                        'job_vacancy' => 'ALL',
-                                        'job_applicant' => 'ALL',
-                                        'job_application' => 'ALL',
-                                        'user_expense' => 'ALL',
-                                        'expense_policy' => 'ALL',
-                                        'report' => array('view_expense'),
-                                        'recruitment_report' => 'ALL',
+										'company' => array('add', 'delete', 'delete_own', 'undelete', 'view', 'edit', 'login_other_user'),
+										'job_vacancy' => 'ALL',
+										'job_applicant' => 'ALL',
+										'job_application' => 'ALL',
+										'user_expense' => 'ALL',
+										'expense_policy' => 'ALL',
+										'report' => array('view_expense'),
+										'recruitment_report' => 'ALL',
 										);
 		} elseif ( $product_edition == TT_PRODUCT_COMMUNITY OR $product_edition == TT_PRODUCT_PROFESSIONAL ) { //Community or Professional
 			//Company ignore permissions must be enabled always, and unset below if this is the primary company
 			$ignore_permissions = array('help' => 'ALL',
-										'company' => array('add','delete','delete_own','undelete','view','edit','login_other_user'),
-										'schedule' => array('edit_job','edit_job_item'),
-										'punch' => array('edit_job','edit_job_item','edit_quantity','edit_bad_quantity'),
+										'company' => array('add', 'delete', 'delete_own', 'undelete', 'view', 'edit', 'login_other_user'),
+										'schedule' => array('edit_job', 'edit_job_item'),
+										'punch' => array('edit_job', 'edit_job_item', 'edit_quantity', 'edit_bad_quantity'),
 										'job_item' => 'ALL',
 										'invoice_config' => 'ALL',
 										'client' => 'ALL',
@@ -2676,12 +2825,12 @@ class PermissionFactory extends Factory {
 										'invoice' => 'ALL',
 										'job' => 'ALL',
 										'document' => 'ALL',
-                                        'job_vacancy' => 'ALL',
-                                        'job_applicant' => 'ALL',
-                                        'job_application' => 'ALL',
-                                        'user_expense' => 'ALL',
-                                        'expense_policy' => 'ALL',
-                                        'report' => array('view_expense'),
+										'job_vacancy' => 'ALL',
+										'job_applicant' => 'ALL',
+										'job_application' => 'ALL',
+										'user_expense' => 'ALL',
+										'expense_policy' => 'ALL',
+										'report' => array('view_expense'),
 										'recruitment_report' => 'ALL',
 										);
 		}
@@ -2709,10 +2858,10 @@ class PermissionFactory extends Factory {
 					)
 
 					) {
-			//Debug::Text(' IGNORING... Section: '. $section .' Name: '. $name, __FILE__, __LINE__, __METHOD__,10);
+			//Debug::Text(' IGNORING... Section: '. $section .' Name: '. $name, __FILE__, __LINE__, __METHOD__, 10);
 			return TRUE;
 		} else {
-			//Debug::Text(' NOT IGNORING... Section: '. $section .' Name: '. $name, __FILE__, __LINE__, __METHOD__,10);
+			//Debug::Text(' NOT IGNORING... Section: '. $section .' Name: '. $name, __FILE__, __LINE__, __METHOD__, 10);
 			return FALSE;
 		}
 	}
@@ -2733,7 +2882,7 @@ class PermissionFactory extends Factory {
 	}
 
 	function clearCache( $user_id, $company_id ) {
-		Debug::Text(' Clearing Cache for User ID: '. $user_id, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text(' Clearing Cache for User ID: '. $user_id, __FILE__, __LINE__, __METHOD__, 10);
 
 		$cache_id = 'permission_all'.$user_id.$company_id;
 		return $this->removeCache( $cache_id );
@@ -2748,12 +2897,12 @@ class PermissionFactory extends Factory {
 
 	function addLog( $log_action ) {
 		if ( $this->getValue() == TRUE ) {
-			$value_display =  TTi18n::getText( 'ALLOW' );
+			$value_display = TTi18n::getText( 'ALLOW' );
 		} else {
-			$value_display =  TTi18n::getText( 'DENY' );
+			$value_display = TTi18n::getText( 'DENY' );
 		}
 
-		return TTLog::addEntry( $this->getPermissionControl(), $log_action, TTi18n::getText('Section').': '. Option::getByKey($this->getSection(), $this->getOptions('section') ) .' Name: '. Option::getByKey( $this->getName(), $this->getOptions('name', $this->getSection() ) ) .' Value: '. $value_display , NULL, $this->getTable() );
+		return TTLog::addEntry( $this->getPermissionControl(), $log_action, TTi18n::getText('Section').': '. Option::getByKey($this->getSection(), $this->getOptions('section') ) .' Name: '. Option::getByKey( $this->getName(), $this->getOptions('name', $this->getSection() ) ) .' Value: '. $value_display, NULL, $this->getTable() );
 	}
 }
 ?>

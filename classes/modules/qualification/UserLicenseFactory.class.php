@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,21 +33,17 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 5229 $
- * $Id: UserLicenseFactory.class.php 5229 2011-09-20 17:52:53Z ipso $
- * $Date: 2011-09-21 01:52:53 +0800 (Wed, 21 Sep 2011) $
- */
+
 
 /**
- * @package
+ * @package Modules\Qualification
  */
 class UserLicenseFactory extends Factory {
 	protected $table = 'user_license';
 	protected $pk_sequence_name = 'user_license_id_seq'; //PK Sequence name
-    protected $qualification_obj = NULL;
+	protected $qualification_obj = NULL;
 
-    protected $license_number_validator_regex = '/^[A-Z\-\.\ 0-9]{1,250}$/i';
+	protected $license_number_validator_regex = '/^[A-Z_\/:;\-\.\ 0-9]{1,250}$/i';
 	function _getFactoryOptions( $name ) {
 
 		$retval = NULL;
@@ -55,16 +51,16 @@ class UserLicenseFactory extends Factory {
 
 			case 'columns':
 				$retval = array(
-                                        '-1010-first_name' => TTi18n::gettext('First Name'),
+										'-1010-first_name' => TTi18n::gettext('First Name'),
 										'-1020-last_name' => TTi18n::gettext('Last Name'),
 										'-2050-qualification' => TTi18n::gettext('License Type'),
-                                        '-2040-group' => TTi18n::gettext('Group'),
-                                        '-3080-license_number' => TTi18n::gettext('License Number'),
-                                        '-3090-license_issued_date' => TTi18n::gettext('Issued Date'),
-                                        '-4000-license_expiry_date' => TTi18n::gettext('Expiry Date'),
+										'-2040-group' => TTi18n::gettext('Group'),
+										'-3080-license_number' => TTi18n::gettext('License Number'),
+										'-3090-license_issued_date' => TTi18n::gettext('Issued Date'),
+										'-4000-license_expiry_date' => TTi18n::gettext('Expiry Date'),
 
-                                        '-1300-tag' => TTi18n::gettext('Tags'),
-                                        '-1090-title' => TTi18n::gettext('Title'),
+										'-1300-tag' => TTi18n::gettext('Tags'),
+										'-1090-title' => TTi18n::gettext('Title'),
 										'-1099-user_group' => TTi18n::gettext('Employee Group'),
 										'-1100-default_branch' => TTi18n::gettext('Branch'),
 										'-1110-default_department' => TTi18n::gettext('Department'),
@@ -80,10 +76,10 @@ class UserLicenseFactory extends Factory {
 				break;
 			case 'default_display_columns': //Columns that are displayed by default.
 				$retval = array(
-                                'first_name',
+								'first_name',
 								'last_name',
-                                'qualification',
-                                'license_number',
+								'qualification',
+								'license_number',
 								'license_issued_date',
 								'license_expiry_date',
 								);
@@ -94,22 +90,22 @@ class UserLicenseFactory extends Factory {
 		return $retval;
 	}
 
-    function _getVariableToFunctionMap( $data ) {
+	function _getVariableToFunctionMap( $data ) {
 		$variable_function_map = array(
 										'id' => 'ID',
 										'user_id' => 'User',
-                                        'first_name' => FALSE,
+										'first_name' => FALSE,
 										'last_name' => FALSE,
-                                        'qualification_id' => 'Qualification',
-                                        'qualification' => FALSE,
-                                        'group' => FALSE,
+										'qualification_id' => 'Qualification',
+										'qualification' => FALSE,
+										'group' => FALSE,
 
-                                        'license_number' => 'LicenseNumber',
-                                        'license_issued_date' => 'LicenseIssuedDate',
-                                        'license_expiry_date' => 'LicenseExpiryDate',
+										'license_number' => 'LicenseNumber',
+										'license_issued_date' => 'LicenseIssuedDate',
+										'license_expiry_date' => 'LicenseExpiryDate',
 
-                                        'tag' => 'Tag',
-                                        'default_branch' => FALSE,
+										'tag' => 'Tag',
+										'default_branch' => FALSE,
 										'default_department' => FALSE,
 										'user_group' => FALSE,
 										'title' => FALSE,
@@ -118,16 +114,16 @@ class UserLicenseFactory extends Factory {
 		return $variable_function_map;
 	}
 
-    function getQualificationObject() {
-		        
-        return $this->getGenericObject( 'QualificationListFactory', $this->getQualification(), 'qualification_obj' );
+	function getQualificationObject() {
+		
+		return $this->getGenericObject( 'QualificationListFactory', $this->getQualification(), 'qualification_obj' );
 	}
 
-    function getUser() {
+	function getUser() {
 		if ( isset($this->data['user_id']) ) {
-			return $this->data['user_id'];
+			return (int)$this->data['user_id'];
 		}
-        return FALSE;
+		return FALSE;
 	}
 	function setUser($id) {
 		$id = trim($id);
@@ -146,57 +142,57 @@ class UserLicenseFactory extends Factory {
 		return FALSE;
 	}
 
-    function getQualification() {
-        if ( isset( $this->data['qualification_id'] ) ) {
-            return $this->data['qualification_id'];
-        }
-        return FALSE;
-    }
+	function getQualification() {
+		if ( isset( $this->data['qualification_id'] ) ) {
+			return (int)$this->data['qualification_id'];
+		}
+		return FALSE;
+	}
 
-    function setQualification( $id ) {
-        $id = trim( $id );
+	function setQualification( $id ) {
+		$id = trim( $id );
 
-        $qlf = TTnew( 'QualificationListFactory' );
+		$qlf = TTnew( 'QualificationListFactory' );
 
-        if( $this->Validator->isResultSetWithRows( 'qualification_id',
-                                                                    $qlf->getById( $id ),
-                                                                    TTi18n::gettext('Invalid Qualification')
-                                                                     ) ) {
-            $this->data['qualification_id'] = $id;
+		if( $this->Validator->isResultSetWithRows( 'qualification_id',
+																	$qlf->getById( $id ),
+																	TTi18n::gettext('Invalid Qualification')
+																	) ) {
+			$this->data['qualification_id'] = $id;
 
-            return TRUE;
-        }
+			return TRUE;
+		}
 
-        return FALSE;
-    }
-
-
-    function getLicenseNumber() {
-        if ( isset( $this->data['license_number'] ) ) {
-            return $this->data['license_number'];
-        }
-        return FALSE;
-    }
+		return FALSE;
+	}
 
 
-    function setLicenseNumber( $license_number ) {
-        $license_number = trim($license_number);
+	function getLicenseNumber() {
+		if ( isset( $this->data['license_number'] ) ) {
+			return $this->data['license_number'];
+		}
+		return FALSE;
+	}
 
-        if (    $license_number == ''
-                OR
-                $this->Validator->isRegEx(		'license_number',
+
+	function setLicenseNumber( $license_number ) {
+		$license_number = trim($license_number);
+
+		if (	$license_number == ''
+				OR
+				$this->Validator->isRegEx(		'license_number',
 												$license_number,
 												TTi18n::gettext('License number is invalid'),
-												$this->license_number_validator_regex)  ) {
-                $this->data['license_number'] = $license_number;
-                return  TRUE;
-        }
+												$this->license_number_validator_regex)	) {
+				$this->data['license_number'] = $license_number;
+				return	TRUE;
+		}
 
-        return FALSE;
-    }
+		return FALSE;
+	}
 
 
-    function getLicenseIssuedDate() {
+	function getLicenseIssuedDate() {
 		if ( isset($this->data['license_issued_date']) ) {
 			return (int)$this->data['license_issued_date'];
 		}
@@ -206,13 +202,13 @@ class UserLicenseFactory extends Factory {
 	function setLicenseIssuedDate($epoch) {
 		$epoch = trim($epoch);
 
-        if ( $epoch == '' ) {
+		if ( $epoch == '' ) {
 			$epoch = NULL;
 		}
 
-		if 	( $epoch == NULL
+		if	( $epoch == NULL
 				OR
-            	$this->Validator->isDate(		'license_issued_date',
+				$this->Validator->isDate(		'license_issued_date',
 												$epoch,
 												TTi18n::gettext('Incorrect license issued date'))
 			) {
@@ -235,11 +231,11 @@ class UserLicenseFactory extends Factory {
 	function setLicenseExpiryDate($epoch) {
 		$epoch = trim($epoch);
 
-		if ( $epoch == '' ){
+		if ( $epoch == '' ) {
 			$epoch = NULL;
 		}
 
-		if 	(	$epoch == NULL
+		if	(	$epoch == NULL
 				OR
 				$this->Validator->isDate(		'license_expiry_date',
 												$epoch,
@@ -254,7 +250,7 @@ class UserLicenseFactory extends Factory {
 		return FALSE;
 	}
 
-    function getTag() {
+	function getTag() {
 		//Check to see if any temporary data is set for the tags, if not, make a call to the database instead.
 		//postSave() needs to get the tmp_data.
 		if ( isset($this->tmp_data['tags']) ) {
@@ -280,15 +276,16 @@ class UserLicenseFactory extends Factory {
 		return TRUE;
 	}
 
-    function preSave() {
+	function preSave() {
 		return TRUE;
 	}
 
 	function postSave() {
 		$this->removeCache( $this->getId() );
+		$this->removeCache( $this->getUser().$this->getQualification() );
 
-        if ( $this->getDeleted() == FALSE ) {
-            Debug::text('Setting Tags...', __FILE__, __LINE__, __METHOD__, 10);
+		if ( $this->getDeleted() == FALSE ) {
+			Debug::text('Setting Tags...', __FILE__, __LINE__, __METHOD__, 10);
 			CompanyGenericTagMapFactory::setTags( $this->getQualificationObject()->getCompany(), 253, $this->getID(), $this->getTag() );
 		}
 		return TRUE;
@@ -303,12 +300,12 @@ class UserLicenseFactory extends Factory {
 
 					$function = 'set'.$function;
 					switch( $key ) {
-					    case 'license_issued_date':
-                            $this->setLicenseIssuedDate( TTDate::parseDateTime( $data['license_issued_date'] ) );
-                            break;
-                        case 'license_expiry_date':
-                            $this->setLicenseExpiryDate( TTDate::parseDateTime( $data['license_expiry_date'] ) );
-                            break;
+						case 'license_issued_date':
+							$this->setLicenseIssuedDate( TTDate::parseDateTime( $data['license_issued_date'] ) );
+							break;
+						case 'license_expiry_date':
+							$this->setLicenseExpiryDate( TTDate::parseDateTime( $data['license_expiry_date'] ) );
+							break;
 						default:
 							if ( method_exists( $this, $function ) ) {
 								$this->$function( $data[$key] );
@@ -336,21 +333,21 @@ class UserLicenseFactory extends Factory {
 
 					switch( $variable ) {
 						case 'qualification':
-                        case 'group':
-                        case 'first_name':
+						case 'group':
+						case 'first_name':
 						case 'last_name':
-                        case 'title':
+						case 'title':
 						case 'user_group':
-                        case 'default_branch':
+						case 'default_branch':
 						case 'default_department':
-                            $data[$variable] = $this->getColumn( $variable );
+							$data[$variable] = $this->getColumn( $variable );
 							break;
-                        case 'license_issued_date':
-                            $data['license_issued_date'] = TTDate::getAPIDate( 'DATE', $this->getLicenseIssuedDate() );
-                            break;
-                        case 'license_expiry_date':
-                            $data['license_expiry_date'] = TTDate::getAPIDate( 'DATE', $this->getLicenseExpiryDate() );
-                            break;
+						case 'license_issued_date':
+							$data['license_issued_date'] = TTDate::getAPIDate( 'DATE', $this->getLicenseIssuedDate() );
+							break;
+						case 'license_expiry_date':
+							$data['license_expiry_date'] = TTDate::getAPIDate( 'DATE', $this->getLicenseExpiryDate() );
+							break;
 						default:
 							if ( method_exists( $this, $function ) ) {
 								$data[$variable] = $this->$function();
@@ -360,8 +357,8 @@ class UserLicenseFactory extends Factory {
 
 				}
 			}
-            $this->getPermissionColumns( $data, $this->getUser(), $this->getCreatedBy(), $permission_children_ids, $include_columns );
-            
+			$this->getPermissionColumns( $data, $this->getUser(), $this->getCreatedBy(), $permission_children_ids, $include_columns );
+
 			$this->getCreatedAndUpdatedColumns( $data, $include_columns );
 		}
 
@@ -369,7 +366,7 @@ class UserLicenseFactory extends Factory {
 	}
 
 	function addLog( $log_action ) {
-		return TTLog::addEntry( $this->getId(), $log_action, TTi18n::getText('License') , NULL, $this->getTable(), $this );
+		return TTLog::addEntry( $this->getId(), $log_action, TTi18n::getText('License'), NULL, $this->getTable(), $this );
 	}
 
 }

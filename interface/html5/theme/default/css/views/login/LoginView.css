@@ -1,0 +1,235 @@
+/*LoginView*/
+.login-view {
+    position: fixed;
+    width: 652px;
+    height: 455px;
+    background: url("images/login_view_bg.png");
+    top: 50%;
+    left: 50%;
+    margin: -238.5px 0 0 -326px;
+    -webkit-transition: opacity 1s;
+    -moz-transition: opacity 1s;
+    -ms-transition: opacity 1s;
+    -o-transition: opacity 1s;
+    transition: opacity 1s;
+    z-index: 10;
+
+}
+
+.login-view .form-container {
+    position: absolute;
+    top: 230px;
+    width: 100%;
+    text-align: center;
+    height: 200px;
+
+}
+
+.login-view .form {
+    margin: 0px auto;
+
+}
+
+.foot-right-html {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+}
+
+.foot-left-html {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+}
+
+.login-view .version-label {
+    position: absolute;
+    font-size: 9px;
+    bottom: 8px;
+    left: 30px;
+    color: #ffffff;
+}
+
+.login-view .error-info {
+    color: red;
+    font-weight: bold;
+}
+
+.login-view .secure-login {
+    color: #ffffff;
+    font-size: 14px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.login-view .labels {
+    color: #ffffff;
+    font-weight: normal;
+    text-align: right;
+    padding-right: 5px;
+}
+
+.login-view .form-input {
+    color: #000000;
+    width: 150px;
+    font-weight: normal;
+    background-color: #d0d9e5;
+    border: 1px inset #d0d9e5;
+}
+
+.login-view .form-selector {
+    width: 150px;
+    color: #000000;
+    font-weight: normal;
+    background-color: #d0d9e5;
+}
+
+.login-view .forgot-password {
+    /*position: absolute;*/
+    cursor: pointer;
+    color: #aad6ff;
+    margin-right: 35px;
+}
+
+.login-view .login-btn-td {
+    text-align: left;
+    /*line-height: 50px;*/
+    height: 50px;
+
+}
+
+.login-view .quick-punch {
+    cursor: pointer;
+    color: #aad6ff;
+}
+
+.login-view .legacy-interface {
+    cursor: pointer;
+    color: #aad6ff;
+    position: absolute;
+    bottom: 8px;
+    margin-left: auto;
+    margin-right: auto;
+    left: 0px;
+    right: 0px;
+    width: 96px;
+}
+
+.social-div {
+    cursor: pointer;
+    color: #aad6ff;
+    position: fixed;
+    top: 50%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 220px;
+    left: 0px;
+    right: 0px;
+    width: 300px;
+    text-align: center;
+    z-index: 7;
+
+}
+
+.login-view .social-div a {
+    display: inline-block;
+}
+
+.login-view .company-logo {
+    position: absolute;
+    left: 70px;
+    top: 55px;
+    cursor: pointer;
+    max-width: 300px;
+    max-height: 80px;
+
+}
+
+.login-view .powered-by-img {
+    bottom: 5px;
+    left: 0;
+    margin-left: auto;
+    margin-right: auto;
+    position: fixed;
+    right: 0;
+    cursor: pointer;
+}
+
+.powered-by-img-seo {
+    bottom: 25px;
+    left: 0;
+    margin-left: auto;
+    margin-right: auto;
+    position: fixed;
+    right: 0;
+    cursor: pointer;
+    z-index: 9;
+    text-align: center;
+    width: 145px;
+}
+
+.copy-right-info-1 {
+    bottom: 5px;
+    left: 0;
+    margin-left: auto;
+    margin-right: auto;
+    position: fixed;
+    right: 0;
+    color: #ffffff;
+    font-size: 11px;
+    text-align: center;
+    width: 100%;
+    z-index: -1;
+    text-decoration: none;
+    background-color: none;
+}
+
+.footerLink {
+    text-decoration: none;
+    color: inherit;
+}
+
+.login-view .app-type {
+    position: absolute;
+    right: 30px;
+    top: 20px;
+    cursor: pointer;
+
+}
+
+.login-view .login-button {
+
+    background: -webkit-gradient(linear, 0 0, 0 100%, from(#d1deeb), to(#596e85));
+    background: -moz-linear-gradient(top, #d1deeb, #596e85);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#d1deeb', endColorstr='#596e85', grandientType=1);
+    -ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#d1deeb', endColorstr='#596e85', grandientType=1); /** IE8 **/
+    background-image: -ms-linear-gradient(#d1deeb, #596e85, #596e85);
+    background: -ms-linear-gradient(top, #d1deeb 0%, #596e85 100%);
+
+    background-color: #e8f3ff;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    border-radius: 6px;
+    border: 0px solid #a1a3a6;
+    color: #0b333c;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 5px 6px;
+    text-decoration: none;
+    cursor: pointer;
+    display: inline-block;
+    float: right;
+
+}
+
+.login-view .login-button:hover {
+    background: -webkit-gradient(linear, 0 0, 0 100%, from(#d1deeb), to(#596e85));
+    background: -moz-linear-gradient(top, #d1deeb, #596e85);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#d1deeb', endColorstr='#596e85', grandientType=1);
+    -ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#d1deeb', endColorstr='#596e85', grandientType=1); /** IE8 **/
+    background-image: -ms-linear-gradient(#d1deeb, #596e85, #596e85);
+    background: -ms-linear-gradient(top, #d1deeb 0%, #596e85 100%);
+}
+
+
+

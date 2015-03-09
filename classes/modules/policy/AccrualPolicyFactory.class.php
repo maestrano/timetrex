@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 9521 $
- * $Id: AccrualPolicyFactory.class.php 9521 2013-04-08 23:09:52Z ipso $
- * $Date: 2013-04-08 16:09:52 -0700 (Mon, 08 Apr 2013) $
- */
+
 
 /**
  * @package Modules\Policy
@@ -48,9 +44,10 @@ class AccrualPolicyFactory extends Factory {
 
 	protected $company_obj = NULL;
 	protected $milestone_objs = NULL;
+	protected $contributing_shift_policy_obj = NULL;
+	protected $length_of_service_contributing_pay_code_policy_obj = NULL;
 
 	function _getFactoryOptions( $name ) {
-
 		$retval = NULL;
 		switch( $name ) {
 			case 'type':
@@ -72,6 +69,10 @@ class AccrualPolicyFactory extends Factory {
 				$retval = array(
 										'-1010-type' => TTi18n::gettext('Type'),
 										'-1030-name' => TTi18n::gettext('Name'),
+										'-1035-description' => TTi18n::gettext('Description'),
+
+
+										'-1900-in_use' => TTi18n::gettext('In Use'),
 
 										'-2000-created_by' => TTi18n::gettext('Created By'),
 										'-2010-created_date' => TTi18n::gettext('Created Date'),
@@ -86,6 +87,7 @@ class AccrualPolicyFactory extends Factory {
 				$retval = array(
 								'type',
 								'name',
+								'description',
 								'updated_date',
 								'updated_by',
 								);
@@ -110,7 +112,14 @@ class AccrualPolicyFactory extends Factory {
 											'company_id' => 'Company',
 											'type_id' => 'Type',
 											'type' => FALSE,
+											'accrual_policy_account_id' => 'AccrualPolicyAccount',
+											'accrual_policy_account' => FALSE,
+											'contributing_shift_policy_id' => 'ContributingShiftPolicy',
+											'contributing_shift_policy' => FALSE,
+											'length_of_service_contributing_pay_code_policy_id' => 'LengthOfServiceContributingPayCodePolicy',
+											'length_of_service_contributing_pay_code_policy' => FALSE,
 											'name' => 'Name',
+											'description' => 'Description',
 											'enable_pay_stub_balance_display' => 'EnablePayStubBalanceDisplay',
 											'minimum_time' => 'MinimumTime',
 											'maximum_time' => 'MaximumTime',
@@ -124,25 +133,27 @@ class AccrualPolicyFactory extends Factory {
 											'milestone_rollover_month' => 'MilestoneRolloverMonth',
 											'milestone_rollover_day_of_month' => 'MilestoneRolloverDayOfMonth',
 											'minimum_employed_days' => 'MinimumEmployedDays',
+											'in_use' => FALSE,
 											'deleted' => 'Deleted',
 											);
 			return $variable_function_map;
 	}
 
 	function getCompanyObject() {
-		if ( is_object($this->company_obj) ) {
-			return $this->company_obj;
-		} else {
-			$clf = TTnew( 'CompanyListFactory' );
-			$this->company_obj = $clf->getById( $this->getCompany() )->getCurrent();
+		return $this->getGenericObject( 'CompanyListFactory', $this->getCompany(), 'company_obj' );
+	}
 
-			return $this->company_obj;
-		}
+	function getContributingShiftPolicyObject() {
+		return $this->getGenericObject( 'ContributingShiftPolicyListFactory', $this->getContributingShiftPolicy(), 'contributing_shift_policy_obj' );
+	}
+
+	function getLengthOfServiceContributingPayCodePolicyObject() {
+		return $this->getGenericObject( 'ContributingPayCodePolicyListFactory', $this->getLengthOfServiceContributingPayCodePolicy(), 'length_of_service_contributing_pay_code_policy_obj' );
 	}
 
 	function getCompany() {
 		if ( isset($this->data['company_id']) ) {
-			return $this->data['company_id'];
+			return (int)$this->data['company_id'];
 		}
 
 		return FALSE;
@@ -150,7 +161,7 @@ class AccrualPolicyFactory extends Factory {
 	function setCompany($id) {
 		$id = trim($id);
 
-		Debug::Text('Company ID: '. $id, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Company ID: '. $id, __FILE__, __LINE__, __METHOD__, 10);
 		$clf = TTnew( 'CompanyListFactory' );
 
 		if ( $this->Validator->isResultSetWithRows(	'company',
@@ -168,7 +179,7 @@ class AccrualPolicyFactory extends Factory {
 
 	function getType() {
 		if ( isset($this->data['type_id']) ) {
-			return $this->data['type_id'];
+			return (int)$this->data['type_id'];
 		}
 
 		return FALSE;
@@ -194,6 +205,89 @@ class AccrualPolicyFactory extends Factory {
 		return FALSE;
 	}
 
+
+	function getAccrualPolicyAccount() {
+		if ( isset($this->data['accrual_policy_account_id']) ) {
+			return (int)$this->data['accrual_policy_account_id'];
+		}
+
+		return FALSE;
+	}
+	function setAccrualPolicyAccount($id) {
+		$id = trim($id);
+
+		$apaplf = TTnew( 'AccrualPolicyAccountListFactory' );
+
+		if (
+				$this->Validator->isResultSetWithRows(	'accrual_policy_account_id',
+													$apaplf->getByID($id),
+													TTi18n::gettext('Accrual Account is invalid')
+													) ) {
+
+			$this->data['accrual_policy_account_id'] = $id;
+
+			return TRUE;
+		}
+
+		return FALSE;
+	}
+
+	//This is the contributing shifts used for Hour Based accrual policies.
+	function getContributingShiftPolicy() {
+		if ( isset($this->data['contributing_shift_policy_id']) ) {
+			return (int)$this->data['contributing_shift_policy_id'];
+		}
+
+		return FALSE;
+	}
+	function setContributingShiftPolicy($id) {
+		$id = trim($id);
+
+		$csplf = TTnew( 'ContributingShiftPolicyListFactory' );
+
+		if (	$id == 0
+				OR
+				$this->Validator->isResultSetWithRows(	'contributing_shift_policy_id',
+													$csplf->getByID($id),
+													TTi18n::gettext('Contributing Shift Policy is invalid')
+													) ) {
+
+			$this->data['contributing_shift_policy_id'] = $id;
+
+			return TRUE;
+		}
+
+		return FALSE;
+	}
+
+	//This is strictly used to determine milestones with active after X hours.
+	function getLengthOfServiceContributingPayCodePolicy() {
+		if ( isset($this->data['length_of_service_contributing_pay_code_policy_id']) ) {
+			return (int)$this->data['length_of_service_contributing_pay_code_policy_id'];
+		}
+
+		return FALSE;
+	}
+	function setLengthOfServiceContributingPayCodePolicy($id) {
+		$id = trim($id);
+
+		$csplf = TTnew( 'ContributingPayCodePolicyListFactory' );
+
+		if (	$id == 0
+				OR
+				$this->Validator->isResultSetWithRows(	'length_of_service_contributing_pay_code_policy_id',
+													$csplf->getByID($id),
+													TTi18n::gettext('Contributing Pay Code Policy is invalid')
+													) ) {
+
+			$this->data['length_of_service_contributing_pay_code_policy_id'] = $id;
+
+			return TRUE;
+		}
+
+		return FALSE;
+	}
+
 	function isUniqueName($name) {
 		$ph = array(
 					'company_id' => $this->getCompany(),
@@ -202,7 +296,7 @@ class AccrualPolicyFactory extends Factory {
 
 		$query = 'select id from '. $this->getTable() .' where company_id = ? AND lower(name) = ? AND deleted=0';
 		$id = $this->db->GetOne($query, $ph);
-		Debug::Arr($id,'Unique: '. $name, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Arr($id, 'Unique: '. $name, __FILE__, __LINE__, __METHOD__, 10);
 
 		if ( $id === FALSE ) {
 			return TRUE;
@@ -226,7 +320,7 @@ class AccrualPolicyFactory extends Factory {
 		if (	$this->Validator->isLength(	'name',
 											$name,
 											TTi18n::gettext('Name is too short or too long'),
-											2,50)
+											2, 50)
 				AND
 				$this->Validator->isTrue(	'name',
 											$this->isUniqueName($name),
@@ -234,6 +328,30 @@ class AccrualPolicyFactory extends Factory {
 						) {
 
 			$this->data['name'] = $name;
+
+			return TRUE;
+		}
+
+		return FALSE;
+	}
+
+	function getDescription() {
+		if ( isset($this->data['description']) ) {
+			return $this->data['description'];
+		}
+
+		return FALSE;
+	}
+	function setDescription($description) {
+		$description = trim($description);
+
+		if (	$description == ''
+				OR $this->Validator->isLength(	'description',
+												$description,
+												TTi18n::gettext('Description is invalid'),
+												1, 250) ) {
+
+			$this->data['description'] = $description;
 
 			return TRUE;
 		}
@@ -260,11 +378,11 @@ class AccrualPolicyFactory extends Factory {
 	function setMinimumTime($int) {
 		$int = trim($int);
 
-		if  ( empty($int) ){
+		if	( empty($int) ) {
 			$int = 0;
 		}
 
-		if 	(	$this->Validator->isNumeric(		'minimum_time',
+		if	(	$this->Validator->isNumeric(		'minimum_time',
 													$int,
 													TTi18n::gettext('Incorrect Minimum Time')) ) {
 			$this->data['minimum_time'] = $int;
@@ -285,11 +403,11 @@ class AccrualPolicyFactory extends Factory {
 	function setMaximumTime($int) {
 		$int = trim($int);
 
-		if  ( empty($int) ){
+		if	( empty($int) ) {
 			$int = 0;
 		}
 
-		if 	(	$this->Validator->isNumeric(		'maximum_time',
+		if	(	$this->Validator->isNumeric(		'maximum_time',
 													$int,
 													TTi18n::gettext('Incorrect Maximum Time')) ) {
 			$this->data['maximum_time'] = $int;
@@ -305,7 +423,7 @@ class AccrualPolicyFactory extends Factory {
 	//
 	function getApplyFrequency() {
 		if ( isset($this->data['apply_frequency_id']) ) {
-			return $this->data['apply_frequency_id'];
+			return (int)$this->data['apply_frequency_id'];
 		}
 
 		return FALSE;
@@ -313,7 +431,7 @@ class AccrualPolicyFactory extends Factory {
 	function setApplyFrequency($value) {
 		$value = trim($value);
 
-		if ( 	$value == 0
+		if (	$value == 0
 				OR
 				$this->Validator->inArrayKey(	'apply_frequency_id',
 												$value,
@@ -481,11 +599,11 @@ class AccrualPolicyFactory extends Factory {
 	function setMinimumEmployedDays($int) {
 		$int = trim($int);
 
-		if  ( empty($int) ) {
+		if	( empty($int) ) {
 			$int = 0;
 		}
 
-		if 	(	$this->Validator->isNumeric(		'minimum_employed_days',
+		if	(	$this->Validator->isNumeric(		'minimum_employed_days',
 													$int,
 													TTi18n::gettext('Incorrect Minimum Employed days')) ) {
 			$this->data['minimum_employed_days'] = $int;
@@ -496,9 +614,14 @@ class AccrualPolicyFactory extends Factory {
 		return FALSE;
 	}
 
-	function getMilestoneRolloverDate( $user_hire_date = NULL ) {
+	function getMilestoneRolloverDate( $user_hire_date = NULL, $modifier_obj = NULL ) {
 		if ( $user_hire_date == '' ) {
 			return FALSE;
+		}
+
+		if ( is_object($modifier_obj) AND method_exists( $modifier_obj, 'getLengthOfServiceDate' ) AND $modifier_obj->getLengthOfServiceDate() != '' ) {
+			Debug::Text('Using Modifier LengthOfService Date: '. TTDate::getDate('DATE+TIME', $modifier_obj->getLengthOfServiceDate() ) .' Hire Date: '. TTDate::getDate('DATE+TIME', $user_hire_date), __FILE__, __LINE__, __METHOD__, 10);
+			$user_hire_date = $modifier_obj->getLengthOfServiceDate();
 		}
 
 		if ( $this->getMilestoneRolloverHireDate() == TRUE ) {
@@ -508,7 +631,7 @@ class AccrualPolicyFactory extends Factory {
 			$retval = mktime( $user_hire_date_arr['hours'], $user_hire_date_arr['minutes'], $user_hire_date_arr['seconds'], $this->getMilestoneRolloverMonth(), $this->getMilestoneRolloverDayOfMonth(), $user_hire_date_arr['year'] );
 		}
 
-		Debug::Text('Milestone Rollover Date: '. TTDate::getDate('DATE+TIME', $retval) .' Hire Date: '. TTDate::getDate('DATE+TIME', $user_hire_date), __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Milestone Rollover Date: '. TTDate::getDate('DATE+TIME', $retval) .' Hire Date: '. TTDate::getDate('DATE+TIME', $user_hire_date), __FILE__, __LINE__, __METHOD__, 10);
 		return TTDate::getBeginDayEpoch( $retval ); //Some hire dates might be at noon, so make sure they are all at midnight.
 	}
 
@@ -520,7 +643,7 @@ class AccrualPolicyFactory extends Factory {
 			$rollover_date = $user_hire_date;
 		}
 
-		Debug::Text('Current Milestone Rollover Date: '. TTDate::getDate('DATE+TIME', $rollover_date) .' Hire Date: '. TTDate::getDate('DATE+TIME', $user_hire_date), __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Current Milestone Rollover Date: '. TTDate::getDate('DATE+TIME', $rollover_date) .' Hire Date: '. TTDate::getDate('DATE+TIME', $user_hire_date), __FILE__, __LINE__, __METHOD__, 10);
 		return $rollover_date;
 	}
 
@@ -531,16 +654,16 @@ class AccrualPolicyFactory extends Factory {
 				if ( $annual_pay_periods == '' ) {
 					return FALSE;
 				}
-				$retval = bcdiv( $accrual_rate, $annual_pay_periods,0);
+				$retval = bcdiv( $accrual_rate, $annual_pay_periods, 0);
 				break;
 			case 20: //Year
 				$retval = $accrual_rate;
 				break;
 			case 30: //Month
-				$retval = bcdiv( $accrual_rate, 12,0);
+				$retval = bcdiv( $accrual_rate, 12, 0);
 				break;
 			case 40: //Week
-				$retval = bcdiv( $accrual_rate, 52,0);
+				$retval = bcdiv( $accrual_rate, 52, 0);
 				break;
 		}
 
@@ -550,7 +673,7 @@ class AccrualPolicyFactory extends Factory {
 		//$retval = TTDate::roundTime( $retval, 60, 20 );
 		$retval = round($retval, 0);
 
-		Debug::Text('Accrual Rate Per Frequency: '. $retval .' Accrual Rate: '. $accrual_rate .' Pay Periods: '. $annual_pay_periods , __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Accrual Rate Per Frequency: '. $retval .' Accrual Rate: '. $accrual_rate .' Pay Periods: '. $annual_pay_periods, __FILE__, __LINE__, __METHOD__, 10);
 
 		return $retval;
 	}
@@ -558,42 +681,40 @@ class AccrualPolicyFactory extends Factory {
 	function inRolloverFrequencyWindow( $current_epoch, $offset, $user_hire_date, $pay_period_start_date = NULL ) {
 		//Use current_epoch mainly for Yearly cases where the rollover date is 01-Nov and the hire date is always right after it, 10-Nov in the next year.
 		$rollover_date = $this->getCurrentMilestoneRolloverDate( $current_epoch, $user_hire_date );
-		Debug::Text('Rollover Date: '. TTDate::getDate('DATE+TIME', $rollover_date ) .' Current Epoch: '. TTDate::getDate('DATE+TIME', $current_epoch ), __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Rollover Date: '. TTDate::getDate('DATE+TIME', $rollover_date ) .' Current Epoch: '. TTDate::getDate('DATE+TIME', $current_epoch ), __FILE__, __LINE__, __METHOD__, 10);
 
-		if ( $rollover_date >= ($current_epoch-$offset) AND $rollover_date <= $current_epoch ) {
-			Debug::Text('In rollover frequency window...', __FILE__, __LINE__, __METHOD__,10);
+		if ( $rollover_date >= ($current_epoch - $offset) AND $rollover_date <= $current_epoch ) {
+			Debug::Text('In rollover frequency window...', __FILE__, __LINE__, __METHOD__, 10);
 			return TRUE;
 		}
 
-		Debug::Text('NOT in rollover frequency window...', __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('NOT in rollover frequency window...', __FILE__, __LINE__, __METHOD__, 10);
 		return FALSE;
 	}
 
 	function inApplyFrequencyWindow( $current_epoch, $offset, $pay_period_end_date = NULL, $hire_date = NULL ) {
-		Debug::Text('Offset: '. $offset, __FILE__, __LINE__, __METHOD__,10);
-
 		$retval = FALSE;
 		switch( $this->getApplyFrequency() ) {
 			case 10: //Pay Period
 				if ( $pay_period_end_date == '' ) {
 					return FALSE;
 				}
-				if ( $pay_period_end_date >= ($current_epoch-$offset)
+				if ( $pay_period_end_date >= ($current_epoch - $offset)
 						AND $pay_period_end_date <= $current_epoch ) {
 					$retval = TRUE;
 				}
 				break;
 			case 20: //Year
 				if ( $this->getApplyFrequencyHireDate() == TRUE ) {
-					Debug::Text('Hire Date: '. TTDate::getDate('DATE', $hire_date), __FILE__, __LINE__, __METHOD__,10);
-					$year_epoch = mktime( 0,0,0, TTDate::getMonth( $hire_date ), TTDate::getDayOfMonth( $hire_date ), TTDate::getYear( $current_epoch ) );
+					Debug::Text('Hire Date: '. TTDate::getDate('DATE', $hire_date), __FILE__, __LINE__, __METHOD__, 10);
+					$year_epoch = mktime( 0, 0, 0, TTDate::getMonth( $hire_date ), TTDate::getDayOfMonth( $hire_date ), TTDate::getYear( $current_epoch ) );
 				} else {
-					Debug::Text('Static Date', __FILE__, __LINE__, __METHOD__,10);
-					$year_epoch = mktime( 0,0,0, $this->getApplyFrequencyMonth(), $this->getApplyFrequencyDayOfMonth(), TTDate::getYear( $current_epoch ) );
+					Debug::Text('Static Date', __FILE__, __LINE__, __METHOD__, 10);
+					$year_epoch = mktime( 0, 0, 0, $this->getApplyFrequencyMonth(), $this->getApplyFrequencyDayOfMonth(), TTDate::getYear( $current_epoch ) );
 				}
-				Debug::Text('Year EPOCH: '. TTDate::getDate('DATE+TIME', $year_epoch), __FILE__, __LINE__, __METHOD__,10);
+				Debug::Text('Year EPOCH: '. TTDate::getDate('DATE+TIME', $year_epoch), __FILE__, __LINE__, __METHOD__, 10);
 
-				if ( $year_epoch >= ($current_epoch-$offset)
+				if ( $year_epoch >= ($current_epoch - $offset)
 						AND $year_epoch <= $current_epoch ) {
 					$retval = TRUE;
 				}
@@ -604,27 +725,27 @@ class AccrualPolicyFactory extends Factory {
 				//Make sure if they specify the day of month to be 31, that is still works for months with 30, or 28-29 days, assuming 31 basically means the last day of the month
 				if ( $apply_frequency_day_of_month > TTDate::getDaysInMonth( $current_epoch ) ) {
 					$apply_frequency_day_of_month = TTDate::getDaysInMonth( $current_epoch );
-					Debug::Text('Apply frequency day of month exceeds days in this month, using last day of the month instead: '. $apply_frequency_day_of_month, __FILE__, __LINE__, __METHOD__,10);
+					Debug::Text('Apply frequency day of month exceeds days in this month, using last day of the month instead: '. $apply_frequency_day_of_month, __FILE__, __LINE__, __METHOD__, 10);
 				}
 
-				$month_epoch = mktime( 0,0,0, TTDate::getMonth( $current_epoch ), $apply_frequency_day_of_month, TTDate::getYear( $current_epoch ) );
-				Debug::Text('Day of Month: '. $this->getApplyFrequencyDayOfMonth() .' Month EPOCH: '. TTDate::getDate('DATE+TIME', $month_epoch) .' Current Month: '. TTDate::getMonth( $current_epoch ), __FILE__, __LINE__, __METHOD__,10);
-				Debug::Text('Month EPOCH: '. TTDate::getDate('DATE+TIME', $month_epoch) .'('. $month_epoch .') Greater Than: '. TTDate::getDate('DATE+TIME', ($current_epoch-$offset)) .' Less Than: '.  TTDate::getDate('DATE+TIME', $current_epoch) .'('. $current_epoch .')', __FILE__, __LINE__, __METHOD__,10);
+				$month_epoch = mktime( 0, 0, 0, TTDate::getMonth( $current_epoch ), $apply_frequency_day_of_month, TTDate::getYear( $current_epoch ) );
+				//Debug::Text('Day of Month: '. $this->getApplyFrequencyDayOfMonth() .' Month EPOCH: '. TTDate::getDate('DATE+TIME', $month_epoch) .' Current Month: '. TTDate::getMonth( $current_epoch ), __FILE__, __LINE__, __METHOD__, 10);
+				Debug::Text('Month EPOCH: '. TTDate::getDate('DATE+TIME', $month_epoch) .'('. $month_epoch .') Greater Than: '. TTDate::getDate('DATE+TIME', ($current_epoch - $offset)) .' Less Than: '.	 TTDate::getDate('DATE+TIME', $current_epoch) .'('. $current_epoch .')', __FILE__, __LINE__, __METHOD__, 10);
 
-				if ( $month_epoch >= ($current_epoch-$offset)
+				if ( $month_epoch >= ($current_epoch - $offset)
 						AND $month_epoch <= $current_epoch ) {
 					$retval = TRUE;
 				}
 				break;
 			case 40: //Week
-				Debug::Text('Current Day Of Week: '. TTDate::getDayOfWeek($current_epoch-$offset), __FILE__, __LINE__, __METHOD__,10);
-				if ( $this->getApplyFrequencyDayOfWeek() == TTDate::getDayOfWeek( ($current_epoch-$offset) ) ) {
+				Debug::Text('Current Day Of Week: '. TTDate::getDayOfWeek($current_epoch - $offset), __FILE__, __LINE__, __METHOD__, 10);
+				if ( $this->getApplyFrequencyDayOfWeek() == TTDate::getDayOfWeek( ($current_epoch - $offset) ) ) {
 					$retval = TRUE;
 				}
 				break;
 		}
 
-		Debug::Text('RetVal: '. (int)$retval, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('RetVal: '. (int)$retval .' Offset: '. $offset, __FILE__, __LINE__, __METHOD__, 10);
 		return $retval;
 	}
 
@@ -641,15 +762,60 @@ class AccrualPolicyFactory extends Factory {
 			return FALSE;
 		}
 
-		$udtlf = TTnew( 'UserDateTotalListFactory' );
-		$retval = $udtlf->getWorkedTimeSumByUserIDAndStartDateAndEndDate( $user_id, $start_date, $end_date );
+		$retval = 0;
 
-		Debug::Text('Worked Seconds: '. (int)$retval .' Before: '. TTDate::getDate('DATE+TIME', $end_date), __FILE__, __LINE__, __METHOD__,10);
+		$pay_code_policy_obj = $this->getLengthOfServiceContributingPayCodePolicyObject();
+		if ( is_object( $pay_code_policy_obj ) ) {
+			$udtlf = TTnew( 'UserDateTotalListFactory' );
+			$retval = $udtlf->getTotalTimeSumByUserIDAndPayCodeIDAndStartDateAndEndDate( $user_id, $pay_code_policy_obj->getPayCode(), $start_date, $end_date );
+		}
+
+		Debug::Text('Worked Seconds: '. (int)$retval .' Before: '. TTDate::getDate('DATE+TIME', $end_date), __FILE__, __LINE__, __METHOD__, 10);
 
 		return $retval;
 	}
 
-	function getActiveMilestoneObject( $u_obj, $epoch = NULL ) {
+	//Determine if any milestones have an hour based length of service.
+	function isHourBasedLengthOfService() {
+		//Cache milestones to speed up getting projected balances.
+		if ( !isset($this->milestone_objs[$this->getID()]) ) {
+			$this->milestone_objs[$this->getID()] = TTnew( 'AccrualPolicyMilestoneListFactory' );
+			$this->milestone_objs[$this->getID()]->getByAccrualPolicyId($this->getId(), NULL, array('length_of_service_days' => 'desc' ) );
+		}
+		Debug::Text('  Total Accrual Policy MileStones: '. (int)$this->milestone_objs[$this->getID()]->getRecordCount(), __FILE__, __LINE__, __METHOD__, 10);
+		if ( $this->milestone_objs[$this->getID()]->getRecordCount() > 0 ) {
+			foreach( $this->milestone_objs[$this->getID()] as $apm_obj ) {
+				if ( $apm_obj->getLengthOfServiceUnit() == 50 AND $apm_obj->getLengthOfService() > 0 ) {
+					Debug::Text('  MileStone is in Hours...', __FILE__, __LINE__, __METHOD__, 10);
+					return TRUE;
+				}
+			}
+		}
+
+		Debug::Text('  No HourBased length of service MileStones...', __FILE__, __LINE__, __METHOD__, 10);
+		return FALSE;
+	}
+
+	function getAccrualPolicyUserModifierObject( $u_obj ) {
+		if ( !is_object( $u_obj ) ) {
+			return FALSE;
+		}
+
+		if ( getTTProductEdition() > 10 ) {
+			$apumlf = TTNew('AccrualPolicyUserModifierListFactory');
+			$apumlf->getByUserIdAndAccrualPolicyId( $u_obj->getId(), $this->getId() );
+			if ( $apumlf->getRecordCount() == 1 ) {
+				$apum_obj = $apumlf->getCurrent();
+				Debug::Text('  Found Accrual Policy User Modifier: Length of Service: '. $apum_obj->getLengthOfServiceDate() .' Accrual Rate: '. $apum_obj->getAccrualRateModifier(), __FILE__, __LINE__, __METHOD__, 10);
+
+				return $apum_obj;
+			}
+		}
+
+		return FALSE;
+	}
+
+	function getActiveMilestoneObject( $u_obj, $epoch = NULL, $worked_time = 0, $modifier_obj = FALSE ) {
 		if ( !is_object( $u_obj ) ) {
 			return FALSE;
 		}
@@ -660,53 +826,57 @@ class AccrualPolicyFactory extends Factory {
 
 		$milestone_obj = FALSE;
 
+		if ( !is_object( $modifier_obj ) ) {
+			$modifier_obj = $this->getAccrualPolicyUserModifierObject( $u_obj );
+		}
+
 		//Cache milestones to speed up getting projected balances.
 		if ( !isset($this->milestone_objs[$this->getID()]) ) {
 			$this->milestone_objs[$this->getID()] = TTnew( 'AccrualPolicyMilestoneListFactory' );
 			$this->milestone_objs[$this->getID()]->getByAccrualPolicyId($this->getId(), NULL, array('length_of_service_days' => 'desc' ) );
 		}
-		Debug::Text('&nbsp;&nbsp;Total Accrual Policy MileStones: '. (int)$this->milestone_objs[$this->getID()]->getRecordCount(), __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('  Total Accrual Policy MileStones: '. (int)$this->milestone_objs[$this->getID()]->getRecordCount(), __FILE__, __LINE__, __METHOD__, 10);
 		if ( $this->milestone_objs[$this->getID()]->getRecordCount() > 0 ) {
 			$worked_time = NULL;
-			$length_of_service_days = NULL;
+			$milestone_rollover_date = NULL;
 
 			foreach( $this->milestone_objs[$this->getID()] as $apm_obj ) {
+				if ( is_object($modifier_obj) ) {
+					$apm_obj = $modifier_obj->getAccrualPolicyMilestoneObjectAfterModifier( $apm_obj );
+				}
+				
 				if ( $apm_obj->getLengthOfServiceUnit() == 50 AND $apm_obj->getLengthOfService() > 0 ) {
-					Debug::Text('&nbsp;&nbsp;MileStone is in Hours...', __FILE__, __LINE__, __METHOD__,10);
+					Debug::Text('  MileStone is in Hours...', __FILE__, __LINE__, __METHOD__, 10);
 					//Hour based
 					if ( $worked_time == NULL ) {
 						//Get users worked time.
-						$worked_time = TTDate::getHours( $this->getWorkedTimeByUserIdAndEndDate( $u_obj->getId(), $u_obj->getHireDate(), $epoch ) );
-						Debug::Text('&nbsp;&nbsp;Worked Time: '. $worked_time .'hrs', __FILE__, __LINE__, __METHOD__,10);
+						$worked_time = TTDate::getHours( $this->getWorkedTimeByUserIdAndEndDate( $u_obj->getId(), $apm_obj->getLengthOfService(), $epoch ) );
+						Debug::Text('  Worked Time: '. $worked_time .'hrs', __FILE__, __LINE__, __METHOD__, 10);
 					}
 
 					if ( $worked_time >= $apm_obj->getLengthOfService() ) {
-						Debug::Text('&nbsp;&nbsp;bLength Of Service: '. $apm_obj->getLengthOfService() .'hrs', __FILE__, __LINE__, __METHOD__,10);
+						Debug::Text('  bLength Of Service: '. $apm_obj->getLengthOfService() .'hrs', __FILE__, __LINE__, __METHOD__, 10);
 						$milestone_obj = $apm_obj;
 						break;
 					} else {
-						Debug::Text('&nbsp;&nbsp;Skipping Milestone...', __FILE__, __LINE__, __METHOD__,10);
+						Debug::Text('  Skipping Milestone...', __FILE__, __LINE__, __METHOD__, 10);
 					}
 				} else {
-					Debug::Text('&nbsp;&nbsp;MileStone is in Days...', __FILE__, __LINE__, __METHOD__,10);
+					Debug::Text('  MileStone is in Days...', __FILE__, __LINE__, __METHOD__, 10);
 					//Calendar based
-					if ( $length_of_service_days == NULL ) {
-						$length_of_service_days = TTDate::getDays( ($epoch-$this->getMilestoneRolloverDate( $u_obj->getHireDate() )) );
-						if ( $length_of_service_days < 0 ) {
-							$length_of_service_days = 0;
-						}
-						Debug::Text('&nbsp;&nbsp;Length of Service Days: '. $length_of_service_days, __FILE__, __LINE__, __METHOD__,10);
-					}
+					$milestone_rollover_date = $apm_obj->getLengthOfServiceDate( $this->getMilestoneRolloverDate( $u_obj->getHireDate(), $modifier_obj ) );
 
 					//When a milestone first rolls-over, the Maximum rollover won't apply in many cases as it uses the new milestone rollover
 					//at that time which often has a higher rollover amount. This only happens the first time the milestone rolls-over.
 					//We could avoid this by using just ">" comparison below, but then that affects annual accruals as it will take two years
 					//to see the milestone rollover after one year, so that won't work either.
-					if ( $length_of_service_days >= $apm_obj->getLengthOfServiceDays() ) {
+					//if ( $length_of_service_days >= $apm_obj->getLengthOfServiceDays() ) {
+					if ( $epoch >= $milestone_rollover_date ) {
 						$milestone_obj = $apm_obj;
+						Debug::Text('  Using MileStone due to Active After Days: '. $apm_obj->getLengthOfServiceDays() .' or Date: '. TTDate::getDate('DATE+TIME', $milestone_rollover_date ), __FILE__, __LINE__, __METHOD__, 10);
 						break;
 					} else {
-						Debug::Text('&nbsp;&nbsp;Skipping Milestone...', __FILE__, __LINE__, __METHOD__,10);
+						Debug::Text('  Skipping MileStone...', __FILE__, __LINE__, __METHOD__, 10);
 					}
 				}
 			}
@@ -716,25 +886,25 @@ class AccrualPolicyFactory extends Factory {
 		return $milestone_obj;
 	}
 
-	function getCurrentAccrualBalance( $user_id, $accrual_policy_id = NULL ) {
+	function getCurrentAccrualBalance( $user_id, $accrual_policy_account_id = NULL ) {
 		if ( $user_id == '' ) {
 			return FALSE;
 		}
 
-		if ( $accrual_policy_id == '' ) {
-			$accrual_policy_id = $this->getId();
+		if ( $accrual_policy_account_id == '' ) {
+			$accrual_policy_account_id = $this->getAccrualPolicyAccount();
 		}
 
 		//Check min/max times of accrual policy.
 		$ablf = TTnew( 'AccrualBalanceListFactory' );
-		$ablf->getByUserIdAndAccrualPolicyId( $user_id, $accrual_policy_id );
+		$ablf->getByUserIdAndAccrualPolicyAccount( $user_id, $accrual_policy_account_id );
 		if ( $ablf->getRecordCount() > 0 ) {
 			$accrual_balance = $ablf->getCurrent()->getBalance();
 		} else {
 			$accrual_balance = 0;
 		}
 
-		Debug::Text('&nbsp;&nbsp; Current Accrual Balance: '. $accrual_balance, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('  Current Accrual Balance: '. $accrual_balance, __FILE__, __LINE__, __METHOD__, 10);
 
 		return $accrual_balance;
 	}
@@ -751,7 +921,7 @@ class AccrualPolicyFactory extends Factory {
 		} elseif ( $this->getType() == 20 ) {
 			$accrual_amount = $this->getAccrualRatePerTimeFrequency( $milestone_obj->getAccrualRate(), $annual_pay_periods );
 		}
-		Debug::Text('&nbsp;&nbsp; Accrual Amount: '. $accrual_amount .' Total Time: '. $total_time .' Rate: '. $milestone_obj->getAccrualRate() .' Annual Pay Periods: '. $annual_pay_periods, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('  Accrual Amount: '. $accrual_amount .' Total Time: '. $total_time .' Rate: '. $milestone_obj->getAccrualRate() .' Annual Pay Periods: '. $annual_pay_periods, __FILE__, __LINE__, __METHOD__, 10);
 
 		return $accrual_amount;
 	}
@@ -780,7 +950,7 @@ class AccrualPolicyFactory extends Factory {
 			}
 		}
 
-		Debug::Text('Last already created Pay Period End Date: '.  TTDate::getDate('DATE+TIME', $pp_end_date ), __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Last already created Pay Period End Date: '.  TTDate::getDate('DATE+TIME', $pp_end_date ), __FILE__, __LINE__, __METHOD__, 10);
 
 		//$end_epoch is in the future, so continue to try and find pay period schedule dates.
 		if ( $pp_end_date <= $end_epoch ) {
@@ -793,7 +963,7 @@ class AccrualPolicyFactory extends Factory {
 			//$pps_obj->setOriginalTimeZone();
 		}
 
-		//Debug::Arr($retarr, 'Pay Period array between Start: '.  TTDate::getDate('DATE+TIME', $start_epoch ) .' End: '.  TTDate::getDate('DATE+TIME', $end_epoch ) , __FILE__, __LINE__, __METHOD__,10);
+		//Debug::Arr($retarr, 'Pay Period array between Start: '.  TTDate::getDate('DATE+TIME', $start_epoch ) .' End: '.  TTDate::getDate('DATE+TIME', $end_epoch ), __FILE__, __LINE__, __METHOD__, 10);
 
 		return $retarr;
 	}
@@ -811,28 +981,37 @@ class AccrualPolicyFactory extends Factory {
 
 	//$current_amount is the amount of time currently being entered.
 	//$previous_amount is the old amount that is currently be edited.
-	function getAccrualBalanceWithProjection( $u_obj, $epoch, $current_time, $previous_time = 0 ) {
-		// Available Balance: 			   10hrs
-		// Current Time: 					8hrs
-		// Remaining Balance: 				2hrs
+	function getAccrualBalanceWithProjection( $u_obj, $epoch, $current_time, $previous_time = 0, $other_policy_balance_arr = FALSE ) {
+		// Available Balance:			   10hrs
+		// Current Time:					8hrs
+		// Remaining Balance:				2hrs
 		//
 		// Projected Balance by 01-Jul-12: 15hrs
-		// Projected Remaining Balance: 	7hrs
+		// Projected Remaining Balance:		7hrs
+
+		//Now that multiple Accrual Policies can deposit to the same account, we need to loop through all accrual policies that affect
+		//any given account and add the projected balances together.
+		$other_policy_projected_balance = 0;
+		if ( is_array($other_policy_balance_arr) AND isset($other_policy_balance_arr['projected_balance']) ) {
+			$other_policy_projected_balance = $other_policy_balance_arr['projected_balance'];
+			Debug::Text('Other Policy Projected Balance: '. TTDate::getHours( $other_policy_projected_balance ), __FILE__, __LINE__, __METHOD__, 10);
+
+		}
 
 		//Previous time is time already taken into account in the balance, so add that back in here.
-		$available_balance = $previous_time+$this->getCurrentAccrualBalance( $u_obj->getID(), $this->getId() );
-		$projected_accrual = $available_balance+$this->getProjectedAccrualAmount( $u_obj, time(), $epoch );
+		$available_balance = ( $previous_time + $this->getCurrentAccrualBalance( $u_obj->getID(), $this->getAccrualPolicyAccount() ) );
+		$projected_accrual = ( ( $available_balance + $this->getProjectedAccrualAmount( $u_obj, time(), $epoch ) ) + $other_policy_projected_balance );
 
 		$retarr = array(
 						'available_balance' => $available_balance,
 						'current_time' => $current_time,
-						'remaining_balance' => $available_balance-$current_time,
+						'remaining_balance' => $available_balance - $current_time,
 						'projected_balance' => $projected_accrual,
-						'projected_remaining_balance' => $projected_accrual-$current_time,
+						'projected_remaining_balance' => $projected_accrual - $current_time,
 						);
 
-		Debug::Arr($retarr, 'Projected Accrual Arr: ', __FILE__, __LINE__, __METHOD__,10);
-		Debug::Text('Remaining Balance: '. TTDate::getHours( $retarr['remaining_balance']) .' Projected Remaining Balance: '. TTDate::getHours( $retarr['projected_remaining_balance']), __FILE__, __LINE__, __METHOD__,10);
+		Debug::Arr($retarr, 'Projected Accrual Arr: ', __FILE__, __LINE__, __METHOD__, 10);
+		Debug::Text('Remaining Balance: '. TTDate::getHours( $retarr['remaining_balance']) .' Projected Remaining Balance: '. TTDate::getHours( $retarr['projected_remaining_balance']), __FILE__, __LINE__, __METHOD__, 10);
 
 		return $retarr;
 
@@ -846,14 +1025,14 @@ class AccrualPolicyFactory extends Factory {
 
 		$accrual_amount = 0;
 
-		Debug::Text('Start Date '.  TTDate::getDate('DATE+TIME', $start_epoch ) .' End Date: '.  TTDate::getDate('DATE+TIME', $end_epoch ), __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Start Date '.	TTDate::getDate('DATE+TIME', $start_epoch ) .' End Date: '.	 TTDate::getDate('DATE+TIME', $end_epoch ), __FILE__, __LINE__, __METHOD__, 10);
 
 		$ppslf = TTNew('PayPeriodScheduleListFactory');
 		$ppslf->getByCompanyIdAndUserId($u_obj->getCompany(), $u_obj->getId() );
 		if ( $ppslf->getRecordCount() > 0 ) {
 			$pps_obj = $ppslf->getCurrent();
 
-			$accrual_balance = $this->getCurrentAccrualBalance( $u_obj->getID(), $this->getId() );
+			$accrual_balance = $this->getCurrentAccrualBalance( $u_obj->getID(), $this->getAccrualPolicyAccount() );
 
 			$pay_period_arr = array();
 			if ( $this->getApplyFrequency() == 10 ) {
@@ -861,12 +1040,12 @@ class AccrualPolicyFactory extends Factory {
 			}
 
 			$accrual_amount = 0;
-			for( $epoch=$start_epoch; $epoch <= $end_epoch; $epoch+=86400) {
-				$epoch = TTDate::getBeginDayEpoch( $epoch )+7200; //This is required because the epoch has to be slightly AFTER the pay period end date, which is 11:59PM.
+			for( $epoch = $start_epoch; $epoch <= $end_epoch; $epoch += 86400) {
+				$epoch = ( TTDate::getBeginDayEpoch( $epoch ) + 7200) ; //This is required because the epoch has to be slightly AFTER the pay period end date, which is 11:59PM.
 				$accrual_amount += $this->calcAccrualPolicyTime( $u_obj, $epoch, $offset, $pps_obj, $pay_period_arr, $accrual_balance, FALSE );
 			}
 
-			Debug::Text('Projected Accrual Amount: '. TTDate::getHours( $accrual_amount ), __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text('Projected Accrual Amount: '. TTDate::getHours( $accrual_amount ), __FILE__, __LINE__, __METHOD__, 10);
 		}
 
 		return $accrual_amount;
@@ -874,17 +1053,16 @@ class AccrualPolicyFactory extends Factory {
 
 	//Calculate the accrual amount based on a given user/time.
 	function calcAccrualPolicyTime( $u_obj, $epoch, $offset, $pps_obj, $pay_period_arr, $accrual_balance, $update_records = TRUE ) {
-
 		$retval = 0;
 
-		Debug::Text('User: '. $u_obj->getFullName() .' Status: '. $u_obj->getStatus() .' Epoch: '. TTDate::getDate('DATE+TIME', $epoch) , __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('User: '. $u_obj->getFullName() .' Status: '. $u_obj->getStatus() .' Epoch: '. TTDate::getDate('DATE+TIME', $epoch), __FILE__, __LINE__, __METHOD__, 10);
 		//Make sure only active employees accrue time *after* their hire date.
-		//Will this negative affect Employees who may be on leave?
+		//Will this negatively affect Employees who may be on leave?
 		if ( $u_obj->getStatus() == 10
 				AND $epoch >= $u_obj->getHireDate()
 				AND ( $this->getMinimumEmployedDays() == 0
-					OR TTDate::getDays( ($epoch-$u_obj->getHireDate()) ) >= $this->getMinimumEmployedDays() ) ) {
-			Debug::Text('&nbsp;&nbsp;User is active and has been employed long enough.', __FILE__, __LINE__, __METHOD__,10);
+					OR TTDate::getDays( ($epoch - $u_obj->getHireDate()) ) >= $this->getMinimumEmployedDays() ) ) {
+			Debug::Text('  User is active and has been employed long enough.', __FILE__, __LINE__, __METHOD__, 10);
 
 			$annual_pay_periods = $pps_obj->getAnnualPayPeriods();
 			$in_apply_frequency_window = FALSE;
@@ -892,37 +1070,36 @@ class AccrualPolicyFactory extends Factory {
 			$pay_period_start_date = NULL;
 			$accrual_amount = 0;
 			if ( $this->getType() == 30 ) {
-				Debug::Text('&nbsp;&nbsp;Accrual policy is hour based, real-time window.', __FILE__, __LINE__, __METHOD__,10);
+				Debug::Text('  Accrual policy is hour based, real-time window.', __FILE__, __LINE__, __METHOD__, 10);
 
 				//Hour based, apply frequency is real-time.
 				$in_apply_frequency_window = TRUE;
 			} else {
 				if ( $this->getApplyFrequency() == 10 ) {
-
-					$pay_period_dates = $this->getPayPeriodDatesFromArray( $pay_period_arr, ($epoch-$offset) );
+					$pay_period_dates = $this->getPayPeriodDatesFromArray( $pay_period_arr, ($epoch - $offset) );
 					if ( is_array( $pay_period_dates ) ) {
-						Debug::Text('&nbsp;&nbsp; Pay Period Start Date: '. TTDate::getDate('DATE+TIME', $pay_period_dates['start_date'] ) .' End Date: '. TTDate::getDate('DATE+TIME', $pay_period_dates['end_date'] ), __FILE__, __LINE__, __METHOD__,10);
+						Debug::Text('   Pay Period Start Date: '. TTDate::getDate('DATE+TIME', $pay_period_dates['start_date'] ) .' End Date: '. TTDate::getDate('DATE+TIME', $pay_period_dates['end_date'] ), __FILE__, __LINE__, __METHOD__, 10);
 						if ( $this->inApplyFrequencyWindow( $epoch, $offset, $pay_period_dates['end_date'] ) == TRUE ) {
 							$in_apply_frequency_window = TRUE;
 
 							$pay_period_start_date = $pay_period_dates['start_date']; //Used for inRolloverFrequencyWindow
 						} else {
-							Debug::Text('&nbsp;&nbsp;User not in Apply Frequency Window: ', __FILE__, __LINE__, __METHOD__,10);
+							Debug::Text('  User not in Apply Frequency Window: ', __FILE__, __LINE__, __METHOD__, 10);
 						}
 					} else {
-						Debug::Arr($pay_period_dates, '&nbsp;&nbsp; No Pay Period Dates Found.', __FILE__, __LINE__, __METHOD__,10);
+						Debug::Arr($pay_period_dates, '   No Pay Period Dates Found.', __FILE__, __LINE__, __METHOD__, 10);
 					}
 				} elseif ( $this->inApplyFrequencyWindow( $epoch, $offset, NULL, $u_obj->getHireDate() ) == TRUE ) {
-					Debug::Text('&nbsp;&nbsp;User IS in NON-PayPeriod Apply Frequency Window.', __FILE__, __LINE__, __METHOD__,10);
+					Debug::Text('  User IS in NON-PayPeriod Apply Frequency Window.', __FILE__, __LINE__, __METHOD__, 10);
 					$in_apply_frequency_window = TRUE;
 				} else {
-					Debug::Text('&nbsp;&nbsp;User is not in Apply Frequency Window.', __FILE__, __LINE__, __METHOD__,10);
+					//Debug::Text('  User is not in Apply Frequency Window.', __FILE__, __LINE__, __METHOD__, 10);
 					$in_apply_frequency_window = FALSE;
 				}
 			}
 
 			if ( $this->inRolloverFrequencyWindow( $epoch, $offset, $u_obj->getHireDate(), $pay_period_start_date ) ) {
-				Debug::Text('&nbsp;&nbsp; In rollover window...', __FILE__, __LINE__, __METHOD__,10);
+				Debug::Text('   In rollover window...', __FILE__, __LINE__, __METHOD__, 10);
 				$in_apply_rollover_window = TRUE;
 			}
 
@@ -931,26 +1108,23 @@ class AccrualPolicyFactory extends Factory {
 			}
 
 			if ( $in_apply_rollover_window == TRUE AND ( isset($milestone_obj) AND is_object( $milestone_obj ) ) ) {
-				//Have accrual balance passed in for optimization
-				//$accrual_balance = $this->getCurrentAccrualBalance( $u_obj->getID(), $this->getId() );
-
 				//Handle maximum rollover adjustments before continuing.
 				if ( $accrual_balance > $milestone_obj->getRolloverTime() ) {
 					$rollover_accrual_adjustment = bcsub( $milestone_obj->getRolloverTime(), $accrual_balance, 0);
-					Debug::Text('&nbsp;&nbsp; Adding rollover adjustment of: '. $rollover_accrual_adjustment, __FILE__, __LINE__, __METHOD__,10);
+					Debug::Text('   Adding rollover adjustment of: '. $rollover_accrual_adjustment, __FILE__, __LINE__, __METHOD__, 10);
 
 					//Check to make sure there isn't an identical entry already made.
 					//Ignore rollover adjustment is another adjustment of any amount has been made on the same day.
 					$alf = TTnew( 'AccrualListFactory' );
 					if ( $update_records == TRUE ) {
-						$alf->getByCompanyIdAndUserIdAndAccrualPolicyIDAndTypeIDAndTimeStamp( $u_obj->getCompany(), $u_obj->getID(), $this->getId(), 60, TTDate::getMiddleDayEpoch( $epoch ) );
+						$alf->getByCompanyIdAndUserIdAndAccrualPolicyAccountAndTypeIDAndTimeStamp( $u_obj->getCompany(), $u_obj->getID(), $this->getAccrualPolicyAccount(), 60, TTDate::getMiddleDayEpoch( $epoch ) );
 					}
 					if ( $alf->getRecordCount() == 0 ) {
 						//Get effective date, try to use the current milestone rollover date to make things more clear.
 						$current_milestone_rollover_date = $this->getCurrentMilestoneRolloverDate( $epoch, $u_obj->getHireDate() );
 						//If milestone rollover date comes after the current epoch, back date it by one year.
 						if ( $current_milestone_rollover_date > $epoch ) {
-							$current_milestone_rollover_date = mktime( 0,0,0, TTDate::getMonth($current_milestone_rollover_date), TTDate::getDayOfMonth($current_milestone_rollover_date), (TTDate::getYear($epoch)-1) );
+							$current_milestone_rollover_date = mktime( 0, 0, 0, TTDate::getMonth($current_milestone_rollover_date), TTDate::getDayOfMonth($current_milestone_rollover_date), (TTDate::getYear($epoch) - 1) );
 						}
 
 						if ( $update_records == TRUE ) {
@@ -958,7 +1132,8 @@ class AccrualPolicyFactory extends Factory {
 							$af = TTnew( 'AccrualFactory' );
 							$af->setUser( $u_obj->getID() );
 							$af->setType( 60 ); //Rollover Adjustment
-							$af->setAccrualPolicyID( $this->getId() );
+							$af->setAccrualPolicyAccount( $this->getAccrualPolicyAccount() );
+							$af->setAccrualPolicy( $this->getId() );
 							$af->setAmount( $rollover_accrual_adjustment );
 							$af->setTimeStamp( TTDate::getMiddleDayEpoch( $current_milestone_rollover_date ) );
 							$af->setEnableCalcBalance( TRUE );
@@ -967,7 +1142,7 @@ class AccrualPolicyFactory extends Factory {
 								$af->Save();
 							}
 						} else {
-							Debug::Text('&nbsp;&nbsp; NOT UPDATING RECORDS...', __FILE__, __LINE__, __METHOD__,10);
+							Debug::Text('   NOT UPDATING RECORDS...', __FILE__, __LINE__, __METHOD__, 10);
 							$retval = $rollover_accrual_adjustment;
 						}
 
@@ -976,21 +1151,19 @@ class AccrualPolicyFactory extends Factory {
 
 						unset($current_milestone_rollover_date);
 					} else {
-						Debug::Text('&nbsp;&nbsp; Found duplicate rollover accrual entry, skipping...', __FILE__, __LINE__, __METHOD__,10);
+						Debug::Text('   Found duplicate rollover accrual entry, skipping...', __FILE__, __LINE__, __METHOD__, 10);
 					}
 				} else {
-					Debug::Text('&nbsp;&nbsp; Balance hasnt exceeded rollover adjustment...', __FILE__, __LINE__, __METHOD__,10);
+					Debug::Text('   Balance hasnt exceeded rollover adjustment...', __FILE__, __LINE__, __METHOD__, 10);
 				}
 				unset($rollover_accrual_adjustment, $alf, $af);
 			}
 
 			if ( $in_apply_frequency_window === TRUE ) {
 				if ( isset($milestone_obj) AND is_object( $milestone_obj ) ) {
-					Debug::Text('&nbsp;&nbsp;Found Matching Milestone, Accrual Rate: (ID: '. $milestone_obj->getId() .') '. $milestone_obj->getAccrualRate() .'/year', __FILE__, __LINE__, __METHOD__,10);
+					Debug::Text('  Found Matching Milestone, Accrual Rate: (ID: '. $milestone_obj->getId() .') '. $milestone_obj->getAccrualRate() .'/year', __FILE__, __LINE__, __METHOD__, 10);
 
 					//Make sure we get updated balance after rollover adjustment was made.
-					//Have accrual balance passed in for optimization
-					//$accrual_balance = $this->getCurrentAccrualBalance( $u_obj->getID(), $this->getId() );
 					if ( $accrual_balance < $milestone_obj->getMaximumTime() ) {
 						$accrual_amount = $this->calcAccrualAmount( $milestone_obj, 0, $annual_pay_periods);
 
@@ -1001,21 +1174,22 @@ class AccrualPolicyFactory extends Factory {
 							if ( $milestone_obj->getMaximumTime() > 0 AND $new_accrual_balance > $milestone_obj->getMaximumTime() ) {
 								$accrual_amount = bcsub( $milestone_obj->getMaximumTime(), $accrual_balance, 0 );
 							}
-							Debug::Text('&nbsp;&nbsp; Min/Max Adjusted Accrual Amount: '. $accrual_amount .' Limits: Min: '. $milestone_obj->getMinimumTime() .' Max: '. $milestone_obj->getMaximumTime(), __FILE__, __LINE__, __METHOD__,10);
+							Debug::Text('   Min/Max Adjusted Accrual Amount: '. $accrual_amount .' Limits: Min: '. $milestone_obj->getMinimumTime() .' Max: '. $milestone_obj->getMaximumTime(), __FILE__, __LINE__, __METHOD__, 10);
 
 							//Check to make sure there isn't an identical entry already made.
 							$alf = TTnew( 'AccrualListFactory' );
 							if ( $update_records == TRUE ) {
-								$alf->getByCompanyIdAndUserIdAndAccrualPolicyIDAndTimeStampAndAmount( $u_obj->getCompany(), $u_obj->getID(), $this->getId(), TTDate::getMiddleDayEpoch( $epoch ),  $accrual_amount );
+								$alf->getByCompanyIdAndUserIdAndAccrualPolicyAccountAndTimeStampAndAmount( $u_obj->getCompany(), $u_obj->getID(), $this->getAccrualPolicyAccount(), TTDate::getMiddleDayEpoch( $epoch ), $accrual_amount );
 							}
 							if ( $alf->getRecordCount() == 0 ) {
 								if ( $update_records == TRUE ) {
-									Debug::Text('&nbsp;&nbsp; UPDATING RECORDS...', __FILE__, __LINE__, __METHOD__,10);
+									Debug::Text('   UPDATING RECORDS...', __FILE__, __LINE__, __METHOD__, 10);
 									//Round to nearest 1min
 									$af = TTnew( 'AccrualFactory' );
 									$af->setUser( $u_obj->getID() );
 									$af->setType( 75 ); //Accrual Policy
-									$af->setAccrualPolicyID( $this->getId() );
+									$af->setAccrualPolicyAccount( $this->getAccrualPolicyAccount() );
+									$af->setAccrualPolicy( $this->getId() );
 									$af->setAmount( $accrual_amount );
 									$af->setTimeStamp( TTDate::getMiddleDayEpoch( $epoch ) );
 									$af->setEnableCalcBalance( TRUE );
@@ -1024,42 +1198,42 @@ class AccrualPolicyFactory extends Factory {
 										$af->Save();
 									}
 								} else {
-									Debug::Text('&nbsp;&nbsp; NOT UPDATING RECORDS...', __FILE__, __LINE__, __METHOD__,10);
+									Debug::Text('   NOT UPDATING RECORDS...', __FILE__, __LINE__, __METHOD__, 10);
 									$retval += $accrual_amount;
 								}
 							} else {
-								Debug::Text('&nbsp;&nbsp; Found duplicate accrual entry, skipping...', __FILE__, __LINE__, __METHOD__,10);
+								Debug::Text('   Found duplicate accrual entry, skipping...', __FILE__, __LINE__, __METHOD__, 10);
 							}
 							unset($accrual_amount, $accrual_balance, $new_accrual_balance);
 						} else {
-							Debug::Text('&nbsp;&nbsp; Accrual Amount is 0...', __FILE__, __LINE__, __METHOD__,10);
+							Debug::Text('   Accrual Amount is 0...', __FILE__, __LINE__, __METHOD__, 10);
 						}
 					} else {
-						Debug::Text('&nbsp;&nbsp; Accrual Balance is outside Milestone Range. Skipping...', __FILE__, __LINE__, __METHOD__,10);
+						Debug::Text('   Accrual Balance is outside Milestone Range. Skipping...', __FILE__, __LINE__, __METHOD__, 10);
 					}
 				} else {
-					Debug::Text('&nbsp;&nbsp;DID NOT Find Matching Milestone.', __FILE__, __LINE__, __METHOD__,10);
+					Debug::Text('  DID NOT Find Matching Milestone.', __FILE__, __LINE__, __METHOD__, 10);
 				}
 				unset($milestone_obj);
 			}
 		} else {
-			Debug::Text('&nbsp;&nbsp;User is not active (Status: '. $u_obj->getStatus() .') or has only been employed: '. TTDate::getDays( ($epoch-$u_obj->getHireDate()) ) .' Days, not enough. Hire Date: '. TTDate::getDATE( 'DATE+TIME', $u_obj->getHireDate() ) , __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text('  User is not active (Status: '. $u_obj->getStatus() .') or has only been employed: '. TTDate::getDays( ($epoch - $u_obj->getHireDate()) ) .' Days, not enough. Hire Date: '. TTDate::getDATE( 'DATE+TIME', $u_obj->getHireDate() ), __FILE__, __LINE__, __METHOD__, 10);
 		}
 
 		if ( $update_records == TRUE ) {
 			return TRUE;
 		} else {
-			Debug::Text('Retval: '. $retval, __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text('Retval: '. $retval, __FILE__, __LINE__, __METHOD__, 10);
 			return $retval;
 		}
 	}
 
-	function addAccrualPolicyTime( $epoch = NULL, $offset = 79200 ) { //22hr offset
+	function addAccrualPolicyTime( $epoch = NULL, $offset = 79200, $user_ids = FALSE ) { //22hr offset
 		if ( $epoch == '' ) {
 			$epoch = TTDate::getTime();
 		}
 
-		Debug::Text('Accrual Policy ID: '. $this->getId() .' Current EPOCH: '. TTDate::getDate('DATE+TIME', $epoch), __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Accrual Policy ID: '. $this->getId() .' Current EPOCH: '. TTDate::getDate('DATE+TIME', $epoch), __FILE__, __LINE__, __METHOD__, 10);
 
 		$pglf = TTnew( 'PolicyGroupListFactory' );
 
@@ -1067,14 +1241,20 @@ class AccrualPolicyFactory extends Factory {
 
 		$pglf->getSearchByCompanyIdAndArrayCriteria( $this->getCompany(), array( 'accrual_policy_id' => array( $this->getId() ) ) );
 		if ( $pglf->getRecordCount() > 0 ) {
-			Debug::Text('Found Policy Group...', __FILE__, __LINE__, __METHOD__,10);
+			Debug::Text('Found Policy Group...', __FILE__, __LINE__, __METHOD__, 10);
 			foreach( $pglf as $pg_obj ) {
 				//Get all users assigned to this policy group.
-				$policy_group_users = $pg_obj->getUser();
+				if ( is_array($user_ids) AND count($user_ids) > 0 AND !in_array( -1, $user_ids ) ) {
+					Debug::Text('Using users passed in by filter...', __FILE__, __LINE__, __METHOD__, 10);
+					$policy_group_users = array_intersect( (array)$pg_obj->getUser(), (array)$user_ids );
+				} else {
+					Debug::Text('Using users assigned to policy group...', __FILE__, __LINE__, __METHOD__, 10);
+					$policy_group_users = $pg_obj->getUser();
+				}
 				if ( is_array($policy_group_users) AND count($policy_group_users) > 0 ) {
-					Debug::Text('Found Policy Group Users: '. count($policy_group_users), __FILE__, __LINE__, __METHOD__,10);
+					Debug::Text('Found Policy Group Users: '. count($policy_group_users), __FILE__, __LINE__, __METHOD__, 10);
 					foreach( $policy_group_users as $user_id ) {
-						Debug::Text('Policy Group User ID: '. $user_id, __FILE__, __LINE__, __METHOD__,10);
+						Debug::Text('Policy Group User ID: '. $user_id, __FILE__, __LINE__, __METHOD__, 10);
 
 						//Get User Object
 						$ulf = TTnew( 'UserListFactory' );
@@ -1082,22 +1262,47 @@ class AccrualPolicyFactory extends Factory {
 						if ( $ulf->getRecordCount() == 1 ) {
 							$u_obj = $ulf->getCurrent();
 
+							//This is an optimization to detect inactive employees sooner.
+							if ( $u_obj->getStatus() != 10 ) {
+								Debug::Text('  Employee is not active, skipping...', __FILE__, __LINE__, __METHOD__, 10);
+								continue;
+							}
+
+							//Switch to users timezone so rollover adjustments are handled on the proper date.
+							$user_obj_prefs = $u_obj->getUserPreferenceObject();
+							if ( is_object( $user_obj_prefs ) ) {
+								$user_obj_prefs->setTimeZonePreferences();
+							} else {
+								//Use system timezone.
+								TTDate::setTimeZone();
+							}
+
+							//Optmization to make sure we can quickly skip days outside the employment period.
+							if ( $u_obj->getHireDate() != '' AND TTDate::getBeginDayEpoch( $epoch ) < TTDate::getBeginDayEpoch( $u_obj->getHireDate() ) ) {
+								Debug::Text('  Before employees hire date, skipping...', __FILE__, __LINE__, __METHOD__, 10);
+								continue;
+							}
+							if ( $u_obj->getTerminationDate() != '' AND TTDate::getBeginDayEpoch( $epoch ) > TTDate::getBeginDayEpoch( $u_obj->getTerminationDate() ) ) {
+								Debug::Text('  After employees termination date, skipping...', __FILE__, __LINE__, __METHOD__, 10);
+								continue;
+							}
+
 							$ppslf = TTNew('PayPeriodScheduleListFactory');
 							$ppslf->getByCompanyIdAndUserId( $u_obj->getCompany(), $u_obj->getId() );
 							if ( $ppslf->getRecordCount() > 0 ) {
 								$pps_obj = $ppslf->getCurrent();
 
-								$accrual_balance = $this->getCurrentAccrualBalance( $u_obj->getID(), $this->getId() );
+								$accrual_balance = $this->getCurrentAccrualBalance( $u_obj->getID(), $this->getAccrualPolicyAccount() );
 
 								$pay_period_arr = array();
 								if ( $this->getApplyFrequency() == 10 ) {
-									$pay_period_arr = $this->getPayPeriodArray( $pps_obj, $u_obj, ($epoch-$offset), ($epoch-$offset) );
+									$pay_period_arr = $this->getPayPeriodArray( $pps_obj, $u_obj, ($epoch - $offset), ($epoch - $offset) );
 								}
 
 								$this->calcAccrualPolicyTime( $u_obj, $epoch, $offset, $pps_obj, $pay_period_arr, $accrual_balance, TRUE );
 							}
 						} else {
-							Debug::Text('No User Found. Company ID: '. $this->getCompany(), __FILE__, __LINE__, __METHOD__,10);
+							Debug::Text('No User Found. Company ID: '. $this->getCompany(), __FILE__, __LINE__, __METHOD__, 10);
 						}
 					}
 				}
@@ -1110,10 +1315,10 @@ class AccrualPolicyFactory extends Factory {
 	}
 
 	function Validate() {
-		if ( $this->getDeleted() == TRUE ){
+		if ( $this->getDeleted() == TRUE ) {
 			//Check to make sure there are no hours using this accrual policy.
 			$alf = TTnew( 'AccrualListFactory' );
-			$alf->getByAccrualPolicyId( $this->getId() );
+			$alf->getByAccrualPolicyAccount( $this->getId() );
 			if ( $alf->getRecordCount() > 0 ) {
 				$this->Validator->isTRUE(	'in_use',
 											FALSE,
@@ -1168,6 +1373,9 @@ class AccrualPolicyFactory extends Factory {
 
 					$function = 'get'.$function_stub;
 					switch( $variable ) {
+						case 'in_use':
+							$data[$variable] = $this->getColumn( $variable );
+							break;
 						case 'type':
 							$function = 'get'.$variable;
 							if ( method_exists( $this, $function ) ) {
@@ -1196,7 +1404,7 @@ class AccrualPolicyFactory extends Factory {
 	}
 
 	function addLog( $log_action ) {
-		return TTLog::addEntry( $this->getId(), $log_action,  TTi18n::getText('Accrual Policy'), NULL, $this->getTable(), $this );
+		return TTLog::addEntry( $this->getId(), $log_action, TTi18n::getText('Accrual Policy'), NULL, $this->getTable(), $this );
 	}
 }
 ?>

@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * TimeTrex is a Payroll and Time Management program developed by
- * TimeTrex Software Inc. Copyright (C) 2003 - 2013 TimeTrex Software Inc.
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License version 3 as published by
@@ -33,11 +33,7 @@
  * feasible for technical reasons, the Appropriate Legal Notices must display
  * the words "Powered by TimeTrex".
  ********************************************************************************/
-/*
- * $Revision: 9521 $
- * $Id: RecurringHolidayFactory.class.php 9521 2013-04-08 23:09:52Z ipso $
- * $Date: 2013-04-08 16:09:52 -0700 (Mon, 08 Apr 2013) $
- */
+
 
 /**
  * @package Modules\Holiday
@@ -58,6 +54,7 @@ class RecurringHolidayFactory extends Factory {
 										0 => TTi18n::gettext('N/A'),
 										1 => TTi18n::gettext('Good Friday'),
 										5 => TTi18n::gettext('Easter Sunday'),
+										6 => TTi18n::gettext('Easter Monday'),
 									);
 				break;
 
@@ -138,6 +135,7 @@ class RecurringHolidayFactory extends Factory {
 										'company_id' => 'Company',
 										'special_day' => 'SpecialDay',
 										'type_id' => 'Type',
+										'type' => FALSE,
 										'pivot_day_direction_id' => 'PivotDayDirection',
 										'name' => 'Name',
 										'week_interval' => 'WeekInterval',
@@ -164,7 +162,7 @@ class RecurringHolidayFactory extends Factory {
 
 	function getCompany() {
 		if ( isset($this->data['company_id']) ) {
-			return $this->data['company_id'];
+			return (int)$this->data['company_id'];
 		}
 
 		return FALSE;
@@ -172,7 +170,7 @@ class RecurringHolidayFactory extends Factory {
 	function setCompany($id) {
 		$id = trim($id);
 
-		Debug::Text('Company ID: '. $id, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Text('Company ID: '. $id, __FILE__, __LINE__, __METHOD__, 10);
 		$clf = TTnew( 'CompanyListFactory' );
 
 		if ( $this->Validator->isResultSetWithRows(	'company',
@@ -213,7 +211,7 @@ class RecurringHolidayFactory extends Factory {
 
 	function getType() {
 		if ( isset($this->data['type_id']) ) {
-			return $this->data['type_id'];
+			return (int)$this->data['type_id'];
 		}
 
 		return FALSE;
@@ -241,7 +239,7 @@ class RecurringHolidayFactory extends Factory {
 
 	function getPivotDayDirection() {
 		if ( isset($this->data['pivot_day_direction_id']) ) {
-			return $this->data['pivot_day_direction_id'];
+			return (int)$this->data['pivot_day_direction_id'];
 		}
 
 		return FALSE;
@@ -249,7 +247,7 @@ class RecurringHolidayFactory extends Factory {
 	function setPivotDayDirection($value) {
 		$value = trim($value);
 
-		if ( 	$value == 0
+		if (	$value == 0
 				OR
 				$this->Validator->inArrayKey(	'pivot_day_direction',
 											$value,
@@ -266,13 +264,13 @@ class RecurringHolidayFactory extends Factory {
 
 	function isUniqueName($name) {
 		$ph = array(
-					'company_id' => $this->getCompany() ,
+					'company_id' => $this->getCompany(),
 					'name' => $name,
 					);
 
 		$query = 'select id from '. $this->getTable() .' where company_id = ? AND name = ? AND deleted=0';
 		$name_id = $this->db->GetOne($query, $ph);
-		Debug::Arr($name_id,'Unique Name: '. $name, __FILE__, __LINE__, __METHOD__,10);
+		Debug::Arr($name_id, 'Unique Name: '. $name, __FILE__, __LINE__, __METHOD__, 10);
 
 		if ( $name_id === FALSE ) {
 			return TRUE;
@@ -296,7 +294,7 @@ class RecurringHolidayFactory extends Factory {
 		if (	$this->Validator->isLength(	'name',
 											$name,
 											TTi18n::gettext('Name is invalid'),
-											2,50)
+											2, 50)
 					AND
 						$this->Validator->isTrue(		'name',
 														$this->isUniqueName($name),
@@ -322,11 +320,11 @@ class RecurringHolidayFactory extends Factory {
 	function setWeekInterval($int) {
 		$int = trim($int);
 
-		if  ( empty($int) ){
+		if	( empty($int) ) {
 			$int = 0;
 		}
 
-		if 	(	$this->Validator->isNumeric(		'week_interval',
+		if	(	$this->Validator->isNumeric(		'week_interval',
 													$int,
 													TTi18n::gettext('Incorrect Week Interval')) ) {
 			$this->data['week_interval'] = $int;
@@ -347,11 +345,11 @@ class RecurringHolidayFactory extends Factory {
 	function setDayOfWeek($int) {
 		$int = trim($int);
 
-		if  ( $int == '' ){
+		if	( $int == '' ) {
 			$int = 0;
 		}
 
-		if 	(	$this->Validator->isNumeric(		'day_of_week',
+		if	(	$this->Validator->isNumeric(		'day_of_week',
 													$int,
 													TTi18n::gettext('Incorrect Day Of Week')) ) {
 			$this->data['day_of_week'] = $int;
@@ -373,11 +371,11 @@ class RecurringHolidayFactory extends Factory {
 	function setDayOfMonth($int) {
 		$int = trim($int);
 
-		if  ( empty($int) ){
+		if	( empty($int) ) {
 			$int = 0;
 		}
 
-		if 	(	$this->Validator->isNumeric(		'day_of_month',
+		if	(	$this->Validator->isNumeric(		'day_of_month',
 													$int,
 													TTi18n::gettext('Incorrect Day Of Month')) ) {
 			$this->data['day_of_month'] = $int;
@@ -398,11 +396,11 @@ class RecurringHolidayFactory extends Factory {
 	function setMonth($int) {
 		$int = trim($int);
 
-		if  ( empty($int) ){
+		if	( empty($int) ) {
 			$int = 0;
 		}
 
-		if 	(	$this->Validator->isNumeric(		'month',
+		if	(	$this->Validator->isNumeric(		'month',
 													$int,
 													TTi18n::gettext('Incorrect Month')) ) {
 			$this->data['month_int'] = $int;
@@ -440,23 +438,28 @@ class RecurringHolidayFactory extends Factory {
 			$epoch = TTDate::getTime();
 		}
 
-		if ( $this->getSpecialDay() == 1 OR $this->getSpecialDay() == 5) {
+		if ( $this->getSpecialDay() == 1 OR $this->getSpecialDay() == 5 OR $this->getSpecialDay() == 6 ) {
 			Debug::text('Easter Sunday Date...', __FILE__, __LINE__, __METHOD__, 10);
 
 			//Use easter_days() instead, as easter_date returns incorrect values for some timezones/years (2010 and US/Eastern on Windows)
 			//$easter_epoch = easter_date(date('Y', $epoch));
-			$easter_epoch = mktime( 12, 0, 0, 3, ( 21+easter_days( date('Y', $epoch) ) ), date('Y', $epoch) );
+			//$easter_epoch = mktime( 12, 0, 0, 3, ( 21 + easter_days( date('Y', $epoch) ) ), date('Y', $epoch) );
+			$easter_epoch = mktime( 12, 0, 0, 3, ( 21 + TTDate::getEasterDays( date('Y', $epoch) ) ), date('Y', $epoch) );
 
 			//Fix "cross-year" bug.
 			if ( $easter_epoch < $epoch ) {
 				//$easter_epoch = easter_date(date('Y', $epoch)+1);
-				$easter_epoch = mktime( 12, 0, 0, 3, ( 21+easter_days( (date('Y', $epoch)+1) ) ), ( date('Y', $epoch)+1 ) );
+				//$easter_epoch = mktime( 12, 0, 0, 3, ( 21 + easter_days( (date('Y', $epoch) + 1) ) ), ( date('Y', $epoch) + 1 ) );
+				$easter_epoch = mktime( 12, 0, 0, 3, ( 21 + TTDate::getEasterDays( (date('Y', $epoch) + 1) ) ), ( date('Y', $epoch) + 1 ) );
 			}
 
 			if ( $this->getSpecialDay() == 1 ) {
 				Debug::text('Good Friday Date...', __FILE__, __LINE__, __METHOD__, 10);
-				//$holiday_epoch = mktime(12,0,0,date('n',$easter_epoch),date('j',$easter_epoch) - 2, date('Y', $easter_epoch));
-				$holiday_epoch = $easter_epoch-(2*86400);
+				//$holiday_epoch = mktime(12, 0, 0, date('n', $easter_epoch), date('j', $easter_epoch) - 2, date('Y', $easter_epoch));
+				$holiday_epoch = ( $easter_epoch - ( 2 * 86400 ) );
+			} elseif ( $this->getSpecialDay() == 6 ) {
+				Debug::text('Easter Monday Date...', __FILE__, __LINE__, __METHOD__, 10);
+				$holiday_epoch = ( $easter_epoch + 86400 );
 			} else {
 				$holiday_epoch = $easter_epoch;
 			}
@@ -464,35 +467,37 @@ class RecurringHolidayFactory extends Factory {
 			if ( $this->getType() == 10 ) { //Static
 				Debug::text('Static Date...', __FILE__, __LINE__, __METHOD__, 10);
 				//Static date
-				$holiday_epoch = mktime(12,0,0, $this->getMonth(), $this->getDayOfMonth(), date('Y', $epoch));
+				$holiday_epoch = mktime(12, 0, 0, $this->getMonth(), $this->getDayOfMonth(), date('Y', $epoch));
 				if ( $holiday_epoch < $epoch ) {
-					$holiday_epoch = mktime(12,0,0, $this->getMonth(), $this->getDayOfMonth(), date('Y', $epoch)+1 );
+					$holiday_epoch = mktime(12, 0, 0, $this->getMonth(), $this->getDayOfMonth(), (date('Y', $epoch) + 1) );
 				}
 			} elseif ( $this->getType() == 20 ) { //Dynamic - Week Interval
 				Debug::text('Dynamic - Week Interval... Current Month: '. TTDate::getMonth( $epoch ) .' Holiday Month: '. $this->getMonth(), __FILE__, __LINE__, __METHOD__, 10);
 				//Dynamic
 
 				$start_month_epoch = TTDate::getBeginMonthEpoch( $epoch );
-				$end_month_epoch = mktime(12,0,0, $this->getMonth()+1, 1, (date('Y', $epoch)+1));
+				$end_month_epoch = mktime(12, 0, 0, ($this->getMonth() + 1), 1, (date('Y', $epoch) + 1));
 
+				$tmp_holiday_epoch = FALSE;
+				
 				Debug::text('Start Epoch: '. TTDate::getDate('DATE+TIME', $start_month_epoch) .' End Epoch: '. TTDate::getDate('DATE+TIME', $end_month_epoch), __FILE__, __LINE__, __METHOD__, 10);
 				//Get all day of weeks in the month. Determine which is less or greater then day.
 				$day_of_week_dates = array();
 				$week_interval = 0;
-				for ($i = $start_month_epoch; $i <= $end_month_epoch; $i+=86400) {
+				for ($i = $start_month_epoch; $i <= $end_month_epoch; $i += 86400) {
 					if ( TTDate::getMonth( $i ) == $this->getMonth() ) {
 						$day_of_week = TTDate::getDayOfWeek( $i );
 						//Debug::text('I: '. $i .'('.TTDate::getDate('DATE+TIME', $i).') Current Day Of Week: '. $day_of_week .' Looking for Day Of Week: '. $this->getDayOfWeek(), __FILE__, __LINE__, __METHOD__, 10);
 
 						if ( $day_of_week == abs( $this->getDayOfWeek() ) ) {
 							$day_of_week_dates[] = date('j', $i);
-							Debug::text('I: '. $i .' Day Of Month: '. date('j',$i), __FILE__, __LINE__, __METHOD__, 10);
+							Debug::text('I: '. $i .' Day Of Month: '. date('j', $i), __FILE__, __LINE__, __METHOD__, 10);
 
 							$week_interval++;
 						}
 
 						if ( $week_interval >= $this->getWeekInterval() ) {
-							$tmp_holiday_epoch = mktime(12,0,0, $this->getMonth(), $day_of_week_dates[$this->getWeekInterval()-1], date('Y', $i));
+							$tmp_holiday_epoch = mktime(12, 0, 0, $this->getMonth(), $day_of_week_dates[($this->getWeekInterval() - 1)], date('Y', $i));
 
 							//Make sure we keep processing until the holiday comes AFTER todays date.
 							if ( $tmp_holiday_epoch > $epoch ) {
@@ -503,7 +508,6 @@ class RecurringHolidayFactory extends Factory {
 				}
 
 				//Debug::Arr($day_of_week_dates, 'Week Dates Arr: ', __FILE__, __LINE__, __METHOD__, 10);
-				//$holiday_epoch = mktime(12,0,0, $this->getMonth(), $day_of_week_dates[$this->getWeekInterval()-1], date('Y', $i));
 				$holiday_epoch = $tmp_holiday_epoch;
 			} elseif ( $this->getType() == 30 ) { //Dynamic - Pivot Day
 				Debug::text('Dynamic - Pivot Date...', __FILE__, __LINE__, __METHOD__, 10);
@@ -514,12 +518,12 @@ class RecurringHolidayFactory extends Factory {
 					$year_modifier = 0;
 				}
 
-				$start_epoch = mktime(12,0,0, $this->getMonth(), $this->getDayOfMonth(), date('Y', $epoch)+$year_modifier);
+				$start_epoch = mktime(12, 0, 0, $this->getMonth(), $this->getDayOfMonth(), ( date('Y', $epoch) + $year_modifier ) );
 
 				$holiday_epoch = $start_epoch;
 
-				$x=0;
-				$x_max=100;
+				$x = 0;
+				$x_max = 100;
 
 				if ( $this->getPivotDayDirection() == 10 OR $this->getPivotDayDirection() == 30 ) {
 					$direction_multiplier = -1;
@@ -527,7 +531,7 @@ class RecurringHolidayFactory extends Factory {
 					$direction_multiplier = 1;
 				}
 
-				$adjustment = (86400 * $direction_multiplier);  // Adjust by 1 day before or after.
+				$adjustment = (86400 * $direction_multiplier);	// Adjust by 1 day before or after.
 
 				if ( $this->getPivotDayDirection() == 10 OR $this->getPivotDayDirection() == 20 ) {
 					$holiday_epoch += $adjustment;
@@ -983,7 +987,7 @@ class RecurringHolidayFactory extends Factory {
 					$rhf->Save();
 				}
 
-				Debug::text('Saving.... Mothers  Day', __FILE__, __LINE__, __METHOD__, 10);
+				Debug::text('Saving.... Mothers	 Day', __FILE__, __LINE__, __METHOD__, 10);
 				$rhf = TTnew( 'RecurringHolidayFactory' );
 				$rhf->setCompany( $company_id );
 				$rhf->setName( TTi18n::gettext('Mothers Day') );
@@ -998,7 +1002,7 @@ class RecurringHolidayFactory extends Factory {
 
 				Debug::text('Saving.... Independence Day', __FILE__, __LINE__, __METHOD__, 10);
 				$rhf = TTnew( 'RecurringHolidayFactory' );
- 				$rhf->setCompany( $company_id );
+				$rhf->setCompany( $company_id );
 				$rhf->setName( TTi18n::gettext('Independence Day CR') );
 				$rhf->setType( 10 );
 				$rhf->setSpecialDay( 0 );
@@ -1355,7 +1359,7 @@ class RecurringHolidayFactory extends Factory {
 
 				if ( $rhf->isValid() ) {
 					$rhf->Save();
- 				}
+				}
 
 				Debug::text('Saving.... Labour Day', __FILE__, __LINE__, __METHOD__, 10);
 				$rhf = TTnew( 'RecurringHolidayFactory' );
@@ -1370,7 +1374,7 @@ class RecurringHolidayFactory extends Factory {
 					$rhf->Save();
 				}
 
- 				Debug::text('Saving.... Bank Day', __FILE__, __LINE__, __METHOD__, 10);
+				Debug::text('Saving.... Bank Day', __FILE__, __LINE__, __METHOD__, 10);
 				$rhf = TTnew( 'RecurringHolidayFactory' );
 				$rhf->setCompany( $company_id );
 				$rhf->setName( TTi18n::gettext('Bank Day') );
@@ -1379,9 +1383,9 @@ class RecurringHolidayFactory extends Factory {
 				$rhf->setDayOfMonth( 30 );
 				$rhf->setMonth( 6 );
 
- 				if ( $rhf->isValid() ) {
+				if ( $rhf->isValid() ) {
 					$rhf->Save();
- 				}
+				}
 
 				Debug::text('Saving.... San Salvador Party', __FILE__, __LINE__, __METHOD__, 10);
 				$rhf = TTnew( 'RecurringHolidayFactory' );
@@ -1558,12 +1562,12 @@ class RecurringHolidayFactory extends Factory {
 				$rhf->setName( TTi18n::gettext('Christmas') );
 				$rhf->setType( 10 );
 				$rhf->setSpecialDay( 0 );
- 				$rhf->setDayOfMonth( 25 );
+				$rhf->setDayOfMonth( 25 );
 				$rhf->setMonth( 12 );
 
 				if ( $rhf->isValid() ) {
 					$rhf->Save();
- 				}
+				}
 
 				break;
 
@@ -1575,28 +1579,28 @@ class RecurringHolidayFactory extends Factory {
 				$rhf->setName( TTi18n::gettext('New Years Day') );
 				$rhf->setType( 10 );
 				$rhf->setSpecialDay( 0 );
- 				$rhf->setDayOfMonth( 1 );
-	 			$rhf->setMonth( 1 );
+				$rhf->setDayOfMonth( 1 );
+				$rhf->setMonth( 1 );
 
 				if ( $rhf->isValid() ) {
 					$rhf->Save();
 				}
 
-  				Debug::text('Saving.... Martyr`s Day', __FILE__, __LINE__, __METHOD__, 10);
+				Debug::text('Saving.... Martyr`s Day', __FILE__, __LINE__, __METHOD__, 10);
 				$rhf = TTnew( 'RecurringHolidayFactory' );
- 				$rhf->setCompany( $company_id );
+				$rhf->setCompany( $company_id );
 				$rhf->setName( TTi18n::gettext('Martyr`s Day') );
 				$rhf->setType( 10 );
 				$rhf->setSpecialDay( 0 );
 				$rhf->setDayOfMonth( 9 );
- 				$rhf->setMonth( 1 );
+				$rhf->setMonth( 1 );
 
 				if ( $rhf->isValid() ) {
 					$rhf->Save();
 				}
 
 				Debug::text('Saving.... Good Friday/Easter', __FILE__, __LINE__, __METHOD__, 10);
-	 			$rhf = TTnew( 'RecurringHolidayFactory' );
+				$rhf = TTnew( 'RecurringHolidayFactory' );
 				$rhf->setCompany( $company_id );
 				$rhf->setName( TTi18n::gettext('Good Friday') );
 				$rhf->setType( 20 );
@@ -1604,13 +1608,13 @@ class RecurringHolidayFactory extends Factory {
 
 				if ( $rhf->isValid() ) {
 					$rhf->Save();
-  				}
+				}
 
 				Debug::text('Saving.... Labour Day', __FILE__, __LINE__, __METHOD__, 10);
 				$rhf = TTnew( 'RecurringHolidayFactory' );
 				$rhf->setCompany( $company_id );
 				$rhf->setName( TTi18n::gettext('Labour Day') );
- 				$rhf->setType( 10 );
+				$rhf->setType( 10 );
 				$rhf->setSpecialDay( 0 );
 				$rhf->setDayOfMonth( 1 );
 				$rhf->setMonth( 5 );
@@ -1620,24 +1624,24 @@ class RecurringHolidayFactory extends Factory {
 				}
 
 				Debug::text('Saving.... Separation Day (from Colombia)', __FILE__, __LINE__, __METHOD__, 10);
- 				$rhf = TTnew( 'RecurringHolidayFactory' );
+				$rhf = TTnew( 'RecurringHolidayFactory' );
 				$rhf->setCompany( $company_id );
 				$rhf->setName( TTi18n::gettext('Separation Day from Colombia') );
 				$rhf->setType( 10 );
 				$rhf->setSpecialDay( 0 );
 				$rhf->setDayOfMonth( 3 );
-	 			$rhf->setMonth( 11 );
+				$rhf->setMonth( 11 );
 
 				if ( $rhf->isValid() ) {
- 					$rhf->Save();
+					$rhf->Save();
 				}
 
-	 			Debug::text('Saving.... Flag Day', __FILE__, __LINE__, __METHOD__, 10);
+				Debug::text('Saving.... Flag Day', __FILE__, __LINE__, __METHOD__, 10);
 				$rhf = TTnew( 'RecurringHolidayFactory' );
 				$rhf->setCompany( $company_id );
-	 			$rhf->setName( TTi18n::gettext('Flag Day') );
+				$rhf->setName( TTi18n::gettext('Flag Day') );
 				$rhf->setType( 10 );
- 				$rhf->setSpecialDay( 0 );
+				$rhf->setSpecialDay( 0 );
 				$rhf->setDayOfMonth( 4 );
 				$rhf->setMonth( 11 );
 
@@ -1649,8 +1653,8 @@ class RecurringHolidayFactory extends Factory {
 				$rhf = TTnew( 'RecurringHolidayFactory' );
 				$rhf->setCompany( $company_id );
 				$rhf->setName( TTi18n::gettext('Primer Grito de Independencia de la Villa de los Santos') );
- 				$rhf->setType( 10 );
- 				$rhf->setSpecialDay( 0 );
+				$rhf->setType( 10 );
+				$rhf->setSpecialDay( 0 );
 				$rhf->setDayOfMonth( 10 );
 				$rhf->setMonth( 11 );
 
@@ -1658,42 +1662,42 @@ class RecurringHolidayFactory extends Factory {
 					$rhf->Save();
 				}
 
- 				Debug::text('Saving.... Independence Day', __FILE__, __LINE__, __METHOD__, 10);
+				Debug::text('Saving.... Independence Day', __FILE__, __LINE__, __METHOD__, 10);
 				$rhf = TTnew( 'RecurringHolidayFactory' );
- 				$rhf->setCompany( $company_id );
+				$rhf->setCompany( $company_id );
 				$rhf->setName( TTi18n::gettext('Independence Day') );
 				$rhf->setType( 10 );
 				$rhf->setSpecialDay( 0 );
- 				$rhf->setDayOfMonth( 28 );
+				$rhf->setDayOfMonth( 28 );
 				$rhf->setMonth( 11 );
 
 				if ( $rhf->isValid() ) {
 					$rhf->Save();
 				}
 
- 				Debug::text('Saving.... Mothers Day', __FILE__, __LINE__, __METHOD__, 10);
+				Debug::text('Saving.... Mothers Day', __FILE__, __LINE__, __METHOD__, 10);
 				$rhf = TTnew( 'RecurringHolidayFactory' );
 				$rhf->setCompany( $company_id );
 				$rhf->setName( TTi18n::gettext('Mothers Day') );
- 				$rhf->setType( 10 );
+				$rhf->setType( 10 );
 				$rhf->setSpecialDay( 0 );
 				$rhf->setDayOfMonth( 8 );
- 				$rhf->setMonth( 12 );
+				$rhf->setMonth( 12 );
 
 				if ( $rhf->isValid() ) {
 					$rhf->Save();
 				}
 
 				Debug::text('Saving.... Christmas', __FILE__, __LINE__, __METHOD__, 10);
- 				$rhf = TTnew( 'RecurringHolidayFactory' );
+				$rhf = TTnew( 'RecurringHolidayFactory' );
 				$rhf->setCompany( $company_id );
-				$rhf->setName( TTi18n::gettext('Christmas')  );
+				$rhf->setName( TTi18n::gettext('Christmas')	 );
 				$rhf->setType( 10 );
 				$rhf->setSpecialDay( 0 );
 				$rhf->setDayOfMonth( 25 );
 				$rhf->setMonth( 12 );
 
- 				if ( $rhf->isValid() ) {
+				if ( $rhf->isValid() ) {
 					$rhf->Save();
 				}
 
@@ -1749,6 +1753,7 @@ class RecurringHolidayFactory extends Factory {
 
 					$function = 'get'.$function_stub;
 					switch( $variable ) {
+						case 'type':
 						case 'status':
 							$function = 'get'.$variable;
 							if ( method_exists( $this, $function ) ) {
@@ -1776,7 +1781,7 @@ class RecurringHolidayFactory extends Factory {
 	}
 
 	function addLog( $log_action ) {
-		return TTLog::addEntry( $this->getId(), $log_action,  TTi18n::getText('Recurring Holiday'), NULL, $this->getTable(), $this );
+		return TTLog::addEntry( $this->getId(), $log_action, TTi18n::getText('Recurring Holiday'), NULL, $this->getTable(), $this );
 	}
 }
 ?>

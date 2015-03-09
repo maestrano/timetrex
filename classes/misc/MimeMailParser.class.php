@@ -337,7 +337,7 @@ class MimeMailParser {
 		$start = $part['starting-pos'];
 		$end = $part['starting-pos-body'];
 		fseek($this->stream, $start, SEEK_SET);
-		$header = fread($this->stream, $end-$start);
+		$header = @fread($this->stream, $end-$start);
 		return $header;
 	}
 	/**
@@ -349,7 +349,7 @@ class MimeMailParser {
 		$start = $part['starting-pos-body'];
 		$end = $part['ending-pos-body'];
 		fseek($this->stream, $start, SEEK_SET);
-		$body = fread($this->stream, $end-$start);
+		$body = @fread($this->stream, $end-$start);
 		return $body;
 	}
 	
