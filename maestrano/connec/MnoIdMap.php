@@ -19,7 +19,8 @@ class MnoIdMap {
   public static function findMnoIdMapByLocalIdAndEntityName($local_id, $local_entity_name) {
     global $db;
     $result = $db->Execute("SELECT * from mno_id_map WHERE app_entity_id = ".intval($local_id)." AND app_entity_name = '".strtoupper($local_entity_name)."'");
-    return $result->fields;
+    if($result) { return $result->fields; }
+    return null;
   }
 
   public static function deleteMnoIdMap($local_id, $local_entity_name) {
