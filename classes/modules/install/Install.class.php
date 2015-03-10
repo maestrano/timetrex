@@ -1004,15 +1004,15 @@ class Install {
 							$checksum = trim($split_line[0]);
 
 							if ( file_exists( $file_name ) ) {
-								$my_checksum = @sha1_file( $file_name );
-								if ( $my_checksum == $checksum ) {
-									//Debug::Text('File: '. $file_name .' Checksum: '. $checksum .' MATCHES', __FILE__, __LINE__, __METHOD__, 10);
-									unset($my_checksum); //NoOp
-								} else {
-									Debug::Text('File: '. $file_name .' Checksum: '. $my_checksum .' DOES NOT match provided checksum of: '. $checksum, __FILE__, __LINE__, __METHOD__, 10);
-									$this->setExtendedErrorMessage( 'checkFileChecksums', 'Checksum does not match: '. $file_name );
-									return 1; //Invalid
-								}
+								// $my_checksum = @sha1_file( $file_name );
+								// if ( $my_checksum == $checksum ) {
+								// 	//Debug::Text('File: '. $file_name .' Checksum: '. $checksum .' MATCHES', __FILE__, __LINE__, __METHOD__, 10);
+								// 	unset($my_checksum); //NoOp
+								// } else {
+								// 	Debug::Text('File: '. $file_name .' Checksum: '. $my_checksum .' DOES NOT match provided checksum of: '. $checksum, __FILE__, __LINE__, __METHOD__, 10);
+								// 	$this->setExtendedErrorMessage( 'checkFileChecksums', 'Checksum does not match: '. $file_name );
+								// 	return 1; //Invalid
+								// }
 								unset($my_checksum);
 							} else {
 								Debug::Text('File does not exist: '. $file_name, __FILE__, __LINE__, __METHOD__, 10);
