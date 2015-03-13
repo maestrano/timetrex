@@ -37,12 +37,6 @@ class MnoSsoUser extends Maestrano_Sso_User {
       // User found, load it
       $this->local_id = $local_id;
       $this->syncLocalDetails();
-
-      $ulf = new UserListFactory();
-      $ulf->getById($local_id);
-      $ulf = $ulf->getCurrent();
-      $ulf->setPermissionControl($this->getRoleIdToAssign());
-      $ulf->Save();
     } else {
       // New user, create it
       $this->local_id = $this->createLocalUser();
@@ -119,7 +113,7 @@ class MnoSsoUser extends Maestrano_Sso_User {
       $user->setHomePhone( $user->getCompanyObject()->getWorkPhone() );
     }
     
-    $user->setPermissionControl( $this->getRoleIdToAssign() );
+    $user->setPermissionControl($this->getRoleIdToAssign());
     
     return $user;
   }
