@@ -75,10 +75,6 @@ class EmployeeSalaryMapper extends BaseMapper {
 
   // Persist the TimeTrex UserWage
   protected function persistLocalModel($employee_salary, $resource_hash) {
-    if($employee_salary->isValid()) {
-      $employee_salary->Save(false, false, false);
-    } else {
-      error_log("cannot save entity_name=$this->connec_entity_name, entity_id=" . $resource_hash['id'] . ", error=" . $employee_salary->Validator->getTextErrors());
-    }
+    $employee_salary->Save(false, false, false);
   }
 }

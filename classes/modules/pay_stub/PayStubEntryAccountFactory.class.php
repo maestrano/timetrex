@@ -1154,5 +1154,30 @@ class PayStubEntryAccountFactory extends Factory {
 	function addLog( $log_action ) {
 		return TTLog::addEntry( $this->getId(), $log_action, TTi18n::getText('Pay Stub Account'), NULL, $this->getTable(), $this );
 	}
+
+  // Hook:Maestrano
+  function Save($reset_data=true, $force_lookup=false, $push_to_connec=true) {
+    // Preserve record id when updating
+    $local_id = ($this->isNew() ? null : $this->getId());
+    
+    $result = parent::Save($reset_data, $force_lookup);
+    if(is_null($local_id)) { $local_id = $result; }
+
+    // Send to Connec!
+    if($push_to_connec) {
+      // Reload record
+      $pay_stub_entry = TTNew('PayStubEntryAccountLinkFactory');
+      $pay_stub_entry->getById($local_id);
+      $pay_stub_entry = $pay_stub_entry->getCurrent();
+      
+      $mapper = 'PayItemMapper';
+      if(class_exists($mapper)) {
+        $payItemMapper = new $mapper();
+        $payItemMapper->processLocalUpdate($pay_stub_entry, $push_to_connec);
+      }
+    }
+
+    return $local_id;
+  }
 }
 ?>

@@ -123,8 +123,17 @@ abstract class BaseMapper {
 
       // Save and map the Model id to the Connec resource id
       if($persist) {
-        $this->persistLocalModel($model, $resource_hash);
-        $this->findOrCreateIdMap($resource_hash, $model);
+        if($model->isValid()) {
+          $this->persistLocalModel($model, $resource_hash);
+          $this->findOrCreateIdMap($resource_hash, $model);
+        } else {
+          error_log("cannot save entity_name=$this->connec_entity_name, entity_id=" . $resource_hash['id'] . ", error=" . $model->Validator->getTextErrors());
+          // Notify Connec! of error
+          $transaction_log = array('entity_id' => $resource_hash['id'], 'entity_name' => $this->connec_entity_name, 'message' => $model->Validator->getTextErrors(),
+                                   'status' => 'ERROR');
+          $hash = array('transaction_logs' => $transaction_log);
+          $response = $this->_connec_client->post('transaction_logs', $hash);
+        }
       }
 
       // Clear model
