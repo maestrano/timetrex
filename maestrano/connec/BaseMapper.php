@@ -132,13 +132,12 @@ abstract class BaseMapper {
           $transaction_log = array('entity_id' => $resource_hash['id'], 'entity_name' => $this->connec_entity_name, 'message' => $model->Validator->getTextErrors(),
                                    'status' => 'ERROR');
           $hash = array('transaction_logs' => $transaction_log);
-          $response = $this->_connec_client->post('transaction_logs', $hash);
+          $this->_connec_client->post('transaction_logs', $hash);
         }
       }
 
       // Clear model
       $model->clearData();
-
       return $model;
     } catch (Exception $e) {
       error_log("Error when saving Connec resource entity=".$this->connec_entity_name.", error=" . $e->getMessage());

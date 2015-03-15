@@ -35,6 +35,10 @@ try {
       $employeeMapper = new EmployeeMapper();
       $employeeMapper->fetchConnecResource($entity_id);
       break;
+    case "TIMEACTIVITIES":
+      $timeActivityMapper = new TimeActivityMapper();
+      $timeActivityMapper->fetchConnecResource($entity_id);
+      break;
   }
 } catch (Exception $e) {
   error_log("Caught exception in subscribe " . json_encode($e->getMessage()));
