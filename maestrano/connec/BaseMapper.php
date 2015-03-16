@@ -94,11 +94,13 @@ abstract class BaseMapper {
 
   // Persist a list of Connec Resources as TimeTrex Models
   public function persistAll($resources_hash) {
-    foreach($resources_hash as $resource_hash) {
-      try {
-        $this->saveConnecResource($resource_hash);
-      } catch (Exception $e) {
-        error_log("Error when processing entity=".$this->connec_entity_name.", id=".$resource_hash['id'].", message=" . $e->getMessage());
+    if(!is_null($resources_hash)) {
+      foreach($resources_hash as $resource_hash) {
+        try {
+          $this->saveConnecResource($resource_hash);
+        } catch (Exception $e) {
+          error_log("Error when processing entity=".$this->connec_entity_name.", id=".$resource_hash['id'].", message=" . $e->getMessage());
+        }
       }
     }
   }
@@ -123,13 +125,22 @@ abstract class BaseMapper {
 
       // Save and map the Model id to the Connec resource id
       if($persist) {
-        $this->persistLocalModel($model, $resource_hash);
-        $this->findOrCreateIdMap($resource_hash, $model);
+        if($model->isValid()) {
+          error_log("persistLocalModel entity=$this->connec_entity_name");
+          $this->persistLocalModel($model, $resource_hash);
+          $this->findOrCreateIdMap($resource_hash, $model);
+        } else {
+          error_log("cannot save entity_name=$this->connec_entity_name, entity_id=" . $resource_hash['id'] . ", error=" . $model->Validator->getTextErrors());
+          // Notify Connec! of error
+          $transaction_log = array('entity_id' => $resource_hash['id'], 'entity_name' => $this->connec_entity_name, 'message' => $model->Validator->getTextErrors(),
+                                   'status' => 'ERROR');
+          $hash = array('transaction_logs' => $transaction_log);
+          $this->_connec_client->post('transaction_logs', $hash);
+        }
       }
 
       // Clear model
       $model->clearData();
-
       return $model;
     } catch (Exception $e) {
       error_log("Error when saving Connec resource entity=".$this->connec_entity_name.", error=" . $e->getMessage());

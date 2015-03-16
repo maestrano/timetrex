@@ -41,7 +41,7 @@ php_cli = "/usr/bin/php"
 ;
 [database]
 ;type = mysqli
-type = postgres8
+type = mysqli
 
 host = localhost
 database_name = timetrex
@@ -92,8 +92,8 @@ verbosity = 10
 [other]
 ; Force all clients to use SSL.
 force_ssl = FALSE
-installer_enabled = TRUE
-primary_company_id = 1
+installer_enabled = FALSE
+primary_company_id = 
 hostname = localhost
 
 ; System Administrators Email address to send critical errors to if necessary. Set to FALSE to disable completely.
@@ -104,6 +104,6 @@ default_interface = html5
 ;WARNING: DO NOT CHANGE THIS AFTER YOU HAVE INSTALLED TIMETREX.
 ;If you do it will cause all your passwords to become invalid,
 ;and you may lose access to some encrypted data.
-salt = b71ff7b71b6a5f8bec1f90728fd80aff
+salt = 13a31fbd7a530b04d540af349aa22a25
 
 

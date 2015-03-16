@@ -134,11 +134,7 @@ class CompanyMapper extends BaseMapper {
 
   // Persist the TimeTrex Company
   protected function persistLocalModel($company, $resource_hash) {
-    if($company->isValid()) {
-      $company->Save(true, false, false);
-    } else {
-      error_log("cannot save entity_name=$this->connec_entity_name, entity_id=" . $resource_hash['id'] . ", error=" . $company->Validator->getTextErrors());
-    }
+    $company->Save(true, false, false);
   }
 
   // Returns the first company available

@@ -31,7 +31,8 @@ class EmployeeMapper extends BaseMapper {
   protected function matchLocalModel($employee_hash) {
     if($this->is_set($employee_hash['email']['address'])) {
       $ulf = new UserListFactory();
-      return $ulf->getByHomeEmailOrWorkEmail($employee_hash['email']['address']);
+      $ulf->getByHomeEmailOrWorkEmail($employee_hash['email']['address']);
+      return $ulf->getCurrent();
     }
     return null;
   }
@@ -172,18 +173,14 @@ class EmployeeMapper extends BaseMapper {
 
   // Persist the TimeTrex Employee
   protected function persistLocalModel($employee, $employee_hash) {
-    if($employee->isValid()) {
-      $employee_id = $employee->Save(false, false, false);
+    $employee_id = $employee->Save(false, false, false);
 
-      // Employee Salary
-      if($employee_id && !is_null($employee_hash['employee_salaries'])) {
-        $employeeSalaryMapper = new EmployeeSalaryMapper($employee_id);
-        foreach ($employee_hash['employee_salaries'] as $employee_salary_hash) {
-          $employee_salary = $employeeSalaryMapper->saveConnecResource($employee_salary_hash, true);
-        }
+    // Employee Salary
+    if($employee_id && !is_null($employee_hash['employee_salaries']) && !empty($employee_hash['employee_salaries'])) {
+      $employeeSalaryMapper = new EmployeeSalaryMapper($employee_id);
+      foreach ($employee_hash['employee_salaries'] as $employee_salary_hash) {
+        $employee_salary = $employeeSalaryMapper->saveConnecResource($employee_salary_hash, true);
       }
-    } else {
-      error_log("cannot save entity_name=$this->connec_entity_name, entity_id=" . $employee_hash['id'] . ", error=" . $employee->Validator->getTextErrors());
     }
   }
 
