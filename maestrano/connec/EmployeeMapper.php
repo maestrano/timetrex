@@ -31,7 +31,8 @@ class EmployeeMapper extends BaseMapper {
   protected function matchLocalModel($employee_hash) {
     if($this->is_set($employee_hash['email']['address'])) {
       $ulf = new UserListFactory();
-      return $ulf->getByHomeEmailOrWorkEmail($employee_hash['email']['address']);
+      $ulf->getByHomeEmailOrWorkEmail($employee_hash['email']['address']);
+      return $ulf->getCurrent();
     }
     return null;
   }
@@ -175,7 +176,7 @@ class EmployeeMapper extends BaseMapper {
     $employee_id = $employee->Save(false, false, false);
 
     // Employee Salary
-    if($employee_id && !is_null($employee_hash['employee_salaries'])) {
+    if($employee_id && !is_null($employee_hash['employee_salaries']) && !empty($employee_hash['employee_salaries'])) {
       $employeeSalaryMapper = new EmployeeSalaryMapper($employee_id);
       foreach ($employee_hash['employee_salaries'] as $employee_salary_hash) {
         $employee_salary = $employeeSalaryMapper->saveConnecResource($employee_salary_hash, true);

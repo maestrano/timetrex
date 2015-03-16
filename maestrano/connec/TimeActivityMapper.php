@@ -4,90 +4,136 @@ require_once 'BaseMapper.php';
 require_once 'MnoIdMap.php';
 
 /**
-* Map Connec TimeActivity representation to/from TimeTrex Punch
+* Map Connec TimeActivity representation to/from TimeTrex PunchControl
 */
 class TimeActivityMapper extends BaseMapper {
+  private $punches = array();
+
   public function __construct() {
     parent::__construct();
 
     $this->connec_entity_name = 'TimeActivity';
-    $this->local_entity_name = 'Punch';
+    $this->local_entity_name = 'PunchControl';
     $this->connec_resource_name = 'time_activities';
     $this->connec_resource_endpoint = 'time_activities';
   }
 
-  public function getId($punch) {
-    return $punch->getId();
+  public function getId($punch_control) {
+    return $punch_control->getId();
   }
 
   // Find by local id
   public function loadModelById($local_id) {
-    $pse = new PunchListFactory();
-    $pse->getById($local_id);
-    return $pse->getCurrent();
+    $pcl = new PunchControlListFactory();
+    $pcl->getById($local_id);
+    return $pcl->getCurrent();
   }
 
-  // TODO: Match by ?
+  // TODO: Match by User and Timestamp
   protected function matchLocalModel($time_activity_hash) {
     // if($this->is_set($time_activity_hash['name'])) {
     //   $company = CompanyMapper::getDefaultCompany();
-    //   $pse = new PunchListFactory();
-    //   $punchs = $pse->getByCompanyId($company->getId());
-    //   foreach ($punchs as $punch) {
-    //     if($punch->getName() == $time_activity_hash['name']) { return $punch; }
+    //   $pse = new PunchControlListFactory();
+    //   $punch_controls = $pse->getByCompanyId($company->getId());
+    //   foreach ($punch_controls as $punch_control) {
+    //     if($punch_control->getName() == $time_activity_hash['name']) { return $punch_control; }
     //   }
     // }
     return null;
   }
 
-  // Map the Connec resource attributes onto the TimeTrex Punch
-  protected function mapConnecResourceToModel($time_activity_hash, $punch) {
-    // Map hash attributes to Punch
+  // Map the Connec resource attributes onto the TimeTrex PunchControl
+  protected function mapConnecResourceToModel($time_activity_hash, $punch_control) {
+    // Map hash attributes to PunchControl
 
-    // Set default values
-    if(!$punch->getTransfer()) { $punch->setTransfer(false); }
-    if(!$punch->getType()) { $punch->setType(10); }
-    if(!$punch->getStatus()) { $punch->setStatus(10); }
-    if($punch->isNew()) { $punch->setPunchControlID($punch->findPunchControlID()); }
-    
+    if($punch_control->isNew()) {
+      $punch_control->setEnableCalcUserDateID( TRUE );
+      $punch_control->setEnableCalcTotalTime( $calc_total_time );
+      $punch_control->setEnableCalcSystemTotalTime( $calc_total_time );
+      $punch_control->setEnableCalcWeeklySystemTotalTime( $calc_total_time );
+      $punch_control->setEnableCalcUserDateTotal( $calc_total_time );
+      $punch_control->setEnableCalcException( $calc_total_time );
+    }
+
     // Map Employee
     $employee_id_map = MnoIdMap::findMnoIdMapByMnoIdAndEntityName($time_activity_hash['employee_id'], 'Employee');
-    if($employee_id_map) { $punch->setUser(intval($employee_id_map['app_entity_id'])); }
+    if($employee_id_map) { $punch_control->setUser(intval($employee_id_map['app_entity_id'])); }
 
-    // Map timestamps
-    $punch->setTimeStamp(strtotime($time_activity_hash['transaction_date']));
-    if($punch->isNew()) {
-      $punch->setActualTimeStamp($punch->getTimeStamp());
-      $punch->setOriginalTimeStamp($punch->getTimeStamp());
-    }
+    // Map date
+    $punch_control->setDateStamp(strtotime($time_activity_hash['transaction_date']));
+
+    // TODO
+    // $punch_control->setBranch();
+    // $punch_control->setDepartment();
+    // $punch_control->setJob();
+    // $punch_control->setJobItem();
+    // $punch_control->setQuantity();
+    // $punch_control->setBadQuantity();
   }
 
-  // Map the TimeTrex Punch to a Connec resource hash
-  protected function mapModelToConnecResource($punch) {
+  // Map the TimeTrex PunchControl to a Connec resource hash
+  protected function mapModelToConnecResource($punch_control) {
     $time_activity_hash = array();
 
     return $time_activity_hash;
   }
 
-  // Persist the TimeTrex Punch
-  protected function persistLocalModel($punch, $resource_hash) {
-    $local_id = $punch->Save(false, false, false);
+  // Persist the TimeTrex PunchControl
+  protected function persistLocalModel($punch_control, $time_activity_hash) {
+    $timestamp = $punch_control->getDateStamp();
 
-    // Create a PunchControl entry
-    $pcf = TTnew('PunchControlFactory');
-    $pcf->setId($punch->getPunchControlID());
-    $pcf->setPunchObject($punch);
-    $pcf->setEnableCalcUserDateID(true);
-    $pcf->setEnableCalcTotalTime(true);
-    $pcf->setEnableCalcSystemTotalTime(true);
-    $pcf->setEnableCalcWeeklySystemTotalTime(true);
-    $pcf->setEnableCalcUserDateTotal(true);
-    $pcf->setEnableCalcException(true);
+    // Save PunchControl
+    if(!$punch_control->isNew()) { $punch_control_id = $punch_control->getId(); }
+    $local_id = $punch_control->Save();
+    if(is_null($punch_control_id)) { $punch_control_id = $local_id; }
 
-    if($pcf->isValid() == true) {
-      $pcf->Save(true, true);
-    } else {
-      error_log("cannot save entity_name=$this->connec_entity_name, entity_id=" . $resource_hash['id'] . ", error=" . $pcf->Validator->getTextErrors());
+    // Create/Update Punch In and Punch Out
+
+    // Punch In
+    $pf_in = new PunchListFactory();
+    if(!$punch_control->isNew()) {
+      $pf_in->getByPunchControlIdAndStatusId($punch_control_id, 10);
+      $pf_in = $pf_in->getCurrent();
     }
+
+    $pf_in->setTransfer(false);
+    $pf_in->setType(10);
+    $pf_in->setStatus(10);
+    
+    // Set time activity start time or default to 8:00am
+    $start_date = $this->is_set($time_activity_hash['start_time']) ? strtotime($time_activity_hash['start_time']) : $timestamp - (4*60*60);
+    $pf_in->setTimeStamp($start_date);
+    $pf_in->setActualTimeStamp($pf_in->getTimeStamp());
+    $pf_in->setOriginalTimeStamp($pf_in->getTimeStamp());
+    $pf_in->setPunchControlID($punch_control_id);
+    $pf_in->Save();
+
+    // Punch Out
+    $pf_out = new PunchListFactory();
+    if(!$punch_control->isNew()) {
+      $pf_out->getByPunchControlIdAndStatusId($punch_control_id, 20);
+      $pf_out = $pf_out->getCurrent();
+    }
+
+    $pf_out->setTransfer(false);
+    $pf_out->setType(10);
+    $pf_out->setStatus(20);
+    
+    // Set time activity end time or default to start_time + duration
+    $hours = ($this->is_set($time_activity_hash['hours']) ? intval($time_activity_hash['hours']) : 0);
+    $minutes = ($this->is_set($time_activity_hash['minutes']) ? intval($time_activity_hash['minutes']) : 0);
+    $end_date = $this->is_set($time_activity_hash['end_time']) ? strtotime($time_activity_hash['end_time']) : $start_date + ($hours*60*60) + ($minutes*60);
+    $pf_out->setTimeStamp($end_date);
+    $pf_out->setActualTimeStamp($pf_out->getTimeStamp());
+    $pf_out->setOriginalTimeStamp($pf_out->getTimeStamp());
+    $pf_out->setPunchControlID($punch_control_id);
+    $pf_out->Save();
+
+    // Calculate total time
+    $pcl = new PunchControlListFactory();
+    $pcl->getById($local_id);
+    $pcl = $pcl->getCurrent();
+    $pcl->calcTotalTime();
+    $pcl->Save();
   }
 }
