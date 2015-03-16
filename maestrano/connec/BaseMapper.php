@@ -126,6 +126,7 @@ abstract class BaseMapper {
       // Save and map the Model id to the Connec resource id
       if($persist) {
         if($model->isValid()) {
+          error_log("persistLocalModel entity=$this->connec_entity_name");
           $this->persistLocalModel($model, $resource_hash);
           $this->findOrCreateIdMap($resource_hash, $model);
         } else {

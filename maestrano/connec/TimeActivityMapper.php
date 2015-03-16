@@ -29,16 +29,16 @@ class TimeActivityMapper extends BaseMapper {
     return $pcl->getCurrent();
   }
 
-  // TODO: Match by User and Timestamp
+  // Match by User and Timestamp
   protected function matchLocalModel($time_activity_hash) {
-    // if($this->is_set($time_activity_hash['name'])) {
-    //   $company = CompanyMapper::getDefaultCompany();
-    //   $pse = new PunchControlListFactory();
-    //   $punch_controls = $pse->getByCompanyId($company->getId());
-    //   foreach ($punch_controls as $punch_control) {
-    //     if($punch_control->getName() == $time_activity_hash['name']) { return $punch_control; }
-    //   }
-    // }
+    $employee_id_map = MnoIdMap::findMnoIdMapByMnoIdAndEntityName($time_activity_hash['employee_id'], 'Employee');
+    if($employee_id_map) {
+      $employee_id = intval($employee_id_map['app_entity_id']);
+      $date_stamp = strtotime($time_activity_hash['transaction_date']);
+      $pclf = new PunchControlListFactory();
+      $pclf->getByUserIdAndDateStamp($employee_id, $date_stamp);
+      return $pclf->getCurrent();
+    }
     return null;
   }
 
@@ -80,11 +80,10 @@ class TimeActivityMapper extends BaseMapper {
 
   // Persist the TimeTrex PunchControl
   protected function persistLocalModel($punch_control, $time_activity_hash) {
-    $timestamp = $punch_control->getDateStamp();
-
     // Save PunchControl
+    error_log("SAVE PUNCH CONTROL");
     if(!$punch_control->isNew()) { $punch_control_id = $punch_control->getId(); }
-    $local_id = $punch_control->Save();
+    $local_id = $punch_control->Save(false, false);
     if(is_null($punch_control_id)) { $punch_control_id = $local_id; }
 
     // Create/Update Punch In and Punch Out
@@ -101,7 +100,7 @@ class TimeActivityMapper extends BaseMapper {
     $pf_in->setStatus(10);
     
     // Set time activity start time or default to 8:00am
-    $start_date = $this->is_set($time_activity_hash['start_time']) ? strtotime($time_activity_hash['start_time']) : $timestamp - (4*60*60);
+    $start_date = $this->is_set($time_activity_hash['start_time']) ? strtotime($time_activity_hash['start_time']) : $punch_control->getDateStamp() - (4*60*60);
     $pf_in->setTimeStamp($start_date);
     $pf_in->setActualTimeStamp($pf_in->getTimeStamp());
     $pf_in->setOriginalTimeStamp($pf_in->getTimeStamp());
@@ -131,9 +130,9 @@ class TimeActivityMapper extends BaseMapper {
 
     // Calculate total time
     $pcl = new PunchControlListFactory();
-    $pcl->getById($local_id);
+    $pcl->getById($punch_control_id);
     $pcl = $pcl->getCurrent();
     $pcl->calcTotalTime();
-    $pcl->Save();
+    $pcl->Save(false, false);
   }
 }
