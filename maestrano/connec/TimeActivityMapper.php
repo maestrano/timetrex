@@ -81,7 +81,7 @@ class TimeActivityMapper extends BaseMapper {
   // Persist the TimeTrex PunchControl
   protected function persistLocalModel($punch_control, $time_activity_hash) {
     // Save PunchControl
-    error_log("SAVE PUNCH CONTROL");
+
     if(!$punch_control->isNew()) { $punch_control_id = $punch_control->getId(); }
     $local_id = $punch_control->Save(false, false);
     if(is_null($punch_control_id)) { $punch_control_id = $local_id; }
