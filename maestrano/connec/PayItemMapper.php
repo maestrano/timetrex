@@ -52,8 +52,7 @@ class PayItemMapper extends BaseMapper {
     }
 
     if(!$pay_stub_entry->getStatus()) { $pay_stub_entry->setStatus(10); }
-
-    if($this->is_set($pay_item_hash['name'])) { $pay_stub_entry->setName($pay_item_hash['name']); }
+    if(!$pay_stub_entry->getType()) { $pay_stub_entry->setType(10); }
     if($this->is_set($pay_item_hash['type'])) {
       switch ($pay_item_hash['type']) {
         case "TIMEOFF":
@@ -74,6 +73,7 @@ class PayItemMapper extends BaseMapper {
       }
     }
 
+    if($this->is_set($pay_item_hash['name'])) { $pay_stub_entry->setName($pay_item_hash['name']); }
     if(!$pay_stub_entry->getOrder()) { $pay_stub_entry->setOrder(10 * $pay_stub_entry->getType()); }
     if(!$pay_stub_entry->getAccrualType()) { $pay_stub_entry->setAccrualType(10); }
   }
