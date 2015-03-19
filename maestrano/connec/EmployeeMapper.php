@@ -53,14 +53,14 @@ class EmployeeMapper extends BaseMapper {
       if($this->is_set($employee_hash['employee_id'])) {
         $employee->setEmployeeNumber($employee_hash['employee_id']);
       } else {
-        $employee->setEmployeeNumber(UserFactory::getNextAvailableEmployeeNumber($company->getId()));
+        // Employee Number is mandatory, get the next available or default to code
+        $employee_id = UserFactory::getNextAvailableEmployeeNumber($company->getId());
+        if(is_null($employee_id)) { $employee_id = $employee_hash['code']; }
+        $employee->setEmployeeNumber($employee_id);
       }
     }
     if(!$employee->getCurrency()) {
       $employee->setCurrency(CompanyMapper::getDefaultCurrency()->getId());
-    }
-    if(!$employee->getPermissionControl()) {
-      $employee->setPermissionControl($this->getDefaultPermission($company));
     }
     
     if(!$employee->getUserName()) {
@@ -182,13 +182,6 @@ class EmployeeMapper extends BaseMapper {
         $employee_salary = $employeeSalaryMapper->saveConnecResource($employee_salary_hash, true);
       }
     }
-  }
-
-  private function getDefaultPermission($company) {
-    $pclf = TTnew('PermissionControlListFactory');
-    $level = 2; // Regular Employee (Manual Entry)  2
-    $pclf->getByCompanyIdAndLevel($company->getId(), $level, null, null, null, array( 'level' => 'desc' ));
-    return $pclf->getCurrent()->getId();
   }
 
   private function startsWith($haystack, $needle) {
