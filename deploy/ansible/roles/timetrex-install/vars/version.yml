@@ -2,5 +2,5 @@
 # - Production: repository: maestrano, branch: mno-master
 # - UAT:        repository: maestrano, branch: mno-develop
 # - Local:      repository: my_repository, branch: my_branch
-application_version: mno-develop
+application_version: mno-master
 application_repository: maestrano
