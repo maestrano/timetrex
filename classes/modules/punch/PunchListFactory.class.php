@@ -1546,7 +1546,7 @@ class PunchListFactory extends PunchFactory implements IteratorAggregate {
 					';
 
 		$query .= $this->getSortSQL( $order, FALSE );
-		$this->ExecuteSQL( $query, $ph );
+		$this->ExecuteSQL( $query, $ph, $limit, $page );
 
 		return $this;
 	}

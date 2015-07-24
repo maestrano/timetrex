@@ -151,18 +151,7 @@ class AccrualFactory extends Factory {
 	}
 
 	function getUserObject() {
-		if ( is_object($this->user_obj) ) {
-			return $this->user_obj;
-		} else {
-			$ulf = TTnew( 'UserListFactory' );
-			$ulf->getById( $this->getUser() );
-			if ( $ulf->getRecordCount() == 1 ) {
-				$this->user_obj = $ulf->getCurrent();
-				return $this->user_obj;
-			}
-
-			return FALSE;
-		}
+		return $this->getGenericObject( 'UserListFactory', $this->getUser(), 'user_obj' );
 	}
 	function getUser() {
 		if ( isset($this->data['user_id']) ) {
@@ -465,10 +454,9 @@ class AccrualFactory extends Factory {
 	}
 
 	static function deleteOrphans($user_id, $date_stamp ) {
-		Debug::text('Attempting to delete Orphaned Records for User ID: '. $user_id, __FILE__, __LINE__, __METHOD__, 10);
+		Debug::text('Attempting to delete Orphaned Records for User ID: '. $user_id .' Date: '. TTDate::getDate('DATE', $date_stamp), __FILE__, __LINE__, __METHOD__, 10);
 		//Remove orphaned entries
 		$alf = TTnew( 'AccrualListFactory' );
-		//$alf->getOrphansByUserId( $user_id );
 		$alf->getOrphansByUserIdAndDate( $user_id, $date_stamp );
 		Debug::text('Found Orphaned Records: '. $alf->getRecordCount(), __FILE__, __LINE__, __METHOD__, 10);
 		if ( $alf->getRecordCount() > 0 ) {

@@ -264,121 +264,123 @@ LogViewController = BaseViewController.extend( {
 			this.last_select_ids = this.getGridSelectIdArray();
 		}
 
-		this.api['get' + this.api.key_name]( filter, {onResult: function( result ) {
-			var result_data = result.getResult();
-			var len;
+		this.api['get' + this.api.key_name]( filter, {
+			onResult: function( result ) {
+				var result_data = result.getResult();
+				var len;
 
-			if ( !Global.isArray( result_data ) ) {
-				$this.showNoResultCover()
-			} else {
-				$this.removeNoResultCover();
-				if ( Global.isSet( $this.__createRowId ) ) {
-					result_data = $this.__createRowId( result_data );
-				}
-
-				result_data = Global.formatGridData( result_data, $this.api.key_name );
-
-				len = result_data.length;
-
-				$this.setAuditInfo();
-			}
-			if ( $this.refresh_id > 0 ) {
-				$this.refresh_id = null;
-				var grid_source_data = $this.grid.getGridParam( 'data' );
-				len = grid_source_data.length;
-
-				if ( $.type( grid_source_data ) !== 'array' ) {
-					grid_source_data = [];
-				}
-
-				var found = false;
-				var new_record = result_data[0];
-
-				//Error: Uncaught TypeError: Cannot read property 'id' of undefined in https://ondemand1.timetrex.com/interface/html5/views/BaseViewController.js?v=7.4.3-20140924-084605 line 4851
-				if ( new_record ) {
-					for ( var i = 0; i < len; i++ ) {
-						var record = grid_source_data[i];
-
-						//Fixed === issue. The id set by jQGrid is string type.
-						if ( !isNaN( parseInt( record.id ) ) ) {
-							record.id = parseInt( record.id );
-						}
-
-						if ( record.id == new_record.id ) {
-							$this.grid.setRowData( new_record.id, new_record );
-							found = true;
-							break
-						}
-					}
-
-					if ( !found ) {
-//						$this.grid.addRowData( new_record.id, new_record, 0 );
-						$this.grid.clearGridData();
-						$this.grid.setGridParam( {data: grid_source_data.concat( new_record )} );
-
-						if ( $this.sub_view_mode && Global.isSet( $this.resizeSubGridHeight ) ) {
-							len = Global.isSet( len ) ? len : 0;
-							$this.resizeSubGridHeight( len + 1 );
-						}
-
-						$this.grid.trigger( 'reloadGrid' );
-					}
-				}
-
-			} else {
-				//Set Page data to widget, next show display info when setDefault Menu
-				$this.pager_data = result.getPagerData();
-
-				//CLick to show more mode no need this step
-				if ( LocalCacheData.paging_type !== 0 ) {
-					$this.paging_widget.setPagerData( $this.pager_data );
-					$this.paging_widget_2.setPagerData( $this.pager_data );
-				}
-
-				if ( LocalCacheData.paging_type === 0 && page_action === 'next' ) {
-					var current_data = $this.grid.getGridParam( 'data' );
-					result_data = current_data.concat( result_data );
-				}
-				$this.grid.clearGridData();
-				$this.grid.setGridParam( {data: result_data} );
-
-				if ( $this.sub_view_mode && Global.isSet( $this.resizeSubGridHeight ) ) {
-					$this.resizeSubGridHeight( len );
-				}
-
-				$this.grid.trigger( 'reloadGrid' );
-				$this.reSelectLastSelectItems();
-
-			}
-
-			$this.setGridCellBackGround(); //Set cell background for some views
-
-			ProgressBar.closeOverlay(); //Add this in initData
-
-			if ( set_default_menu ) {
-				$this.setDefaultMenu( true );
-			}
-
-			if ( LocalCacheData.paging_type === 0 ) {
-				if ( !$this.pager_data || $this.pager_data.is_last_page ) {
-					$this.paging_widget.css( 'display', 'none' );
+				if ( !Global.isArray( result_data ) ) {
+					$this.showNoResultCover()
 				} else {
-					$this.paging_widget.css( 'display', 'block' );
+					$this.removeNoResultCover();
+					if ( Global.isSet( $this.__createRowId ) ) {
+						result_data = $this.__createRowId( result_data );
+					}
+
+					result_data = Global.formatGridData( result_data, $this.api.key_name );
+
+					len = result_data.length;
+
+					$this.setAuditInfo();
 				}
+				if ( $this.refresh_id > 0 ) {
+					$this.refresh_id = null;
+					var grid_source_data = $this.grid.getGridParam( 'data' );
+					len = grid_source_data.length;
+
+					if ( $.type( grid_source_data ) !== 'array' ) {
+						grid_source_data = [];
+					}
+
+					var found = false;
+					var new_record = result_data[0];
+
+					//Error: Uncaught TypeError: Cannot read property 'id' of undefined in https://ondemand1.timetrex.com/interface/html5/views/BaseViewController.js?v=7.4.3-20140924-084605 line 4851
+					if ( new_record ) {
+						for ( var i = 0; i < len; i++ ) {
+							var record = grid_source_data[i];
+
+							//Fixed === issue. The id set by jQGrid is string type.
+							if ( !isNaN( parseInt( record.id ) ) ) {
+								record.id = parseInt( record.id );
+							}
+
+							if ( record.id == new_record.id ) {
+								$this.grid.setRowData( new_record.id, new_record );
+								found = true;
+								break
+							}
+						}
+
+						if ( !found ) {
+//						$this.grid.addRowData( new_record.id, new_record, 0 );
+							$this.grid.clearGridData();
+							$this.grid.setGridParam( {data: grid_source_data.concat( new_record )} );
+
+							if ( $this.sub_view_mode && Global.isSet( $this.resizeSubGridHeight ) ) {
+								len = Global.isSet( len ) ? len : 0;
+								$this.resizeSubGridHeight( len + 1 );
+							}
+
+							$this.grid.trigger( 'reloadGrid' );
+						}
+					}
+
+				} else {
+					//Set Page data to widget, next show display info when setDefault Menu
+					$this.pager_data = result.getPagerData();
+
+					//CLick to show more mode no need this step
+					if ( LocalCacheData.paging_type !== 0 ) {
+						$this.paging_widget.setPagerData( $this.pager_data );
+						$this.paging_widget_2.setPagerData( $this.pager_data );
+					}
+
+					if ( LocalCacheData.paging_type === 0 && page_action === 'next' ) {
+						var current_data = $this.grid.getGridParam( 'data' );
+						result_data = current_data.concat( result_data );
+					}
+					$this.grid.clearGridData();
+					$this.grid.setGridParam( {data: result_data} );
+
+					if ( $this.sub_view_mode && Global.isSet( $this.resizeSubGridHeight ) ) {
+						$this.resizeSubGridHeight( len );
+					}
+
+					$this.grid.trigger( 'reloadGrid' );
+					$this.reSelectLastSelectItems();
+
+				}
+
+				$this.setGridCellBackGround(); //Set cell background for some views
+
+				ProgressBar.closeOverlay(); //Add this in initData
+
+				if ( set_default_menu ) {
+					$this.setDefaultMenu( true );
+				}
+
+				if ( LocalCacheData.paging_type === 0 ) {
+					if ( !$this.pager_data || $this.pager_data.is_last_page ) {
+						$this.paging_widget.css( 'display', 'none' );
+					} else {
+						$this.paging_widget.css( 'display', 'block' );
+					}
+				}
+
+				if ( callBack ) {
+					callBack( result );
+				}
+
+				// when call this from save and new result, we don't call auto open, because this will call onAddClick twice
+				if ( set_default_menu ) {
+					$this.autoOpenEditViewIfNecessary();
+				}
+
+				$this.searchDone();
+
 			}
-
-			if ( callBack ) {
-				callBack( result );
-			}
-
-			// when call this from save and new result, we don't call auto open, because this will call onAddClick twice
-			if ( set_default_menu ) {
-				$this.autoOpenEditViewIfNecessary();
-			}
-
-			$this.searchDone();
-
-		}} );
+		} );
 
 	},
 
@@ -432,9 +434,9 @@ LogViewController = BaseViewController.extend( {
 
 		var column_info_array = [];
 		var display_columns = [
-			{'label': 'Field', 'value': 'display_field'},
-			{'label': 'Before', 'value': 'old_value'},
-			{'label': 'After', 'value': 'new_value'}
+			{label: $.i18n._('Field'), value: 'display_field'},
+			{label: $.i18n._('Before'), value: 'old_value'},
+			{label: $.i18n._('After'), value: 'new_value'}
 		];
 
 		//Set Data Grid on List view
@@ -449,7 +451,14 @@ LogViewController = BaseViewController.extend( {
 		for ( var i = start_from; i < len; i++ ) {
 			var view_column_data = display_columns[i];
 
-			var column_info = {name: view_column_data.value, index: view_column_data.value, label: view_column_data.label, width: 100, sortable: false, title: false};
+			var column_info = {
+				name: view_column_data.value,
+				index: view_column_data.value,
+				label: view_column_data.label,
+				width: 100,
+				sortable: false,
+				title: false
+			};
 			column_info_array.push( column_info );
 		}
 
@@ -601,32 +610,38 @@ LogViewController = BaseViewController.extend( {
 		}
 		filter.filter_columns = this.getFilterColumnsForViewDetails();
 
-		this.api['get' + this.api.key_name]( filter, {onResult: function( result ) {
-			var result_data = result.getResult();
+		this.api['get' + this.api.key_name]( filter, {
+			onResult: function( result ) {
+				var result_data = result.getResult();
 
-			if ( !result_data ) {
-				result_data = [];
+				if ( !result_data ) {
+					result_data = [];
+				}
+
+				result_data = result_data[0];
+
+				if ( $this.sub_view_mode && $this.parent_key ) {
+					result_data[$this.parent_key] = $this.parent_value;
+				}
+
+				$this.current_edit_record = result_data;
+
+				$this.initEditView();
+
 			}
-
-			result_data = result_data[0];
-
-			if ( $this.sub_view_mode && $this.parent_key ) {
-				result_data[$this.parent_key] = $this.parent_value;
-			}
-
-			$this.current_edit_record = result_data;
-
-			$this.initEditView();
-
-		}} );
+		} );
 	},
 
 	getFilterColumnsFromDisplayColumns: function() {
-		var display_columns = this.grid.getGridParam( 'colModel' );
-
 		var column_filter = {};
 		column_filter.id = true;
 		column_filter.table_name = true;
+
+		// Error: Unable to get property 'getGridParam' of undefined or null reference
+		var display_columns = [];
+		if ( this.grid ) {
+			display_columns = this.grid.getGridParam( 'colModel' );
+		}
 
 		if ( display_columns ) {
 			var len = display_columns.length;

@@ -328,7 +328,7 @@ class UserDeductionListFactory extends UserDeductionFactory implements IteratorA
 		}
 
 		if ( $order == NULL ) {
-			$order = array( 'c.status_id' => 'asc', 'c.calculation_order' => 'asc' );
+			$order = array( 'c.status_id' => 'asc', 'c.calculation_order' => 'asc', 'c.id' => 'asc' );
 			$strict = FALSE;
 		} else {
 			$strict = TRUE;
@@ -415,10 +415,13 @@ class UserDeductionListFactory extends UserDeductionFactory implements IteratorA
 
 		$additional_order_fields = array();
 		if ( $order == NULL ) {
-			$order = array( 'uf.last_name' => 'asc', 'uf.first_name' => 'asc');
+			$order = array( 'uf.status_id' => 'asc', 'uf.last_name' => 'asc', 'uf.first_name' => 'asc');
 			$strict = FALSE;
 		} else {
-			//Always sort by last name, first name after other columns
+			//Always sort by status, last name, first name after other columns
+			if ( !isset($order['uf.status_id']) ) {
+				$order['uf.status_id'] = 'asc';
+			}
 			if ( !isset($order['uf.last_name']) ) {
 				$order['uf.last_name'] = 'asc';
 			}

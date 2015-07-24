@@ -174,7 +174,7 @@ FormW2ReportViewController = ReportBaseViewController.extend( {
 
 				var eFile_array = Global.buildRecordArray( provinceResult.getResult() );
 
-				eFile_array.unshift( {id: 999, label: 'Federal', value: '0'} );
+				eFile_array.unshift( {id: 999, label: $.i18n._('Federal'), value: '0'} );
 
 				$this.efile_state_array = eFile_array;
 

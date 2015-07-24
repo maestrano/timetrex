@@ -289,6 +289,7 @@ class OtherFieldListFactory extends OtherFieldFactory implements IteratorAggrega
 					'company_id' => $company_id,
 					'created_date' => $date,
 					'updated_date' => $date,
+					'deleted_date' => $date,
 					);
 
 		//INCLUDE Deleted rows in this query.
@@ -298,13 +299,12 @@ class OtherFieldListFactory extends OtherFieldFactory implements IteratorAggrega
 					where
 							company_id = ?
 						AND
-							( created_date >= ? OR updated_date >= ? )
-					LIMIT 1
+							( created_date >= ? OR updated_date >= ? OR ( deleted = 1 AND deleted_date >= ? ) )
 					';
 		$query .= $this->getWhereSQL( $where );
 		$query .= $this->getSortSQL( $order );
 
-		$this->ExecuteSQL( $query, $ph );
+		$this->rs = $this->db->SelectLimit($query, 1, -1, $ph);
 		if ( $this->getRecordCount() > 0 ) {
 			Debug::text('Rows have been modified: '. $this->getRecordCount(), __FILE__, __LINE__, __METHOD__, 10);
 

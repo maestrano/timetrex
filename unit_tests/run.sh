@@ -1,8 +1,7 @@
 #!/bin/bash
 
 #Unit testw with HHVM
-#hhvm -c /etc/hhvm/server.hdf /usr/bin/phpunit --debug -vv --configuration config.xml
-
+#hhvm /usr/bin/phpunit -d max_execution_time=86400 --configuration config.xml
 
 if [ "$#" -eq 0 ] ; then
 	echo "Running tests in parallel..."

@@ -230,7 +230,7 @@ class APIAuthentication extends APIFactory {
 		if ( $session_id != '' ) {
 			$authentication = new Authentication();
 
-			Debug::text('AMF Session ID: '. $session_id .' Source IP: '. $_SERVER['REMOTE_ADDR'] .' Touch Updated Date: '. (int)$touch_updated_date, __FILE__, __LINE__, __METHOD__, 10);
+			Debug::text('AMF Session ID: '. $session_id .' Source IP: '. Misc::getRemoteIPAddress() .' Touch Updated Date: '. (int)$touch_updated_date, __FILE__, __LINE__, __METHOD__, 10);
 			if ( isset($config_vars['other']['web_session_timeout']) AND $config_vars['other']['web_session_timeout'] != '' ) {
 				$authentication->setIdle( (int)$config_vars['other']['web_session_timeout'] );
 			}

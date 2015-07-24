@@ -66,11 +66,11 @@ switch ($object_type) {
 
 		//RateLimit failed download attempts to prevent brute force.
 		$rl = TTNew('RateLimit');
-		$rl->setID( 'document_'.$_SERVER['REMOTE_ADDR'] );
+		$rl->setID( 'document_'. Misc::getRemoteIPAddress() );
 		$rl->setAllowedCalls( 25 );
 		$rl->setTimeFrame( 900 ); //15 minutes
 		if ( $rl->check() == FALSE ) {
-			Debug::Text('Excessive document download attempts... Preventing downloads from: '. $_SERVER['REMOTE_ADDR'] .' for up to 15 minutes...', __FILE__, __LINE__, __METHOD__, 10);
+			Debug::Text('Excessive document download attempts... Preventing downloads from: '. Misc::getRemoteIPAddress() .' for up to 15 minutes...', __FILE__, __LINE__, __METHOD__, 10);
 			sleep(5); //Excessive download attempts, sleep longer.
 		} else {
 			if ( $permission->Check( 'document', 'view')
@@ -133,11 +133,11 @@ switch ($object_type) {
 
 		//RateLimit failed download attempts to prevent brute force.
 		$rl = TTNew('RateLimit');
-		$rl->setID( 'document_'.$_SERVER['REMOTE_ADDR'] );
+		$rl->setID( 'document_'. Misc::getRemoteIPAddress() );
 		$rl->setAllowedCalls( 25 );
 		$rl->setTimeFrame( 900 ); //15 minutes
 		if ( $rl->check() == FALSE ) {
-			Debug::Text('Excessive document download attempts... Preventing downloads from: '. $_SERVER['REMOTE_ADDR'] .' for up to 15 minutes...', __FILE__, __LINE__, __METHOD__, 10);
+			Debug::Text('Excessive document download attempts... Preventing downloads from: '. Misc::getRemoteIPAddress() .' for up to 15 minutes...', __FILE__, __LINE__, __METHOD__, 10);
 			sleep(5); //Excessive download attempts, sleep longer.
 		} else {
 			$cplf = TTnew( 'ClientPaymentListFactory' );
@@ -209,11 +209,11 @@ switch ($object_type) {
 
 		//RateLimit failed download attempts to prevent brute force.
 		$rl = TTNew('RateLimit');
-		$rl->setID( 'user_photo_'.$_SERVER['REMOTE_ADDR'] );
+		$rl->setID( 'user_photo_'. Misc::getRemoteIPAddress() );
 		$rl->setAllowedCalls( 25 );
 		$rl->setTimeFrame( 900 ); //15 minutes
 		if ( $rl->check() == FALSE ) {
-			Debug::Text('Excessive document download attempts... Preventing downloads from: '. $_SERVER['REMOTE_ADDR'] .' for up to 15 minutes...', __FILE__, __LINE__, __METHOD__, 10);
+			Debug::Text('Excessive document download attempts... Preventing downloads from: '. Misc::getRemoteIPAddress() .' for up to 15 minutes...', __FILE__, __LINE__, __METHOD__, 10);
 			sleep(5); //Excessive download attempts, sleep longer.
 		} else {
 			if ( $permission->Check('user', 'view')
@@ -250,11 +250,11 @@ switch ($object_type) {
 
 		//RateLimit failed download attempts to prevent brute force.
 		$rl = TTNew('RateLimit');
-		$rl->setID( 'punch_image_'.$_SERVER['REMOTE_ADDR'] );
+		$rl->setID( 'punch_image_'. Misc::getRemoteIPAddress() );
 		$rl->setAllowedCalls( 25 );
 		$rl->setTimeFrame( 900 ); //15 minutes
 		if ( $rl->check() == FALSE ) {
-			Debug::Text('Excessive document download attempts... Preventing downloads from: '. $_SERVER['REMOTE_ADDR'] .' for up to 15 minutes...', __FILE__, __LINE__, __METHOD__, 10);
+			Debug::Text('Excessive document download attempts... Preventing downloads from: '. Misc::getRemoteIPAddress() .' for up to 15 minutes...', __FILE__, __LINE__, __METHOD__, 10);
 			sleep(5); //Excessive download attempts, sleep longer.
 		} else {
 			if ( $permission->Check('punch', 'view')
@@ -308,7 +308,12 @@ switch ($object_type) {
 
 //Debug::Arr($params, 'Download Params:', __FILE__, __LINE__, __METHOD__, 10);
 if ( isset($params) ) {
-	HTTP_Download::staticSend($params);
+	$retval = HTTP_Download::staticSend($params);
+	if ( $retval !== TRUE ) {
+		Debug::Arr($params, 'Download Params:', __FILE__, __LINE__, __METHOD__, 10);
+		Debug::Text('ERROR: Download Failed: '. $retval->message, __FILE__, __LINE__, __METHOD__, 10);
+		Debug::writeToLog();
+	}
 } else {
 	echo "File does not exist, unable to download!<br>\n";
 	Debug::writeToLog();

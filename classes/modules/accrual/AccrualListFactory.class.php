@@ -464,11 +464,18 @@ class AccrualListFactory extends AccrualFactory implements IteratorAggregate {
 		$apaf = new AccrualPolicyAccountFactory();
 		$udtf = new UserDateTotalFactory();
 
+		//
+		// getOrphansByUserIdAndDate() AND getOrphansByUserId() are similar, may need to modify both!
+		// Also check UserDateTotalListFactory->getAccrualOrphansByPayCodeIdAndStartDateAndEndDate()
+		//
+
 		$ph = array(
 					'user_id' => $user_id,
 					);
 
-		//Make sure we check if user_date rows are deleted where user_date_total rows are not.
+		//**IMPORTANT: This function is different than getOrphansByUserIDAndDate() as it should only be called from fix_accrual_balance
+		//and it should only return *REAL* orphans that link to UDT records that don't exist.
+		//getOrphansByUserIDAndDate() also seems to return any UDT record from an absence so it can be deleted and recreated.
 		$query = '
 					select	a.*
 					from	'. $this->getTable() .' as a
@@ -480,6 +487,8 @@ class AccrualListFactory extends AccrualFactory implements IteratorAggregate {
 						AND a.deleted = 0';
 		$query .= $this->getWhereSQL( $where );
 		$query .= $this->getSortSQL( $order );
+
+		//Debug::Arr($ph, 'Query: '. $query, __FILE__, __LINE__, __METHOD__, 10);
 
 		$this->ExecuteSQL( $query, $ph );
 
@@ -498,15 +507,26 @@ class AccrualListFactory extends AccrualFactory implements IteratorAggregate {
 		$apaf = new AccrualPolicyAccountFactory();
 		$udtf = new UserDateTotalFactory();
 
+		//
+		// getOrphansByUserIdAndDate() AND getOrphansByUserId() are similar, may need to modify both!
+		// Also check UserDateTotalListFactory->getAccrualOrphansByPayCodeIdAndStartDateAndEndDate()		
+		//
+
 		$ph = array(
 					'user_id' => $user_id,
 					//Filter the accrual rows to one day before and one day after as an optimization.
-					'date_stamp1' => $this->db->BindDate( TTDate::getBeginDayEpoch( (TTDate::getMiddleDayEpoch( $date_stamp ) - 86400) ) ),
-					'date_stamp2' => $this->db->BindDate( TTDate::getBeginDayEpoch( (TTDate::getMiddleDayEpoch( $date_stamp ) + 86400) ) ),
-					);
+					//This causes problems when only calculating one day, or the last day of the week though, it will delete
+					//accruals for the previous day and not put them back if needed.
+					//'date_stamp1' => $this->db->BindDate( TTDate::getBeginDayEpoch( (TTDate::getMiddleDayEpoch( $date_stamp ) - 86400) ) ),
+					//'date_stamp2' => $this->db->BindDate( TTDate::getBeginDayEpoch( (TTDate::getMiddleDayEpoch( $date_stamp ) + 86400) ) ),
 
-		//Make sure we check if user_date rows are deleted where user_date_total rows are not.
-		//*To help fix a early but, also consider UDT records assigned to object_type_id=50 records to be orphans. As they should only be assigned to object_type_id=25.
+					//Only handle accruals on the day we are actually going to recalculate.
+					//Since this uses time_stamps, make sure we cover the entire day (all 24hrs)
+					'date_stamp1' => $this->db->BindTimeStamp( TTDate::getBeginDayEpoch( $date_stamp )  ),
+					'date_stamp2' => $this->db->BindTimeStamp( TTDate::getEndDayEpoch( $date_stamp ) ),
+					);
+					
+		//*Also consider UDT records assigned to object_type_id=25,50 records to be orphans. As they should only be assigned to object_type_id=25,50.
 		$query = '
 					select	a.*
 					from	'. $this->getTable() .' as a
@@ -514,7 +534,7 @@ class AccrualListFactory extends AccrualFactory implements IteratorAggregate {
 					LEFT JOIN '. $apaf->getTable() .' as d ON a.accrual_policy_account_id = d.id
 					where	a.user_id = ?
 						AND ( a.time_stamp >= ? AND a.time_stamp <= ? )
-						AND ( b.id is NULL OR b.deleted = 1 OR b.object_type_id = 50 )
+						AND ( b.id is NULL OR b.deleted = 1 OR b.object_type_id in ( 25, 50 ) )
 						AND ( a.type_id = 10 OR a.type_id = 20 OR a.type_id = 76 )
 						AND a.deleted = 0';
 		$query .= $this->getWhereSQL( $where );

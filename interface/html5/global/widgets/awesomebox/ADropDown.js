@@ -85,6 +85,10 @@
 
 		var focus_in_select_grid = false;
 
+		var auto_sort = false;
+
+		var isChanged = false;
+
 		//Select all records in target grid
 		var selectAllInGrid = function( target, deSelect ) {
 			target.resetSelection();
@@ -103,17 +107,21 @@
 
 				target.parent().parent().parent().find( '.cbox-header' ).attr( 'checked', true );
 			}
-		}
+		};
 
 		Global.addCss( 'global/widgets/awesomebox/ADropDown.css' );
 
+		this.isChanged = function() {
+			return isChanged;
+		};
+
 		this.unSelectAll = function( target ) {
 			selectAllInGrid( target, true );
-		}
+		};
 
 		this.getFocusInSeletGrid = function() {
 			return focus_in_select_grid;
-		}
+		};
 
 		this.selectAll = function() {
 
@@ -123,7 +131,7 @@
 				selectAllInGrid( unselect_grid );
 			}
 
-		}
+		};
 
 		this.gridScrollTop = function() {
 
@@ -168,33 +176,33 @@
 				error_tip_box.remove();
 			}
 
-		}
+		};
 
 		this.clearErrorStyle = function() {
 			$( this ).removeClass( 'error-tip' );
 			error_string = '';
-		}
+		};
 
 		this.getField = function() {
 			return field;
-		}
+		};
 
 		// Must call after setUnSelectGridData
 		this.setValue = function( val ) {
 			this.setSelectGridData( val )
-		}
+		};
 
 		this.getValue = function() {
 			return this.getSelectItems()
-		}
+		};
 
 		this.getSelectGridSortMap = function() {
 			return select_grid_sort_map;
-		}
+		};
 
 		this.getUnSelectGridSortMap = function() {
 			return unselect_grid_sort_map;
-		}
+		};
 
 		this.getUnSelectGridMap = function() {
 
@@ -202,29 +210,16 @@
 				unselect_grid_search_map = {};
 			}
 
-			//			  var ids = [];
-			//			  if ( allow_multiple_selection ) {
-			//				  var select_items = a_dropdown_this.getSelectItems();
-			//
-			//				  if ( select_items ) {
-			//					  for ( var i = 0; i < select_items.length; i++ ) {
-			//						  ids.push( select_items[i][key] );
-			//					  }
-			//				  }
-			//			  }
-
-			//			  unselect_grid_search_map.exclude_id = ids;
-
 			return unselect_grid_search_map;
-		}
+		};
 
 		this.getUnSelectGrid = function() {
 			return unselect_grid;
-		}
+		};
 
 		this.getSelectGrid = function() {
 			return select_grid;
-		}
+		};
 
 		this.getSelectGridMap = function() {
 
@@ -248,7 +243,7 @@
 			}
 
 			return select_grid_search_map;
-		}
+		};
 
 		this.collectUnselectGridColumns = function() {
 			var columns = unselect_grid.getGridParam( 'colModel' );
@@ -293,7 +288,7 @@
 				parent_a_combo_box.onADropDownSearch( 'unselect_grid' );
 
 			}
-		}
+		};
 
 		this.buildSortCondition = function( reset, field, targetName ) {
 
@@ -381,95 +376,95 @@
 				select_grid_sort_map = sort_map;
 			}
 
-		},
+		};
 
-			this.setGridHeaderStyle = function( targetName ) {
+		this.setGridHeaderStyle = function( targetName ) {
 
-				var headerArray = [];
-				var sort_map = [];
+			var headerArray = [];
+			var sort_map = [];
 
-				if ( targetName === 'unselect_grid' ) {
-					headerArray = unselect_grid_header_array;
-					sort_map = unselect_grid_sort_map;
-				} else {
-					headerArray = select_grid_header_array;
-					sort_map = select_grid_sort_map;
-				}
+			if ( targetName === 'unselect_grid' ) {
+				headerArray = unselect_grid_header_array;
+				sort_map = unselect_grid_sort_map;
+			} else {
+				headerArray = select_grid_header_array;
+				sort_map = select_grid_sort_map;
+			}
 
-				var len = headerArray.length;
+			var len = headerArray.length;
 
-				for ( var i = 0; i < len; i++ ) {
-					var tGridHeader = headerArray[i];
-					var field = tGridHeader.getColumnModel().name;
+			for ( var i = 0; i < len; i++ ) {
+				var tGridHeader = headerArray[i];
+				var field = tGridHeader.getColumnModel().name;
 
-					tGridHeader.cleanSortStyle();
+				tGridHeader.cleanSortStyle();
 
-					if ( sort_map ) {
-						var sortArrayLen = sort_map.length;
+				if ( sort_map ) {
+					var sortArrayLen = sort_map.length;
 
-						for ( var j = 0; j < sortArrayLen; j++ ) {
-							var sortItem = sort_map[j];
-							var sortField = Global.getFirstKeyFromObject( sortItem );
-							if ( sortField === field ) {
+					for ( var j = 0; j < sortArrayLen; j++ ) {
+						var sortItem = sort_map[j];
+						var sortField = Global.getFirstKeyFromObject( sortItem );
+						if ( sortField === field ) {
 
-								if ( sortArrayLen > 1 ) {
-									tGridHeader.setSortStyle( sortItem[sortField], j + 1 );
-								} else {
-									tGridHeader.setSortStyle( sortItem[sortField], 0 );
-								}
-
+							if ( sortArrayLen > 1 ) {
+								tGridHeader.setSortStyle( sortItem[sortField], j + 1 );
+							} else {
+								tGridHeader.setSortStyle( sortItem[sortField], 0 );
 							}
 
 						}
-					}
-
-				}
-
-			},
-
-			this.collectSelectGridColumns = function() {
-				var columns = select_grid.getGridParam( 'colModel' );
-
-				var len = columns.length;
-
-				select_grid_header_array = [];
-
-				for ( var i = 0; i < len; i++ ) {
-					var column_info = columns[i];
-					var column_header = $( this ).find( 'div #jqgh_select_grid_' + id + '_' + column_info.name );
-
-					select_grid_header_array.push( column_header.TGridHeader( {column_model: column_info} ) );
-
-					column_header.bind( 'headerClick', onSelectColumnHeaderClick );
-
-				}
-				a_dropdown_this.setGridHeaderStyle( 'select_grid' );
-
-				function onSelectColumnHeaderClick( e, headerE, column_model ) {
-
-					if ( !parent_a_combo_box || !parent_a_combo_box.getAPI() ) {
-						return;
-					}
-
-					var field = column_model.name;
-
-					if ( field === 'cb' ) { //first column, check box column.
-						return;
-					}
-
-					if ( headerE.metaKey || headerE.ctrlKey ) {
-						a_dropdown_this.buildSortCondition( false, field, 'select_grid' );
-					} else {
-						a_dropdown_this.buildSortCondition( true, field, 'select_grid' );
 
 					}
-					parent_a_combo_box.setCachedSelectedGridSortFilter( select_grid_sort_map );
-					a_dropdown_this.setGridHeaderStyle( 'select_grid' );
-					parent_a_combo_box.onADropDownSearch( 'select_grid' );
-
 				}
 
 			}
+
+		};
+
+		this.collectSelectGridColumns = function() {
+			var columns = select_grid.getGridParam( 'colModel' );
+
+			var len = columns.length;
+
+			select_grid_header_array = [];
+
+			for ( var i = 0; i < len; i++ ) {
+				var column_info = columns[i];
+				var column_header = $( this ).find( 'div #jqgh_select_grid_' + id + '_' + column_info.name );
+
+				select_grid_header_array.push( column_header.TGridHeader( {column_model: column_info} ) );
+
+				column_header.bind( 'headerClick', onSelectColumnHeaderClick );
+
+			}
+			a_dropdown_this.setGridHeaderStyle( 'select_grid' );
+
+			function onSelectColumnHeaderClick( e, headerE, column_model ) {
+
+				if ( !parent_a_combo_box || !parent_a_combo_box.getAPI() ) {
+					return;
+				}
+
+				var field = column_model.name;
+
+				if ( field === 'cb' ) { //first column, check box column.
+					return;
+				}
+
+				if ( headerE.metaKey || headerE.ctrlKey ) {
+					a_dropdown_this.buildSortCondition( false, field, 'select_grid' );
+				} else {
+					a_dropdown_this.buildSortCondition( true, field, 'select_grid' );
+
+				}
+				parent_a_combo_box.setCachedSelectedGridSortFilter( select_grid_sort_map );
+				a_dropdown_this.setGridHeaderStyle( 'select_grid' );
+				parent_a_combo_box.onADropDownSearch( 'select_grid' );
+
+			}
+
+		};
 
 		//HightLight select item in UnSelect grid when !allow_multiple_selection
 		this.setSelectItem = function( val, target_grid ) {
@@ -506,11 +501,11 @@
 
 		this.getUnSelectGridData = function() {
 			return unselect_grid.getGridParam( 'data' );
-		}
+		};
 
 		this.getSelectItem = function() {
 			return select_item;
-		}
+		};
 
 		this.getSelectItems = function() {
 
@@ -536,11 +531,11 @@
 
 		this.getAllowMultipleSelection = function() {
 			return allow_multiple_selection;
-		}
+		};
 
 		this.getTreeMode = function() {
 			return tree_mode;
-		}
+		};
 
 		//Must Set this after set Columns
 		this.setUnselectedGridData = function( val ) {
@@ -648,9 +643,9 @@
 
 		this.getPagerData = function() {
 			return pager_data;
-		}
+		};
 
-		//Alwasy setPager data no matter static options or api.
+		//Always setPager data no matter static options or api.
 		this.setPagerData = function( value ) {
 
 			pager_data = value;
@@ -705,7 +700,7 @@
 			}
 
 			a_dropdown_this.setTotalDisplaySpan();
-		}
+		};
 
 		this.onPaging = function() {
 			parent_a_combo_box.onADropDownSearch( 'unselect_grid', 'next' );
@@ -746,6 +741,7 @@
 							$.each( source_data, function( index, content ) {
 								if ( content[key] === id ) {
 									select_item = content;
+									isChanged = true;
 									a_dropdown_this.trigger( 'close', [a_dropdown_this] );
 									return;
 								}
@@ -770,7 +766,7 @@
 					}
 				}
 			} );
-		}
+		};
 
 		this.setGridsHeight = function() {
 			//Calculate the max possible size of awesomebox.
@@ -806,7 +802,7 @@
 
 			this.setPosition( top_offset, new_height );
 
-		}
+		};
 
 		this.setPosition = function( top_offset, new_height ) {
 
@@ -821,7 +817,7 @@
 				}
 
 			}
-		}
+		};
 
 		//Do this before set data
 		this.setColumns = function( val ) {
@@ -892,12 +888,14 @@
 									if ( key !== 'id' ) {
 										if ( content['id'] === id ) {
 											select_item = content;
+											isChanged = true;
 											a_dropdown_this.trigger( 'close', [a_dropdown_this] );
 											return false;
 										}
 									} else {
 										if ( content[key] === id ) {
 											select_item = content;
+											isChanged = true;
 											a_dropdown_this.trigger( 'close', [a_dropdown_this] );
 											return false;
 										}
@@ -1004,7 +1002,7 @@
 				this.buildSelectSearchInputs(); //Build search input above columns
 			}
 
-		}
+		};
 
 		this.buildSelectSearchInputs = function() {
 			var len = select_grid_header_array.length;
@@ -1076,7 +1074,7 @@
 				}
 
 			} );
-		}
+		};
 
 		this.resizeUnSelectSearchInputs = function() {
 			var search_div = $( this ).find( '.unselect-grid-search-div' );
@@ -1089,7 +1087,7 @@
 			var header;
 			var search_input;
 			if ( allow_multiple_selection ) {
-				first_column_width = unselect_grid_header_array[0].width();
+				first_column_width = unselect_grid_header_array[0].width() + 5;
 
 				for ( var i = 0; i < len; i++ ) {
 					header = unselect_grid_header_array[i + 1];
@@ -1119,7 +1117,7 @@
 			unselect_grid.parent().parent().css( 'width', unselect_grid.width() + 18 );
 			unselect_grid_search_div.css( 'width', unselect_grid.width() + 15 );
 
-		}
+		};
 
 		this.resizeSelectSearchInputs = function() {
 			var search_div = $( this ).find( '.select-grid-search-div' );
@@ -1130,7 +1128,7 @@
 
 			var len = search_inputs.length;
 
-			first_column_width = select_grid_header_array[0].width();
+			first_column_width = select_grid_header_array[0].width() + 5;
 			for ( var i = 0; i < len; i++ ) {
 				var header = select_grid_header_array[i + 1];
 				var search_input = $( search_inputs[i] );
@@ -1150,7 +1148,7 @@
 			select_grid.parent().parent().css( 'width', select_grid.width() + 18 );
 			select_grid_search_div.css( 'width', select_grid.width() + 15 );
 
-		}
+		};
 
 		this.buildUnSelectSearchInputs = function() {
 			var len = unselect_grid_header_array.length;
@@ -1219,12 +1217,12 @@
 
 			} );
 
-		}
+		};
 
 		//Set select item when not allow multiple selection
 		setSelectItem = function( val ) {
 			select_item = val;
-		}
+		};
 
 		//Search Reesult in select grid. it's not effect the selectitems when getSelectItems
 		this.setSelectGridSearchResult = function( val ) {
@@ -1235,57 +1233,92 @@
 			select_grid.clearGridData();
 			select_grid.setGridParam( {data: val} );
 			select_grid.trigger( 'reloadGrid' );
-		}
+		};
 
 		//Must Set this after setUnselectedGridData for now
 		//Remove select items form allColumn array
 		this.setSelectGridData = function( val, searchResult ) {
-
 			if ( parent_a_combo_box && parent_a_combo_box.getAPI() ) {
 				val = Global.formatGridData( val, parent_a_combo_box.getAPI().key_name );
 			}
-
 			if ( Object.prototype.toString.call( static_source_data ) !== '[object Array]' || static_source_data.length < 1 ) {
 				static_source_data = [];
 			}
-
 			//Uncaught TypeError: Cannot read property 'length' of undefined
 			if ( !val ) {
 				val = [];
 			}
-
 			var all_columns = static_source_data.slice(); //Copy from Static data
+			var i;
+			var j;
+			var select_item;
+			var tmp_select_items;
+			var all_columns_len;
 			if ( all_columns && all_columns.length > 0 ) {
 				var selectItemLen = val.length;
-				for ( var i = 0; i < selectItemLen; i++ ) {
-					var select_item = val[i];
-					if ( !Global.isSet( select_item[key] ) ) {
-						select_item = [];
-						select_item[key] = val[i];
-						if ( !Global.isSet( tmp_select_items ) ) {
-							var tmp_select_items = [];
+				if ( !auto_sort ) {
+
+					for ( i = 0; i < selectItemLen; i++ ) {
+						select_item = val[i];
+						if ( !Global.isSet( select_item[key] ) ) {
+							select_item = [];
+							select_item[key] = val[i];
+							if ( !Global.isSet( tmp_select_items ) ) {
+								tmp_select_items = [];
+							}
+						}
+						all_columns_len = all_columns.length;
+						for ( j = 0; j < all_columns_len; j++ ) {
+							var fromAllColumn = all_columns[j];
+							if ( fromAllColumn[key] == select_item[key] ) {
+								//saved search select items may don't have ids if it's saved from flex, so set it back
+								if ( !select_item.hasOwnProperty( 'id' ) && fromAllColumn.hasOwnProperty( 'id' ) ) {
+									select_item.id = fromAllColumn.id;
+								}
+								if ( Global.isSet( tmp_select_items ) ) {
+									tmp_select_items.push( fromAllColumn );
+								}
+								if ( !tree_mode ) {
+									all_columns.splice( j, 1 );
+								}
+								break;
+							}
 						}
 					}
-					for ( var j = 0; j < all_columns.length; j++ ) {
-						var fromAllColumn = all_columns[j];
-						// we have both string case and number case. sometimes number will be 'xx'. So use == make sure all match
-						if ( fromAllColumn[key] == select_item[key] ) {
 
-							//saved search select items may don't have ids if it's saved from flex, so set it back
-							if ( !select_item.hasOwnProperty( 'id' ) && fromAllColumn.hasOwnProperty( 'id' ) ) {
-								select_item.id = fromAllColumn.id;
+				} else {
+					all_columns_len = all_columns.length;
+					for ( j = 0; j < all_columns_len; j++ ) {
+						fromAllColumn = all_columns[j];
+						for ( i = 0; i < selectItemLen; i++ ) {
+							select_item = val[i];
+							if ( !Global.isSet( select_item[key] ) ) {
+								select_item = [];
+								select_item[key] = val[i];
+								if ( !Global.isSet( tmp_select_items ) ) {
+									tmp_select_items = [];
+								}
 							}
-
-							if ( Global.isSet( tmp_select_items ) ) {
-								tmp_select_items.push( fromAllColumn );
+							// we have both string case and number case. sometimes number will be 'xx'. So use == make sure all match
+							if ( fromAllColumn[key] == select_item[key] ) {
+								//saved search select items may don't have ids if it's saved from flex, so set it back
+								if ( !select_item.hasOwnProperty( 'id' ) && fromAllColumn.hasOwnProperty( 'id' ) ) {
+									select_item.id = fromAllColumn.id;
+								}
+								if ( Global.isSet( tmp_select_items ) ) {
+									tmp_select_items.push( fromAllColumn );
+								}
+								if ( !tree_mode ) {
+									all_columns.splice( j, 1 );
+									all_columns_len = all_columns_len - 1;
+									j = j - 1;
+								}
+								break;
 							}
-							if ( !tree_mode ) {
-								all_columns.splice( j, 1 );
-							}
-							break;
 						}
 					}
 				}
+
 			}
 			// for all static options, that don't need get reald data, the length should always be match, use temp array because val don't
 			//contains full info.
@@ -1301,7 +1334,6 @@
 				select_grid.setGridParam( {data: val} );
 				select_grid.trigger( 'reloadGrid' );
 			}
-
 			if ( !tree_mode ) {
 				unselect_grid.clearGridData();
 				unselect_grid.setGridParam( {data: all_columns} );
@@ -1310,7 +1342,6 @@
 			} else {
 				a_dropdown_this.reSetUnSelectGridTreeData( all_columns );
 			}
-
 			a_dropdown_this.setSelectGridDragAble();
 			a_dropdown_this.setUnSelectGridDragAble();
 			a_dropdown_this.setGridColumnsWidth( select_grid );
@@ -1370,7 +1401,7 @@
 				}
 
 			}
-		}
+		};
 
 		this.setSelectGridHighlight = function( array ) {
 			select_grid.resetSelection();
@@ -1378,7 +1409,7 @@
 				select_grid.jqGrid( 'setSelection', content, false );
 			} );
 
-		}
+		};
 
 		this.setUnSelectGridDragAble = function() {
 
@@ -1455,7 +1486,7 @@
 				}
 			} );
 
-		}
+		};
 
 		//Start Drag
 		this.setSelectGridDragAble = function() {
@@ -1720,7 +1751,7 @@
 				}
 
 			} );
-		}
+		};
 
 		this.setTotalDisplaySpan = function() {
 
@@ -1828,12 +1859,12 @@
 				total_display_span.text( $.i18n._( 'Displaying' ) + ' ' + totalInfo );
 			}
 
-		}
+		};
 
 		this.onUnSelectGridSelectRow = function() {
 
 			this.setTotalDisplaySpan();
-		}
+		};
 
 		this.onUnSelectGridDoubleClick = function() {
 
@@ -1848,7 +1879,7 @@
 				a_dropdown_this.moveItems( true, [selectRow] );
 			}
 
-		}
+		};
 
 		this.onSelectGridDoubleClick = function() {
 
@@ -1859,12 +1890,13 @@
 				a_dropdown_this.moveItems( false, grid_selected_id_array );
 			}
 
-		}
+		};
 
 		//Move items between 2 grids
 		this.moveItems = function( left_to_right, array, index, target_row_id ) {
 			var added_items = [];
 			var removed_items = [];
+			isChanged = true;
 
 			var moved_items_array = array.slice();
 
@@ -1979,12 +2011,14 @@
 
 			a_dropdown_this.setSelectGridDragAble();
 			a_dropdown_this.setUnSelectGridDragAble();
-
 			a_dropdown_this.updateRealSelectItemsIfNecessary( left_to_right, moved_items_array );
-
 			a_dropdown_this.setTotalDisplaySpan();
 
-		}
+			if ( !parent_a_combo_box ) {
+				a_dropdown_this.trigger( 'formItemChange', [a_dropdown_this] );
+			}
+
+		};
 
 		this.updateRealSelectItemsIfNecessary = function( left_to_right, moved_items ) {
 			if ( !real_selected_items ) {
@@ -2012,14 +2046,14 @@
 				} )
 			}
 
-		}
+		};
 
 		this.setHeight = function( height ) {
 			unselect_grid.setGridHeight( height );
 			if ( allow_multiple_selection ) {
 				select_grid.setGridHeight( height );
 			}
-		}
+		};
 
 		var setLabels = function() {
 			var unselected_items_label = a_dropdown_this.find( '#unSelectedItemsLabel' );
@@ -2045,7 +2079,7 @@
 			select_all_btn.text( $.i18n._( 'Select All' ) );
 			clear_btn.text( $.i18n._( 'Clear' ) );
 
-		}
+		};
 
 		//For multiple items like .xxx could contains a few widgets.
 		this.each( function() {
@@ -2076,6 +2110,10 @@
 				select_grid_sort_map = o.default_select_grid_sort_filter;
 			}
 
+			if ( o.auto_sort ) {
+				auto_sort = o.auto_sort;
+			}
+
 			//Init paging widget
 
 			left_buttons_div = $( this ).find( '.left-buttons-div' );
@@ -2086,11 +2124,11 @@
 			next = $( this ).find( '.next' );
 			end = $( this ).find( '.end' );
 
-			start.text( 'Start' );
-			last.text( 'Previous' );
+			start.text( $.i18n._( 'Start' ) );
+			last.text( $.i18n._( 'Previous' ) );
 
-			next.text( 'Next' );
-			end.text( 'End' );
+			next.text( $.i18n._( 'Next' ) );
+			end.text( $.i18n._( 'End' ) );
 
 			start.click( function() {
 				if ( left_buttons_enable ) {
@@ -2411,7 +2449,7 @@
 
 			//Move all records from target grid to another
 			function cleanAllInGrid( target, left_to_right ) {
-
+				isChanged = true;
 				var finalArray = [];
 				if ( left_to_right ) {
 					var source_grid = unselect_grid;
@@ -2424,17 +2462,16 @@
 					source_data = select_grid.getGridParam( 'data' );
 					target_data = unselect_grid.getGridParam( 'data' );
 				}
-
 				finalArray = target_data.concat( source_data );
-
 				target_grid.clearGridData();
 				target_grid.setGridParam( {data: finalArray} );
 				target_grid.trigger( 'reloadGrid' );
-
 				source_grid.clearGridData();
 				source_grid.trigger( 'reloadGrid' );
-
 				a_dropdown_this.setTotalDisplaySpan();
+				if ( !parent_a_combo_box ) {
+					a_dropdown_this.trigger( 'formItemChange', [a_dropdown_this] );
+				}
 
 			}
 
@@ -2446,5 +2483,4 @@
 
 	$.fn.ADropDown.defaults = {};
 
-})
-( jQuery );
+})( jQuery );

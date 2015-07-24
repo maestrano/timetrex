@@ -197,6 +197,10 @@ class APIAccrualPolicyMilestone extends APIFactory {
 
 					$lf->setObjectFromArray( $row );
 
+					if ( $validate_only == TRUE ) {
+						$lf->validate_only = TRUE;
+					}
+
 					$is_valid = $lf->isValid();
 					if ( $is_valid == TRUE ) {
 						Debug::Text('Saving data...', __FILE__, __LINE__, __METHOD__, 10);

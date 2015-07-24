@@ -57,8 +57,8 @@ if ( ini_get('max_execution_time') < 1800 ) {
 //Check: http://ca3.php.net/manual/en/security.magicquotes.php#61188 for disabling magic_quotes_gpc
 ini_set( 'magic_quotes_runtime', 0 );
 
-define('APPLICATION_VERSION', '8.0.1' );
-define('APPLICATION_VERSION_DATE', @strtotime('14-Feb-2015') ); // Release date of version.
+define('APPLICATION_VERSION', '8.0.9' );
+define('APPLICATION_VERSION_DATE', @strtotime('10-Jul-2015') ); // Release date of version.
 
 if ( strtoupper( substr(PHP_OS, 0, 3) ) == 'WIN' ) { define('OPERATING_SYSTEM', 'WIN' ); } else { define('OPERATING_SYSTEM', 'LINUX' ); }
 
@@ -434,9 +434,13 @@ if ( PHP_SAPI != 'cli' AND isset($config_vars['other']['request_metrics_log']) A
 }
 set_error_handler( array('Debug','ErrorHandler') );
 
-if ( isset($_SERVER['REQUEST_URI']) AND isset($_SERVER['REMOTE_ADDR']) ) {
-	Debug::Text('URI: '. $_SERVER['REQUEST_URI'] .' IP Address: '. $_SERVER['REMOTE_ADDR'], __FILE__, __LINE__, __METHOD__, 10);
+if ( isset($_SERVER['REQUEST_URI']) ) {
+	Debug::Text('URI: '. $_SERVER['REQUEST_URI'] .' IP Address: '. Misc::getRemoteIPAddress(), __FILE__, __LINE__, __METHOD__, 10);
 }
+if ( isset($_SERVER['HTTP_USER_AGENT']) ) {
+	Debug::Text('USER-AGENT: '. $_SERVER['HTTP_USER_AGENT'], __FILE__, __LINE__, __METHOD__, 10);
+}
+
 //Supress PHP errors on this, mainly if $config_vars['database'] is not set.
 @Debug::Text('Version: '. APPLICATION_VERSION .' Edition: '. getTTProductEdition() .' Production: '. (int)PRODUCTION .' Database: Type: '. $config_vars['database']['type']  .' Name: '. $config_vars['database']['database_name'] .' Config: '. CONFIG_FILE .' Demo Mode: '. (int)DEMO_MODE, __FILE__, __LINE__, __METHOD__, 10);
 

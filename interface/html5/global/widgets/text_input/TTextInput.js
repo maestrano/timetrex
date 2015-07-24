@@ -98,8 +98,8 @@
 
 		this.isChecked = function() {
 			if ( check_box ) {
-				if ( check_box.attr( 'checked' ) ) {
-					return true
+				if ( check_box.attr( 'checked' ) || check_box[0].checked === true ) {
+					return true;
 				}
 			}
 

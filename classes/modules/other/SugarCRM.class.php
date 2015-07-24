@@ -55,6 +55,8 @@ class SugarCRM {
 											'uri' => 'urn:http://www.sugarcrm.com/sugarcrm',
 											'style' => SOAP_RPC,
 											'use' => SOAP_ENCODED,
+											'connection_timeout' => 5,
+											'keep_alive' => FALSE, //This prevents "Error fetching HTTP headers" SOAP error.
 											'trace' => 1,
 											'exceptions' => 0
 											)
@@ -93,7 +95,7 @@ class SugarCRM {
 								'password' => md5($password),
 								'version' => '0.1'
 						);
-		$result = $this->getSoapObject()->login($user_auth);
+		$result = $this->getSoapObject()->login($user_auth, 'timetrex' );
 
 		//echo "Request :\n".htmlspecialchars($this->getSoapObject()->__getLastRequest()) ."\n";
 		//echo "Response :\n".htmlspecialchars($this->getSoapObject()->__getLastResponse()) ."\n";
@@ -131,28 +133,10 @@ class SugarCRM {
 				break;
 			case 'email':
 				//This query can take around 1 second to run.
-				$query = "leads.lead_source = 'Web Site' AND leads.assigned_user_id != 1 AND leads.id in (
-								SELECT eabr.bean_id
-								FROM email_addr_bean_rel eabr
-								LEFT JOIN email_addresses ea ON eabr.email_address_id = ea.id
-								WHERE eabr.bean_module = 'Leads'
-								AND ea.email_address = '".$search_value."'
-								AND ( eabr.deleted = 0 AND ea.deleted = 0 )
-							)
-						";
+				$query = "leads.lead_source = 'Web Site' AND leads.assigned_user_id != 1 AND leads.id in ( SELECT eabr.bean_id FROM email_addr_bean_rel eabr LEFT JOIN email_addresses ea ON eabr.email_address_id = ea.id WHERE eabr.bean_module = 'Leads' AND ea.email_address = '".$search_value."' AND ( eabr.deleted = 0 AND ea.deleted = 0 ) )";
 				break;
 			case 'any_phone':
-				$query = "(
-						replace(replace(replace(replace(replace(leads.phone_work, ' ', ''), '.', ''), '-', ''), '(', ''), ')', '') = '". $search_value ."'
-						OR
-						replace(replace(replace(replace(replace(leads.phone_mobile, ' ', ''), '.', ''), '-', ''), '(', ''), ')', '') = '". $search_value ."'
-						OR
-						replace(replace(replace(replace(replace(leads.phone_home, ' ', ''), '.', ''), '-', ''), '(', ''), ')', '') = '". $search_value ."'
-						OR
-						replace(replace(replace(replace(replace(leads.phone_other, ' ', ''), '.', ''), '-', ''), '(', ''), ')', '') = '". $search_value ."'
-						OR
-						replace(replace(replace(replace(replace(leads.phone_fax, ' ', ''), '.', ''), '-', ''), '(', ''), ')', '') = '". $search_value ."'
-						)";
+				$query = "( replace(replace(replace(replace(replace(leads.phone_work, ' ', ''), '.', ''), '-', ''), '(', ''), ')', '') = '". $search_value ."' OR replace(replace(replace(replace(replace(leads.phone_mobile, ' ', ''), '.', ''), '-', ''), '(', ''), ')', '') = '". $search_value ."' OR replace(replace(replace(replace(replace(leads.phone_home, ' ', ''), '.', ''), '-', ''), '(', ''), ')', '') = '". $search_value ."' OR replace(replace(replace(replace(replace(leads.phone_other, ' ', ''), '.', ''), '-', ''), '(', ''), ')', '') = '". $search_value ."' OR replace(replace(replace(replace(replace(leads.phone_fax, ' ', ''), '.', ''), '-', ''), '(', ''), ')', '') = '". $search_value ."' )";
 				break;
 			case 'status':
 				$query = "( leads.status LIKE '". $search_value ."' )";
@@ -160,7 +144,7 @@ class SugarCRM {
 		}
 
 		// get_entry_list($session, $module_name, $query, $order_by, $offset, $select_fields, $max_results, $deleted ) {
-		$result = $this->getSoapObject()->get_entry_list( $this->session_id, 'Leads', $query, '', 0, $select_fields, $limit );
+		$result = $this->getSoapObject()->get_entry_list( $this->session_id, 'Leads', $query, '', 0, $select_fields, $limit, FALSE );
 		//Debug::Arr($result, 'bSOAP Result Array: ', __FILE__, __LINE__, __METHOD__, 10);
 
 		//return $result;
@@ -172,28 +156,10 @@ class SugarCRM {
 		switch( $search_field ) {
 			case 'email':
 				//This query can take around 1 second to run.
-				$query = "contacts.assigned_user_id != 1 AND contacts.id in (
-								SELECT eabr.bean_id
-								FROM email_addr_bean_rel eabr
-								LEFT JOIN email_addresses ea ON eabr.email_address_id = ea.id
-								WHERE eabr.bean_module = 'contacts'
-								AND ea.email_address = '".$search_value."'
-								AND ( eabr.deleted = 0 AND ea.deleted = 0 )
-							)
-						";
+				$query = "contacts.assigned_user_id != 1 AND contacts.id in ( SELECT eabr.bean_id FROM email_addr_bean_rel eabr LEFT JOIN email_addresses ea ON eabr.email_address_id = ea.id WHERE eabr.bean_module = 'contacts' AND ea.email_address = '".$search_value."' AND ( eabr.deleted = 0 AND ea.deleted = 0 ) )";
 				break;
 			case 'any_phone':
-				$query = "(
-						replace(replace(replace(replace(replace(contacts.phone_work, ' ', ''), '.', ''), '-', ''), '(', ''), ')', '') = '". $search_value ."'
-						OR
-						replace(replace(replace(replace(replace(contacts.phone_mobile, ' ', ''), '.', ''), '-', ''), '(', ''), ')', '') = '". $search_value ."'
-						OR
-						replace(replace(replace(replace(replace(contacts.phone_home, ' ', ''), '.', ''), '-', ''), '(', ''), ')', '') = '". $search_value ."'
-						OR
-						replace(replace(replace(replace(replace(contacts.phone_other, ' ', ''), '.', ''), '-', ''), '(', ''), ')', '') = '". $search_value ."'
-						OR
-						replace(replace(replace(replace(replace(contacts.phone_fax, ' ', ''), '.', ''), '-', ''), '(', ''), ')', '') = '". $search_value ."'
-						)";
+				$query = "( replace(replace(replace(replace(replace(contacts.phone_work, ' ', ''), '.', ''), '-', ''), '(', ''), ')', '') = '". $search_value ."' OR replace(replace(replace(replace(replace(contacts.phone_mobile, ' ', ''), '.', ''), '-', ''), '(', ''), ')', '') = '". $search_value ."' OR replace(replace(replace(replace(replace(contacts.phone_home, ' ', ''), '.', ''), '-', ''), '(', ''), ')', '') = '". $search_value ."' OR replace(replace(replace(replace(replace(contacts.phone_other, ' ', ''), '.', ''), '-', ''), '(', ''), ')', '') = '". $search_value ."' OR replace(replace(replace(replace(replace(contacts.phone_fax, ' ', ''), '.', ''), '-', ''), '(', ''), ')', '') = '". $search_value ."' )";
 				break;
 			case 'status':
 				$query = "( contacts.status LIKE '". $search_value ."' )";
@@ -213,12 +179,7 @@ class SugarCRM {
 
 		switch( $search_field ) {
 			case 'lead_id':
-				$query = "emails.id in (
-						SELECT email_id
-						FROM emails_beans
-						WHERE bean_module = 'Leads'
-						AND bean_id = '". $search_value ."'
-						)";
+				$query = "emails.id in ( SELECT email_id FROM emails_beans WHERE bean_module = 'Leads' AND bean_id = '". $search_value ."' )";
 				break;
 		}
 
@@ -236,12 +197,7 @@ class SugarCRM {
 				$query = "calls.id = '". $search_value ."'";
 				break;
 			case 'lead_id':
-				$query = "calls.id in (
-						SELECT call_id
-						FROM calls_leads
-						WHERE lead_id = '". $search_value ."'
-						)";
-
+				$query = "calls.id in ( SELECT call_id FROM calls_leads WHERE lead_id = '". $search_value ."' )";
 				break;
 		}
 

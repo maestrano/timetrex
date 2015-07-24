@@ -197,6 +197,20 @@ class CalculatePayStub extends PayStubFactory {
 		}
 	}
 
+	function getDeductionObjectSortValue( $type_order, $calculation_order, $id ) {
+		if ( PHP_INT_MAX == 2147483647 ) {
+			//32bit, can't handle using $id fields as well as it will exceed the largest int value.
+			//This can't exceed 9 digits in total.
+			$retval = (int)($type_order . str_pad( $calculation_order, 5, 0, STR_PAD_LEFT) . str_pad( substr( $id, -2), 2, 0, STR_PAD_LEFT));
+		} else {
+			//This can't exceed 9223372036854775807 (19 digits)
+			$retval = (int)($type_order . str_pad( $calculation_order, 5, 0, STR_PAD_LEFT) . str_pad( substr( $id, -10), 10, 0, STR_PAD_LEFT));
+		}
+		//Debug::text('Type Order: '. $type_order .' Calculation Order: '. $calculation_order .' Deduction Object Sort Value: '. $retval .' INT Max: '. PHP_INT_MAX, __FILE__, __LINE__, __METHOD__, 10);
+
+		return $retval;
+	}
+
 	function getDeductionObjectArrayForSorting( $obj ) {
 		$type_map_arr = $this->getPayStubEntryAccountsTypeArray();
 		//Debug::Arr($type_map_arr, 'PS Account Type Map Array: ', __FILE__, __LINE__, __METHOD__, 10);
@@ -222,15 +236,14 @@ class CalculatePayStub extends PayStubFactory {
 			$arr['id'] = substr($arr['type'], 0, 1).$obj->getId();
 			$arr['name'] = $obj->getCompanyDeductionObject()->getName();
 			//Need more than just TypeCalculationOrder to prevent Federal/Prov income tax from being calculated BEFORE CPP/EI.
-			//$arr['order'] = $obj->getCompanyDeductionObject()->getPayStubEntryAccountObject()->getTypeCalculationOrder();
-			$arr['order'] = $obj->getCompanyDeductionObject()->getPayStubEntryAccountObject()->getTypeCalculationOrder() . str_pad( $obj->getCompanyDeductionObject()->getCalculationOrder(), 5, 0, STR_PAD_LEFT);
+			//Include the ID at the end of order value so we can keep consistent orders primarily for unit tests or as a tie breaker.
+			$arr['order'] = $this->getDeductionObjectSortValue( $obj->getCompanyDeductionObject()->getPayStubEntryAccountObject()->getTypeCalculationOrder(), $obj->getCompanyDeductionObject()->getCalculationOrder(), $obj->getCompanyDeductionObject()->getID() );
 
 			//If we put TypeCalculationOrder at the beginning, it trumps the specific calculation order itself when dealing with calculations
 			//that require different types or cirucular depedencies that require/provide different types, (ie: ER-DED that requires earnings, and an earnings that requires ER-Ded, for scratch calculations)
 			//So put TypeCalculation order at the end. However this breaks existing tax calculations as it relies too much on the calculation order specified manually.
 			//FIXME: Will need to come up with another situation that can trigger this another way. Perhaps
 			//		 when calculation orders exceed 5 digits it can squeeze out the TypeCalculationOrder?
-			//$arr['order'] = '1' . str_pad( $obj->getCompanyDeductionObject()->getCalculationOrder(), 5, 0, STR_PAD_LEFT) . $obj->getCompanyDeductionObject()->getPayStubEntryAccountObject()->getTypeCalculationOrder();
 			$arr['obj'] = $obj;
 			$arr['require_accounts'] = array();
 
@@ -270,10 +283,8 @@ class CalculatePayStub extends PayStubFactory {
 			$arr['obj_id'] = $obj->getId();
 			$arr['id'] = substr($arr['type'], 0, 1).$obj->getId();
 			$arr['name'] = $obj->getDescription();
-			$arr['order'] = $obj->getPayStubEntryNameObject()->getTypeCalculationOrder() . str_pad( $obj->getPayStubEntryNameObject()->getOrder(), 5, 0, STR_PAD_LEFT);
-			//$arr['order'] = '1' . str_pad( $obj->getPayStubEntryNameObject()->getOrder(), 5, 0, STR_PAD_LEFT) . $obj->getPayStubEntryNameObject()->getTypeCalculationOrder();
+			$arr['order'] = $this->getDeductionObjectSortValue( $obj->getPayStubEntryNameObject()->getTypeCalculationOrder(), $obj->getPayStubEntryNameObject()->getOrder(), $obj->getID() );
 			$arr['obj'] = $obj;
-
 			$arr['affect_accounts'] = $obj->getPayStubEntryNameId();
 
 			if ( $obj->getType() == 10 ) { //Fixed
@@ -288,10 +299,8 @@ class CalculatePayStub extends PayStubFactory {
 			$arr['obj_id'] = $obj->getId();
 			$arr['id'] = 'E'.$obj->getId();
 			$arr['name'] = '';
-			$arr['order'] = $obj->getExpensePolicyObject()->getPayStubEntryNameObject()->getTypeCalculationOrder() . str_pad( $obj->getExpensePolicyObject()->getPayStubEntryNameObject()->getOrder(), 5, 0, STR_PAD_LEFT);
-			//$arr['order'] = '1' . str_pad( $obj->getExpensePolicyObject()->getPayStubEntryNameObject()->getOrder(), 5, 0, STR_PAD_LEFT) . $obj->getExpensePolicyObject()->getPayStubEntryNameObject()->getTypeCalculationOrder();
+			$arr['order'] = $this->getDeductionObjectSortValue( $obj->getExpensePolicyObject()->getPayStubEntryNameObject()->getTypeCalculationOrder(), $obj->getExpensePolicyObject()->getPayStubEntryNameObject()->getOrder(), $obj->getID() );
 			$arr['obj'] = $obj;
-
 			$arr['affect_accounts'] = $obj->getExpensePolicyObject()->getPayStubEntryAccount();
 			$arr['require_accounts'][] = NULL;
 
@@ -564,15 +573,7 @@ class CalculatePayStub extends PayStubFactory {
 						$amount = $psa_obj->getCalculatedAmount( $pay_stub );
 						if ( isset($amount) AND $amount != 0 ) {
 							Debug::text('Pay Stub Amendment Amount: '. $amount, __FILE__, __LINE__, __METHOD__, 10);
-
-							//Keep in mind this causes pay stubs to be re-generated every time, as this modifies the updated time
-							//to slightly more then the pay stub creation time.
-							//PayStubFactory->handlePayStubAmendmentStatuses() takes care of this now.
-							//$psa_obj->setStatus( 52 ); //InUse
-							//if ( $psa_obj->isValid() ) {
-								$pay_stub->addEntry( $psa_obj->getPayStubEntryNameId(), $amount, $psa_obj->getUnits(), $psa_obj->getRate(), $psa_obj->getDescription(), $psa_obj->getID(), NULL, NULL, $psa_obj->getYTDAdjustment() );
-							//	$psa_obj->Save();
-							//}
+							$pay_stub->addEntry( $psa_obj->getPayStubEntryNameId(), $amount, $psa_obj->getUnits(), $psa_obj->getRate(), $psa_obj->getDescription(), $psa_obj->getID(), NULL, NULL, $psa_obj->getYTDAdjustment() );
 						} else {
 							Debug::text('bPay Stub Amendment Amount is not set...', __FILE__, __LINE__, __METHOD__, 10);
 						}
@@ -586,12 +587,6 @@ class CalculatePayStub extends PayStubFactory {
 						if ( isset($amount) AND $amount != 0 ) {
 							Debug::text('User Expense reimbursable Amount: '. $amount, __FILE__, __LINE__, __METHOD__, 10);
 							$pay_stub->addEntry( $ue_obj->getExpensePolicyObject()->getPayStubEntryAccount(), $amount, NULL, NULL, NULL, NULL, NULL, NULL, FALSE, $ue_obj->getID() );
-
-							//Keep in mind this causes pay stubs to be re-generated every time, as this modifies the updated time
-							//to slightly more then the pay stub creation time.
-							//PayStubFactory->handleUserExpenseStatuses() takes care of this now.
-							//$ue_obj->setStatus( 35 ); //InUse
-							//$ue_obj->Save();
 						} else {
 							Debug::text('bUser Expense Amount is not set...', __FILE__, __LINE__, __METHOD__, 10);
 						}
@@ -611,35 +606,39 @@ class CalculatePayStub extends PayStubFactory {
 		if ( $pay_stub->isValid() == TRUE ) {
 			Debug::text('Pay Stub is valid, final save.', __FILE__, __LINE__, __METHOD__, 10);
 			$pay_stub->setEnableCalcYTD( TRUE ); //When recalculating old pay stubs in the middle of the year, we need to make sure YTD values are updated.
-			$pay_stub->Save();
 
-			if ( $this->getEnableCorrection() == TRUE ) {
-				if ( isset($old_pay_stub_id) ) {
-					Debug::text('bCorrection Enabled - Doing Comparison here', __FILE__, __LINE__, __METHOD__, 10);
-					PayStubFactory::CalcDifferences( $pay_stub_id, $old_pay_stub_id );
+			$pay_stub->Save( FALSE );
+			//$pay_stub->Save( FALSE ) could have validation errors in the postSave() function, we want to try and capture those as well.
+			//Usually it has to do with pay stub amendments being after the employees termination date. 
+			if ( $pay_stub->isValid() == TRUE  ) {
+				if ( $this->getEnableCorrection() == TRUE ) {
+					if ( isset($old_pay_stub_id) ) {
+						Debug::text('bCorrection Enabled - Doing Comparison here', __FILE__, __LINE__, __METHOD__, 10);
+						PayStubFactory::CalcDifferences( $pay_stub_id, $old_pay_stub_id );
+					}
+
+					//Delete newly created temp paystub.
+					//This used to be in the above IF block that depended on $old_pay_stub_id
+					//being set, however in cases where the old pay stub didn't exist
+					//TimeTrex wouldn't delete these temporary pay stubs.
+					//Moving this code outside that IF statement so it only depends on EnableCorrection()
+					//to be TRUE should fix that issue.
+					$pslf = TTnew( 'PayStubListFactory' );
+					$pslf->getById( $pay_stub_id );
+					if ( $pslf->getRecordCount() > 0 ) {
+						$tmp_ps_obj = $pslf->getCurrent();
+						$tmp_ps_obj->setDeleted(TRUE);
+						$tmp_ps_obj->Save();
+						unset($tmp_ps_obj);
+					}
 				}
 
-				//Delete newly created temp paystub.
-				//This used to be in the above IF block that depended on $old_pay_stub_id
-				//being set, however in cases where the old pay stub didn't exist
-				//TimeTrex wouldn't delete these temporary pay stubs.
-				//Moving this code outside that IF statement so it only depends on EnableCorrection()
-				//to be TRUE should fix that issue.
-				$pslf = TTnew( 'PayStubListFactory' );
-				$pslf->getById( $pay_stub_id );
-				if ( $pslf->getRecordCount() > 0 ) {
-					$tmp_ps_obj = $pslf->getCurrent();
-					$tmp_ps_obj->setDeleted(TRUE);
-					$tmp_ps_obj->Save();
-					unset($tmp_ps_obj);
-				}
+				$pay_stub->CommitTransaction();
+
+				UserGenericStatusFactory::queueGenericStatus( $generic_queue_status_label, 30, NULL, NULL );
+
+				return TRUE;
 			}
-
-			$pay_stub->CommitTransaction();
-
-			UserGenericStatusFactory::queueGenericStatus( $generic_queue_status_label, 30, NULL, NULL );
-
-			return TRUE;
 		}
 
 		Debug::text('Pay Stub is NOT valid returning FALSE', __FILE__, __LINE__, __METHOD__, 10);

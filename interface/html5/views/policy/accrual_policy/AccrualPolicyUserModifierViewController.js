@@ -149,30 +149,30 @@ AccrualPolicyUserModifierViewController = BaseViewController.extend( {
 //		}
 
 		if ( this.parent_view === 'accrual_policy' ) {
-			column_info = {name: 'full_name', index: 'full_name', label: 'Employee', width:50, sortable: false, title: false};
+			column_info = {name: 'full_name', index: 'full_name', label: $.i18n._('Employee'), width:50, sortable: false, title: false};
 			column_info_array.push( column_info );
 
 		} else if ( this.parent_view === 'employee' ) {
-			column_info = {name: 'accrual_policy', index: 'accrual_policy', label: 'Accrual Policy', width:50, sortable: false, title: false};
+			column_info = {name: 'accrual_policy', index: 'accrual_policy', label: $.i18n._('Accrual Policy'), width:50, sortable: false, title: false};
 			column_info_array.push( column_info );
 		}
 
-		column_info = {name: 'length_of_service_date', index: 'length_of_service_date', label: 'Length of Service Date', width:80, sortable: false, title: false};
+		column_info = {name: 'length_of_service_date', index: 'length_of_service_date', label: $.i18n._('Length of Service Date'), width:80, sortable: false, title: false};
 		column_info_array.push( column_info );
 
-		column_info = {name: 'length_of_service_modifier', index: 'length_of_service_modifier', label: 'Length of Service Modifier', width:90, sortable: false, title: false};
+		column_info = {name: 'length_of_service_modifier', index: 'length_of_service_modifier', label: $.i18n._('Length of Service Modifier'), width:90, sortable: false, title: false};
 		column_info_array.push( column_info );
 
-		column_info = {name: 'accrual_rate_modifier', index: 'accrual_rate_modifier', label: 'Accrual Rate Modifier', width:80, sortable: false, title: false};
+		column_info = {name: 'accrual_rate_modifier', index: 'accrual_rate_modifier', label: $.i18n._('Accrual Rate Modifier'), width:80, sortable: false, title: false};
 		column_info_array.push( column_info );
 
-		column_info = {name: 'maximum_time_modifier', index: 'maximum_time_modifier', label: 'Accrual Total Maximum Modifier', width:110, sortable: false, title: false};
+		column_info = {name: 'maximum_time_modifier', index: 'maximum_time_modifier', label: $.i18n._('Accrual Total Maximum Modifier'), width:110, sortable: false, title: false};
 		column_info_array.push( column_info );
 
 //		column_info = {name: 'minimum_time_modifier', index: 'minimum_time_modifier', label: 'Accrual Total Minimum Modifier', width:110, sortable: false, title: false};
 //		column_info_array.push( column_info );
 
-		column_info = {name: 'rollover_time_modifier', index: 'rollover_time_modifier', label: 'Annual Maximum Rollover Modifier', width:110, sortable: false, title: false};
+		column_info = {name: 'rollover_time_modifier', index: 'rollover_time_modifier', label: $.i18n._('Annual Maximum Rollover Modifier'), width:110, sortable: false, title: false};
 		column_info_array.push( column_info );
 
 
@@ -277,8 +277,11 @@ AccrualPolicyUserModifierViewController = BaseViewController.extend( {
 	},
 
 	getFilterColumnsFromDisplayColumns: function() {
-		var display_columns = this.grid.getGridParam( 'colModel' );
-
+		// Error: Unable to get property 'getGridParam' of undefined or null reference
+		var display_columns = [];
+		if ( this.grid ) {
+			display_columns = this.grid.getGridParam( 'colModel' );
+		}
 		var column_filter = {};
 		column_filter.is_owner = true;
 		column_filter.id = true;

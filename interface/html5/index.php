@@ -119,7 +119,7 @@ unset($authentication);
 		<script src="framework/jquery.i18n.js?v=<?php echo APPLICATION_BUILD?>"></script>
 		<script src="framework/backbone/underscore-min.js?v=<?php echo APPLICATION_BUILD?>"></script>
 		<script src="framework/backbone/backbone-min.js?v=<?php echo APPLICATION_BUILD?>"></script>
-		<script src="global/APIGlobal.js.php?v=<?php echo APPLICATION_BUILD?>"></script>
+		<script src="global/APIGlobal.js.php?v=<?php echo APPLICATION_BUILD?><?php if ( isset($disable_database_connection) AND $disable_database_connection == TRUE ) { echo '&disable_db=1'; }?>"></script>
 		<script src="global/Global.js?v=<?php echo APPLICATION_BUILD?>"></script>
 		<script async src="framework/rightclickmenu/rightclickmenu.js?v=<?php echo APPLICATION_BUILD?>"></script>
 		<script async src="framework/rightclickmenu/jquery.ui.position.js?v=<?php echo APPLICATION_BUILD?>"></script>

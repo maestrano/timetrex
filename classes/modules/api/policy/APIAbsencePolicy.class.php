@@ -462,7 +462,7 @@ class APIAbsencePolicy extends APIFactory {
 		if ( $user_id == '' ) {
 			return $this->returnHandler( FALSE );
 		}
-
+		
 		$epoch = TTDate::parseDateTime( $epoch );
 
 		$aplf = TTnew( 'AbsencePolicyListFactory' );
@@ -472,33 +472,39 @@ class APIAbsencePolicy extends APIFactory {
 
 			$pfp_obj = $ap_obj->getPayFormulaPolicyObject();
 			if ( is_object($pfp_obj) AND $pfp_obj->getAccrualPolicyAccount() != '' ) {
-				$acplf = new AccrualPolicyListFactory();
-				//$acplf->getById( $pfp_obj->getAccrualPolicy() );
-				$acplf->getByCompanyIdAndAccrualPolicyAccount( $this->getCurrentCompanyObject()->getId(), $pfp_obj->getAccrualPolicyAccount() );
-				if ( $acplf->getRecordCount() > 0 ) {
+				$aplf = new AccrualPolicyListFactory();
+				$aplf->getByPolicyGroupUserIdAndAccrualPolicyAccount( (int)$user_id, (int)$pfp_obj->getAccrualPolicyAccount() );
+				Debug::Text('Accrual Policy Records: '. $aplf->getRecordCount() .' User ID: '. $user_id .' Accrual Policy Account: '. $pfp_obj->getAccrualPolicyAccount(), __FILE__, __LINE__, __METHOD__, 10);
+				if ( $aplf->getRecordCount() > 0 ) {
 					$ulf = TTnew( 'UserListFactory' );
 					$ulf->getByIDAndCompanyID( $user_id, $this->getCurrentCompanyObject()->getId() );
 					if ( $ulf->getRecordCount() == 1 ) {
 						$u_obj = $ulf->getCurrent();
 
 						$retval = FALSE;
-						foreach( $acplf as $acp_obj ) {
+						foreach( $aplf as $acp_obj ) {
+							Debug::Text('  Accrual Policy ID: '. $acp_obj->getID(), __FILE__, __LINE__, __METHOD__, 10);
+							//Pass $retval back into itself so additional balance can be calculated when accrual policy accounts are used in multiple policies.
 							$retval = $acp_obj->getAccrualBalanceWithProjection( $u_obj, $epoch, $amount, $previous_amount, $retval );
+							//Debug::Arr($retval, '  Retval: ', __FILE__, __LINE__, __METHOD__, 10);
 						}
 
 						return $this->returnHandler( $retval );
 					}
-					/*
-					$acp_obj = $acplf->getCurrent();
+				} else {
+					Debug::Text('No Accrual Policies to return projection for, just get current balance then...', __FILE__, __LINE__, __METHOD__, 10);
+					$available_balance = $pfp_obj->getAccrualPolicyAccountObject()->getCurrentAccrualBalance( (int)$user_id );
 
-					$ulf = TTnew( 'UserListFactory' );
-					$ulf->getByIDAndCompanyID( $user_id, $this->getCurrentCompanyObject()->getId() );
-					if ( $ulf->getRecordCount() == 1 ) {
-						$u_obj = $ulf->getCurrent();
+					$retarr = array(
+									'available_balance' => $available_balance,
+									'current_time' => $amount,
+									'remaining_balance' => ( $available_balance - $amount ),
+									'projected_balance' => $available_balance,
+									'projected_remaining_balance' => ( $available_balance - $amount ),
+									);
 
-						return $this->returnHandler( $acp_obj->getAccrualBalanceWithProjection( $u_obj, $epoch, $amount, $previous_amount ) );
-					}
-					*/
+					Debug::Arr($retarr, 'Current Accrual Arr: ', __FILE__, __LINE__, __METHOD__, 10);
+					return $this->returnHandler( $retarr );
 				}
 			}
 		}

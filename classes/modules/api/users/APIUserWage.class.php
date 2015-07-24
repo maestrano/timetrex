@@ -48,7 +48,7 @@ class APIUserWage extends APIFactory {
 	}
 
 	/**
-	 * Get default branch data for creating new branches.
+	 * Get default wage data for creating new wagees.
 	 * @return array
 	 */
 	function getUserWageDefaultData( $user_id = NULL ) {
@@ -91,7 +91,7 @@ class APIUserWage extends APIFactory {
 	}
 
 	/**
-	 * Get branch data for one or more branches.
+	 * Get wage data for one or more wagees.
 	 * @param array $data filter data
 	 * @return array
 	 */
@@ -142,8 +142,8 @@ class APIUserWage extends APIFactory {
 	}
 
 	/**
-	 * Validate branch data for one or more branches.
-	 * @param array $data branch data
+	 * Validate wage data for one or more wagees.
+	 * @param array $data wage data
 	 * @return array
 	 */
 	function validateUserWage( $data ) {
@@ -151,8 +151,8 @@ class APIUserWage extends APIFactory {
 	}
 
 	/**
-	 * Set branch data for one or more branches.
-	 * @param array $data branch data
+	 * Set wage data for one or more wagees.
+	 * @param array $data wage data
 	 * @return array
 	 */
 	function setUserWage( $data, $validate_only = FALSE ) {
@@ -169,6 +169,10 @@ class APIUserWage extends APIFactory {
 
 		if ( $validate_only == TRUE ) {
 			Debug::Text('Validating Only!', __FILE__, __LINE__, __METHOD__, 10);
+			$permission_children_ids = FALSE;
+		} else {
+			//Get Permission Hierarchy Children first, as this can be used for viewing, or editing.
+			$permission_children_ids = $this->getPermissionChildren();
 		}
 
 		extract( $this->convertToMultipleRecords($data) );
@@ -194,9 +198,9 @@ class APIUserWage extends APIFactory {
 							OR
 								(
 								$this->getPermissionObject()->Check('wage', 'edit')
-									OR ( $this->getPermissionObject()->Check('wage', 'edit_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE )
+									OR ( $this->getPermissionObject()->Check('wage', 'edit_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getUser() ) === TRUE )
+									OR ( $this->getPermissionObject()->Check('wage', 'edit_child') AND $this->getPermissionObject()->isChild( $lf->getCurrent()->getUser(), $permission_children_ids ) === TRUE )
 								) ) {
-
 							Debug::Text('Row Exists, getting current data: ', $row['id'], __FILE__, __LINE__, __METHOD__, 10);
 							$lf = $lf->getCurrent();
 							$row = array_merge( $lf->getObjectAsArray(), $row );
@@ -209,9 +213,21 @@ class APIUserWage extends APIFactory {
 					}
 				} else {
 					//Adding new object, check ADD permissions.
-					$primary_validator->isTrue( 'permission', $this->getPermissionObject()->Check('wage', 'add'), TTi18n::gettext('Add permission denied') );
+					if (	!( $validate_only == TRUE
+								OR
+								( $this->getPermissionObject()->Check('wage', 'add')
+									AND
+									(
+										$this->getPermissionObject()->Check('wage', 'edit')
+										OR ( isset($row['user_id']) AND $this->getPermissionObject()->Check('wage', 'edit_own') AND $this->getPermissionObject()->isOwner( FALSE, $row['user_id'] ) === TRUE ) //We don't know the created_by of the user at this point, but only check if the user is assigned to the logged in person.
+										OR ( isset($row['user_id']) AND $this->getPermissionObject()->Check('wage', 'edit_child') AND $this->getPermissionObject()->isChild( $row['user_id'], $permission_children_ids ) === TRUE )
+									)
+								)
+							) ) {
+						$primary_validator->isTrue( 'permission', FALSE, TTi18n::gettext('Add permission denied') );
+					}
 				}
-				Debug::Arr($row, 'Data: ', __FILE__, __LINE__, __METHOD__, 10);
+				//Debug::Arr($row, 'Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
 				$is_valid = $primary_validator->isValid();
 				if ( $is_valid == TRUE ) { //Check to see if all permission checks passed before trying to save data.
@@ -272,8 +288,8 @@ class APIUserWage extends APIFactory {
 	}
 
 	/**
-	 * Delete one or more branchs.
-	 * @param array $data branch data
+	 * Delete one or more wages.
+	 * @param array $data wage data
 	 * @return array
 	 */
 	function deleteUserWage( $data ) {
@@ -290,6 +306,9 @@ class APIUserWage extends APIFactory {
 			return	$this->getPermissionObject()->PermissionDenied();
 		}
 
+		//Get Permission Hierarchy Children first, as this can be used for viewing, or editing.
+		$permission_children_ids = $this->getPermissionChildren();
+
 		Debug::Text('Received data for: '. count($data) .' UserWages', __FILE__, __LINE__, __METHOD__, 10);
 		Debug::Arr($data, 'Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
@@ -304,12 +323,13 @@ class APIUserWage extends APIFactory {
 				$lf->StartTransaction();
 				if ( is_numeric($id) ) {
 					//Modifying existing object.
-					//Get branch object, so we can only modify just changed data for specific records if needed.
+					//Get wage object, so we can only modify just changed data for specific records if needed.
 					$lf->getByIdAndCompanyId( $id, $this->getCurrentCompanyObject()->getId() );
 					if ( $lf->getRecordCount() == 1 ) {
 						//Object exists, check edit permissions
 						if ( $this->getPermissionObject()->Check('wage', 'delete')
-								OR ( $this->getPermissionObject()->Check('wage', 'delete_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE ) ) {
+								OR ( $this->getPermissionObject()->Check('wage', 'delete_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getUser() ) === TRUE )
+								OR ( $this->getPermissionObject()->Check('wage', 'delete_child') AND $this->getPermissionObject()->isChild( $lf->getCurrent()->getUser(), $permission_children_ids ) === TRUE )) {
 							Debug::Text('Record Exists, deleting record: ', $id, __FILE__, __LINE__, __METHOD__, 10);
 							$lf = $lf->getCurrent();
 						} else {
@@ -372,8 +392,8 @@ class APIUserWage extends APIFactory {
 	}
 
 	/**
-	 * Copy one or more branches.
-	 * @param array $data branch IDs
+	 * Copy one or more wagees.
+	 * @param array $data wage IDs
 	 * @return array
 	 */
 	function copyUserWage( $data ) {

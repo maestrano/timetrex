@@ -43,6 +43,7 @@ class PayFormulaPolicyFactory extends Factory {
 	protected $pk_sequence_name = 'pay_formula_policy_id_seq'; //PK Sequence name
 
 	protected $company_obj = NULL;
+	protected $accrual_policy_account_obj = NULL;
 
 	function _getFactoryOptions( $name ) {
 		//Attempt to get the edition of the currently logged in users company, so we can better tailor the columns to them.
@@ -170,6 +171,10 @@ class PayFormulaPolicyFactory extends Factory {
 
 	function getCompanyObject() {
 		return $this->getGenericObject( 'CompanyListFactory', $this->getCompany(), 'company_obj' );
+	}
+
+	function getAccrualPolicyAccountObject() {
+		return $this->getGenericObject( 'AccrualPolicyAccountListFactory', $this->getAccrualPolicyAccount(), 'accrual_policy_account_obj' );
 	}
 
 	function getCompany() {

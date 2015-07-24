@@ -92,11 +92,36 @@ class APICompanyDeduction extends APIFactory {
 		if ( !$this->getPermissionObject()->Check('company_tax_deduction', 'enabled')
 				OR !( $this->getPermissionObject()->Check('company_tax_deduction', 'view') OR $this->getPermissionObject()->Check('company_tax_deduction', 'view_own') OR $this->getPermissionObject()->Check('company_tax_deduction', 'view_child')  ) ) {
 			//return $this->getPermissionObject()->PermissionDenied();
-			$data['filter_columns'] = $this->handlePermissionFilterColumns( (isset($data['filter_columns'])) ? $data['filter_columns'] : NULL, Misc::trimSortPrefix( $this->getOptions('list_columns') ) );
+
+			if ( !$this->getPermissionObject()->Check('user_tax_deduction', 'enabled')
+					OR !( $this->getPermissionObject()->Check('user_tax_deduction', 'view') OR $this->getPermissionObject()->Check('user_tax_deduction', 'view_own') OR $this->getPermissionObject()->Check('user_tax_deduction', 'view_child')  ) ) {
+				$data['filter_columns'] = $this->handlePermissionFilterColumns( (isset($data['filter_columns'])) ? $data['filter_columns'] : NULL, Misc::trimSortPrefix( $this->getOptions('list_columns') ) );
+			} else {
+				//User has access the user_tax_deduction permissions, restrict columns that are returned so we don't include all users, include/exclude PSA's etc...
+				if ( !isset($data['filter_columns']) ) {
+					$cdf = TTnew( 'CompanyDeductionFactory' );
+					$data['filter_columns'] = Misc::preSetArrayValues( array(), array_keys( $cdf->getVariableToFunctionMap() ), TRUE );
+					unset($cdf, $data['filter_columns']['user'], $data['filter_columns']['include_pay_stub_entry_account'], $data['filter_columns']['exclude_pay_stub_entry_account'], $data['filter_columns']['total_users']);
+				}
+			}
 		}
 		$data = $this->initializeFilterAndPager( $data, $disable_paging );
 
-		$data['filter_data']['permission_children_ids'] = $this->getPermissionObject()->getPermissionChildren( 'company_tax_deduction', 'view' );
+		//Need to pass this into getObjectAsArray() separately to help handle Edit Employee -> Tax tab and is_owner/is_child columns.
+		if ( isset($data['filter_data']['include_user_id']) ) {
+			$include_user_id = $data['filter_data']['include_user_id'];
+		} else {
+			$include_user_id = FALSE;
+		}
+
+		//Help handle cases where a supervisor can access the Edit Employee -> Tax tab, but not the Payroll -> Tax/Deduction list.
+		if ( $this->getPermissionObject()->Check('company_tax_deduction', 'enabled') AND ( $this->getPermissionObject()->Check('company_tax_deduction', 'view') OR $this->getPermissionObject()->Check('company_tax_deduction', 'view_own') OR $this->getPermissionObject()->Check('company_tax_deduction', 'view_child') ) ) {
+			Debug::Text('Using company_tax_deduction permission_children...', __FILE__, __LINE__, __METHOD__, 10);
+			$data['filter_data']['permission_children_ids'] = $this->getPermissionObject()->getPermissionChildren( 'company_tax_deduction', 'view' );
+		} elseif ( $this->getPermissionObject()->Check('user_tax_deduction', 'enabled') AND ( $this->getPermissionObject()->Check('user_tax_deduction', 'view') OR $this->getPermissionObject()->Check('user_tax_deduction', 'view_own') OR $this->getPermissionObject()->Check('user_tax_deduction', 'view_child') ) )  {
+			Debug::Text('Using user_tax_deduction permission_children...', __FILE__, __LINE__, __METHOD__, 10);
+			$data['filter_data']['permission_children_ids'] = $this->getPermissionObject()->getPermissionChildren( 'user_tax_deduction', 'view' );
+		}
 
 		$blf = TTnew( 'CompanyDeductionListFactory' );
 		$blf->getAPISearchByCompanyIdAndArrayCriteria( $this->getCurrentCompanyObject()->getId(), $data['filter_data'], $data['filter_items_per_page'], $data['filter_page'], NULL, $data['filter_sort'] );
@@ -107,13 +132,14 @@ class APICompanyDeduction extends APIFactory {
 			$this->setPagerObject( $blf );
 
 			foreach( $blf as $b_obj ) {
-				$retarr[] = $b_obj->getObjectAsArray( $data['filter_columns'] );
+				$retarr[] = $b_obj->getObjectAsArray( $data['filter_columns'], $data['filter_data']['permission_children_ids'], $include_user_id );
 
 				$this->getProgressBarObject()->set( $this->getAMFMessageID(), $blf->getCurrentRow() );
 			}
 
 			$this->getProgressBarObject()->stop( $this->getAMFMessageID() );
 
+			Debug::Arr($retarr, 'zzz9Record Count: ', __FILE__, __LINE__, __METHOD__, 10);
 			return $this->returnHandler( $retarr );
 		}
 

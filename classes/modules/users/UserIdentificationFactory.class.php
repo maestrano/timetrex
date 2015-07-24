@@ -51,6 +51,7 @@ class UserIdentificationFactory extends Factory {
 		switch( $name ) {
 			case 'type':
 				$retval = array(
+											1	=> TTi18n::gettext('Employee Sequence'), //Company specific employee sequence number, primarily for timeclocks. Should be less than 65535.
 											5	=> TTi18n::gettext('Password History'), //Web interface password history
 											10	=> TTi18n::gettext('iButton'),
 											20	=> TTi18n::gettext('USB Fingerprint'),

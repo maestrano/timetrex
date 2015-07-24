@@ -371,5 +371,32 @@ class APIPayStubEntryAccount extends APIFactory {
 
 		return $this->returnHandler( FALSE );
 	}
+
+	/**
+	 * Migrate time from one pay stub account to another without recalculating pay stubs.
+	 * @param array $src_ids Source PayStubAccount IDs
+	 * @param array $dst_id Destination PayStubAccount IDs
+	 * @param bool $user_ids Users to affect.
+	 * @return array
+	 */
+	function migratePayStubEntryAccount( $src_ids, $dst_id, $effective_date ) {
+		if ( !$this->getPermissionObject()->Check('pay_stub_account', 'enabled')
+				OR !( $this->getPermissionObject()->Check('pay_stub_account', 'edit') OR $this->getPermissionObject()->Check('pay_stub_account', 'edit_own') OR $this->getPermissionObject()->Check('pay_stub_account', 'edit_child') OR $this->getPermissionObject()->Check('pay_stub_account', 'add') ) ) {
+			return	$this->getPermissionObject()->PermissionDenied();
+		}
+
+		$pseaf = TTNew('PayStubEntryAccountFactory');
+		$retval = $pseaf->migrate( $this->getCurrentCompanyObject()->getId(), $src_ids, $dst_id, TTDate::parseDateTime( $effective_date ) );
+
+		if ( $retval == TRUE ) {
+			return $this->returnHandler( TRUE );
+		}
+
+		$pcf->Validator->isTrue(	'pay_stub_entry_account_id',
+						FALSE,
+						TTi18n::gettext('Invalid Pay Stub Accounts') );
+
+		return $this->returnHandler( FALSE, 'VALIDATION', TTi18n::getText('INVALID DATA'), $pcf->Validator->getErrorsArray(), array('total_records' => 1, 'valid_records' => 0) );
+	}
 }
 ?>

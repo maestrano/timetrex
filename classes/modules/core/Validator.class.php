@@ -769,13 +769,17 @@ class Validator {
 		return FALSE;
 	}
 
-	function getTextErrors() {
+	function getTextErrors( $numbered_list = TRUE ) {
 		if ( count($this->errors ) > 0) {
 			$output = '';
+			$number_prefix = NULL;
 			$i = 1;
 			foreach ($this->errors as $label) {
 				foreach ($label as $key => $msg) {
-					$output .= $i.'. '.$msg."\n";
+					if ( $numbered_list == TRUE ) {
+						$number_prefix = $i .'. ';
+					}
+					$output .= $number_prefix . $msg . "\n";
 				}
 
 				$i++;

@@ -36,9 +36,6 @@
 
 require_once('PHPUnit/Framework/TestCase.php');
 
-/**
- * @group PunchDetection
- */
 class PunchDetectionTest extends PHPUnit_Framework_TestCase {
 	protected $company_id = NULL;
 	protected $user_id = NULL;
@@ -271,13 +268,10 @@ class PunchDetectionTest extends PHPUnit_Framework_TestCase {
 		$udtlf->getByCompanyIDAndUserIdAndObjectTypeAndStartDateAndEndDate( $this->company_id, $this->user_id, array(5, 20, 30, 40, 100, 110), $start_date, $end_date);
 		if ( $udtlf->getRecordCount() > 0 ) {
 			foreach($udtlf as $udt_obj) {
-				$user_date_stamp = TTDate::strtotime( $udt_obj->getColumn('user_date_stamp') );
-
-				//$type_and_policy_id = $udt_obj->getType().(int)$udt_obj->getOverTimePolicyID();
 				$type_and_policy_id = $udt_obj->getObjectType().(int)$udt_obj->getObjectID();
 
-				$date_totals[$user_date_stamp][] = array(
-												'date_stamp' => $udt_obj->getColumn('user_date_stamp'),
+				$date_totals[$udt_obj->getDateStamp()][] = array(
+												'date_stamp' => $udt_obj->getDateStamp(),
 												'id' => $udt_obj->getId(),
 
 												//'user_date_id' => $udt_obj->getUserDateId(),
@@ -458,6 +452,9 @@ class PunchDetectionTest extends PHPUnit_Framework_TestCase {
 		- Break punches with Punch Time detection
 	*/
 
+	/**
+	 * @group PunchDetection_testNoMealOrBreakA
+	 */
 	function testNoMealOrBreakA() {
 		global $dd;
 
@@ -527,6 +524,9 @@ class PunchDetectionTest extends PHPUnit_Framework_TestCase {
 		return TRUE;
 	}
 
+	/**
+	 * @group PunchDetection_testNoMealOrBreakB
+	 */
 	function testNoMealOrBreakB() {
 		global $dd;
 
@@ -599,6 +599,9 @@ class PunchDetectionTest extends PHPUnit_Framework_TestCase {
 		return TRUE;
 	}
 
+	/**
+	 * @group PunchDetection_testMealTimeWindowA
+	 */
 	function testMealTimeWindowA() {
 		global $dd;
 
@@ -668,6 +671,9 @@ class PunchDetectionTest extends PHPUnit_Framework_TestCase {
 		return TRUE;
 	}
 
+	/**
+	 * @group PunchDetection_testMealTimeWindowB
+	 */
 	function testMealTimeWindowB() {
 		global $dd;
 
@@ -737,6 +743,9 @@ class PunchDetectionTest extends PHPUnit_Framework_TestCase {
 		return TRUE;
 	}
 
+	/**
+	 * @group PunchDetection_testMealTimeWindowC
+	 */
 	function testMealTimeWindowC() {
 		global $dd;
 
@@ -806,6 +815,9 @@ class PunchDetectionTest extends PHPUnit_Framework_TestCase {
 		return TRUE;
 	}
 
+	/**
+	 * @group PunchDetection_testMealPunchTimeWindowA
+	 */
 	function testMealPunchTimeWindowA() {
 		global $dd;
 
@@ -875,6 +887,9 @@ class PunchDetectionTest extends PHPUnit_Framework_TestCase {
 		return TRUE;
 	}
 
+	/**
+	 * @group PunchDetection_testMealPunchTimeWindowB
+	 */
 	function testMealPunchTimeWindowB() {
 		global $dd;
 
@@ -944,6 +959,9 @@ class PunchDetectionTest extends PHPUnit_Framework_TestCase {
 		return TRUE;
 	}
 
+	/**
+	 * @group PunchDetection_testBreakTimeWindowA
+	 */
 	function testBreakTimeWindowA() {
 		global $dd;
 
@@ -1015,6 +1033,9 @@ class PunchDetectionTest extends PHPUnit_Framework_TestCase {
 		return TRUE;
 	}
 
+	/**
+	 * @group PunchDetection_testBreakTimeWindowB
+	 */
 	function testBreakTimeWindowB() {
 		global $dd;
 
@@ -1086,6 +1107,9 @@ class PunchDetectionTest extends PHPUnit_Framework_TestCase {
 		return TRUE;
 	}
 
+	/**
+	 * @group PunchDetection_testBreakTimeWindowC
+	 */
 	function testBreakTimeWindowC() {
 		global $dd;
 
@@ -1158,6 +1182,9 @@ class PunchDetectionTest extends PHPUnit_Framework_TestCase {
 		return TRUE;
 	}
 
+	/**
+	 * @group PunchDetection_testBreakPunchTimeWindowA
+	 */
 	function testBreakPunchTimeWindowA() {
 		global $dd;
 
@@ -1228,6 +1255,9 @@ class PunchDetectionTest extends PHPUnit_Framework_TestCase {
 		return TRUE;
 	}
 
+	/**
+	 * @group PunchDetection_testBreakPunchTimeWindowB
+	 */
 	function testBreakPunchTimeWindowB() {
 		global $dd;
 
@@ -1298,6 +1328,9 @@ class PunchDetectionTest extends PHPUnit_Framework_TestCase {
 		return TRUE;
 	}
 
+	/**
+	 * @group PunchDetection_testBreakPunchTimeWindowC
+	 */
 	function testBreakPunchTimeWindowC() {
 		global $dd;
 
@@ -1368,6 +1401,9 @@ class PunchDetectionTest extends PHPUnit_Framework_TestCase {
 		return TRUE;
 	}
 
+	/**
+	 * @group PunchDetection_testBreakPunchTimeWindowD
+	 */
 	function testBreakPunchTimeWindowD() {
 		global $dd;
 
@@ -1460,7 +1496,9 @@ class PunchDetectionTest extends PHPUnit_Framework_TestCase {
 		return TRUE;
 	}
 
-
+	/**
+	 * @group PunchDetection_testZeroNewShiftTriggerMealTimeWindowA
+	 */
 	function testZeroNewShiftTriggerMealTimeWindowA() {
 		global $dd;
 
@@ -1530,6 +1568,9 @@ class PunchDetectionTest extends PHPUnit_Framework_TestCase {
 		return TRUE;
 	}
 
+	/**
+	 * @group PunchDetection_testZeroNewShiftTriggerTimeMealPunchTimeWindowA
+	 */
 	function testZeroNewShiftTriggerTimeMealPunchTimeWindowA() {
 		global $dd;
 

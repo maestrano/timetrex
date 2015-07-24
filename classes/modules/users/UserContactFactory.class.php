@@ -1028,7 +1028,6 @@ class UserContactFactory extends Factory {
 
 
 	function getObjectAsArray( $include_columns = NULL, $permission_children_ids = FALSE ) {
-
 		$variable_function_map = $this->getVariableToFunctionMap();
 		if ( is_array( $variable_function_map ) ) {
 			foreach( $variable_function_map as $variable => $function_stub ) {
@@ -1075,7 +1074,6 @@ class UserContactFactory extends Factory {
 				unset($function);
 			}
 			$this->getPermissionColumns( $data, $this->getUser(), $this->getCreatedBy(), $permission_children_ids, $include_columns );
-
 			$this->getCreatedAndUpdatedColumns( $data, $include_columns );
 		}
 
@@ -1083,7 +1081,7 @@ class UserContactFactory extends Factory {
 	}
 
 	function addLog( $log_action ) {
-		return TTLog::addEntry( $this->getId(), $log_action, TTi18n::getText('Employee Contact ').': '. $this->getFullName( FALSE, TRUE ), NULL, $this->getTable(), $this );
+		return TTLog::addEntry( $this->getId(), $log_action, TTi18n::getText('Employee Contact').': '. $this->getFullName( FALSE, TRUE ), NULL, $this->getTable(), $this );
 	}
 }
 ?>

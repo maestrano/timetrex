@@ -350,7 +350,7 @@ class PayCodeFactory extends Factory {
 			if ( $udtlf->getRecordCount() > 0 ) {
 				$this->Validator->isTRUE(	'in_use',
 											FALSE,
-											TTi18n::gettext('This pay code is currently in use'));
+											TTi18n::gettext('This pay code is currently in use') .' '. TTi18n::gettext('by employee timesheets') );
 			}
 
 			$rtplf = TTNew('RegularTimePolicyListFactory');
@@ -358,7 +358,7 @@ class PayCodeFactory extends Factory {
 			if ( $rtplf->getRecordCount() > 0 ) {
 				$this->Validator->isTRUE(	'in_use',
 											FALSE,
-											TTi18n::gettext('This pay code is currently in use') .' '. TTi18n::gettext('by Regular Time policies') );
+											TTi18n::gettext('This pay code is currently in use') .' '. TTi18n::gettext('by regular time policies') );
 			}
 
 			$otplf = TTNew('OverTimePolicyListFactory');

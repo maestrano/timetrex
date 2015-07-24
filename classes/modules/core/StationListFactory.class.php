@@ -475,6 +475,84 @@ class StationListFactory extends StationFactory implements IteratorAggregate {
 		return $this;
 	}
 
+	function getAPITimeClockStationsByArrayCriteria( $filter_data, $limit = NULL, $page = NULL, $where = NULL, $order = NULL ) {
+		if ( !is_array($order) ) {
+			//Use Filter Data ordering if its set.
+			if ( isset($filter_data['sort_column']) AND $filter_data['sort_order']) {
+				$order = array(Misc::trimSortPrefix($filter_data['sort_column']) => $filter_data['sort_order']);
+			}
+		}
+
+		$additional_order_fields = array();
+
+		$sort_column_aliases = array(
+									'type' => 'type_id',
+									'status' => 'status_id',
+									);
+
+		$order = $this->getColumnsFromAliases( $order, $sort_column_aliases );
+		if ( $order == NULL ) {
+			$order = array( 'status_id' => 'asc', 'type_id' => 'asc', 'source' => 'asc');
+			$strict = FALSE;
+		} else {
+			//Always try to order by status first so INACTIVE employees go to the bottom.
+			if ( !isset($order['status_id']) ) {
+				$order = Misc::prependArray( array('status_id' => 'asc'), $order );
+			}
+			$strict = TRUE;
+		}
+		//Debug::Arr($order, 'Order Data:', __FILE__, __LINE__, __METHOD__, 10);
+		//Debug::Arr($filter_data, 'Filter Data:', __FILE__, __LINE__, __METHOD__, 10);
+
+		$uf = new UserFactory();
+
+		$ph = array(
+					);
+
+		$query = '
+					select	a.*,
+							y.first_name as created_by_first_name,
+							y.middle_name as created_by_middle_name,
+							y.last_name as created_by_last_name,
+							z.first_name as updated_by_first_name,
+							z.middle_name as updated_by_middle_name,
+							z.last_name as updated_by_last_name
+					from	'. $this->getTable() .' as a
+						LEFT JOIN '. $uf->getTable() .' as y ON ( a.created_by = y.id AND y.deleted = 0 )
+						LEFT JOIN '. $uf->getTable() .' as z ON ( a.updated_by = z.id AND z.deleted = 0 )
+					where 1=1
+					';
+
+		$query .= ( isset($filter_data['permission_children_ids']) ) ? $this->getWhereClauseSQL( 'a.created_by', $filter_data['permission_children_ids'], 'numeric_list', $ph ) : NULL;
+		$query .= ( isset($filter_data['id']) ) ? $this->getWhereClauseSQL( 'a.id', $filter_data['id'], 'numeric_list', $ph ) : NULL;
+		$query .= ( isset($filter_data['exclude_id']) ) ? $this->getWhereClauseSQL( 'a.id', $filter_data['exclude_id'], 'not_numeric_list', $ph ) : NULL;
+
+		if ( isset($filter_data['status']) AND !is_array($filter_data['status']) AND trim($filter_data['status']) != '' AND !isset($filter_data['status_id']) ) {
+			$filter_data['status_id'] = Option::getByFuzzyValue( $filter_data['status'], $this->getOptions('status') );
+		}
+		$query .= ( isset($filter_data['status_id']) ) ? $this->getWhereClauseSQL( 'a.status_id', $filter_data['status_id'], 'numeric_list', $ph ) : NULL;
+
+		if ( isset($filter_data['type']) AND !is_array($filter_data['type']) AND trim($filter_data['type']) != '' AND !isset($filter_data['type_id']) ) {
+			$filter_data['type_id'] = Option::getByFuzzyValue( $filter_data['type'], $this->getOptions('type') );
+		}
+		$query .= ( isset($filter_data['type_id']) ) ? $this->getWhereClauseSQL( 'a.type_id', $filter_data['type_id'], 'numeric_list', $ph ) : NULL;
+
+		$query .= ( isset($filter_data['station_id']) ) ? $this->getWhereClauseSQL( 'a.station_id', $filter_data['station_id'], 'text', $ph ) : NULL;
+		$query .= ( isset($filter_data['source']) ) ? $this->getWhereClauseSQL( 'a.source', $filter_data['source'], 'text', $ph ) : NULL;
+		$query .= ( isset($filter_data['description']) ) ? $this->getWhereClauseSQL( 'a.description', $filter_data['description'], 'text', $ph ) : NULL;
+
+		$query .= ( isset($filter_data['created_by']) ) ? $this->getWhereClauseSQL( array('a.created_by', 'y.first_name', 'y.last_name'), $filter_data['created_by'], 'user_id_or_name', $ph ) : NULL;
+		$query .= ( isset($filter_data['updated_by']) ) ? $this->getWhereClauseSQL( array('a.updated_by', 'z.first_name', 'z.last_name'), $filter_data['updated_by'], 'user_id_or_name', $ph ) : NULL;
+
+		$query .= ' AND a.deleted = 0 ';
+		$query .= $this->getWhereSQL( $where );
+		$query .= $this->getSortSQL( $order, $strict, $additional_order_fields );
+
+		$this->ExecuteSQL( $query, $ph, $limit, $page );
+
+		return $this;
+	}
+
 	function getAPISearchByCompanyIdAndArrayCriteria( $company_id, $filter_data, $limit = NULL, $page = NULL, $where = NULL, $order = NULL ) {
 		if ( $company_id == '') {
 			return FALSE;
@@ -557,6 +635,5 @@ class StationListFactory extends StationFactory implements IteratorAggregate {
 
 		return $this;
 	}
-
 }
 ?>

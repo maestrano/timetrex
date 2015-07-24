@@ -557,6 +557,7 @@ class APITimeSheet extends APIFactory {
 			foreach( $pplf as $pp_obj ) {
 				Debug::Text('Recalculating Pay Period: '. $pp_obj->getId() .' Start Date: '. TTDate::getDate('DATE', $pp_obj->getStartDate() ), __FILE__, __LINE__, __METHOD__, 10);
 				if ( $pp_obj->getStatus() != 20 ) {
+					$recalculate_company = FALSE;
 
 					$ulf = TTnew( 'UserListFactory' );
 					if ( is_array($user_ids) AND count($user_ids) > 0
@@ -565,6 +566,7 @@ class APITimeSheet extends APIFactory {
 					} elseif ( $this->getPermissionObject()->Check('punch', 'edit') == TRUE ) { //Make sure they have the permissions to recalculate all employees.
 						TTLog::addEntry( $this->getCurrentCompanyObject()->getId(), TTi18n::gettext('Notice'), TTi18n::gettext('Recalculating Company TimeSheet'), $this->getCurrentUserObject()->getId(), 'user_date_total' );
 						$ulf->getByCompanyId( $this->getCurrentCompanyObject()->getId() );
+						$recalculate_company = TRUE;
 					} else {
 						return $this->getPermissionObject()->PermissionDenied();
 					}
@@ -583,13 +585,32 @@ class APITimeSheet extends APIFactory {
 								break;
 							}
 
-							TTLog::addEntry( $u_obj->getId(), 500, TTi18n::gettext('Recalculating Employee TimeSheet').': '. $u_obj->getFullName() .' '. TTi18n::gettext('From').': '. TTDate::getDate('DATE', $start_date ) .' '.  TTi18n::gettext('To').': '. TTDate::getDate('DATE', $end_date ), $this->getCurrentUserObject()->getId(), 'user_date_total' );
+							//Ignore terminated employees when recalculating company. However allow all employees to be recalculated if they are selected individually.
+							if ( $recalculate_company == FALSE
+									OR
+									(
+									$recalculate_company == TRUE
+									AND ( $u_obj->getStatus() == 10
+										 OR
+											(
+												$u_obj->getStatus() != 10
+												AND
+												( $u_obj->getTerminationDate() == '' OR TTDate::getMiddleDayEpoch( $u_obj->getTerminationDate() ) > TTDate::getMiddleDayEpoch( $start_date ) )
+											)
+										)
+									)
+								) {
 
-							$cp = TTNew('CalculatePolicy');
-							$cp->setUserObject( $u_obj );
-							$cp->addPendingCalculationDate( $start_date, $end_date );
-							$cp->calculate(); //This sets timezone itself.
-							$cp->Save();
+								TTLog::addEntry( $u_obj->getId(), 500, TTi18n::gettext('Recalculating Employee TimeSheet').': '. $u_obj->getFullName() .' '. TTi18n::gettext('From').': '. TTDate::getDate('DATE', $start_date ) .' '.  TTi18n::gettext('To').': '. TTDate::getDate('DATE', $end_date ), $this->getCurrentUserObject()->getId(), 'user_date_total' );
+								$cp = TTNew('CalculatePolicy');
+								$cp->setUserObject( $u_obj );
+								$cp->addPendingCalculationDate( $start_date, $end_date );
+								$cp->calculate(); //This sets timezone itself.
+								$cp->Save();
+							}
+							//else {
+							//	Debug::text('Skipping inactive or terminated user: '. $u_obj->getID(), __FILE__, __LINE__, __METHOD__, 10);
+							//}
 
 							$this->getProgressBarObject()->set( $this->getAMFMessageID(), $x );
 

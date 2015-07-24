@@ -427,9 +427,7 @@ PermissionControlViewController = BaseViewController.extend( {
 				resItem.sortKey = key;
 				resItem.label = item[cKey];
 				resItem.id = resItem.value;
-//				resItem.id = id;
 				sArr.push( resItem );
-
 				id++;
 			}
 
@@ -452,12 +450,14 @@ PermissionControlViewController = BaseViewController.extend( {
 		var $this = this;
 
 		this.initDropDownOption( 'level', 'level' );
-		this.api.getPermissionOptions( {onResult: function( res ) {
-			res = res.getResult();
-			res = $this.buildPermissionArray( res );
-			$this.permission_array = res;
+		this.api.getPermissionOptions( {
+			onResult: function( res ) {
+				res = res.getResult();
+				res = $this.buildPermissionArray( res );
+				$this.permission_array = res;
 
-		}} );
+			}
+		} );
 
 	},
 
@@ -472,7 +472,6 @@ PermissionControlViewController = BaseViewController.extend( {
 							this.current_edit_record.permission = this.convertPermissionData( this.current_edit_record.permission );
 							widget.setValue( this.current_edit_record.permission );
 						}
-
 						break;
 					default:
 						widget.setValue( this.current_edit_record[key] );
@@ -481,10 +480,8 @@ PermissionControlViewController = BaseViewController.extend( {
 
 			}
 		}
-
 		this.collectUIDataToCurrentEditRecord();
 		this.setEditViewDataDone();
-
 	},
 
 	convertPermissionData: function( permission ) {
@@ -534,7 +531,6 @@ PermissionControlViewController = BaseViewController.extend( {
 			'tab_permission_group': $.i18n._( 'Permission Group' ),
 			'tab_audit': $.i18n._( 'Audit' )
 		} );
-
 
 		this.navigation.AComboBox( {
 			api_class: (APIFactory.getAPIClass( 'APIPermissionControl' )),
@@ -606,7 +602,8 @@ PermissionControlViewController = BaseViewController.extend( {
 			id: 'permission_dropdown',
 			key: 'value',
 			allow_drag_to_order: false,
-			display_close_btn: false
+			display_close_btn: false,
+			auto_sort: true
 		} );
 
 		this.addEditFieldToColumn( $.i18n._( 'Permissions' ), form_item_input, tab_permission_group_column1, '', null, true, true );
@@ -648,19 +645,24 @@ PermissionControlViewController = BaseViewController.extend( {
 		this._super( 'buildSearchFields' );
 		this.search_fields = [
 
-			new SearchField( {label: $.i18n._( 'Name' ),
+			new SearchField( {
+				label: $.i18n._( 'Name' ),
 				in_column: 1,
 				field: 'name',
 				basic_search: true,
 				adv_search: false,
-				form_item_type: FormItemType.TEXT_INPUT} ),
-			new SearchField( {label: $.i18n._( 'Description' ),
+				form_item_type: FormItemType.TEXT_INPUT
+			} ),
+			new SearchField( {
+				label: $.i18n._( 'Description' ),
 				in_column: 1,
 				field: 'description',
 				basic_search: true,
 				adv_search: false,
-				form_item_type: FormItemType.TEXT_INPUT} ),
-			new SearchField( {label: $.i18n._( 'Created By' ),
+				form_item_type: FormItemType.TEXT_INPUT
+			} ),
+			new SearchField( {
+				label: $.i18n._( 'Created By' ),
 				in_column: 2,
 				field: 'created_by',
 				layout_name: ALayoutIDs.USER,
@@ -668,9 +670,11 @@ PermissionControlViewController = BaseViewController.extend( {
 				multiple: true,
 				basic_search: true,
 				adv_search: false,
-				form_item_type: FormItemType.AWESOME_BOX} ),
+				form_item_type: FormItemType.AWESOME_BOX
+			} ),
 
-			new SearchField( {label: $.i18n._( 'Updated By' ),
+			new SearchField( {
+				label: $.i18n._( 'Updated By' ),
 				in_column: 2,
 				field: 'updated_by',
 				layout_name: ALayoutIDs.USER,
@@ -678,10 +682,10 @@ PermissionControlViewController = BaseViewController.extend( {
 				multiple: true,
 				basic_search: true,
 				adv_search: false,
-				form_item_type: FormItemType.AWESOME_BOX} )
+				form_item_type: FormItemType.AWESOME_BOX
+			} )
 		];
 	}
-
 
 } );
 

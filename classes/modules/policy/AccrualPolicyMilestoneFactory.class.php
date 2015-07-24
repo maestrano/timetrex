@@ -360,6 +360,16 @@ class AccrualPolicyMilestoneFactory extends Factory {
 		return FALSE;
 	}
 
+	function Validate() {
+		if ( $this->validate_only == FALSE AND $this->getAccrualPolicy() == FALSE ) {
+			$this->Validator->isTRUE(	'accrual_policy_id'.$this->getLabelID(),
+										FALSE,
+										TTi18n::gettext('Accrual Policy is invalid') );
+		}
+
+		return TRUE;
+	}
+
 	function preSave() {
 		//Set Length of service in days.
 		$this->setLengthOfServiceDays( $this->getLengthOfService() );

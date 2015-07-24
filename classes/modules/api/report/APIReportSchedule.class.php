@@ -367,5 +367,13 @@ class APIReportSchedule extends APIFactory {
 
 		return $this->returnHandler( FALSE );
 	}
+
+	function UnsubscribeEmail( $email ) {
+		if ( $email != '' AND $this->getPermissionObject()->Check('company', 'edit') ) {
+			return ReportScheduleFactory::UnsubscribeEmail( $email );
+		}
+
+		return FALSE;
+	}
 }
 ?>

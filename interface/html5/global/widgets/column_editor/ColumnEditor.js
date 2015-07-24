@@ -76,7 +76,7 @@
 			$( 'body' ).append( $( this ) );
 
 			a_dropdown.setColumns( [
-				{name: 'label', index: 'label', label: 'Column Name', width: 100, sortable: false}
+				{name: 'label', index: 'label', label: $.i18n._('Column Name'), width: 100, sortable: false}
 			] );
 
 			a_dropdown.setUnselectedGridData( parent_awesome_box.getAllColumns() );

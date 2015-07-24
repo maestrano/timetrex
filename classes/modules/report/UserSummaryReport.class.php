@@ -75,7 +75,7 @@ class UserSummaryReport extends Report {
 				$retval = array(
 										//Static Columns - Aggregate functions can't be used on these.
 										'-1000-template' => TTi18n::gettext('Template'),
-										//'-1010-time_period' => TTi18n::gettext('Time Period'),
+										'-1010-time_period' => TTi18n::gettext('Time Period'), //Employed within this start/end date.
 
 										'-2010-user_status_id' => TTi18n::gettext('Employee Status'),
 										'-2020-user_group_id' => TTi18n::gettext('Employee Group'),
@@ -93,6 +93,9 @@ class UserSummaryReport extends Report {
 										'-5020-sub_total' => TTi18n::gettext('SubTotal By'),
 										'-5030-sort' => TTi18n::gettext('Sort By'),
 								);
+				break;
+			case 'time_period':
+				$retval = TTDate::getTimePeriodOptions();
 				break;
 			case 'date_columns':
 				$retval = array_merge(
@@ -813,6 +816,14 @@ class UserSummaryReport extends Report {
 		//Debug::Text(' Permission Children: '. count($permission_children_ids) .' Wage Children: '. count($wage_permission_children_ids), __FILE__, __LINE__, __METHOD__, 10);
 		//Debug::Arr($permission_children_ids, 'Permission Children: '. count($permission_children_ids), __FILE__, __LINE__, __METHOD__, 10);
 		//Debug::Arr($wage_permission_children_ids, 'Wage Children: '. count($wage_permission_children_ids), __FILE__, __LINE__, __METHOD__, 10);
+
+		//Rename start/end_date to employed_start/end_date, this prevents other reports like JobDetail from sending the start/end to the UserListFactory which may cause no records to be returned.
+		if ( isset($filter_data['start_date']) ) {
+			$filter_data['employed_start_date'] = $filter_data['start_date'];
+		}
+		if ( isset($filter_data['end_date']) ) {
+			$filter_data['employed_end_date'] = $filter_data['end_date'];
+		}
 
 		//Always include date columns, because 'hire-date_stamp' is not recognized by the UserFactory. This greatly slows down the report though.
 		$columns['effective_date'] = $columns['hire_date'] = $columns['termination_date'] = $columns['birth_date'] = $columns['created_date'] = $columns['updated_date'] = TRUE;

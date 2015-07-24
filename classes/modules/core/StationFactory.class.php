@@ -375,16 +375,9 @@ class StationFactory extends Factory {
 	}
 
 	function getCompanyObject() {
-		if ( is_object($this->company_obj) ) {
-			return $this->company_obj;
-		} else {
-			$clf = TTnew( 'CompanyListFactory' );
-			$this->company_obj = $clf->getById( $this->getCompany() )->getCurrent();
-
-			return $this->company_obj;
-		}
+		return $this->getGenericObject( 'CompanyListFactory', $this->getCompany(), 'company_obj' );
 	}
-
+	
 	function getCompany() {
 		return (int)$this->data['company_id'];
 	}
@@ -1761,7 +1754,7 @@ class StationFactory extends Factory {
 
 
 	private function genStationID() {
-		return md5( uniqid( dechex( mt_srand() ) ) );
+		return md5( uniqid( dechex( mt_rand() ), TRUE ) );
 	}
 
 	function setCookie() {
@@ -1838,26 +1831,7 @@ class StationFactory extends Factory {
 	function checkSource( $source, $current_station_id ) {
 		$source = trim($source);
 
-		if ( isset($_SERVER['REMOTE_ADDR']) ) {
-			$remote_addr = $_SERVER['REMOTE_ADDR'];
-		} else {
-			$remote_addr = NULL;
-		}
-
-		//Required for load balancers, however we may need to add another config option to restrict
-		//the REMOTE_ADDR <-> HTTP_X_FORWARDED_FOR combination, so when not be a load balancer/proxy it ignores this header.
-		if ( isset($_SERVER['X-Forwarded-For'] ) ) {
-			$x_forwarded_for = $_SERVER['X-Forwarded-For'];
-		} else {
-			$x_forwarded_for = NULL;
-		}
-
-		//IGNORE x_forwarded_for for now, because anyone could spoof this.
-		//Add a switch that will enable/disable this feature.
-
-		//$remote_addr = '192.168.2.10';
-		//$remote_addr = '192.168.1.10';
-		//$remote_addr = '127.0.0.1';
+		$remote_addr = Misc::getRemoteIPAddress();
 
 		if ( in_array( $this->getType(), array(10, 25) ) AND preg_match('/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(\/[0-9]{1,2})*/', $source) ) {
 			Debug::text('Source is an IP address!', __FILE__, __LINE__, __METHOD__, 10);
@@ -1883,7 +1857,7 @@ class StationFactory extends Factory {
 			Debug::text('Source is not internet related', __FILE__, __LINE__, __METHOD__, 10);
 		}
 
-		Debug::text('Source: '. $source .' Remote IP: '. $remote_addr .' Behind Proxy IP: '. $x_forwarded_for, __FILE__, __LINE__, __METHOD__, 10);
+		Debug::text('Source: '. $source .' Remote IP: '. $remote_addr, __FILE__, __LINE__, __METHOD__, 10);
 		if (	(
 					$current_station_id == $this->getStation()
 						OR in_array( strtolower( $this->getStation() ), $this->getOptions('station_reserved_word') )
@@ -1892,8 +1866,7 @@ class StationFactory extends Factory {
 				(
 					in_array( strtolower( $this->getSource() ), $this->getOptions('source_reserved_word') )
 					OR
-						( $source == $remote_addr
-							OR $source == $x_forwarded_for )
+						( $source == $remote_addr )
 					OR
 						( $current_station_id == $this->getSource() )
 					OR
@@ -2059,7 +2032,7 @@ class StationFactory extends Factory {
 					$status_id = 20; //Enabled, but will be set disabled automatically by isActiveForAnyEmployee()
 					$station = NULL; //Using NULL means we generate our own.
 					$description = substr( $_SERVER['HTTP_USER_AGENT'], 0, 250);
-					$source = $_SERVER['REMOTE_ADDR'];
+					$source = Misc::getRemoteIPAddress();
 					break;
 				case 28: //Mobile App (iOS/Android)
 				case 60: //Desktop App
@@ -2073,7 +2046,7 @@ class StationFactory extends Factory {
 						$status_id = 20; //Enabled
 						$station = NULL; //Can't get UDID on iOS5, but we can on Android. Using NULL means we generate our own.
 						$description = TTi18n::getText('Mobile Application').': '.substr( $_SERVER['HTTP_USER_AGENT'], 0, 250);
-						$source = $_SERVER['REMOTE_ADDR'];
+						$source = Misc::getRemoteIPAddress();
 					} else {
 						$status_id = 20; //Enabled
 						if ( $station_id != '' ) {
@@ -2087,7 +2060,7 @@ class StationFactory extends Factory {
 							$station = NULL; //Can't get UDID on iOS5, but we can on Android. Using NULL means we generate our own.
 						}
 						$description = TTi18n::getText('Mobile Application').': '.substr( $_SERVER['HTTP_USER_AGENT'], 0, 250);
-						$source = $_SERVER['REMOTE_ADDR'];
+						$source = Misc::getRemoteIPAddress();
 						//$source = 'ANY';
 
 						$sf->setPollFrequency( 600 );

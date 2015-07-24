@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: timetrex\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-02-13 16:01-0800\n"
+"POT-Creation-Date: 2015-06-03 08:08-0700\n"
 "PO-Revision-Date: 2013-03-20 00:24+0000\n"
 "Last-Translator: Aputsiaq Niels Janussen <aj@isit.gl>\n"
 "Language-Team: Danish <da@li.org>\n"
@@ -43,6 +43,9 @@ msgid "%1 database has not been initialized yet, please run the installer again 
 msgstr ""
 
 msgid "%1 database query has timed-out, if you were trying to run a report it may be too large, please narrow your search criteria and try again."
+msgstr ""
+
+msgid "%1 entry for amount: %2 is invalid"
 msgstr ""
 
 msgid "%1 experienced a general error, please contact technical support."
@@ -508,6 +511,9 @@ msgstr "AKTIV"
 msgid "ADP"
 msgstr "ADP"
 
+msgid "ADP Hours"
+msgstr "ADP Timer"
+
 msgid "ADP Hours Code"
 msgstr "ADP Timer kode"
 
@@ -631,6 +637,9 @@ msgstr ""
 msgid "Absence<br>Policies"
 msgstr ""
 
+msgid "Absences"
+msgstr ""
+
 msgid "Absense Policy"
 msgstr "Politik for fravær"
 
@@ -638,6 +647,9 @@ msgid "Absent"
 msgstr "Fraværende"
 
 msgid "Academic"
+msgstr ""
+
+msgid "Accero"
 msgstr ""
 
 msgid "Access from station Allowed"
@@ -654,6 +666,9 @@ msgstr ""
 
 msgid "Account"
 msgstr "Konto"
+
+msgid "Account Name"
+msgstr ""
 
 msgid "Account Number"
 msgstr ""
@@ -709,6 +724,9 @@ msgstr "Politik for tilvækst/summering er ugyldig"
 msgid "Accrual Rate"
 msgstr "Tilvækstrate"
 
+msgid "Accrual Rate Modifier"
+msgstr ""
+
 msgid "Accrual Rate/Hour"
 msgstr ""
 
@@ -726,6 +744,9 @@ msgstr ""
 
 msgid "Accrual Total Maximum"
 msgstr "Tilvækst total maksimum"
+
+msgid "Accrual Total Maximum Modifier"
+msgstr ""
 
 msgid "Accrual Total Maximum Time"
 msgstr ""
@@ -1003,12 +1024,6 @@ msgstr ""
 msgid "Administrator<br>Guide"
 msgstr ""
 
-msgid "Advance end date is set"
-msgstr ""
-
-msgid "Advance transaction date is set"
-msgstr ""
-
 msgid "Advanced"
 msgstr ""
 
@@ -1172,9 +1187,6 @@ msgid "All Punches"
 msgstr "Alle stemplinger"
 
 msgid "All Saint Day"
-msgstr "Allerhelgensdag"
-
-msgid "All Saints Day"
 msgstr "Allerhelgensdag"
 
 msgid "All System Requirements have been met successfully"
@@ -1366,6 +1378,9 @@ msgstr "Amazonas"
 msgid "Amended"
 msgstr "Ændret"
 
+msgid "Amendment"
+msgstr ""
+
 msgid "America Online"
 msgstr ""
 
@@ -1463,6 +1478,9 @@ msgid "Annual Hourly Rate is too high"
 msgstr ""
 
 msgid "Annual Maximum Rollover"
+msgstr ""
+
+msgid "Annual Maximum Rollover Modifier"
 msgstr ""
 
 msgid "Annual Pay Periods"
@@ -2149,9 +2167,6 @@ msgstr ""
 msgid "Bank Accounts"
 msgstr ""
 
-msgid "Bank Day"
-msgstr "Bankdag"
-
 msgid "Bank Information"
 msgstr "Bank information"
 
@@ -2812,6 +2827,9 @@ msgstr "Cambodia"
 msgid "Cambridgeshire"
 msgstr ""
 
+msgid "Camera"
+msgstr ""
+
 msgid "Cameroon"
 msgstr "Cameroun"
 
@@ -3061,6 +3079,9 @@ msgstr ""
 msgid "Chontales"
 msgstr ""
 
+msgid "Choose Layout"
+msgstr ""
+
 msgid "Choose image file to upload"
 msgstr ""
 
@@ -3078,9 +3099,6 @@ msgstr ""
 
 msgid "Christ Church"
 msgstr ""
-
-msgid "Christmas"
-msgstr "Jul"
 
 msgid "Christmas Day"
 msgstr ""
@@ -3265,8 +3283,11 @@ msgstr ""
 msgid "Colorado"
 msgstr "Colorado"
 
-msgid "Columbus Day"
-msgstr "Columbus Day"
+msgid "Column Name"
+msgstr ""
+
+msgid "Columns"
+msgstr "Kolonner"
 
 msgid "Columns:"
 msgstr "Kolonner:"
@@ -3433,8 +3454,14 @@ msgstr "Bekræftet"
 msgid "Conflicting end date"
 msgstr "Konfliktende slutdato"
 
+msgid "Conflicting end date, does not match pay period"
+msgstr ""
+
 msgid "Conflicting start date"
 msgstr "Konfliktende startdato"
+
+msgid "Conflicting start date, does not match pay period"
+msgstr ""
 
 msgid "Conflicting start/end time, schedule already exists for this employee"
 msgstr ""
@@ -4120,6 +4147,9 @@ msgstr "Debit Konto"
 msgid "Debit Card"
 msgstr ""
 
+msgid "Debit: %1 Credit: %2"
+msgstr ""
+
 msgid "Debits By Client"
 msgstr ""
 
@@ -4192,9 +4222,6 @@ msgstr ""
 msgid "Deduction"
 msgstr "Fradrag"
 
-msgid "Deduction is already assigned to employee"
-msgstr "Fradrag er allerede tilknyttet til en medarbejder"
-
 msgid "Deduction is invalid"
 msgstr "Fradrag er ugyldig"
 
@@ -4257,6 +4284,9 @@ msgstr ""
 
 msgid "Default Transfer On"
 msgstr "Standard overførsel til"
+
+msgid "Default Value"
+msgstr ""
 
 msgid "Default settings for this company already exist"
 msgstr ""
@@ -4337,6 +4367,9 @@ msgid "Department Branch is invalid"
 msgstr "Afdelingsfilial er ugyldig"
 
 msgid "Department Code"
+msgstr ""
+
+msgid "Department Override Code"
 msgstr ""
 
 msgid "Department Selection Type"
@@ -4420,6 +4453,9 @@ msgstr ""
 msgid "Desktop PC"
 msgstr ""
 
+msgid "Destination Pay Stub Account"
+msgstr ""
+
 msgid "Detailed"
 msgstr "Detaljeret"
 
@@ -4481,6 +4517,12 @@ msgid "Disabled - Failed"
 msgstr "Deaktiveret - fejlede"
 
 msgid "Discipline"
+msgstr ""
+
+msgid "Disk Space"
+msgstr ""
+
+msgid "Disk Space:"
 msgstr ""
 
 msgid "Display"
@@ -4702,10 +4744,22 @@ msgstr ""
 msgid "ERROR: Invalid Absence Policy"
 msgstr ""
 
+msgid "ERROR: Journal entries do not balance"
+msgstr ""
+
 msgid "ERROR: NO INVOICE SETTINGS DEFINED, UNABLE TO GENERATE INVOICE"
 msgstr ""
 
+msgid "ERROR: No data matches criteria."
+msgstr ""
+
+msgid "ERROR: No data to export..."
+msgstr ""
+
 msgid "ERROR: Operation cannot be completed."
+msgstr ""
+
+msgid "ERROR: Please try again later or narrow your search criteria to decrease the size of your report"
 msgstr ""
 
 msgid "ERROR: UnAssigned Regular Time"
@@ -4730,9 +4784,6 @@ msgid "Each Day (Split at Midnight)"
 msgstr ""
 
 msgid "Earned Income Credit (EIC)"
-msgstr ""
-
-msgid "Earned Income Credit (EIC) (Line 9)"
 msgstr ""
 
 msgid "Earning"
@@ -5143,9 +5194,6 @@ msgstr ""
 msgid "Employee Contact"
 msgstr ""
 
-msgid "Employee Contact "
-msgstr ""
-
 msgid "Employee Contacts"
 msgstr ""
 
@@ -5230,7 +5278,13 @@ msgstr ""
 msgid "Employee Last Name"
 msgstr ""
 
+msgid "Employee License"
+msgstr ""
+
 msgid "Employee Licenses"
+msgstr ""
+
+msgid "Employee Membership"
 msgstr ""
 
 msgid "Employee Memberships"
@@ -5290,6 +5344,9 @@ msgstr ""
 msgid "Employee Review KPI"
 msgstr ""
 
+msgid "Employee Sequence"
+msgstr ""
+
 msgid "Employee Settings"
 msgstr "Medarbejder indstillinger"
 
@@ -5298,6 +5355,9 @@ msgstr ""
 
 msgid "Employee Signature:"
 msgstr "Medarvejder signatur:"
+
+msgid "Employee Skill"
+msgstr ""
 
 msgid "Employee Skills"
 msgstr ""
@@ -5336,6 +5396,9 @@ msgid "Employee Wage Effective Date"
 msgstr ""
 
 msgid "Employee Wages"
+msgstr ""
+
+msgid "Employee already has a pay stub for this Pay Period"
 msgstr ""
 
 msgid "Employee already has a wage entry on this date for the same wage group. Try using a different date instead."
@@ -6112,9 +6175,6 @@ msgstr "Firmware opdatering fejlede!"
 msgid "Firmware Update Succeeded!"
 msgstr "Firmware opdatering gennemført!"
 
-msgid "First Cry of Independence"
-msgstr "First Cry of Independence"
-
 msgid "First Day Worked"
 msgstr ""
 
@@ -6159,9 +6219,6 @@ msgstr ""
 
 msgid "Fixed Amount (w/Target)"
 msgstr ""
-
-msgid "Flag Day"
-msgstr "Falgdag"
 
 msgid "Flat Amount"
 msgstr ""
@@ -6532,15 +6589,6 @@ msgstr "Godt"
 msgid "Good Friday"
 msgstr "Langfredag"
 
-msgid "Good Saturday"
-msgstr "Good Saturday"
-
-msgid "Good Thursday"
-msgstr "Skærtorsdag"
-
-msgid "Good Wednesday"
-msgstr "Good Wednesday"
-
 msgid "Good:"
 msgstr "God:"
 
@@ -6742,6 +6790,9 @@ msgstr ""
 msgid "Handling fee is invalid"
 msgstr "Administrationsafgift er ugyldig"
 
+msgid "Hardware ID"
+msgstr ""
+
 msgid "Hartlepool"
 msgstr ""
 
@@ -6933,6 +6984,9 @@ msgstr ""
 
 msgid "Hour Based"
 msgstr "Timebaseret"
+
+msgid "Hour Type"
+msgstr ""
 
 msgid "Hour is invalid"
 msgstr "Time er ugyldig"
@@ -7873,12 +7927,6 @@ msgstr "Forkert faktisk tidsstempel"
 msgid "Incorrect actual total time"
 msgstr "Forkert faktisk total tid"
 
-msgid "Incorrect advance end date"
-msgstr ""
-
-msgid "Incorrect advance transaction date"
-msgstr ""
-
 msgid "Incorrect allowed date"
 msgstr ""
 
@@ -8169,9 +8217,6 @@ msgstr ""
 
 msgid "Independence Day"
 msgstr "Uafhængighedsdag"
-
-msgid "Independence Day CR"
-msgstr "Uafhængighedsdag CR"
 
 msgid "India"
 msgstr "Indien"
@@ -8473,7 +8518,7 @@ msgstr "Ugyldig lønseddel"
 msgid "Invalid Pay Stub Account"
 msgstr "Ugyldig lønseddel konto"
 
-msgid "Invalid Pay Stub Amendment"
+msgid "Invalid Pay Stub Accounts"
 msgstr ""
 
 msgid "Invalid Pay Stub Amendment Description Length"
@@ -8667,9 +8712,6 @@ msgstr "Ugyldig transitnummer længe"
 
 msgid "Invalid transit number, must be digits only"
 msgstr "Ugyldigt transitnummer, må kun være tal"
-
-msgid "Invalid unique User and/or Pay Period"
-msgstr "Ugyldig unik bruger og/eller lønperiode"
 
 msgid "Invalid vacation pay"
 msgstr "Ugyldig ferieløn"
@@ -9607,6 +9649,9 @@ msgstr ""
 msgid "Length of Service Date"
 msgstr ""
 
+msgid "Length of Service Modifier"
+msgstr ""
+
 msgid "Length of service is invalid"
 msgstr "Længde på service er ugyldig"
 
@@ -10180,9 +10225,6 @@ msgstr "Marshall-øerne"
 msgid "Martinique"
 msgstr "Martiniqe"
 
-msgid "Martyr`s Day"
-msgstr "Martyr`s Day"
-
 msgid "Maryland"
 msgstr "Maryland"
 
@@ -10450,10 +10492,28 @@ msgstr ""
 msgid "Midlothian"
 msgstr ""
 
+msgid "Migrate PS Accounts"
+msgstr ""
+
 msgid "Migrate Pay Codes"
 msgstr ""
 
+msgid "Migrate<br>PS Accounts "
+msgstr ""
+
 msgid "Migrate<br>Pay Codes"
+msgstr ""
+
+msgid "Migrated YTD Amount from"
+msgstr ""
+
+msgid "Migrated YTD Amount from other account"
+msgstr ""
+
+msgid "Migrated YTD Amount to"
+msgstr ""
+
+msgid "Migrated YTD Amount to other account"
 msgstr ""
 
 msgid "Milan"
@@ -10854,6 +10914,9 @@ msgstr ""
 
 msgid "Name is invalid"
 msgstr "Navn er ugyldig"
+
+msgid "Name is not specified"
+msgstr ""
 
 msgid "Name is too long, consider using description instead"
 msgstr ""
@@ -11347,6 +11410,9 @@ msgstr ""
 msgid "Not Verified"
 msgstr "Ikke verificeret"
 
+msgid "Not enough disk space available, please free up disk space and try again."
+msgstr ""
+
 msgid "Not generating final pay stub!"
 msgstr "Genererer ikke slut lønseddel!"
 
@@ -11436,6 +11502,9 @@ msgstr "OK"
 
 msgid "OPEN"
 msgstr "ÅBEN"
+
+msgid "OPENING BALANCE"
+msgstr ""
 
 msgid "OVERDUE"
 msgstr "OVERSKREDET"
@@ -11564,6 +11633,12 @@ msgid "Open"
 msgstr "Åben"
 
 msgid "Open Shift Multiplier"
+msgstr ""
+
+msgid "Opening Balance (YTD)"
+msgstr ""
+
+msgid "Opening Balance Pay Stubs must not come after any other pay stub for this employee"
 msgstr ""
 
 msgid "Optional"
@@ -11845,6 +11920,9 @@ msgstr ""
 msgid "Overall Total"
 msgstr ""
 
+msgid "Overall Totals"
+msgstr ""
+
 msgid "Overdue"
 msgstr "Overskredet"
 
@@ -12079,6 +12157,9 @@ msgstr ""
 msgid "Parma"
 msgstr ""
 
+msgid "Parse Hint"
+msgstr ""
+
 msgid "Parsing import data..."
 msgstr ""
 
@@ -12136,7 +12217,7 @@ msgstr ""
 msgid "Password Reset"
 msgstr "Nulstil adgangskode"
 
-msgid "Password Reset requested at "
+msgid "Password Reset requested at"
 msgstr ""
 
 msgid "Password Updated"
@@ -12331,6 +12412,9 @@ msgstr "Lønseddelændring"
 msgid "Pay Stub Amendment - Employee"
 msgstr ""
 
+msgid "Pay Stub Amendment effective date is after employees pay stub end date or termination date"
+msgstr ""
+
 msgid "Pay Stub Amendments"
 msgstr "Lønseddel ændringer"
 
@@ -12388,9 +12472,6 @@ msgstr "Lønsedler"
 msgid "Pay Type"
 msgstr "Løntype"
 
-msgid "Pay period is already closed"
-msgstr ""
-
 msgid "Pay period prior to %1 is not closed, please close all previous pay periods and try again..."
 msgstr ""
 
@@ -12398,9 +12479,6 @@ msgid "Pay period schedules are critical to the operation of"
 msgstr ""
 
 msgid "Pay stub entry account is invalid"
-msgstr ""
-
-msgid "Pay stub is assigned to a closed pay period"
 msgstr ""
 
 msgid "Pay<br>Codes"
@@ -12612,9 +12690,6 @@ msgstr ""
 msgid "Permission Group is invalid"
 msgstr "Rettighedsgruppe er ugyldig"
 
-msgid "Permission Group: "
-msgstr ""
-
 msgid "Permission Groups"
 msgstr "Rettighedsgrupper"
 
@@ -12786,9 +12861,6 @@ msgid "Please specify an employee"
 msgstr ""
 
 msgid "Please try again later..."
-msgstr ""
-
-msgid "Please try again later... (b)"
 msgstr ""
 
 msgid "Please upload file again"
@@ -13021,9 +13093,6 @@ msgstr ""
 
 msgid "Primary account is too short or too long"
 msgstr "Primær konto er for kort eller for lang"
-
-msgid "Primer Grito de Independencia de la Villa de los Santos"
-msgstr "Primer Grito de Independencia de la Villa de los Santos"
 
 msgid "Prince Edward Island"
 msgstr "Prins Edvards ø"
@@ -13877,6 +13946,9 @@ msgstr ""
 msgid "Remote Version"
 msgstr ""
 
+msgid "Removed invalid or bouncing email address"
+msgstr ""
+
 msgid "Renewal Date"
 msgstr ""
 
@@ -14102,9 +14174,6 @@ msgstr "Version"
 msgid "Revisions"
 msgstr "Versioner"
 
-msgid "Revolution Day"
-msgstr "Revolutionsdag"
-
 msgid "Rhode Island"
 msgstr "Rhode Island"
 
@@ -14216,6 +14285,9 @@ msgstr ""
 msgid "Row"
 msgstr ""
 
+msgid "Rows Per Page"
+msgstr ""
+
 msgid "Rows Per page"
 msgstr ""
 
@@ -14285,6 +14357,9 @@ msgstr "Safe Mode slået fra:"
 msgid "Safe Mode is On. (Please disable it in php.ini)"
 msgstr "Safe Mode er slået til. (Slå det venligst fra i php.ini)"
 
+msgid "Sage 300 (Accpac)"
+msgstr ""
+
 msgid "Saint Helena"
 msgstr "Sankt Helena"
 
@@ -14336,14 +14411,14 @@ msgstr ""
 msgid "Samoa"
 msgstr "Samoa"
 
+msgid "Sample Row"
+msgstr ""
+
 msgid "San Andres y Providencia"
 msgstr ""
 
 msgid "San Blas"
 msgstr ""
-
-msgid "San Jacinto Battle"
-msgstr "San Jacinto Battle"
 
 msgid "San Jose"
 msgstr ""
@@ -14362,9 +14437,6 @@ msgstr ""
 
 msgid "San Salvador"
 msgstr ""
-
-msgid "San Salvador Party"
-msgstr "San Salvador Party"
 
 msgid "San Vicente"
 msgstr ""
@@ -14430,6 +14502,9 @@ msgid "Save Setup"
 msgstr ""
 
 msgid "Save TimeSheet State"
+msgstr ""
+
+msgid "Save and Close"
 msgstr ""
 
 msgid "Save as New"
@@ -14814,10 +14889,10 @@ msgstr ""
 msgid "Selected employee is invalid, or already assigned to another permission group"
 msgstr "Valgt medarbejder er ugyldig, eller allerede tilknyttet til en anden rettighedsgruppe"
 
-msgid "Selected subordinate is invalid or already assigned to another hierarchy with the same object. User ID: "
+msgid "Selected subordinate is invalid or already assigned to another hierarchy with the same object. User ID: %1"
 msgstr ""
 
-msgid "Selected subordinate is invalid or already assigned to another hierarchy with the same objects "
+msgid "Selected subordinate is invalid or already assigned to another hierarchy with the same objects"
 msgstr ""
 
 msgid "Selection"
@@ -14867,9 +14942,6 @@ msgstr "Sendt"
 
 msgid "Sep"
 msgstr "sep"
-
-msgid "Separation Day from Colombia"
-msgstr "Seoarationsdag fra Colombia"
 
 msgid "September"
 msgstr "september"
@@ -14985,6 +15057,9 @@ msgstr ""
 msgid "Shift is before employees hire date"
 msgstr ""
 
+msgid "Shifts"
+msgstr ""
+
 msgid "Shifts Scheduled Absent"
 msgstr ""
 
@@ -15055,6 +15130,9 @@ msgid "Show All"
 msgstr ""
 
 msgid "Show Duplicate Values"
+msgstr ""
+
+msgid "Show Pre-Mature"
 msgstr ""
 
 msgid "Show Sub-Expenses"
@@ -15241,6 +15319,9 @@ msgid "Source"
 msgstr "Kilde"
 
 msgid "Source Object"
+msgstr ""
+
+msgid "Source Pay Stub Account(s)"
 msgstr ""
 
 msgid "SourceIP"
@@ -15462,14 +15543,14 @@ msgstr "Status \"D\""
 msgid "Status \"F\""
 msgstr "Status \"F\""
 
-msgid "Status \"M\" Claiming $3000"
-msgstr "Status \"M\" kræver$3000"
+msgid "Status \"M\": Claiming $3000"
+msgstr ""
 
 msgid "Status \"MS\""
 msgstr "Status \"MS\""
 
-msgid "Status \"S\" Claiming $1500"
-msgstr "Status \"S\" kræver $1500"
+msgid "Status \"S\": Claiming $1500"
+msgstr ""
 
 msgid "Status By"
 msgstr ""
@@ -16008,6 +16089,12 @@ msgstr ""
 msgid "Tax/Deduction Rate"
 msgstr ""
 
+msgid "Tax/Deduction is already assigned to employee"
+msgstr ""
+
+msgid "Tax/Deduction is invalid"
+msgstr ""
+
 msgid "Tax<br>Reports"
 msgstr ""
 
@@ -16225,6 +16312,9 @@ msgid "This will delete all attendance data assigned to this pay period. Are you
 msgstr ""
 
 msgid "This will import employee attendance data from other pay periods into this pay period.Are you sure you wish to continue?"
+msgstr ""
+
+msgid "This wizard will automatically create Pay Stub Amendments to migrate Year-To-Date amounts from one Pay Stub Account to another as of a specific effective date."
 msgstr ""
 
 msgid "This wizard will migrate data associated with one pay code to another pay code without recalculating timesheets or otherwise affecting employees time or wages. "
@@ -16737,6 +16827,9 @@ msgstr "I alt:"
 msgid "Totaling Data..."
 msgstr ""
 
+msgid "Totals"
+msgstr "Totaler"
+
 msgid "Totals by Branch"
 msgstr ""
 
@@ -16899,6 +16992,9 @@ msgstr ""
 msgid "Type already exists"
 msgstr "Type eksisterer allerede"
 
+msgid "Type cannot be modified when Pay Stub Account is in use"
+msgstr ""
+
 msgid "Type is invalid"
 msgstr ""
 
@@ -17002,6 +17098,9 @@ msgstr ""
 msgid "Unable to change status of your own record"
 msgstr ""
 
+msgid "Unable to create pay stubs in a closed pay period"
+msgstr ""
+
 msgid "Unable to delete expenses after they have been authorized/declined"
 msgstr ""
 
@@ -17030,6 +17129,9 @@ msgid "Unable to generate pay stub(s), employee(s) may not be assigned to a pay 
 msgstr ""
 
 msgid "Unable to modify Pay Stub Amendment that is currently be used by a Pay Stub marked PAID"
+msgstr ""
+
+msgid "Unable to modify pay stubs assigned to a closed pay period"
 msgstr ""
 
 msgid "Unable to process payment #"
@@ -17269,22 +17371,10 @@ msgstr ""
 msgid "User Date Total ID is invalid"
 msgstr "Bruge dato total ID er ugyldig"
 
-msgid "User Education"
-msgstr ""
-
 msgid "User Expense"
 msgstr ""
 
 msgid "User Filter"
-msgstr ""
-
-msgid "User Language"
-msgstr ""
-
-msgid "User License"
-msgstr ""
-
-msgid "User Membership"
 msgstr ""
 
 msgid "User Name"
@@ -17312,9 +17402,6 @@ msgid "User Name:"
 msgstr "Brugernavn:"
 
 msgid "User Setting - Name"
-msgstr ""
-
-msgid "User Skill"
 msgstr ""
 
 msgid "User Value 1 is invalid"
@@ -17415,6 +17502,9 @@ msgstr "VIA"
 
 msgid "VISA"
 msgstr "VISA"
+
+msgid "VOID"
+msgstr ""
 
 msgid "Vacation Pay (Box 17A)"
 msgstr ""
@@ -17539,7 +17629,19 @@ msgstr ""
 msgid "Verification Window Ends"
 msgstr ""
 
+msgid "Verification Window Ends is too large"
+msgstr ""
+
+msgid "Verification Window Ends is too small"
+msgstr ""
+
 msgid "Verification Window Starts"
+msgstr ""
+
+msgid "Verification Window Starts is too large"
+msgstr ""
+
+msgid "Verification Window Starts is too small"
 msgstr ""
 
 msgid "Verification Windows Ends"
@@ -17862,6 +17964,9 @@ msgstr "Advarsel: Ikke installeret. (SimpleXML udvidelse skal være aktiveret)"
 msgid "Warning: Not Installed. (ZIP extension must be enabled)"
 msgstr ""
 
+msgid "Warning: Not enough disk space available, please free up disk space and try again."
+msgstr ""
+
 msgid "Warning: Not writable"
 msgstr "Advarsel: Ikke skrivbar"
 
@@ -18072,6 +18177,9 @@ msgstr ""
 msgid "Wisconsin"
 msgstr "Wisconsin"
 
+msgid "Wizard data is not correct on step 2 or step 3, please open wizard and try again"
+msgstr ""
+
 msgid "Wk Total"
 msgstr ""
 
@@ -18271,9 +18379,6 @@ msgid "Year (Ending)"
 msgstr ""
 
 msgid "Year (Starting)"
-msgstr ""
-
-msgid "Year to Date (YTD) Adjustment"
 msgstr ""
 
 msgid "Year(s)"
@@ -18516,9 +18621,6 @@ msgstr ""
 msgid "by Quarter"
 msgstr ""
 
-msgid "by Regular Time policies"
-msgstr ""
-
 msgid "by Title"
 msgstr ""
 
@@ -18532,6 +18634,9 @@ msgid "by break policies"
 msgstr ""
 
 msgid "by contributing shift policies"
+msgstr ""
+
+msgid "by employee timesheets"
 msgstr ""
 
 msgid "by meal policies"
@@ -18551,6 +18656,9 @@ msgstr ""
 
 msgid "click here"
 msgstr "klik her"
+
+msgid "click to search"
+msgstr ""
 
 msgid "configuration file"
 msgstr ""
@@ -18583,30 +18691,6 @@ msgid "days"
 msgstr "dage"
 
 msgid "days after end of pay period"
-msgstr ""
-
-msgid "dd-mmm-yy"
-msgstr ""
-
-msgid "dd-mmm-yyyy"
-msgstr ""
-
-msgid "ddd, dd-mmm-yyyy"
-msgstr ""
-
-msgid "ddd, ddmmmyyyy"
-msgstr ""
-
-msgid "ddd, mmm dd yyyy"
-msgstr ""
-
-msgid "ddd, mmmm dd yyyy"
-msgstr ""
-
-msgid "dddd, mmmm dd yyyy"
-msgstr ""
-
-msgid "ddmmmyyyy"
 msgstr ""
 
 msgid "description"
@@ -18787,12 +18871,6 @@ msgid "min"
 msgstr "min"
 
 msgid "minute( #time_stamp# )"
-msgstr ""
-
-msgid "mmm-dd-yy"
-msgstr ""
-
-msgid "mmm-dd-yyyy"
 msgstr ""
 
 msgid "month( #time_stamp# )"
@@ -19113,9 +19191,6 @@ msgstr ""
 #~ msgid ">Employer Contributions"
 #~ msgstr ">Medarbejder bidrag"
 
-#~ msgid "ADP Hours"
-#~ msgstr "ADP Timer"
-
 #~ msgid "Absence Policy List"
 #~ msgstr "Liste over politik for fravær"
 
@@ -19260,6 +19335,9 @@ msgstr ""
 #~ msgid "All Out (incl. Lunch)"
 #~ msgstr "Alle ud (inkl. frokost)"
 
+#~ msgid "All Saints Day"
+#~ msgstr "Allerhelgensdag"
+
 #~ msgid "All pay periods are currently closed."
 #~ msgstr "Alle lønperioder er pt lukket."
 
@@ -19331,6 +19409,9 @@ msgstr ""
 
 #~ msgid "Bank"
 #~ msgstr "Bank"
+
+#~ msgid "Bank Day"
+#~ msgstr "Bankdag"
 
 #~ msgid "Bank Transit:"
 #~ msgstr "Bank transit:"
@@ -19473,6 +19554,9 @@ msgstr ""
 #~ msgid "Charitable Donations (Box: 46):"
 #~ msgstr "Velgørenhedsdonationer (Boks: 46):"
 
+#~ msgid "Christmas"
+#~ msgstr "Jul"
+
 #~ msgid "City was not specified"
 #~ msgstr "By blev ikke angivet"
 
@@ -19518,8 +19602,8 @@ msgstr ""
 #~ msgid "Code:"
 #~ msgstr "Kode:"
 
-#~ msgid "Columns"
-#~ msgstr "Kolonner"
+#~ msgid "Columbus Day"
+#~ msgstr "Columbus Day"
 
 #~ msgid "Commands"
 #~ msgstr "Kommandoer"
@@ -19676,6 +19760,9 @@ msgstr ""
 
 #~ msgid "Debit Amount"
 #~ msgstr "Debit beløb"
+
+#~ msgid "Deduction is already assigned to employee"
+#~ msgstr "Fradrag er allerede tilknyttet til en medarbejder"
 
 #~ msgid "Deductions:"
 #~ msgstr "Fradrag:"
@@ -20343,6 +20430,9 @@ msgstr ""
 #~ msgid "First"
 #~ msgstr "Først"
 
+#~ msgid "First Cry of Independence"
+#~ msgstr "First Cry of Independence"
+
 #~ msgid "First Day"
 #~ msgstr "Første dag"
 
@@ -20351,6 +20441,9 @@ msgstr ""
 
 #~ msgid "First In"
 #~ msgstr "Først ind"
+
+#~ msgid "Flag Day"
+#~ msgstr "Falgdag"
 
 #~ msgid "Folder:"
 #~ msgstr "Mappe:"
@@ -20414,6 +20507,15 @@ msgstr ""
 
 #~ msgid "Good Quantity"
 #~ msgstr "God mængde"
+
+#~ msgid "Good Saturday"
+#~ msgstr "Good Saturday"
+
+#~ msgid "Good Thursday"
+#~ msgstr "Skærtorsdag"
+
+#~ msgid "Good Wednesday"
+#~ msgstr "Good Wednesday"
 
 #~ msgid "Grace Period:"
 #~ msgstr "Henstandsperiode:"
@@ -20586,6 +20688,9 @@ msgstr ""
 #~ msgid "Incorrect iButton ID length"
 #~ msgstr "Forkert iButton ID længde"
 
+#~ msgid "Independence Day CR"
+#~ msgstr "Uafhængighedsdag CR"
+
 #~ msgid "Institution Number:"
 #~ msgstr "Institutionsnummer:"
 
@@ -20618,6 +20723,9 @@ msgstr ""
 
 #~ msgid "Invalid data, unable to generate report."
 #~ msgstr "Ugyldige data, ude af stand til at generere rapporten."
+
+#~ msgid "Invalid unique User and/or Pay Period"
+#~ msgstr "Ugyldig unik bruger og/eller lønperiode"
 
 #~ msgid "Invoice #:"
 #~ msgstr "Faktura #:"
@@ -20756,6 +20864,9 @@ msgstr ""
 
 #~ msgid "Mark UnPaid"
 #~ msgstr "Mærk - ikke betalt"
+
+#~ msgid "Martyr`s Day"
+#~ msgstr "Martyr`s Day"
 
 #~ msgid "Mass Punch"
 #~ msgstr "Massestempling"
@@ -21273,6 +21384,9 @@ msgstr ""
 #~ msgid "Primary Support Contact:"
 #~ msgstr "Primær Support Kontakt:"
 
+#~ msgid "Primer Grito de Independencia de la Villa de los Santos"
+#~ msgstr "Primer Grito de Independencia de la Villa de los Santos"
+
 #~ msgid "Print Detailed Timesheet"
 #~ msgstr "Udskriv detaljeret tidsskema"
 
@@ -21480,6 +21594,9 @@ msgstr ""
 #~ msgid "Revision:"
 #~ msgstr "Version:"
 
+#~ msgid "Revolution Day"
+#~ msgstr "Revolutionsdag"
+
 #~ msgid "Right"
 #~ msgstr "Højre"
 
@@ -21515,6 +21632,12 @@ msgstr ""
 
 #~ msgid "SSN"
 #~ msgstr "SSN"
+
+#~ msgid "San Jacinto Battle"
+#~ msgstr "San Jacinto Battle"
+
+#~ msgid "San Salvador Party"
+#~ msgstr "San Salvador Party"
 
 #~ msgid "Saved Schedules"
 #~ msgstr "Gemte vagtplaner"
@@ -21602,6 +21725,9 @@ msgstr ""
 
 #~ msgid "Send Notifications to Home Email:"
 #~ msgstr "Send notifikationer til hjemme email:"
+
+#~ msgid "Separation Day from Colombia"
+#~ msgstr "Seoarationsdag fra Colombia"
 
 #~ msgid "Serial No:"
 #~ msgstr "Serie Nr.:"
@@ -21737,6 +21863,12 @@ msgstr ""
 
 #~ msgid "Station:"
 #~ msgstr "Station:"
+
+#~ msgid "Status \"M\" Claiming $3000"
+#~ msgstr "Status \"M\" kræver$3000"
+
+#~ msgid "Status \"S\" Claiming $1500"
+#~ msgstr "Status \"S\" kræver $1500"
 
 #~ msgid "Status:"
 #~ msgstr "Status:"
@@ -21965,9 +22097,6 @@ msgstr ""
 
 #~ msgid "Total Punches:"
 #~ msgstr "Totale stemplinger"
-
-#~ msgid "Totals"
-#~ msgstr "Totaler"
 
 #~ msgid "Tracking Number:"
 #~ msgstr "Tracking nummer:"

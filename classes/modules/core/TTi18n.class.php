@@ -291,6 +291,7 @@ class TTi18n {
 			foreach( $locale_arr as $tmp_locale ) {
 				$retarr[] = $tmp_locale;
 				$retarr[] = $tmp_locale.'.UTF-8';
+				$retarr[] = $tmp_locale.'.utf8';
 			}
 		} else {
 			//Normalize each locale to Windows.
@@ -555,8 +556,8 @@ class TTi18n {
 		//asort($retarr);
 
 		// Return supported languages only.
-		$supported_langs = array( 'en', 'da', 'de', 'es', 'id', 'it', 'fr', 'pt', 'zh');
-		$beta_langs = array( 'da', 'de', 'es', 'id', 'it', 'fr', 'pt', 'zh' );
+		$supported_langs = array( 'en', 'da', 'de', 'es', 'id', 'it', 'fr', 'pt', 'ar', 'zh');
+		$beta_langs = array( 'da', 'de', 'es', 'id', 'it', 'fr', 'pt', 'ar', 'zh' );
 
 		if ( PRODUCTION == FALSE ) {
 			//YI is for testing only.
@@ -623,6 +624,7 @@ class TTi18n {
 		static $language = array(
 								'af' => 'af_ZA',	// Afrikaans	South Africa
 								'am' => 'am_ET',	// Amharic	Ethiopia
+								'ar' => 'ar_EG',	// Arabic Egypt
 								'as' => 'as_IN',	// Assamese	India
 								'az' => 'az_AZ',	// Azerbaijani	Azerbaijan
 								'be' => 'be_BY',	// Belarusian	Belarus
@@ -742,14 +744,14 @@ class TTi18n {
 	}
 
 	//Returns PDF font appropriate for language.
-	static function getPDFDefaultFont( $language = NULL ) {
+	static function getPDFDefaultFont( $language = NULL, $encoding = FALSE ) {
 		if ( $language == '' ) {
 			$language = self::getLanguage();
 		}
 
 		//Helvetica is a PDF core font that should always work.
 		//But does it not support many unicode characters?
-		if ( $language == 'en' ) {
+		if ( $language == 'en' AND ( $encoding == '' OR $encoding == FALSE OR $encoding == 'ISO-8859-1' ) ) {
 			return 'helvetica'; //Core PDF font, works with setFontSubsetting(TRUE) and is fast with small PDF sizes.
 		}
 
@@ -1011,6 +1013,18 @@ class TTi18n {
 		}
 
 		return '$';
+	}
+
+	static function detectUTF8($string) {
+			return preg_match('%(?:
+			[\xC2-\xDF][\x80-\xBF]        # non-overlong 2-byte
+			|\xE0[\xA0-\xBF][\x80-\xBF]               # excluding overlongs
+			|[\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}      # straight 3-byte
+			|\xED[\x80-\x9F][\x80-\xBF]               # excluding surrogates
+			|\xF0[\x90-\xBF][\x80-\xBF]{2}    # planes 1-3
+			|[\xF1-\xF3][\x80-\xBF]{3}                  # planes 4-15
+			|\xF4[\x80-\x8F][\x80-\xBF]{2}    # plane 16
+			)+%xs', $string);
 	}
 
 	/*

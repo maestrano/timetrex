@@ -47,9 +47,6 @@ class PayrollDeduction_US_ID extends PayrollDeduction_US {
 								1369119600 => array( //21-May-2013
 													'allowance' => 3900
 													),
-								1369119600 => array( //21-May-2013
-													'allowance' => 3900
-													),
 								1357027200 => array( //01-Jan-2013
 													'allowance' => 3800
 													),

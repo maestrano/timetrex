@@ -70,6 +70,7 @@ UserContactViewController = BaseViewController.extend( {
 		this.current_edit_record[key] = target.getValue();
 
 		if ( key === 'country' ) {
+			this.onCountryChange();
 			return;
 		}
 
@@ -266,11 +267,6 @@ UserContactViewController = BaseViewController.extend( {
 		} );
 		form_item_input.setSourceData( Global.addFirstItemToArray( $this.country_array ) );
 		this.addEditFieldToColumn( $.i18n._( 'Country' ), form_item_input, tab_employee_contact_column1 );
-
-		form_item_input.change( $.proxy( function() {
-			var selectVal = this.edit_view_ui_dic['country'].getValue();
-			this.eSetProvince( selectVal, true );
-		}, this ) );
 
 		// Province/State
 		form_item_input = Global.loadWidgetByName( FormItemType.COMBO_BOX );

@@ -50,6 +50,7 @@ $locales = array(
 
 //	'af_ZA',
 //	'am_ET',
+	'ar_EG',
 //	'as_IN',
 //	'az_AZ',
 //	'be_BY',

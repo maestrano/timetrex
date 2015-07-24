@@ -7,20 +7,17 @@ var TAlertManager = (function() {
 
 		Global.addCss( 'global/widgets/talert/TAlert.css' );
 
-		$( 'body' ).append( result );
-
-		result.find( '.content' ).html( $.i18n._( 'Previous Session' ) );
-
-		var button = result.find( '.close-icon' );
-
-		button.bind( 'click', function() {
-			removePreSession();
-
-		} );
-
-		result.bind( 'click', function() {
-			backToPreSession();
-		} );
+		setTimeout( function() {
+			$( 'body' ).append( result );
+			result.find( '.content' ).html( $.i18n._( 'Previous Session' ) );
+			var button = result.find( '.close-icon' );
+			button.bind( 'click', function() {
+				removePreSession();
+			} );
+			result.bind( 'click', function() {
+				backToPreSession();
+			} );
+		}, 100 );
 
 		function removePreSession() {
 			result.remove();
@@ -41,7 +38,11 @@ var TAlertManager = (function() {
 
 			var url = $.cookie( 'PreviousSessionIDURL' );
 
-			$.cookie( 'NewSessionID', $.cookie( 'PreviousSessionID' ), {expires: 30, path: LocalCacheData.cookie_path, domain: host} );
+			$.cookie( 'NewSessionID', $.cookie( 'PreviousSessionID' ), {
+				expires: 30,
+				path: LocalCacheData.cookie_path,
+				domain: host
+			} );
 
 			$.cookie( 'PreviousSessionID', null, {expires: 30, path: LocalCacheData.cookie_path, domain: host} );
 			$.cookie( 'PreviousSessionIDURL', null, {expires: 30, path: LocalCacheData.cookie_path, domain: host} );
@@ -97,7 +98,6 @@ var TAlertManager = (function() {
 
 	var showAlert = function( content, title, callBack ) {
 
-
 		if ( !title ) {
 			title = $.i18n._( 'Message' );
 		}
@@ -116,41 +116,30 @@ var TAlertManager = (function() {
 				callBack();
 			}
 		}
-
 		Global.addCss( 'global/widgets/talert/TAlert.css' );
-
 		var result = $( Global.loadWidget( 'global/widgets/talert/TAlert.html' ) );
-
 		view = result;
-
-		$( 'body' ).append( result );
-
-		result.find( '.title' ).text( title );
-
-		result.find( '.content' ).html( content );
-
-		var button = result.find( '.t-button' );
-
-		button.bind( 'click', function() {
-			remove();
-
-			if ( callBack ) {
-				callBack();
-			}
-		} );
-
-		button.focus();
-
-		button.bind( 'keydown', function( e ) {
-
-			if ( e.keyCode === 13 ) {
+		setTimeout( function() {
+			$( 'body' ).append( result );
+			result.find( '.title' ).text( title );
+			result.find( '.content' ).html( content );
+			var button = result.find( '.t-button' );
+			button.bind( 'click', function() {
 				remove();
 				if ( callBack ) {
 					callBack();
 				}
-			}
-
-		} );
+			} );
+			button.focus();
+			button.bind( 'keydown', function( e ) {
+				if ( e.keyCode === 13 ) {
+					remove();
+					if ( callBack ) {
+						callBack();
+					}
+				}
+			} );
+		}, 100 );
 
 	};
 

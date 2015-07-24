@@ -127,8 +127,8 @@ WHERE relkind in ('r','v') AND (c.relname='%s' or c.relname = lower('%s'))
 	function ServerInfo()
 	{
 		if (isset($this->version)) return $this->version;
-		
-		$arr['description'] = $this->GetOne("select version()");
+
+		$arr['description'] = $this->GetOne('select version()');
 		$arr['version'] = ADOConnection::_findvers($arr['description']);
 		$this->version = $arr;
 		return $arr;
@@ -697,13 +697,22 @@ WHERE (c2.relname=\'%s\' or c2.relname=lower(\'%s\'))';
 			$this->_connectionID = pg_connect($str);
 		}
 		if ($this->_connectionID === false) return false;
-		$this->Execute("set datestyle='ISO'");
-		
+		$this->Execute('set datestyle=\'ISO\'');
+
 		$info = $this->ServerInfo();
 		$this->pgVersion = (float) substr($info['version'],0,3);
 		if ($this->pgVersion >= 7.1) { // good till version 999
 			$this->_nestedSQL = true;
 		}
+
+		# PostgreSQL 9.0 changed the default output for bytea from 'escape' to 'hex'
+		# PHP does not handle 'hex' properly ('x74657374' is returned as 't657374')
+		# https://bugs.php.net/bug.php?id=59831 states this is in fact not a bug,
+		# so we manually set bytea_output
+		if ( !empty($this->connection->noBlobs) AND version_compare($info['version'], '9.0', '>=')) {
+			$this->Execute('set bytea_output=escape');
+		}
+
 		return true;
 	}
 	

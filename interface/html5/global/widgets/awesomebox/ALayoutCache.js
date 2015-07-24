@@ -13,7 +13,7 @@ ALayoutCache.getDefaultColumn = function( layout_name ) {
 
 	if ( !Global.isSet( ALayoutCache.default_columns[layout_name] ) ) {
 		return [
-			{label: 'Name', value: 'name'}
+			{label: $.i18n._( 'Name' ), value: 'name'}
 		]; //Default Column setting
 	}
 
@@ -30,165 +30,165 @@ ALayoutCache.buildDefaultColumns = function() {
 //	  default_columns[ALayoutIDs.PERMISSION_CONTROL] = [new ViewColumn({label:'Name',value:'name'})];
 
 	default_columns[ALayoutIDs.CLIENT_CONTACT] = [
-		{label: 'First Name', value: 'first_name'},
-		{label: 'Last Name', value: 'last_name'},
-		{label: 'Status', value: 'status'}
+		{label: $.i18n._( 'First Name' ), value: 'first_name'},
+		{label: $.i18n._( 'Last Name' ), value: 'last_name'},
+		{label: $.i18n._( 'Status' ), value: 'status'}
 	];
 
 	default_columns[ALayoutIDs.JOB] = [
-		{label: 'Name', value: 'name'},
-		{label: 'Code', value: 'manual_id'}
+		{label: $.i18n._( 'Name' ), value: 'name'},
+		{label: $.i18n._( 'Code' ), value: 'manual_id'}
 	];
 
 	default_columns[ALayoutIDs.JOB_ITEM] = [
-		{label: 'Name', value: 'name'},
-		{label: 'Code', value: 'manual_id'}
+		{label: $.i18n._( 'Name' ), value: 'name'},
+		{label: $.i18n._( 'Code' ), value: 'manual_id'}
 	];
 
 	default_columns[ALayoutIDs.CLIENT_PAYMENT] = [
-		{label: 'Number', value: 'display_number'},
-		{label: 'Type', value: 'type'}
+		{label: $.i18n._( 'Number' ), value: 'display_number'},
+		{label: $.i18n._( 'Type' ), value: 'type'}
 	];
 
 	default_columns[ALayoutIDs.OPTION_COLUMN] = [
-		{label: 'Name', value: 'label'}
+		{label: $.i18n._( 'Name' ), value: 'label'}
 	];
 	default_columns[ALayoutIDs.ABSENCE] = [
-		{label: 'Name', value: 'name'},
-		{label: 'Date', value: 'date_stamp'}
+		{label: $.i18n._( 'Name' ), value: 'name'},
+		{label: $.i18n._( 'Date' ), value: 'date_stamp'}
 	];
 	default_columns[ALayoutIDs.TIMESHEET] = [
-		{label: 'Time', value: 'punch_time'},
-		{label: 'In/Out', value: 'status'},
-		{label: 'Punch Type', value: 'type'}
+		{label: $.i18n._( 'Time' ), value: 'punch_time'},
+		{label: $.i18n._( 'In/Out' ), value: 'status'},
+		{label: $.i18n._( 'Punch Type' ), value: 'type'}
 
 	];
 	default_columns[ALayoutIDs.USER] = [
-		{label: 'First Name', value: 'first_name'},
-		{label: 'Last Name', value: 'last_name'},
-		{label: 'Status', value: 'status'}
+		{label: $.i18n._( 'First Name' ), value: 'first_name'},
+		{label: $.i18n._( 'Last Name' ), value: 'last_name'},
+		{label: $.i18n._( 'Status' ), value: 'status'}
 	];
 
 	default_columns[ALayoutIDs.MESSAGE_USER] = [
-		{label: 'First Name', value: 'first_name'},
-		{label: 'Last Name', value: 'last_name'},
-		{label: 'Status', value: 'status'}
+		{label: $.i18n._( 'First Name' ), value: 'first_name'},
+		{label: $.i18n._( 'Last Name' ), value: 'last_name'},
+		{label: $.i18n._( 'Status' ), value: 'status'}
 	];
 
 	default_columns[ALayoutIDs.USER_CONTACT] = [
-		{label: 'First Name', value: 'first_name'},
-		{label: 'Last Name', value: 'last_name'}
+		{label: $.i18n._( 'First Name' ), value: 'first_name'},
+		{label: $.i18n._( 'Last Name' ), value: 'last_name'}
 	];
 	default_columns[ALayoutIDs.WAGE] = [
-		{label: 'First Name', value: 'first_name'},
-		{label: 'Last Name', value: 'last_name'},
-		{label: 'Type', value: 'type'},
-		{label: 'Wage', value: 'wage'}
+		{label: $.i18n._( 'First Name' ), value: 'first_name'},
+		{label: $.i18n._( 'Last Name' ), value: 'last_name'},
+		{label: $.i18n._( 'Type' ), value: 'type'},
+		{label: $.i18n._( 'Wage' ), value: 'wage'}
 	];
 	default_columns[ALayoutIDs.LOG] = [
-		{label: 'Date', value: 'date'},
-		{label: 'Action', value: 'action'},
-		{label: 'Object', value: 'object'}
+		{label: $.i18n._( 'Date' ), value: 'date'},
+		{label: $.i18n._( 'Action' ), value: 'action'},
+		{label: $.i18n._( 'Object' ), value: 'object'}
 	];
 	default_columns[ALayoutIDs.BANK_ACCOUNT] = [
-		{label: 'First Name', value: 'first_name'},
-		{label: 'Last Name', value: 'last_name'},
-		{label: 'Account Name', value: 'account'}
+		{label: $.i18n._( 'First Name' ), value: 'first_name'},
+		{label: $.i18n._( 'Last Name' ), value: 'last_name'},
+		{label: $.i18n._( 'Account Name' ), value: 'account'}
 	];
 	default_columns[ALayoutIDs.TREE_COLUMN] = [
-		{label: '', value: 'id'},
-		{label: 'Name', value: 'name'}
+		{label: $.i18n._( '' ), value: 'id'},
+		{label: $.i18n._( 'Name' ), value: 'name'}
 	];
 
 	default_columns[ALayoutIDs.SORT_COLUMN] = [
-		{label: 'Column Name', value: 'label'},
-		{label: 'Sort', value: 'sort'}
+		{label: $.i18n._( 'Column Name' ), value: 'label'},
+		{label: $.i18n._( 'Sort' ), value: 'sort'}
 	];
 	default_columns[ALayoutIDs.PAY_PERIOD] = [
-		{label: 'Start Date', value: 'start_date'},
-		{label: 'End Date', value: 'end_date'},
-		{label: 'Pay Period Schedule', value: 'pay_period_schedule'}
+		{label: $.i18n._( 'Start Date' ), value: 'start_date'},
+		{label: $.i18n._( 'End Date' ), value: 'end_date'},
+		{label: $.i18n._( 'Pay Period Schedule' ), value: 'pay_period_schedule'}
 
 	];
 
 	default_columns[ALayoutIDs.USER_SKILL] = [
-		{label: 'First Name', value: 'first_name'},
-		{label: 'Last Name', value: 'last_name'},
-		{label: 'Skill', value: 'qualification'}
+		{label: $.i18n._( 'First Name' ), value: 'first_name'},
+		{label: $.i18n._( 'Last Name' ), value: 'last_name'},
+		{label: $.i18n._( 'Skill' ), value: 'qualification'}
 
 	];
 
 	default_columns[ALayoutIDs.USER_Education] = [
-		{label: 'First Name', value: 'first_name'},
-		{label: 'Last Name', value: 'last_name'},
-		{label: 'Course', value: 'qualification'}
+		{label: $.i18n._( 'First Name' ), value: 'first_name'},
+		{label: $.i18n._( 'Last Name' ), value: 'last_name'},
+		{label: $.i18n._( 'Course' ), value: 'qualification'}
 
 	];
 
 	default_columns[ALayoutIDs.USER_Membership] = [
-		{label: 'First Name', value: 'first_name'},
-		{label: 'Last Name', value: 'last_name'},
-		{label: 'Membership', value: 'qualification'}
+		{label: $.i18n._( 'First Name' ), value: 'first_name'},
+		{label: $.i18n._( 'Last Name' ), value: 'last_name'},
+		{label: $.i18n._( 'Membership' ), value: 'qualification'}
 
 	];
 
 	default_columns[ALayoutIDs.USER_LICENSE] = [
-		{label: 'First Name', value: 'first_name'},
-		{label: 'Last Name', value: 'last_name'},
-		{label: 'License', value: 'qualification'}
+		{label: $.i18n._( 'First Name' ), value: 'first_name'},
+		{label: $.i18n._( 'Last Name' ), value: 'last_name'},
+		{label: $.i18n._( 'License' ), value: 'qualification'}
 
 	];
 
 	default_columns[ALayoutIDs.JOB_APPLICANT] = [
-		{label: 'First Name', value: 'first_name'},
-		{label: 'Last Name', value: 'last_name'},
-		{label: 'Status', value: 'status'}
+		{label: $.i18n._( 'First Name' ), value: 'first_name'},
+		{label: $.i18n._( 'Last Name' ), value: 'last_name'},
+		{label: $.i18n._( 'Status' ), value: 'status'}
 
 	];
 
 	default_columns[ALayoutIDs.JOB_APPLICATION] = [
-		{label: 'Job Vacancy', value: 'job_vacancy'},
-		{label: 'Type', value: 'type'},
-		{label: 'Status', value: 'status'}
+		{label: $.i18n._( 'Job Vacancy' ), value: 'job_vacancy'},
+		{label: $.i18n._( 'Type' ), value: 'type'},
+		{label: $.i18n._( 'Status' ), value: 'status'}
 
 	];
 
 	default_columns[ALayoutIDs.KPI] = [
-		{label: 'Name', value: 'name'},
-		{label: 'Type', value: 'type'},
-		{label: 'Status', value: 'status'}
+		{label: $.i18n._( 'Name' ), value: 'name'},
+		{label: $.i18n._( 'Type' ), value: 'type'},
+		{label: $.i18n._( 'Status' ), value: 'status'}
 
 	];
 
 	default_columns[ALayoutIDs.KPI_REVIEW_CONTROL] = [
-		{label: 'Employee Name', value: 'user'},
-		{label: 'Reviewer Name', value: 'reviewer_user'},
-		{label: 'Start Date', value: 'start_date'},
-		{label: 'End Date', value: 'end_date'}
+		{label: $.i18n._( 'Employee Name' ), value: 'user'},
+		{label: $.i18n._( 'Reviewer Name' ), value: 'reviewer_user'},
+		{label: $.i18n._( 'Start Date' ), value: 'start_date'},
+		{label: $.i18n._( 'End Date' ), value: 'end_date'}
 
 	];
 
 	default_columns[ALayoutIDs.INVOICE] = [
-		{label: 'Client', value: 'client'},
-		{label: 'Status', value: 'status'}
+		{label: $.i18n._( 'Client' ), value: 'client'},
+		{label: $.i18n._( 'Status' ), value: 'status'}
 
 	];
 
 	default_columns[ALayoutIDs.CLIENT] = [
-		{label: 'Company Name', value: 'company_name'},
-		{label: 'Groups', value: 'group'}
+		{label: $.i18n._( 'Company Name' ), value: 'company_name'},
+		{label: $.i18n._( 'Groups' ), value: 'group'}
 
 	];
 
 	default_columns[ALayoutIDs.INVOICE_TRANSACTION] = [
-		{label: 'Client', value: 'client'},
-		{label: 'Status', value: 'status'}
+		{label: $.i18n._( 'Client' ), value: 'client'},
+		{label: $.i18n._( 'Status' ), value: 'status'}
 
 	];
 
 	default_columns[ALayoutIDs.PAY_STUB_ACCOUNT] = [
-		{label: 'Name', value: 'name'},
-		{label: 'Type', value: 'type'}
+		{label: $.i18n._( 'Name' ), value: 'name'},
+		{label: $.i18n._( 'Type' ), value: 'type'}
 	];
 
 	return default_columns;

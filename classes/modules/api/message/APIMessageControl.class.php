@@ -296,8 +296,34 @@ class APIMessageControl extends APIFactory {
 					if ( !isset($row['to_user_id']) OR is_array($row['to_user_id']) AND count($row['to_user_id']) == 0 ) {
 						$row['to_user_id'] = FALSE;
 					}
-					$row['to_user_id'] = Misc::arrayColumn( $this->stripReturnHandler( $this->getUser( array( 'filter_data' => array( 'id' => (array)$row['to_user_id'] ), 'filter_columns' => array( 'id' => TRUE ) ), TRUE ) ), 'id' );
-					//$row['to_user_id'] = FALSE; //This prevents a message_sender record from being created, and therefore message can't viewed.
+
+					if ( isset($row['object_type_id']) AND $row['object_type_id'] != 5 ) {
+						Debug::Text('Adding message to request, determining our own to_user_ids...', __FILE__, __LINE__, __METHOD__, 10);
+						//When replying to a request, find all users who have contributed messages to the request and make those the to_user_ids.
+						$mslf = TTNew('MessageSenderListFactory');
+						$mslf->getByCompanyIdAndObjectTypeAndObjectAndNotUser( $this->getCurrentCompanyObject()->getId(), (int)$row['object_type_id'], (int)$row['object_id'], $this->getCurrentUserObject()->getId() );
+						if ( $mslf->getRecordCount() > 0 ) {
+							$row['to_user_id'] = array();
+							foreach( $mslf as $ms_obj ) {
+								$row['to_user_id'][] = $ms_obj->getUser();
+							}
+							$row['to_user_id'] = array_unique( $row['to_user_id'] );
+							Debug::Arr($row['to_user_id'], 'New Recipients: ', __FILE__, __LINE__, __METHOD__, 10);
+						} else {
+							$hlf = TTnew( 'HierarchyListFactory' );
+							$rlf = TTnew('RequestListFactory');
+							$rlf->getByIdAndCompanyId( (int)$row['object_id'], $this->getCurrentCompanyObject()->getId() );
+							if ( $rlf->getRecordCount() == 1 ) {
+								$object_type_id = $rlf->getHierarchyTypeId( (int)$rlf->getCurrent()->getType() );
+							}
+							$row['to_user_id'] = $hlf->getHierarchyParentByCompanyIdAndUserIdAndObjectTypeID( $this->getCurrentCompanyObject()->getId(), $this->getCurrentUserObject()->getId(), $object_type_id, TRUE, FALSE ); //Immediate parents only.
+							Debug::Arr($row['to_user_id'], 'No one has replied yet, send to immediate superiors again...', __FILE__, __LINE__, __METHOD__, 10);
+							unset($hlf, $rlf, $object_type_id);
+						}
+					} else {
+						Debug::Text('Sending regular message, filter to_user_ids based on permissions...', __FILE__, __LINE__, __METHOD__, 10);
+						$row['to_user_id'] = Misc::arrayColumn( $this->stripReturnHandler( $this->getUser( array( 'filter_data' => array( 'id' => (array)$row['to_user_id'] ), 'filter_columns' => array( 'id' => TRUE ) ), TRUE ) ), 'id' );
+					}
 				}
 				Debug::Arr($row, 'Data: ', __FILE__, __LINE__, __METHOD__, 10);
 

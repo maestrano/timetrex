@@ -499,19 +499,19 @@ QuickStartWizardController = BaseWizardController.extend( {
 		switch ( gridId ) {
 			case 'example_dates':
 
-				var column_info = {name: 'start_date', index: 'start_date', label: 'Start Date', width: 100, sortable: false, title: false,
+				var column_info = {name: 'start_date', index: 'start_date', label: $.i18n._('Start Date'), width: 100, sortable: false, title: false,
 					formatter: function( cell_value, related_data, row ) {
 						return $this.onTextInputRender( cell_value, related_data, row );
 					}};
 				column_info_array.push( column_info );
 
-				column_info = {name: 'end_date', index: 'end_date', label: 'End Date', width: 100, sortable: false, title: false,
+				column_info = {name: 'end_date', index: 'end_date', label: $.i18n._('End Date'), width: 100, sortable: false, title: false,
 					formatter: function( cell_value, related_data, row ) {
 						return $this.onTextInputRender( cell_value, related_data, row );
 					}};
 				column_info_array.push( column_info );
 
-				column_info = {name: 'transaction_date', index: 'transaction_date', label: 'Transaction Date', width: 100, sortable: false, title: false,
+				column_info = {name: 'transaction_date', index: 'transaction_date', label: $.i18n._('Transaction Date'), width: 100, sortable: false, title: false,
 					formatter: function( cell_value, related_data, row ) {
 						return $this.onTextInputRender( cell_value, related_data, row );
 					}};

@@ -227,6 +227,15 @@ AboutViewController = BaseViewController.extend( {
 						}
 					}
 					break;
+				case 'hardware_id':
+					if ( Global.isSet( widget ) ) {
+						if ( this.current_edit_record[key] === '' || Global.isFalseOrNull( this.current_edit_record[key] ) ) {
+							widget.setValue( $.i18n._( 'N/A' ) );
+						} else {
+							widget.setValue( this.current_edit_record[key] );
+						}
+					}
+					break;
 				case 'cron': //popular case
 					if ( Global.isSet( widget ) ) {
 						if ( this.current_edit_record[key]['last_run_date'] !== '' ) {
@@ -379,6 +388,11 @@ AboutViewController = BaseViewController.extend( {
 		form_item_input = Global.loadWidgetByName( FormItemType.TEXT );
 		form_item_input.TText( {field: 'registration_key' } );
 		this.addEditFieldToColumn( $.i18n._( 'Registration Key' ), form_item_input, tab_about_column1 );
+
+		// Hardware ID
+		form_item_input = Global.loadWidgetByName( FormItemType.TEXT );
+		form_item_input.TText( {field: 'hardware_id' } );
+		this.addEditFieldToColumn( $.i18n._( 'Hardware ID' ), form_item_input, tab_about_column1 );
 
 		// Maintenance Jobs Last Ran
 		form_item_input = Global.loadWidgetByName( FormItemType.TEXT );

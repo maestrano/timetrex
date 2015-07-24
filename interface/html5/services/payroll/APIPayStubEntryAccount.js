@@ -3,6 +3,12 @@ var APIPayStubEntryAccount = ServiceCaller.extend( {
 	key_name: 'PayStubEntryAccount',
 	className: 'APIPayStubEntryAccount',
 
+	migratePayStubEntryAccount: function() {
+
+		return this.argumentsHandler( this.className, 'migratePayStubEntryAccount', arguments );
+
+	},
+
 	getPayStubEntryAccount: function() {
 
 		return this.argumentsHandler( this.className, 'getPayStubEntryAccount', arguments );

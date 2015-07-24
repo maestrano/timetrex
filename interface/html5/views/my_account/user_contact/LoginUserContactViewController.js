@@ -198,20 +198,20 @@ LoginUserContactViewController = BaseViewController.extend( {
 		this.edit_view_tabs[0].push( tab_contact_information_column1 );
 
 		// First Name
-		var form_item_input = Global.loadWidgetByName( FormItemType.TEXT_INPUT );
-		form_item_input.TTextInput( {field: 'first_name', width: 200} );
+		var form_item_input = Global.loadWidgetByName( FormItemType.TEXT );
+		form_item_input.TText( {field: 'first_name'} );
 		this.addEditFieldToColumn( $.i18n._( 'First Name' ), form_item_input, tab_contact_information_column1, '' );
 
 		// Middle Name
-		form_item_input = Global.loadWidgetByName( FormItemType.TEXT_INPUT );
+		form_item_input = Global.loadWidgetByName( FormItemType.TEXT );
 
-		form_item_input.TTextInput( {field: 'middle_name', width: 200} );
+		form_item_input.TText( {field: 'middle_name'} );
 		this.addEditFieldToColumn( $.i18n._( 'Middle Name' ), form_item_input, tab_contact_information_column1 );
 
 		// Last Name
-		form_item_input = Global.loadWidgetByName( FormItemType.TEXT_INPUT );
+		form_item_input = Global.loadWidgetByName( FormItemType.TEXT );
 
-		form_item_input.TTextInput( {field: 'last_name', width: 200} );
+		form_item_input.TText( {field: 'last_name'} );
 		this.addEditFieldToColumn( $.i18n._( 'Last Name' ), form_item_input, tab_contact_information_column1 );
 
 		// Gender
@@ -303,9 +303,9 @@ LoginUserContactViewController = BaseViewController.extend( {
 		this.addEditFieldToColumn( $.i18n._( 'Home Email' ), form_item_input, tab_contact_information_column2 );
 
 		//Birth Date
-		form_item_input = Global.loadWidgetByName( FormItemType.DATE_PICKER );
+		form_item_input = Global.loadWidgetByName( FormItemType.TEXT );
 
-		form_item_input.TDatePicker( {field: 'birth_date'} );
+		form_item_input.TText( {field: 'birth_date'} );
 		this.addEditFieldToColumn( $.i18n._( 'Birth Date' ), form_item_input, tab_contact_information_column2 );
 
 		// SIN/SSN

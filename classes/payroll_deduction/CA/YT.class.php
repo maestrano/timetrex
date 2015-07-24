@@ -53,7 +53,8 @@ class PayrollDeduction_CA_YT extends PayrollDeduction_CA {
 		$T4 = $this->getProvincialBasicTax();
 		$V1 = 0;
 
-		if ( $this->getDate() >= strtotime('01-Jan-2008') ) {
+		//Repealed 01-Jul-2015 retroactively to 01-Jan-2015.
+		if ( $this->getDate() >= strtotime('01-Jan-2008') AND $this->getDate() < strtotime('01-Jul-2015') ) {
 			if ( $T4 <= 6000 ) {
 				$V1 = 0;
 			} elseif ( $T4 > 6000 ) {

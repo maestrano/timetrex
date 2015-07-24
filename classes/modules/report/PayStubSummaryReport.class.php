@@ -861,30 +861,40 @@ class PayStubSummaryReport extends Report {
 			$this->form_data = range( 0, $pslf->getRecordCount() ); //Set this so hasData() thinks there is data to report.
 			$output = $pslf->exportPayStub( $pslf, $format, $this->getUserObject()->getCompanyObject() );
 
-			if ( stristr( $format, 'cheque') ) {
-				$file_name = 'checks_'.date('Y_m_d').'.pdf';
-				$mime_type = 'application/pdf';
-			} else {
-				//Include file creation number in the exported file name, so the user knows what it is without opening the file,
-				//and can generate multiple files if they need to match a specific number.
-				$ugdlf = TTnew( 'UserGenericDataListFactory' );
-				$ugdlf->getByCompanyIdAndScriptAndDefault( $this->getUserObject()->getCompany(), 'PayStubFactory', TRUE );
-				if ( $ugdlf->getRecordCount() > 0 ) {
-					$ugd_obj = $ugdlf->getCurrent();
-					$setup_data = $ugd_obj->getData();
-				}
-
-				if ( isset($setup_data) ) {
-					$file_creation_number = $setup_data['file_creation_number']++;
+			if ( $output != '' ) {
+				if ( stristr( $format, 'cheque') ) {
+					$file_name = 'checks_'.date('Y_m_d').'.pdf';
+					$mime_type = 'application/pdf';
 				} else {
-					$file_creation_number = 0;
+					//Include file creation number in the exported file name, so the user knows what it is without opening the file,
+					//and can generate multiple files if they need to match a specific number.
+					$ugdlf = TTnew( 'UserGenericDataListFactory' );
+					$ugdlf->getByCompanyIdAndScriptAndDefault( $this->getUserObject()->getCompany(), 'PayStubFactory', TRUE );
+					if ( $ugdlf->getRecordCount() > 0 ) {
+						$ugd_obj = $ugdlf->getCurrent();
+						$setup_data = $ugd_obj->getData();
+					}
+
+					if ( isset($setup_data) ) {
+						$file_creation_number = $setup_data['file_creation_number']++;
+					} else {
+						$file_creation_number = 0;
+					}
+
+					$file_name = 'eft_'.$file_creation_number.'_'.date('Y_m_d').'.txt';
+					$mime_type = 'application/text';
 				}
 
-				$file_name = 'eft_'.$file_creation_number.'_'.date('Y_m_d').'.txt';
-				$mime_type = 'application/text';
+				return array( 'file_name' => $file_name, 'mime_type' => $mime_type, 'data' => $output );
+			} else {
+				return array(
+								'api_retval' => FALSE,
+								'api_details' => array(
+												'code' => 'VALIDATION',
+												'description' => TTi18n::getText('ERROR: No data to export...'),
+												)
+								);
 			}
-
-			return array( 'file_name' => $file_name, 'mime_type' => $mime_type, 'data' => $output );
 		}
 
 		Debug::Text('No data to return...', __FILE__, __LINE__, __METHOD__, 10);

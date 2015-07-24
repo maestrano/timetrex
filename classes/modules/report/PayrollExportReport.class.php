@@ -105,6 +105,7 @@ class PayrollExportReport extends TimesheetSummaryReport {
 								'surepayroll'		=> TTi18n::gettext('SurePayroll'),
 								'chris21'			=> TTi18n::gettext('Chris21'),
 								'va_munis'			=> TTi18n::gettext('MUNIS (VA)'),
+								'accero'			=> TTi18n::gettext('Accero'),
 								'csv'				=> TTi18n::gettext('Generic Excel/CSV'),
 								'csv_advanced'		=> TTi18n::gettext('Generic Excel/CSV (Advanced)'),
 								//'other'			=> TTi18n::gettext('-- Other --'),
@@ -151,6 +152,7 @@ class PayrollExportReport extends TimesheetSummaryReport {
 								'quickbooks_advanced' => TTi18n::gettext('Quickbooks Payroll Item Name'),
 								'surepayroll'		=> TTi18n::gettext('Payroll Code'),
 								'va_munis'			=> TTi18n::gettext('Hours Code'),
+								'accero'			=> TTi18n::gettext('Hours Code'),
 								'csv'				=> TTi18n::gettext('Hours Code'),
 								'csv_advanced'		=> TTi18n::gettext('Hours Code'),
 								);
@@ -172,6 +174,45 @@ class PayrollExportReport extends TimesheetSummaryReport {
 			case 'adp_company_code_options':
 			case 'adp_batch_options':
 			case 'adp_temp_dept_options':
+				$retval = array(
+								0 => TTi18n::gettext('-- Custom --'),
+								'-0010-default_branch_manual_id' => TTi18n::gettext('Default Branch: Code'),
+								'-0020-default_department_manual_id' => TTi18n::gettext('Default Department: Code'),
+								'-0030-branch_manual_id' => TTi18n::gettext('Branch: Code'),
+								'-0040-department_manual_id' => TTi18n::gettext('Department: Code'),
+								);
+
+				$oflf = TTnew( 'OtherFieldListFactory' );
+
+				//Put a colon or underscore in the name, thats how we know it needs to be replaced.
+
+				//Get Branch other fields.
+				$default_branch_options = $oflf->getByCompanyIdAndTypeIdArray( $this->getUserObject()->getCompany(), 4, '-1000-default_branch_', TTi18n::getText('Default Branch').': ' );
+				if (  !is_array($default_branch_options) ) {
+					$default_branch_options = array();
+				}
+				$default_department_options = $oflf->getByCompanyIdAndTypeIdArray( $this->getUserObject()->getCompany(), 5, '-2000-default_department_', TTi18n::getText('Default Department').': ' );
+				if (  !is_array($default_department_options) ) {
+					$default_department_options = array();
+				}
+
+				$branch_options = $oflf->getByCompanyIdAndTypeIdArray( $this->getUserObject()->getCompany(), 4, '-3000-branch_', TTi18n::getText('Branch').': ' );
+				if ( !is_array($branch_options) ) {
+					$branch_options = array();
+				}
+				$department_options = $oflf->getByCompanyIdAndTypeIdArray( $this->getUserObject()->getCompany(), 5, '-4000-department_', TTi18n::getText('Department').': ' );
+				if ( !is_array($department_options) ) {
+					$department_options = array();
+				}
+
+				$retval = array_merge( $retval, (array)$default_branch_options, (array)$default_department_options, $branch_options, $department_options );
+				break;
+			case 'accero_hour_column_options':
+				$retval['accero_hour_column_options'][0] = TTi18n::gettext('-- DO NOT EXPORT --');
+				$retval['accero_hour_column_options']['-0010-regular_time'] = TTi18n::gettext('Regular Time');
+				$retval['accero_hour_column_options']['-0020-overtime'] = TTi18n::gettext('Overtime');
+				break;
+			case 'accero_temp_dept_options':
 				$retval = array(
 								0 => TTi18n::gettext('-- Custom --'),
 								'-0010-default_branch_manual_id' => TTi18n::gettext('Default Branch: Code'),
@@ -405,6 +446,33 @@ class PayrollExportReport extends TimesheetSummaryReport {
 						$config['group'][] = 'employee_number';
 
 						$config['sort'][] = array('pay_period_end_date' => 'asc', 'employee_number' => 'asc');
+						break;
+					case 'accero':
+						$config['columns'][] = 'default_branch_id';
+						$config['columns'][] = 'default_department_id';
+
+						if ( isset($setup_data['accero']['temp_dept']) AND strpos( $setup_data['accero']['temp_dept'], '_' ) !== FALSE ) {
+							$config['columns'][] = Misc::trimSortPrefix( $setup_data['accero']['temp_dept'] );
+						}
+						//$config['columns'][] = 'pay_period_end_date';
+						$config['columns'][] = 'date_week_end';
+						$config['columns'][] = 'employee_number';
+						$config['columns'] += Misc::trimSortPrefix( $this->getOptions('dynamic_columns') );
+
+						$config['group'][] = 'default_branch_id';
+						$config['group'][] = 'default_department_id';
+						if ( isset($setup_data['accero']['temp_dept']) AND strpos( $setup_data['accero']['temp_dept'], '_' ) !== FALSE ) {
+							$config['group'][] = Misc::trimSortPrefix( $setup_data['accero']['temp_dept'] );
+						}
+						//$config['group'][] = 'pay_period_end_date';
+						$config['group'][] = 'date_week_end';
+						$config['group'][] = 'employee_number';
+
+						if ( isset($setup_data['accero']['temp_dept']) AND strpos( $setup_data['accero']['temp_dept'], '_' ) !== FALSE ) {
+							$config['sort'][] = array( Misc::trimSortPrefix( $setup_data['accero']['temp_dept'] ) => 'asc' );
+						}
+						//$config['sort'][] = array('pay_period_end_date' => 'asc', 'employee_number' => 'asc');
+						$config['sort'][] = array('date_week_end' => 'asc', 'employee_number' => 'asc');
 						break;
 					case 'csv':
 						//If this needs to be customized, they can just export any regular report. This could probably be removed completely except for the Hour Code mapping...
@@ -1021,9 +1089,14 @@ class PayrollExportReport extends TimesheetSummaryReport {
 				$aplf->getByCompanyId( $this->getUserObject()->getCompany() );
 				if ( $aplf->getRecordCount() > 0 ) {
 					foreach( $aplf as $ap_obj ) {
-						$absence_policy_data['absence_policy-'.$ap_obj->getId()] = $ap_obj;
+						$pay_code_obj = $ap_obj->getPayCodeObject();
+						if ( is_object( $pay_code_obj ) AND in_array( $pay_code_obj->getType(), array(10,12) ) ) {
+							//$absence_policy_data['absence_policy-'.$ap_obj->getId()] = $ap_obj;
+							$absence_policy_data['pay_code-'.$pay_code_obj->getId()] = $pay_code_obj;
+						}
 					}
 				}
+				unset($aplf, $ap_obj, $pay_code_obj);
 
 				$export_column_map = array(
 										'department' => NULL,
@@ -1139,16 +1212,15 @@ class PayrollExportReport extends TimesheetSummaryReport {
 
 					$data = '';
 					foreach( $tmp_rows as $tmp_row ) {
-
 						$data .= str_pad( ( isset($setup_data['va_munis']['department']) AND $setup_data['va_munis']['department'] != 0 ) ? $tmp_row[$export_column_map['department']] : $setup_data['va_munis']['department_value'], 5, 0, STR_PAD_LEFT);		//5 digits left padded
 						//$data .= ', ';
-						$data .= str_pad( $tmp_row[$export_column_map['employee_number']], 9, '0', STR_PAD_LEFT);		//9 digits left padded
+						$data .= str_pad( ( isset($tmp_row[$export_column_map['employee_number']]) ) ? $tmp_row[$export_column_map['employee_number']] : '', 9, '0', STR_PAD_LEFT);		//9 digits left padded
 						//$data .= ', ';
 						$data .= str_pad( date('mdY', $tmp_row[$export_column_map['from_date']] ), 10, ' ', STR_PAD_LEFT);		//10 digits right space padded
 						//$data .= ', ';
 						$data .= str_pad( date('mdY', $tmp_row[$export_column_map['to_date']] ), 10, ' ', STR_PAD_LEFT);		//10 digits right space padded
 						//$data .= ', ';
-						$data .= str_pad( $tmp_row[$export_column_map['gl_account']], 55, ' ', STR_PAD_RIGHT);		//55 digits right space padded
+						$data .= str_pad( ( isset($tmp_row[$export_column_map['gl_account']]) ) ? $tmp_row[$export_column_map['gl_account']] : '', 55, ' ', STR_PAD_RIGHT);		//55 digits right space padded
 						//$data .= ', ';
 
 						//Check to see if the these hours were made up any absence time.
@@ -1174,6 +1246,115 @@ class PayrollExportReport extends TimesheetSummaryReport {
 					}
 				}
 				unset($tmp_rows, $export_column_map, $column_id, $column_data, $rows, $row);
+				break;
+			case 'accero': //ADP export format.
+				/*
+				 	Field #	Field Name	No Of Positions	Start	End	Picture	Field Definition
+				  	1	T1 Card Code	2	1	2	X(2)	Code that defines to the pay calculation program how to process the time card - "12" if only hours are going to be included on the record, the system will calc the pay;"18" if hours and an amount or just an amount (earning that does not have hours associated with it like a bonus) are going to be included on the record, system will not calc pay but pay whats reported; "16" to dock pay and only hours are to be included on the record, system will calc the negative pay; "17" to doc pay and hours and an amount or just an amount are to be included in the record, system will not calc the negative pay.
+				 	2	Employee Number	10	3	12	X(10)	Employee Number
+				 	3	Regular Hours	6	13	18	9999V99	Regular (HED 001) Hours
+					4	Regular Amount or Rate Of Pay	7	19	25	99999V99 (amt) 999V9999(rate)	Can be calculated amount or can be used as an override rate.  If only passing hours, and this is left blank, then current rate of pay in Cyborg will be used to calculate pay.
+					5	Overtime Code	1	26	26	X(1)	OT calculation Method See OT Codes For Definitions
+					6	Overtime Hours	4	27	30	99V99	OT (HED 003) Hours
+					7	OT Amount or Rate Of Pay	6	31	36	9999V99 (amt) 99V9999(rate)	Can be calculated OT amount or can be used as an OT override rate.  If only passing hours, and this is left blank, then current rate of pay in Cyborg will be used to calculate pay using the OT Code in the calculation.
+					8	HED Override No	3	37	39	999	Earnings Code (HED) if hours or amount reported are not to be charged to Regular Pay (HED 001) or Overtime Pay (HED 003).  Can be used with either the regular hours/amount fields or OT but not both.
+					9	Period Date	4	40	43	MMDD	Period End MM and DD
+					10	Tax Type	1	44	44	N/A
+					11	Local Code	6	45	50	N/A
+					12	State Code	2	51	52	N/A
+					13	Division Override Code	4	53	56	Division Charge Out	If pay is to be charged to another Department
+					14	Department Override Code	4	57	60	Department Charge Out	If pay is to be charged to another Location
+					15	Control 5 Code	4	61	64	N/A
+					16	Control 6 Code	4	65	68	N/A
+					17	GL Account Override Code	10	69	78	GL Account Charge Out	If pay is to be charged to another GL Account
+					18	Shift Override	1	79	79	Shirt Override
+					19	Deduction Cycle Override	1	80	80	Deduction Override
+				 */
+
+				$export_column_map = array(
+										't1_card_code' => 'T1 Card Code',
+										'employee_number' => 'Employee Number',
+										'regular_time' => 'Reg Hours',
+										'regular_amount' => 'Reg Amount',
+										'overtime_code' => 'OT Code',
+										'overtime' => 'OT Hours',
+										'overtime_amount' => 'OT Amount',
+										'hour_code' => 'HED Override No',
+										'date_week_end' => 'Week End Date',
+										'tax_type' => 'Tax Type',
+										'local_code' => 'Local Code',
+										'state_code' => 'State Code',
+										'division_code' => 'Division Code',
+										'temp_dept' => 'Department Override',
+										);
+
+
+				ksort($setup_data['accero']['columns']);
+				$setup_data['accero']['columns'] = Misc::trimSortPrefix( $setup_data['accero']['columns'] );
+				
+				if ( !isset($setup_data['accero']['temp_dept_value']) ) {
+					$setup_data['accero']['temp_dept_value'] = NULL;
+				}
+
+				$temp_dept_column = Misc::trimSortPrefix( $setup_data['accero']['temp_dept'] );
+
+				$data = '';
+				foreach($rows as $row) {
+					$static_columns = array(
+										't1_card_code' => 12,
+										'employee_number' => str_pad( $row['employee_number'], 10, ' ', STR_PAD_RIGHT), //accero employee numbers should always be 6 digits.
+										'regular_time' => str_pad( NULL, 6, ' ', STR_PAD_RIGHT),
+										'regular_amount' => str_pad( NULL, 7, ' ', STR_PAD_RIGHT),
+										'overtime_code' => str_pad( NULL, 1, ' ', STR_PAD_RIGHT),
+										'overtime' => str_pad( NULL, 4, ' ', STR_PAD_RIGHT),
+										'overtime_amount' => str_pad( NULL, 6, ' ', STR_PAD_RIGHT),
+										'hour_code' => str_pad( NULL, 3, ' ', STR_PAD_RIGHT),
+										'tax_type' => str_pad( NULL, 1, ' ', STR_PAD_RIGHT),
+										'local_code' => str_pad( NULL, 6, ' ', STR_PAD_RIGHT),
+										'state_code' => str_pad( NULL, 2, ' ', STR_PAD_RIGHT),
+										'division_code' => str_pad( NULL, 4, ' ', STR_PAD_RIGHT),
+										//'temp_dept' => str_pad( ( isset($row[$temp_dept_column]) ) ? $row[$temp_dept_column] : $setup_data['accero']['temp_dept_value'], 4, ' ', STR_PAD_RIGHT),
+										//'pay_period_end_date' => date('md', $row['pay_period_end_date']),
+										//'date_week_end' => date('md', $row['date_week_end']),
+										);
+
+					foreach( $setup_data['accero']['columns'] as $column_id => $column_data ) {
+						$column_data = Misc::trimSortPrefix( $column_data, TRUE );
+						if ( isset( $row[$column_id.'_time'] ) AND $column_data['hour_column'] != '0' ) {
+							//Debug::Text('Accero Column ID: '. $column_id .' Hour Column: '. $column_data['hour_column'] .' Code: '. $column_data['hour_code'], __FILE__, __LINE__, __METHOD__, 10);
+							foreach( $export_column_map as $export_column_id => $export_column_name ) {
+								//Debug::Arr($row, 'Row: Column ID: '. $column_id .' Export Column ID: '. $export_column_id .' Name: '. $export_column_name, __FILE__, __LINE__, __METHOD__, 10);
+								if ( ( $column_data['hour_column'] == $export_column_id OR $column_data['hour_column'].'_code' == $export_column_id )
+										AND !in_array( $export_column_id, array('t1_card_code', 'employee_number', 'regular_amount', 'overtime_code', 'tax_type', 'local_code', 'state_code', 'division_code')) ) {
+									$tmp_row['date_week_end'] = date('md', strtotime( $row['date_week_end'] ) );
+									$tmp_row['hour_code'] = str_pad( $column_data['hour_code'], 3, '0', STR_PAD_LEFT);
+									$tmp_row['temp_dept'] = str_pad( ( isset($row[$temp_dept_column]) ) ? $row[$temp_dept_column] : $setup_data['accero']['temp_dept_value'], 4, ' ', STR_PAD_RIGHT);
+									if ( $export_column_id == 'regular_time' ) {
+										$tmp_row[$export_column_id] = str_pad( str_replace('.', '', TTDate::getTimeUnit( $row[$column_id.'_time'], 20 ) ), 6, 0, STR_PAD_LEFT);
+									} else {
+										$tmp_row[$export_column_id] = str_pad( str_replace('.', '', TTDate::getTimeUnit( $row[$column_id.'_time'], 20 ) ), 4, 0, STR_PAD_LEFT);
+									}
+
+									//Break out every column onto its own row, that way its easier to handle multiple columns of the same type.
+									$tmp_rows[] = array_merge( $static_columns, $tmp_row );
+									unset($tmp_row);
+								}
+							}
+						}
+					}
+				}
+
+				//$file_name = 'accero_payroll_export.csv';
+				$file_name = 'accero_payroll_export.txt';
+				if ( isset( $tmp_rows ) ) {
+					//$data = Misc::Array2CSV( $tmp_rows, $export_column_map, FALSE );
+
+					$data = '';
+					foreach( $tmp_rows as $tmp_row ) {
+						$data .= implode($tmp_row, '')."\r\n";
+					}					
+				}
+				unset($tmp_rows, $tmp_row, $export_column_map, $column_id, $column_data, $rows, $row);
 				break;
 			case 'csv': //Generic CSV.
 				$file_name = strtolower(trim($setup_data['export_type'])).'_'.date('Y_m_d').'.csv';
@@ -1278,7 +1459,9 @@ class PayrollExportReport extends TimesheetSummaryReport {
 				$jar->setPermissionObject( $this->getPermissionObject() );
 				$jar->setConfig( $config );
 				$jar->setFilterConfig( $this->getFilterConfig() );
-				$jar->setSortConfig( $config['sort'] );
+				if ( isset($config['sort']) ) {
+					$jar->setSortConfig( $config['sort'] );
+				}
 				$jar->_getData();
 				$jar->_preProcess();
 				$jar->currencyConvertToBase();

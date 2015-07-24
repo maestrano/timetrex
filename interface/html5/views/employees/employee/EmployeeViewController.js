@@ -1117,6 +1117,7 @@ EmployeeViewController = BaseViewController.extend( {
 		}
 
 		if ( key === 'country' ) {
+			this.onCountryChange();
 			return;
 		}
 
@@ -1230,7 +1231,8 @@ EmployeeViewController = BaseViewController.extend( {
 				$( this.edit_view_tab.find( 'ul li a[ref="tab_wage"]' ) ).parent().hide();
 				this.edit_view_tab.tabs( 'select', 0 );
 			}
-			if ( PermissionManager.checkTopLevelPermission( 'CompanyTaxDeduction' ) && this.select_company_id === LocalCacheData.getCurrentCompany().id ) {
+			if ( PermissionManager.checkTopLevelPermission( 'UserTaxDeduction' ) &&
+				this.select_company_id === LocalCacheData.getCurrentCompany().id ) {
 				$( this.edit_view_tab.find( 'ul li a[ref="tab_tax"]' ) ).parent().show();
 			} else {
 				$( this.edit_view_tab.find( 'ul li a[ref="tab_tax"]' ) ).parent().hide();
@@ -2058,6 +2060,7 @@ EmployeeViewController = BaseViewController.extend( {
 		var tab_employee_column2 = tab_employee.find( '.second-column' );
 
 		this.edit_view_tabs[0] = [];
+		this.edit_view_tabs[0].push( tab_employee_column1 );
 
 //		Company
 		var form_item_input = Global.loadWidgetByName( FormItemType.AWESOME_BOX );
@@ -2466,12 +2469,6 @@ EmployeeViewController = BaseViewController.extend( {
 		form_item_input.TComboBox( {field: 'country', set_empty: true} );
 		form_item_input.setSourceData( Global.addFirstItemToArray( $this.country_array ) );
 		this.addEditFieldToColumn( $.i18n._( 'Country' ), form_item_input, tab_contact_info_column1 );
-
-		form_item_input.change( $.proxy( function() {
-			var selectVal = this.edit_view_ui_dic['country'].getValue();
-			this.eSetProvince( selectVal, true );
-
-		}, this ) );
 
 		//Province / State
 		form_item_input = Global.loadWidgetByName( FormItemType.COMBO_BOX );
@@ -2920,8 +2917,6 @@ EmployeeViewController = BaseViewController.extend( {
 	},
 
 	getFilterColumnsFromDisplayColumns: function() {
-		var display_columns = this.grid.getGridParam( 'colModel' );
-
 		var column_filter = {};
 		column_filter.is_owner = true;
 		column_filter.id = true;
@@ -2930,7 +2925,11 @@ EmployeeViewController = BaseViewController.extend( {
 		column_filter.first_name = true;
 		column_filter.last_name = true;
 		column_filter.company_id = true;
-
+		// Error: Unable to get property 'getGridParam' of undefined or null reference
+		var display_columns = [];
+		if ( this.grid ) {
+			display_columns = this.grid.getGridParam( 'colModel' );
+		}
 		//Fixed possible exception -- Error: Unable to get property 'length' of undefined or null reference in https://villa.timetrex.com/interface/html5/views/BaseViewController.js?v=7.4.3-20140924-090129 line 5031
 		if ( display_columns ) {
 			var len = display_columns.length;

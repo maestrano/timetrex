@@ -66,7 +66,7 @@ $soap_server = new SoapServer( NULL, array('uri' => "urn:api") );
 if ( isset($_GET['SessionID']) AND $_GET['SessionID'] != '' ) {
 	$authentication = new Authentication();
 
-	Debug::text('SOAP Session ID: '. $_GET['SessionID'] .' Source IP: '. $_SERVER['REMOTE_ADDR'], __FILE__, __LINE__, __METHOD__, 10);
+	Debug::text('SOAP Session ID: '. $_GET['SessionID'] .' Source IP: '. Misc::getRemoteIPAddress(), __FILE__, __LINE__, __METHOD__, 10);
 	if ( $authentication->Check( $_GET['SessionID'] ) === TRUE ) {
 		Debug::text('SOAP Class Factory: '. $class_name, __FILE__, __LINE__, __METHOD__, 10);
 		if ( $class_name != '' AND class_exists($class_name) ) {

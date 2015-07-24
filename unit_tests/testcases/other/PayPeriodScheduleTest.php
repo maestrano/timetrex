@@ -45,7 +45,7 @@ class PayPeriodScheduleTest extends PHPUnit_Framework_TestCase {
 	public function setUp() {
 		Debug::text('Running setUp(): ', __FILE__, __LINE__, __METHOD__, 10);
 
-		TTDate::setTimeZone('PST8PDT');
+		TTDate::setTimeZone('PST8PDT', TRUE);
 		TTDate::setTimeUnitFormat( 10 ); //HH:MM
 
 		$dd = new DemoData();

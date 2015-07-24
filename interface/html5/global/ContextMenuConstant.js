@@ -1,6 +1,6 @@
 var ContextMenuIconName = function() {
 
-}
+};
 
 ContextMenuIconName.save_existed_report = 'saveExistedReportIcon';
 
@@ -169,7 +169,9 @@ ContextMenuIconName.payment = 'PaymentIcon';
 
 ContextMenuIconName.packing_slip = 'PackingSlipIcon';
 
-ContextMenuIconName.wizard = 'WizardIcon';
+ContextMenuIconName.migrate_pay_codes = 'MigratePayCodeIcon';
+
+ContextMenuIconName.migrate_pay_stub_account = 'MigratePayStubAccount';
 
 var Icons = function() {
 

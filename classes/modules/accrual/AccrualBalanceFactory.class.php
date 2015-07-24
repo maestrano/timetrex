@@ -42,6 +42,8 @@ class AccrualBalanceFactory extends Factory {
 	protected $table = 'accrual_balance';
 	protected $pk_sequence_name = 'accrual_balance_id_seq'; //PK Sequence name
 
+	var $user_obj = NULL;
+
 	function _getFactoryOptions( $name ) {
 		$retval = NULL;
 		switch( $name ) {
@@ -103,6 +105,9 @@ class AccrualBalanceFactory extends Factory {
 			return $variable_function_map;
 	}
 
+	function getUserObject() {
+		return $this->getGenericObject( 'UserListFactory', $this->getUser(), 'user_obj' );
+	}
 	function getUser() {
 		if ( isset($this->data['user_id']) ) {
 			return (int)$this->data['user_id'];
@@ -220,33 +225,54 @@ class AccrualBalanceFactory extends Factory {
 
 		$profiler->startTimer( "AccrualBalanceFactory::calcBalance()");
 
+		$retval = FALSE;
+		$update_balance = TRUE;
+
 		$alf = TTnew( 'AccrualListFactory' );
+
+		$alf->StartTransaction();
+		//$alf->db->SetTransactionMode( 'SERIALIZABLE' ); //Serialize balance transactions so concurrency issues don't corrupt the balance.
+
 		$balance = $alf->getSumByUserIdAndAccrualPolicyAccount($user_id, $accrual_policy_account_id);
 		Debug::text('Balance for User ID: '. $user_id .' Accrual Account ID: '. $accrual_policy_account_id .' Balance: '. $balance, __FILE__, __LINE__, __METHOD__, 10);
 
 		$ablf = TTnew( 'AccrualBalanceListFactory' );
 		$ablf->getByUserIdAndAccrualPolicyAccount( $user_id, $accrual_policy_account_id);
-		Debug::text('Found balance records to delete: '. $ablf->getRecordCount(), __FILE__, __LINE__, __METHOD__, 10);
-		if ( $ablf->getRecordCount() > 0) {
+		Debug::text('Found balance records: '. $ablf->getRecordCount(), __FILE__, __LINE__, __METHOD__, 10);
+		if ( $ablf->getRecordCount() > 1 ) { //In case multiple records exist, delete them all and re-insert.
 			foreach($ablf as $ab_obj) {
 				$ab_obj->Delete();
 			}
+			$ab_obj = TTnew( 'AccrualBalanceFactory' );
+		} elseif( $ablf->getRecordCount() == 1 ) {
+			$ab_obj = $ablf->getCurrent();
+			if ( $balance == $ab_obj->getBalance() ) {
+				Debug::text('Balance has not changed, not updating: '. $balance, __FILE__, __LINE__, __METHOD__, 10);
+				$update_balance = FALSE;
+			}
+		} else { //No balance record exists yet.
+			$ab_obj = TTnew( 'AccrualBalanceFactory' );
 		}
 
-		Debug::text('Setting new balance to: '. $balance, __FILE__, __LINE__, __METHOD__, 10);
-		$ab = TTnew( 'AccrualBalanceFactory' );
-		$ab->setUser( $user_id );
-		$ab->setAccrualPolicyAccount( $accrual_policy_account_id );
-		$ab->setBalance( $balance );
-
+		if ( $update_balance == TRUE ) {
+			Debug::text('Setting new balance to: '. $balance, __FILE__, __LINE__, __METHOD__, 10);
+			$ab_obj->setUser( $user_id );
+			$ab_obj->setAccrualPolicyAccount( $accrual_policy_account_id );
+			$ab_obj->setBalance( $balance );
+			if ( $ab_obj->isValid() ) {
+				$retval = $ab_obj->Save();
+			} else {
+				$alf->FailTransaction();
+				Debug::text('Setting new balance failed for User ID: '. $user_id, __FILE__, __LINE__, __METHOD__, 10);
+			}
+		}
+		
+		$alf->CommitTransaction();
+		//$alf->db->SetTransactionMode(''); //Restore default transaction mode.
+		
 		$profiler->stopTimer( "AccrualBalanceFactory::calcBalance()");
-
-		if ( $ab->isValid() ) {
-			return $ab->Save();
-		}
-
-		Debug::text('Setting new balance failed for User ID: '. $user_id, __FILE__, __LINE__, __METHOD__, 10);
-		return FALSE;
+		
+		return $retval;
 	}
 
 	function Validate() {

@@ -137,40 +137,6 @@ class AccrualPolicyListFactory extends AccrualPolicyFactory implements IteratorA
 		return $this;
 	}
 
-	function getByCompanyIdAndAccrualPolicyAccount($id, $accrual_policy_account_id, $where = NULL, $order = NULL) {
-		if ( $id == '') {
-			return FALSE;
-		}
-
-		if ( $accrual_policy_account_id == '') {
-			return FALSE;
-		}
-
-		if ( $order == NULL ) {
-			$order = array( 'type_id' => 'asc' );
-			$strict = FALSE;
-		} else {
-			$strict = TRUE;
-		}
-
-		$ph = array(
-					'id' => $id,
-					);
-
-		$query = '
-					select	*
-					from	'. $this->getTable() .' as a
-					where	company_id = ?
-						AND accrual_policy_account_id in ('. $this->getListSQL($accrual_policy_account_id, $ph) .')
-						AND deleted = 0';
-		$query .= $this->getWhereSQL( $where );
-		$query .= $this->getSortSQL( $order, $strict );
-
-		$this->ExecuteSQL( $query, $ph );
-
-		return $this;
-	}
-	
 	function getByCompanyId($id, $where = NULL, $order = NULL) {
 		if ( $id == '') {
 			return FALSE;
@@ -206,6 +172,86 @@ class AccrualPolicyListFactory extends AccrualPolicyFactory implements IteratorA
 		return $this;
 	}
 
+	function getByCompanyIdAndAccrualPolicyAccount($id, $accrual_policy_account_id, $where = NULL, $order = NULL) {
+		if ( $id == '') {
+			return FALSE;
+		}
+
+		if ( $accrual_policy_account_id == '') {
+			return FALSE;
+		}
+
+		if ( $order == NULL ) {
+			$order = array( 'type_id' => 'asc' );
+			$strict = FALSE;
+		} else {
+			$strict = TRUE;
+		}
+
+		$ph = array(
+					'id' => $id,
+					);
+
+		$query = '
+					select	*
+					from	'. $this->getTable() .' as a
+					where	company_id = ?
+						AND accrual_policy_account_id in ('. $this->getListSQL($accrual_policy_account_id, $ph) .')
+						AND deleted = 0';
+		$query .= $this->getWhereSQL( $where );
+		$query .= $this->getSortSQL( $order, $strict );
+
+		$this->ExecuteSQL( $query, $ph );
+
+		return $this;
+	}
+
+	function getByPolicyGroupUserIdAndAccrualPolicyAccount($user_id, $accrual_policy_account_id, $where = NULL, $order = NULL) {
+		if ( $user_id == '') {
+			return FALSE;
+		}
+
+		if ( $accrual_policy_account_id == '') {
+			return FALSE;
+		}
+
+		if ( $order == NULL ) {
+			$order = array( 'd.type_id' => 'asc' );
+			$strict = FALSE;
+		} else {
+			$strict = TRUE;
+		}
+
+		$pgf = new PolicyGroupFactory();
+		$pguf = new PolicyGroupUserFactory();
+		$cgmf = new CompanyGenericMapFactory();
+		$apf = new AccrualPolicyFactory();
+
+		$ph = array(
+					'user_id' => $user_id,
+					);
+
+		$query = '
+					select	d.*
+					from	'. $pguf->getTable() .' as a,
+							'. $pgf->getTable() .' as b,
+							'. $cgmf->getTable() .' as c,
+							'. $this->getTable() .' as d
+					where	a.policy_group_id = b.id
+						AND ( b.id = c.object_id AND b.company_id = c.company_id AND c.object_type_id = 140 )
+						AND c.map_id = d.id
+						AND a.user_id = ?
+						AND d.accrual_policy_account_id in ('. $this->getListSQL($accrual_policy_account_id, $ph) .')
+						AND ( b.deleted = 0 AND d.deleted = 0 )
+						';
+		$query .= $this->getWhereSQL( $where );
+		$query .= $this->getSortSQL( $order, $strict );
+
+		$this->ExecuteSQL( $query, $ph );
+
+		return $this;
+	}
+	
 	function getByPolicyGroupUserId($user_id, $where = NULL, $order = NULL) {
 		if ( $user_id == '') {
 			return FALSE;

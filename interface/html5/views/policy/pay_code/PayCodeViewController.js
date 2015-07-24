@@ -182,7 +182,7 @@ PayCodeViewController = BaseViewController.extend( {
 
 		var wizard = new RibbonSubMenu( {
 			label: $.i18n._( 'Migrate<br>Pay Codes' ),
-			id: ContextMenuIconName.wizard,
+			id: ContextMenuIconName.migrate_pay_codes,
 			group: other_group,
 			icon: Icons.wizard,
 			permission_result: true,
@@ -410,7 +410,7 @@ PayCodeViewController = BaseViewController.extend( {
 
 	onCustomContextClick: function( id ) {
 		switch ( id ) {
-			case ContextMenuIconName.wizard:
+			case ContextMenuIconName.migrate_pay_codes:
 				ProgressBar.showOverlay();
 				this.onWizardClick();
 				break;

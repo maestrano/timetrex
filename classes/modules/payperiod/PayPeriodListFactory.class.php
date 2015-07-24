@@ -979,6 +979,13 @@ class PayPeriodListFactory extends PayPeriodFactory implements IteratorAggregate
 			return FALSE;
 		}
 
+		if ( $order == NULL ) {
+			$order = array( 'a.transaction_date' => 'asc' );
+			$strict = FALSE;
+		} else {
+			$strict = TRUE;
+		}
+
 		$ppsf = new PayPeriodScheduleFactory();
 
 		$ph = array(
@@ -1011,7 +1018,7 @@ class PayPeriodListFactory extends PayPeriodFactory implements IteratorAggregate
 		$query .= '		AND ( a.deleted = 0 )';
 
 		$query .= $this->getWhereSQL( $where );
-		$query .= $this->getSortSQL( $order );
+		$query .= $this->getSortSQL( $order, $strict );
 
 		$this->ExecuteSQL( $query, $ph );
 
@@ -1331,7 +1338,7 @@ class PayPeriodListFactory extends PayPeriodFactory implements IteratorAggregate
 						AND ( a.deleted = 0 AND b.deleted = 0 )';
 
 		$query .= $this->getWhereSQL( $where );
-		$query .= $this->getSortSQL( $order );
+		$query .= $this->getSortSQL( $order, $strict );
 
 		$this->ExecuteSQL( $query, $ph, $limit, $page );
 

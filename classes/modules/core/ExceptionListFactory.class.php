@@ -662,9 +662,9 @@ class ExceptionListFactory extends ExceptionFactory implements IteratorAggregate
 		if ( isset( $filter_data['exception_policy_severity_id'] ) ) {
 			$filter_data['severity_id'] = $filter_data['exception_policy_severity_id'];
 		}
-		if ( isset($filter_data['show_pre_mature']) ) {
-			$filter_data['type_id'] = 5; // Pre-Mature type.
-		}
+//		if ( isset($filter_data['show_pre_mature']) ) {
+//			$filter_data['type_id'] = 5; // Pre-Mature type.
+//		}
 
 		$additional_order_fields = array('d.name', 'e.name', 'f.name', 'g.name', 'h.status_id', 'i.severity_id', 'i.type_id', 'c.first_name', 'c.last_name', 'c.country', 'c.province', 'a.date_stamp', 'pgf.name', 'pscf.name', 'ppsf.name');
 		$sort_column_aliases = array(

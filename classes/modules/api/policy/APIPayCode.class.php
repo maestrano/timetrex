@@ -374,7 +374,6 @@ class APIPayCode extends APIFactory {
 	 * Migrate time from one pay code to another without recalculating timesheets.
 	 * @param array $src_ids Source PayCode policy IDs
 	 * @param array $dst_id Destination PayCode policy IDs
-	 * @param bool $delete_src Delete the source PayCodes once done.
 	 * @return array
 	 */
 	function migratePayCode( $src_ids, $dst_id ) {

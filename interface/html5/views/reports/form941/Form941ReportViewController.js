@@ -535,43 +535,6 @@ Form941ReportViewController = ReportBaseViewController.extend( {
 
 		this.addEditFieldToColumn( $.i18n._( 'Sick Pay Adjustments (Line 8)' ), [form_item_input, form_item_input_1], tab3_column1, '', v_box, false, true );
 
-		//Earned Income Credit (EIC) (Line 9)
-		v_box = $( "<div class='v-box'></div>" );
-
-		//Selection Type
-		form_item_input = Global.loadWidgetByName( FormItemType.AWESOME_BOX );
-		form_item_input.AComboBox( {
-			api_class: (APIFactory.getAPIClass( 'APIPayStubEntryAccount' )),
-			allow_multiple_selection: true,
-			layout_name: ALayoutIDs.PAY_STUB_ACCOUNT,
-			show_search_inputs: true,
-			set_empty: true,
-			field: 'eic_include_pay_stub_entry_account'
-		} );
-
-		form_item = this.putInputToInsideFormItem( form_item_input, $.i18n._( 'Include' ) );
-
-		v_box.append( form_item );
-		v_box.append( "<div class='clear-both-div'></div>" );
-
-		//Selection
-		form_item_input_1 = Global.loadWidgetByName( FormItemType.AWESOME_BOX );
-
-		form_item_input_1.AComboBox( {
-			api_class: (APIFactory.getAPIClass( 'APIPayStubEntryAccount' )),
-			allow_multiple_selection: true,
-			layout_name: ALayoutIDs.PAY_STUB_ACCOUNT,
-			show_search_inputs: true,
-			set_empty: true,
-			field: 'eic_exclude_pay_stub_entry_account'
-		} );
-
-		form_item = this.putInputToInsideFormItem( form_item_input_1, $.i18n._( 'Exclude' ) );
-
-		v_box.append( form_item );
-
-		this.addEditFieldToColumn( $.i18n._( 'Earned Income Credit (EIC) (Line 9)' ), [form_item_input, form_item_input_1], tab3_column1, '', v_box, false, true );
-
 		//Name
 		form_item_input = Global.loadWidgetByName( FormItemType.TEXT_INPUT );
 

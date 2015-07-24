@@ -134,6 +134,10 @@ class APIUserDeduction extends APIFactory {
 
 		if ( $validate_only == TRUE ) {
 			Debug::Text('Validating Only!', __FILE__, __LINE__, __METHOD__, 10);
+			$permission_children_ids = FALSE;
+		} else {
+			//Get Permission Hierarchy Children first, as this can be used for viewing, or editing.
+			$permission_children_ids = $this->getPermissionChildren();
 		}
 
 		extract( $this->convertToMultipleRecords($data) );
@@ -159,7 +163,8 @@ class APIUserDeduction extends APIFactory {
 							OR
 								(
 								$this->getPermissionObject()->Check('user_tax_deduction', 'edit')
-									OR ( $this->getPermissionObject()->Check('user_tax_deduction', 'edit_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE )
+									OR ( $this->getPermissionObject()->Check('user_tax_deduction', 'edit_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getUser() ) === TRUE )
+									OR ( $this->getPermissionObject()->Check('user_tax_deduction', 'edit_child') AND $this->getPermissionObject()->isChild( $lf->getCurrent()->getUser(), $permission_children_ids ) === TRUE )
 								) ) {
 
 							Debug::Text('Row Exists, getting current data: ', $row['id'], __FILE__, __LINE__, __METHOD__, 10);
@@ -174,7 +179,19 @@ class APIUserDeduction extends APIFactory {
 					}
 				} else {
 					//Adding new object, check ADD permissions.
-					$primary_validator->isTrue( 'permission', $this->getPermissionObject()->Check('user_tax_deduction', 'add'), TTi18n::gettext('Add permission denied') );
+					if (	!( $validate_only == TRUE
+								OR
+								( $this->getPermissionObject()->Check('user_tax_deduction', 'add')
+									AND
+									(
+										$this->getPermissionObject()->Check('user_tax_deduction', 'edit')
+										OR ( isset($row['user_id']) AND $this->getPermissionObject()->Check('user_tax_deduction', 'edit_own') AND $this->getPermissionObject()->isOwner( FALSE, $row['user_id'] ) === TRUE ) //We don't know the created_by of the user at this point, but only check if the user is assigned to the logged in person.
+										OR ( isset($row['user_id']) AND $this->getPermissionObject()->Check('user_tax_deduction', 'edit_child') AND $this->getPermissionObject()->isChild( $row['user_id'], $permission_children_ids ) === TRUE )
+									)
+								)
+							) ) {
+						$primary_validator->isTrue( 'permission', FALSE, TTi18n::gettext('Add permission denied') );
+					}
 				}
 				//Debug::Arr($row, 'Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
@@ -254,6 +271,9 @@ class APIUserDeduction extends APIFactory {
 			return	$this->getPermissionObject()->PermissionDenied();
 		}
 
+		//Get Permission Hierarchy Children first, as this can be used for viewing, or editing.
+		$permission_children_ids = $this->getPermissionChildren();
+
 		Debug::Text('Received data for: '. count($data) .' UserDeductions', __FILE__, __LINE__, __METHOD__, 10);
 		Debug::Arr($data, 'Data: ', __FILE__, __LINE__, __METHOD__, 10);
 
@@ -273,7 +293,8 @@ class APIUserDeduction extends APIFactory {
 					if ( $lf->getRecordCount() == 1 ) {
 						//Object exists, check edit permissions
 						if ( $this->getPermissionObject()->Check('user_tax_deduction', 'delete')
-								OR ( $this->getPermissionObject()->Check('user_tax_deduction', 'delete_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE ) ) {
+								OR ( $this->getPermissionObject()->Check('user_tax_deduction', 'delete_own') AND $this->getPermissionObject()->isOwner( $lf->getCurrent()->getCreatedBy(), $lf->getCurrent()->getID() ) === TRUE )
+								OR ( $this->getPermissionObject()->Check('user_tax_deduction', 'delete_child') AND $this->getPermissionObject()->isChild( $lf->getCurrent()->getUser(), $permission_children_ids ) === TRUE )) {
 							Debug::Text('Record Exists, deleting record: ', $id, __FILE__, __LINE__, __METHOD__, 10);
 							$lf = $lf->getCurrent();
 						} else {

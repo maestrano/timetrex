@@ -1012,16 +1012,12 @@ BaseViewController = Backbone.View.extend( {
 	onDeleteResult: function( result, remove_ids ) {
 		var $this = this;
 		ProgressBar.closeOverlay();
-
 		if ( result.isValid() ) {
-//			$this.removeDeletedRows( remove_ids );
 			$this.search();
 			$this.onDeleteDone( result );
-
 			if ( $this.edit_view ) {
 				$this.removeEditView();
 			}
-
 		} else {
 			TAlertManager.showErrorAlert( result );
 		}
@@ -1146,10 +1142,9 @@ BaseViewController = Backbone.View.extend( {
 				$this.refresh_id = result_data;
 
 			}
-			$this.search( false );
 			$this.onEditClick( $this.refresh_id, true );
-
 			$this.onSaveAndContinueDone( result );
+			$this.search( false );
 		} else {
 			$this.setErrorTips( result );
 			$this.setErrorMenu();
@@ -1751,6 +1746,13 @@ BaseViewController = Backbone.View.extend( {
 		this.editFieldResize( 0 );
 	},
 
+	onCountryChange: function() {
+		var selectVal = this.edit_view_ui_dic['country'].getValue();
+		this.eSetProvince( selectVal, true );
+		this.clearErrorTips();
+		this.setEditMenu();
+	},
+
 	//Make sure this.current_edit_record is updated before validate
 	validate: function() {
 
@@ -1798,9 +1800,6 @@ BaseViewController = Backbone.View.extend( {
 		}
 
 		if ( result.isValid() ) {
-
-//			var disable_menu = {};
-//			disable_menu[ContextMenuIconName.add] = true;
 			$this.edit_view.attr( 'validate_complete', true );
 			$this.setEditMenu();
 		} else {
@@ -1875,9 +1874,16 @@ BaseViewController = Backbone.View.extend( {
 		var error_string = '';
 
 		$.each( details, function( index, val ) {
-
 			for ( var key in val ) {
-				error_string = error_string + val[key] + "<br>";
+				if ( Global.isArray( val[key] ) ) {
+					for ( var i = 0, ii = val[key].length; i < ii; i++ ) {
+						var item = val[key][i];
+						error_string = error_string + val[key][i] + "<br>";
+					}
+				} else {
+					error_string = error_string + val[key] + "<br>";
+				}
+
 			}
 		} );
 
@@ -3097,7 +3103,7 @@ BaseViewController = Backbone.View.extend( {
 			context_btn.addClass( 'invisible-image' );
 		}
 
-		if ( grid_selected_length === 1 && this.editOwnerOrChildPermissionValidate() ) {
+		if ( grid_selected_length === 1 && this.editOwnerOrChildPermissionValidate( pId ) ) {
 			context_btn.removeClass( 'disable-image' );
 		} else {
 			context_btn.addClass( 'disable-image' );
@@ -3145,7 +3151,7 @@ BaseViewController = Backbone.View.extend( {
 			context_btn.addClass( 'invisible-image' );
 		}
 
-		if ( grid_selected_length >= 1 && this.deleteOwnerOrChildPermissionValidate() ) {
+		if ( grid_selected_length >= 1 && this.deleteOwnerOrChildPermissionValidate( pId ) ) {
 			context_btn.removeClass( 'disable-image' );
 		} else {
 			context_btn.addClass( 'disable-image' );
@@ -3213,7 +3219,11 @@ BaseViewController = Backbone.View.extend( {
 	},
 
 	setDefaultMenuLoginIcon: function( context_btn, grid_selected_length, pId ) {
-		if ( this.getGridSelectIdArray().length != 1 ) {
+		if ( !PermissionManager.validate( 'company', 'login_other_user' ) ) {
+			context_btn.addClass( 'invisible-image' );
+		}
+
+		if ( this.getGridSelectIdArray().length !== 1 ) {
 			context_btn.addClass( 'disable-image' );
 		}
 	},
@@ -3260,7 +3270,7 @@ BaseViewController = Backbone.View.extend( {
 			context_btn.addClass( 'invisible-image' );
 		}
 
-		if ( !this.is_viewing || !this.editOwnerOrChildPermissionValidate() ) {
+		if ( !this.is_viewing || !this.editOwnerOrChildPermissionValidate( pId ) ) {
 			context_btn.addClass( 'disable-image' );
 		}
 	},
@@ -3300,7 +3310,7 @@ BaseViewController = Backbone.View.extend( {
 			context_btn.addClass( 'invisible-image' );
 		}
 
-		if ( ( !this.current_edit_record || !this.current_edit_record.id ) || !this.deleteOwnerOrChildPermissionValidate() ) {
+		if ( ( !this.current_edit_record || !this.current_edit_record.id ) || !this.deleteOwnerOrChildPermissionValidate( pId ) ) {
 			context_btn.addClass( 'disable-image' );
 		}
 	},
@@ -3310,7 +3320,7 @@ BaseViewController = Backbone.View.extend( {
 			context_btn.addClass( 'invisible-image' );
 		}
 
-		if ( ( !this.current_edit_record || !this.current_edit_record.id ) || !this.deleteOwnerOrChildPermissionValidate() ) {
+		if ( ( !this.current_edit_record || !this.current_edit_record.id ) || !this.deleteOwnerOrChildPermissionValidate( pId ) ) {
 			context_btn.addClass( 'disable-image' );
 		}
 	},
@@ -4305,7 +4315,7 @@ BaseViewController = Backbone.View.extend( {
 		layout_div.append( "<div class='clear-both-div'></div>" );
 
 		this.column_selector.setColumns( [
-			{name: 'label', index: 'label', label: 'Column Name', width: 100, sortable: false}
+			{name: 'label', index: 'label', label: $.i18n._('Column Name'), width: 100, sortable: false}
 		] );
 
 		//Sort By
@@ -4999,18 +5009,15 @@ BaseViewController = Backbone.View.extend( {
 	},
 
 	search: function( set_default_menu, page_action, page_number, callBack ) {
-
 		if ( !Global.isSet( set_default_menu ) ) {
 			set_default_menu = true;
 		}
-
 		var $this = this;
 		var filter = {};
 		filter.filter_data = {};
 		filter.filter_sort = {};
 		filter.filter_columns = this.getFilterColumnsFromDisplayColumns();
 		filter.filter_items_per_page = 0; // Default to 0 to load user preference defined
-
 		if ( this.pager_data ) {
 
 			if ( LocalCacheData.paging_type === 0 ) {
@@ -5020,7 +5027,6 @@ BaseViewController = Backbone.View.extend( {
 					filter.filter_page = 1;
 				}
 			} else {
-
 				switch ( page_action ) {
 					case 'next':
 						filter.filter_page = this.pager_data.next_page;
@@ -5041,24 +5047,17 @@ BaseViewController = Backbone.View.extend( {
 						filter.filter_page = this.pager_data.current_page;
 						break;
 				}
-
 			}
-
 		} else {
 			filter.filter_page = 1;
 		}
-
 		if ( this.sub_view_mode && this.parent_key ) {
 			this.select_layout.data.filter_data[this.parent_key] = this.parent_value;
 		}
-
 		//If sub view controller set custom filters, get it
 		if ( Global.isSet( this.getSubViewFilter ) ) {
-
 			this.select_layout.data.filter_data = this.getSubViewFilter( this.select_layout.data.filter_data );
-
 		}
-
 		//select_layout will not be null, it's set in setSelectLayout function
 		filter.filter_data = Global.convertLayoutFilterToAPIFilter( this.select_layout );
 		filter.filter_sort = this.select_layout.data.filter_sort;
@@ -5120,7 +5119,6 @@ BaseViewController = Backbone.View.extend( {
 						}
 
 						if ( !found ) {
-//						$this.grid.addRowData( new_record.id, new_record, 0 );
 							$this.grid.clearGridData();
 							$this.grid.setGridParam( {data: grid_source_data.concat( new_record )} );
 
@@ -5423,8 +5421,6 @@ BaseViewController = Backbone.View.extend( {
 			total_tab_width += $( this ).width();
 		} );
 
-
-
 		if ( total_tab_width > (tab_width - nav_width - 25) ) {
 
 			tab_bar_label.width( total_tab_width + 10 );
@@ -5491,8 +5487,6 @@ BaseViewController = Backbone.View.extend( {
 	},
 
 	getFilterColumnsFromDisplayColumns: function() {
-		var display_columns = this.grid.getGridParam( 'colModel' );
-
 		var column_filter = {};
 		column_filter.is_owner = true;
 		column_filter.id = true;
@@ -5501,6 +5495,11 @@ BaseViewController = Backbone.View.extend( {
 		column_filter.first_name = true;
 		column_filter.last_name = true;
 
+		// Error: Unable to get property 'getGridParam' of undefined or null reference
+		var display_columns = [];
+		if ( this.grid ) {
+			display_columns = this.grid.getGridParam( 'colModel' );
+		}
 		//Fixed possible exception -- Error: Unable to get property 'length' of undefined or null reference in https://villa.timetrex.com/interface/html5/views/BaseViewController.js?v=7.4.3-20140924-090129 line 5031
 		if ( display_columns ) {
 			var len = display_columns.length;

@@ -453,9 +453,11 @@ class UserDateTotalFactory extends Factory {
 				$lf = TTNew('AbsencePolicyListFactory');
 				break;
 			case 100:
+			case 101:
 				$lf = TTNew('MealPolicyListFactory');
 				break;
 			case 110:
+			case 111:
 				$lf = TTNew('BreakPolicyListFactory');
 				break;
 			default:
@@ -1575,15 +1577,21 @@ class UserDateTotalFactory extends Factory {
 				if ( $this->getDateStamp() != FALSE AND $this->getUser() != FALSE ) {
 					$filter_data = array( 'user_id' => (int)$this->getUser(), 'date_stamp' => $this->getDateStamp(), 'object_type_id' => array( (int)$this->getObjectType(), 25 ),  'branch_id' => (int)$this->getBranch(), 'department_id' => (int)$this->getDepartment(), 'job_id' => (int)$this->getJob(), 'job_item_id' => (int)$this->getJobItem() );
 					$filter_data['object_type_id'] = (int)$this->getObjectType();
+					//Restrict based on src_object_id when entering absences as well.
+					//This allows multiple absence policies to point to the same pay code
+					//and still have multiple entries on the same day with the same branch/department/job/task.
+					//Some customers have 5-10 UNPAID absence policies all going to the same UNPAID pay code.
+					//This is required to allow more than one to be used on the same day.
+					$filter_data['src_object_id'] = (int)$this->getSourceObject();
 					$filter_data['pay_code_id'] = (int)$this->getPayCode();
 					$udtlf->getAPISearchByCompanyIdAndArrayCriteria( $this->getUserObject()->getCompany(), $filter_data );
 				}
 			} elseif ( $this->getObjectType() == 30 ) {
-				$udtlf->getByUserIdAndDateStampAndObjectTypeAndObjectIdAndOverride( $this->getUser(), $this->getDateStamp(), $this->getObjectType(), $this->getPayCode(), TRUE );
+				$udtlf->getByUserIdAndDateStampAndObjectTypeAndPayCodeIdAndOverride( $this->getUser(), $this->getDateStamp(), $this->getObjectType(), $this->getPayCode(), TRUE );
 			} elseif ( $this->getObjectType() == 40 ) {
-				$udtlf->getByUserIdAndDateStampAndObjectTypeAndObjectIdAndOverride( $this->getUser(), $this->getDateStamp(), $this->getObjectType(), $this->getPayCode(), TRUE );
+				$udtlf->getByUserIdAndDateStampAndObjectTypeAndPayCodeIdAndOverride( $this->getUser(), $this->getDateStamp(), $this->getObjectType(), $this->getPayCode(), TRUE );
 			} elseif ( $this->getObjectType() == 100 ) {
-				$udtlf->getByUserIdAndDateStampAndObjectTypeAndObjectIdAndOverride( $this->getUser(), $this->getDateStamp(), $this->getObjectType(), $this->getPayCode(), TRUE );
+				$udtlf->getByUserIdAndDateStampAndObjectTypeAndPayCodeIdAndOverride( $this->getUser(), $this->getDateStamp(), $this->getObjectType(), $this->getPayCode(), TRUE );
 			} elseif ( $this->getObjectType() == 5 OR ( $this->getObjectType() == 20 AND $this->getPunchControlID() > 0 ) ) {
 				$udtlf->getByUserIdAndDateStampAndObjectTypeAndPunchControlIdAndOverride( $this->getUser(), $this->getDateStamp(), $this->getObjectType(), $this->getPunchControlID(), TRUE );
 			}

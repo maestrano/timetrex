@@ -154,7 +154,8 @@ BaseWizardController = BaseWindowController.extend( {
 
 	saveAllStepsToUserGenericData: function( callBack ) {
 
-		if ( this.script_name ) {
+		// Function called stacks: TypeError: Unable to set property 'data' of undefined or null reference
+		if ( this.script_name && this.saved_user_generic_data) {
 			this.saved_user_generic_data.data = this.stepsDataDic;
 			this.saved_user_generic_data.data.current_step = this.current_step;
 

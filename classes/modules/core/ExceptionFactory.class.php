@@ -508,11 +508,11 @@ class ExceptionFactory extends Factory {
 										AND $parent_user_obj->getUserPreferenceObject()->getEnableEmailNotificationException() == TRUE
 										AND $parent_user_obj->getStatus() == 10 ) {
 									Debug::Text(' Emailing exception to supervisor!', __FILE__, __LINE__, __METHOD__, 10);
-									if ( $parent_user_obj->getWorkEmail() != '' ) {
+									if ( $parent_user_obj->getWorkEmail() != '' AND $parent_user_obj->getWorkEmailIsValid() == TRUE ) {
 										$retarr[] = $parent_user_obj->getWorkEmail();
 									}
 
-									if ( $parent_user_obj->getUserPreferenceObject()->getEnableEmailNotificationHome() == TRUE AND $parent_user_obj->getHomeEmail() != '' ) {
+									if ( $parent_user_obj->getUserPreferenceObject()->getEnableEmailNotificationHome() == TRUE AND $parent_user_obj->getHomeEmail() != '' AND $parent_user_obj->getHomeEmailIsValid() == TRUE ) {
 										$retarr[] = $parent_user_obj->getHomeEmail();
 									}
 								} else {
@@ -641,7 +641,7 @@ class ExceptionFactory extends Factory {
 		$exception_email_body .= ( $replace_arr[5] != '' ) ? TTi18n::gettext('Title').': #employee_title#'."\n" : NULL;
 
 		$exception_email_body .= "\n";
-		$exception_email_body .= TTi18n::gettext('Link:').' <a href="'. Misc::getURLProtocol() .'://'. Misc::getHostName().Environment::getDefaultInterfaceBaseURL().'">'.APPLICATION_NAME.' '. TTi18n::gettext('Login') .'</a>';
+		$exception_email_body .= TTi18n::gettext('Link').': <a href="'. Misc::getURLProtocol() .'://'. Misc::getHostName().Environment::getDefaultInterfaceBaseURL().'">'.APPLICATION_NAME.' '. TTi18n::gettext('Login') .'</a>';
 
 		$exception_email_body .= ( $replace_arr[10] != '' ) ? "\n\n\n".TTi18n::gettext('Company').': #company_name#'."\n" : NULL; //Always put at the end
 

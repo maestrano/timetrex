@@ -140,12 +140,12 @@
     line-height: 24px;
     min-width: 132px;
     overflow: hidden;
-    position: relative;
     display: inline-block;
     word-wrap: break-word;
     word-break: break-all;
     padding-right: 3px;
     max-width: 200px;
+    vertical-align: text-bottom;
 
 }
 

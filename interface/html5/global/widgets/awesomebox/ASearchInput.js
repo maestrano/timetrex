@@ -8,7 +8,7 @@
 		var search_timer = null;
 
 		var $this = this;
-		var default_tooltip = 'click to search';
+		var default_tooltip = $.i18n._( 'click to search' );
 
 		this.setFilter = function( filters ) {
 			var field = column_model.name;
@@ -81,8 +81,6 @@
 
 	};
 
-	$.fn.ASearchInput.defaults = {
-
-	};
+	$.fn.ASearchInput.defaults = {};
 
 })( jQuery );

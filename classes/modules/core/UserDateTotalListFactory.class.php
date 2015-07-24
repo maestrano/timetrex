@@ -279,7 +279,7 @@ class UserDateTotalListFactory extends UserDateTotalFactory implements IteratorA
 		return $this;
 	}
 
-	function getByUserIdAndDateStampAndObjectTypeAndObjectIdAndOverride($user_id, $date_stamp, $object_type, $pay_code_id, $override = FALSE, $order = NULL) {
+	function getByUserIdAndDateStampAndObjectTypeAndPayCodeIdAndOverride($user_id, $date_stamp, $object_type, $pay_code_id, $override = FALSE, $order = NULL) {
 		if ( $user_id == '' ) {
 			return FALSE;
 		}
@@ -348,7 +348,7 @@ class UserDateTotalListFactory extends UserDateTotalFactory implements IteratorA
 		return $this;
 	}
 
-	function getByUserIdAndDateStampAndPunchControlId($user_id, $date_stamp, $punch_control_id) {
+	function getByUserIdAndDateStampAndOldDateStampAndPunchControlId($user_id, $date_stamp, $old_date_stamp, $punch_control_id) {
 		if ( $user_id == '' ) {
 			return FALSE;
 		}
@@ -361,17 +361,22 @@ class UserDateTotalListFactory extends UserDateTotalFactory implements IteratorA
 			return FALSE;
 		}
 
+		if ( empty( $old_date_stamp ) ) {
+			$old_date_stamp = $date_stamp;
+		}
+
 		$ph = array(
-					'user_id' => $user_id,
-					'date_stamp' => $this->db->BindDate( $date_stamp ),
-					'punch_control_id' => $punch_control_id,
+					'user_id' => (int)$user_id,
+					'date_stamp' => $this->db->BindDate( (int)$date_stamp ),
+					'old_date_stamp' => $this->db->BindDate( (int)$old_date_stamp ),
+					'punch_control_id' => (int)$punch_control_id,
 					);
 
 		$query = '
 					select	*
 					from	'. $this->getTable() .'
 					where user_id = ?
-						AND date_stamp = ?
+						AND ( date_stamp = ? OR date_stamp = ? )
 						AND punch_control_id = ?
 						AND deleted = 0
 					';
@@ -445,41 +450,6 @@ class UserDateTotalListFactory extends UserDateTotalFactory implements IteratorA
 					where	user_id = ?
 						AND date_stamp = ?
 						AND object_type_id in ('. $this->getListSQL($object_type_id, $ph) .')
-						AND deleted = 0
-				';
-
-		$total = $this->db->GetOne($query, $ph);
-
-		if ( $total === FALSE ) {
-			$total = 0;
-		}
-		Debug::text('Total: '. $total, __FILE__, __LINE__, __METHOD__, 10);
-
-		return $total;
-	}
-
-	function getTotalSumByUserIdAndDateStampAndObjectTypeAndObjectID( $user_id, $date_stamp, $object_type_id, $pay_code_id ) {
-		if ( $user_id == '' ) {
-			return FALSE;
-		}
-
-		if ( $date_stamp == '' ) {
-			return FALSE;
-		}
-
-		$ph = array(
-					'user_id' => $user_id,
-					'date_stamp' => $this->db->BindDate( $date_stamp ),
-					);
-
-		//Don't include total time row, OR paid absences
-		$query = '
-					select	sum(total_time)
-					from	'. $this->getTable() .'
-					where	user_id = ?
-						AND date_stamp = ?
-						AND object_type_id in ('. $this->getListSQL($object_type_id, $ph) .')
-						AND pay_code_id in ('. $this->getListSQL($pay_code_id, $ph) .')
 						AND deleted = 0
 				';
 
@@ -624,12 +594,10 @@ class UserDateTotalListFactory extends UserDateTotalFactory implements IteratorA
 		//Order by a.over_time_policy last so we never leave the ordering up to the database. This can cause
 		//the unit tests to fail between databases.
 		//AND a.type_id != 40
-		$query = '
-					select	a.*,
-							a.date_stamp as user_date_stamp
+		$query = '	select	a.*
 					from	'. $this->getTable() .' as a
 					LEFT JOIN '. $uf->getTable() .' as c ON a.user_id = c.id
-					LEFT JOIN '. $otpf->getTable() .' as d ON ( a.object_type_id = 30 AND a.pay_code_id = d.id )
+					LEFT JOIN '. $otpf->getTable() .' as d ON ( a.object_type_id = 30 AND a.src_object_id = d.id )
 					where
 						c.company_id = ?
 						AND	a.user_id = ?
@@ -637,7 +605,7 @@ class UserDateTotalListFactory extends UserDateTotalFactory implements IteratorA
 						AND a.date_stamp <= ?
 						AND a.object_type_id in ('. $this->getListSQL($object_type_id, $ph) .')
 						AND ( a.deleted = 0 )
-					ORDER BY a.date_stamp asc, a.object_type_id asc, d.type_id desc, a.pay_code_id desc, a.total_time, a.id
+					ORDER BY a.date_stamp asc, a.object_type_id asc, d.type_id desc, a.src_object_id desc, a.total_time, a.id
 					';
 
 		$this->ExecuteSQL( $query, $ph );
@@ -1308,56 +1276,6 @@ class UserDateTotalListFactory extends UserDateTotalFactory implements IteratorA
 		return $total;
 	}
 
-	//function getPreviousDayByUserIdAndStartDateAndEndDateAndOverTimePolicyId($user_id, $start_date, $end_date, $over_time_policy_id, $where = NULL, $order = NULL) {
-	function getPreviousDayByUserIdAndStartDateAndEndDateAndObjectTypeAndObjectId($user_id, $start_date, $end_date, $object_type, $pay_code_id, $where = NULL, $order = NULL) {
-		if ( $user_id == '') {
-			return FALSE;
-		}
-
-		if ( $start_date == '') {
-			return FALSE;
-		}
-
-		if ( $end_date == '') {
-			return FALSE;
-		}
-
-		if ( $object_type == '') {
-			return FALSE;
-		}
-
-		if ( $pay_code_id == '') {
-			return FALSE;
-		}
-
-		$ph = array(
-					'user_id' => $user_id,
-					'start_date' => $this->db->BindDate( $start_date ),
-					'end_date' => $this->db->BindDate( $end_date ),
-					'object_type' => $object_type,
-					'pay_code_id' => $pay_code_id,
-					);
-
-		$query = '
-					select	a.date_stamp
-					from	'. $this->getTable() .' as a
-					where
-						a.user_id = ?
-						AND ( a.date_stamp >= ? AND a.date_stamp < ? )
-						AND a.object_type = ?
-						AND a.pay_code_id = ?
-						AND a.deleted = 0
-					ORDER BY a.date_stamp desc
-					LIMIT 1
-				';
-		$query .= $this->getWhereSQL( $where );
-		$query .= $this->getSortSQL( $order );
-
-		$date = $this->db->GetOne($query, $ph);
-
-		return $date;
-	}
-
 	function getByPayCodeId( $pay_code_id, $limit = NULL, $where = NULL, $order = NULL) {
 		if ( $pay_code_id == '' ) {
 			return FALSE;
@@ -1382,37 +1300,6 @@ class UserDateTotalListFactory extends UserDateTotalFactory implements IteratorA
 		$query .= $this->getSortSQL( $order, $strict );
 
 		$this->ExecuteSQL( $query, $ph, $limit );
-
-		return $this;
-	}
-
-	function getByObjectTypeAndObjectId($object_type, $src_object_id, $order = NULL) {
-		if ( $object_type == '' ) {
-			return FALSE;
-		}
-
-		if ( $order == NULL ) {
-			$strict = FALSE;
-		} else {
-			$strict = TRUE;
-		}
-
-		$ph = array(
-					'object_type' => $object_type,
-					'src_object_id' => $src_object_id,
-					);
-
-		$query = '
-					select	a.*
-					from	'. $this->getTable() .' as a
-					where a.object_type_id = ?
-						AND a.src_object_id = ?
-						AND a.deleted = 0
-						LIMIT 1
-					';
-		$query .= $this->getSortSQL( $order, $strict );
-
-		$this->ExecuteSQL( $query, $ph );
 
 		return $this;
 	}
@@ -1526,6 +1413,99 @@ class UserDateTotalListFactory extends UserDateTotalFactory implements IteratorA
 		$this->ExecuteSQL( $query, $ph );
 
 		//Debug::Arr($ph, 'Query: '. $query, __FILE__, __LINE__, __METHOD__, 10);
+
+		return $this;
+	}
+
+	function getAccrualOrphansByUserIdAndPayCodeIdAndAccrualPolicyAccountIdAndStartDateAndEndDate( $user_id, $pay_code_id, $accrual_policy_account_id, $start_date, $end_date, $where = NULL, $order = NULL) {
+		if ( $user_id == '') {
+			return FALSE;
+		}
+
+		if ( $pay_code_id == '') {
+			return FALSE;
+		}
+
+		if ( $accrual_policy_account_id == '') {
+			return FALSE;
+		}
+
+		if ( $start_date == '' ) {
+			return FALSE;
+		}
+
+		if ( $end_date == '' ) {
+			return FALSE;
+		}
+
+		if ( $order == NULL ) {
+			$order = array( 'a.date_stamp' => 'asc' );
+			$strict = FALSE;
+		} else {
+			$strict = TRUE;
+		}
+
+		$af = new AccrualFactory();
+		$udtf = new UserDateTotalFactory();
+
+		//
+		// getOrphansByUserIdAndDate() AND getOrphansByUserId() are similar, may need to modify both!
+		// Also check UserDateTotalListFactory->getAccrualOrphansByPayCodeIdAndStartDateAndEndDate()
+		//
+
+		$ph = array(
+					'accrual_policy_account_id' => $accrual_policy_account_id,
+					'user_id' => $user_id,
+					'pay_code_id' => $pay_code_id,
+					'start_date' => $this->db->BindDate( TTDate::getBeginDayEpoch( (TTDate::getMiddleDayEpoch( $start_date ) ) ) ),
+					'end_date' => $this->db->BindDate( TTDate::getBeginDayEpoch( (TTDate::getMiddleDayEpoch( $end_date ) ) ) ),
+					);
+
+		//If we include object_type_id=25 here, it will include cases where Hour Based accrual policies accrue time every day.
+		//I think we just want to focus on absence (taken) records instead, object_type_id=50
+		//
+		//The 2nd UNION query is for cases where the absence (taken) record exists, but no object_type_id=25 record corresponds with it.
+		$query = '
+					SELECT * FROM (
+						SELECT	a.*, b.id as joined_id
+						FROM	'. $this->getTable() .' as a
+						LEFT JOIN '. $af->getTable() .' as b ON (
+																	a.user_id = b.user_id
+																	AND a.date_stamp = b.time_stamp::date
+																	AND b.accrual_policy_account_id = ?
+																	AND b.type_id = 20
+																	AND abs(a.total_time) = abs(b.amount)
+																	AND b.deleted = 0
+																)
+						UNION ALL
+
+						SELECT	a.*, c.id as joined_id
+						FROM	'. $this->getTable() .' as a
+						LEFT JOIN '. $this->getTable() .' as c ON (
+																	a.user_id = c.user_id
+																	AND a.date_stamp = c.date_stamp
+																	AND a.src_object_id = c.src_object_id
+																	AND a.pay_code_id = c.pay_code_id
+																	AND a.object_type_id = 50
+																	AND c.object_type_id = 25
+																	AND abs(a.total_time) = abs(c.total_time)
+																	AND c.deleted = 0
+																	)
+						WHERE a.object_type_id = 50 AND a.total_time != 0
+					) as a					
+					WHERE
+						a.user_id = ?
+						AND a.pay_code_id = ?
+						AND a.object_type_id IN ( 25, 50 )
+						AND ( a.date_stamp >= ? AND a.date_stamp <= ? )
+						AND ( a.joined_id is NULL )
+						AND a.deleted = 0';
+		$query .= $this->getWhereSQL( $where );
+		$query .= $this->getSortSQL( $order );
+
+		//Debug::Arr($ph, 'Query: '. $query, __FILE__, __LINE__, __METHOD__, 10);
+
+		$this->ExecuteSQL( $query, $ph );
 
 		return $this;
 	}
@@ -2299,6 +2279,22 @@ class UserDateTotalListFactory extends UserDateTotalFactory implements IteratorA
 			$filter_data['job_item_id'] = $filter_data['job_item_ids'];
 		}
 
+		//If the user filters timesheet data based on branch/department/job/task, that will exclude object_id=5 (system total time) records
+		//As those are never assigned to any branch/department/job/task and their timesheet will always look funny ( Total Time = 0, even if Regular Time is 8hrs ),
+		//So always include *_id=0.
+		if ( isset($filter_data['branch_id']) AND is_array($filter_data['branch_id']) ) {
+			$filter_data['branch_id'][] = 0;
+		}
+		if ( isset($filter_data['department_id']) AND is_array($filter_data['department_id']) ) {
+			$filter_data['department_id'][] = 0;
+		}
+		if ( isset($filter_data['job_id']) AND is_array($filter_data['job_id']) ) {
+			$filter_data['job_id'][] = 0;
+		}
+		if ( isset($filter_data['job_item_id']) AND is_array($filter_data['job_item_id']) ) {
+			$filter_data['job_item_id'][] = 0;
+		}
+
 		$uf = new UserFactory();
 		$uwf = new UserWageFactory();
 		$bf = new BranchFactory();
@@ -2443,6 +2439,7 @@ class UserDateTotalListFactory extends UserDateTotalFactory implements IteratorA
 		$query .= ( isset($filter_data['date']) ) ? $this->getWhereClauseSQL( 'a.date_stamp', $filter_data['date'], 'date_stamp', $ph ) : NULL;
 
 		$query .= ( isset($filter_data['object_type_id']) ) ? $this->getWhereClauseSQL( 'a.object_type_id', $filter_data['object_type_id'], 'numeric_list', $ph ) : NULL;
+		$query .= ( isset($filter_data['src_object_id']) ) ? $this->getWhereClauseSQL( 'a.src_object_id', $filter_data['src_object_id'], 'numeric_list', $ph ) : NULL;
 		$query .= ( isset($filter_data['pay_code_id']) ) ? $this->getWhereClauseSQL( 'a.pay_code_id', $filter_data['pay_code_id'], 'numeric_list', $ph ) : NULL;
 
 		$query .= ( isset($filter_data['user_status_id']) ) ? $this->getWhereClauseSQL( 'd.status_id', $filter_data['user_status_id'], 'numeric_list', $ph ) : NULL;
