@@ -45,6 +45,7 @@ class AccrualPolicyFactory extends Factory {
 	protected $company_obj = NULL;
 	protected $milestone_objs = NULL;
 	protected $contributing_shift_policy_obj = NULL;
+	protected $user_modifier_obj = NULL;
 	protected $length_of_service_contributing_pay_code_policy_obj = NULL;
 
 	function _getFactoryOptions( $name ) {
@@ -614,15 +615,32 @@ class AccrualPolicyFactory extends Factory {
 		return FALSE;
 	}
 
-	function getMilestoneRolloverDate( $user_hire_date = NULL, $modifier_obj = NULL ) {
-		if ( $user_hire_date == '' ) {
+	function getModifiedHireDate( $u_obj, $modifier_obj = NULL ) {
+		if ( !is_object($u_obj) ) {
 			return FALSE;
 		}
 
-		if ( is_object($modifier_obj) AND method_exists( $modifier_obj, 'getLengthOfServiceDate' ) AND $modifier_obj->getLengthOfServiceDate() != '' ) {
-			Debug::Text('Using Modifier LengthOfService Date: '. TTDate::getDate('DATE+TIME', $modifier_obj->getLengthOfServiceDate() ) .' Hire Date: '. TTDate::getDate('DATE+TIME', $user_hire_date), __FILE__, __LINE__, __METHOD__, 10);
-			$user_hire_date = $modifier_obj->getLengthOfServiceDate();
+		if ( !is_object( $modifier_obj ) ) {
+			$modifier_obj = $this->getAccrualPolicyUserModifierObject( $u_obj );
 		}
+
+		if ( is_object($modifier_obj) AND method_exists( $modifier_obj, 'getLengthOfServiceDate' ) AND $modifier_obj->getLengthOfServiceDate() != '' ) {
+			$user_hire_date = $modifier_obj->getLengthOfServiceDate();
+			//Debug::Text('Using Modifier LengthOfService Date: '. TTDate::getDate('DATE+TIME', $user_hire_date ) .' Hire Date: '. TTDate::getDate('DATE+TIME', $u_obj->getHireDate() ), __FILE__, __LINE__, __METHOD__, 10);
+		} else {
+			$user_hire_date = $u_obj->getHireDate();
+			//Debug::Text('Hire Date: '. TTDate::getDate('DATE+TIME', $user_hire_date ), __FILE__, __LINE__, __METHOD__, 10);
+		}
+
+		return $user_hire_date;
+	}
+
+	function getMilestoneRolloverDate( $u_obj = NULL, $modifier_obj = NULL ) {
+		if ( !is_object($u_obj) ) {
+			return FALSE;
+		}
+
+		$user_hire_date = $this->getModifiedHireDate( $u_obj, $modifier_obj );
 
 		if ( $this->getMilestoneRolloverHireDate() == TRUE ) {
 			$retval = $user_hire_date;
@@ -635,8 +653,14 @@ class AccrualPolicyFactory extends Factory {
 		return TTDate::getBeginDayEpoch( $retval ); //Some hire dates might be at noon, so make sure they are all at midnight.
 	}
 
-	function getCurrentMilestoneRolloverDate( $epoch, $user_hire_date = NULL ) {
-		$base_rollover_date = $this->getMilestoneRolloverDate( $user_hire_date );
+	function getCurrentMilestoneRolloverDate( $epoch, $u_obj = NULL ) {
+		if ( !is_object($u_obj) ) {
+			return FALSE;
+		}
+
+		$user_hire_date = $this->getModifiedHireDate( $u_obj );
+		
+		$base_rollover_date = $this->getMilestoneRolloverDate( $u_obj );
 		$rollover_date = mktime( 0, 0, 0, TTDate::getMonth( $base_rollover_date ), TTDate::getDayOfMonth( $base_rollover_date ), TTDate::getYear( $epoch ) );
 
 		if ( $rollover_date < $user_hire_date ) {
@@ -678,9 +702,9 @@ class AccrualPolicyFactory extends Factory {
 		return $retval;
 	}
 
-	function inRolloverFrequencyWindow( $current_epoch, $offset, $user_hire_date, $pay_period_start_date = NULL ) {
+	function inRolloverFrequencyWindow( $current_epoch, $offset, $u_obj, $pay_period_start_date = NULL ) {
 		//Use current_epoch mainly for Yearly cases where the rollover date is 01-Nov and the hire date is always right after it, 10-Nov in the next year.
-		$rollover_date = $this->getCurrentMilestoneRolloverDate( $current_epoch, $user_hire_date );
+		$rollover_date = $this->getCurrentMilestoneRolloverDate( $current_epoch, $u_obj );
 		Debug::Text('Rollover Date: '. TTDate::getDate('DATE+TIME', $rollover_date ) .' Current Epoch: '. TTDate::getDate('DATE+TIME', $current_epoch ), __FILE__, __LINE__, __METHOD__, 10);
 
 		if ( $rollover_date >= ($current_epoch - $offset) AND $rollover_date <= $current_epoch ) {
@@ -692,7 +716,9 @@ class AccrualPolicyFactory extends Factory {
 		return FALSE;
 	}
 
-	function inApplyFrequencyWindow( $current_epoch, $offset, $pay_period_end_date = NULL, $hire_date = NULL ) {
+	function inApplyFrequencyWindow( $current_epoch, $offset, $pay_period_end_date = NULL, $u_obj = NULL ) {
+		$hire_date = $this->getMilestoneRolloverDate( $u_obj );
+
 		$retval = FALSE;
 		switch( $this->getApplyFrequency() ) {
 			case 10: //Pay Period
@@ -782,17 +808,17 @@ class AccrualPolicyFactory extends Factory {
 			$this->milestone_objs[$this->getID()] = TTnew( 'AccrualPolicyMilestoneListFactory' );
 			$this->milestone_objs[$this->getID()]->getByAccrualPolicyId($this->getId(), NULL, array('length_of_service_days' => 'desc' ) );
 		}
-		Debug::Text('  Total Accrual Policy MileStones: '. (int)$this->milestone_objs[$this->getID()]->getRecordCount(), __FILE__, __LINE__, __METHOD__, 10);
+		Debug::Text('  Total Accrual Policy Milestones: '. (int)$this->milestone_objs[$this->getID()]->getRecordCount(), __FILE__, __LINE__, __METHOD__, 10);
 		if ( $this->milestone_objs[$this->getID()]->getRecordCount() > 0 ) {
 			foreach( $this->milestone_objs[$this->getID()] as $apm_obj ) {
 				if ( $apm_obj->getLengthOfServiceUnit() == 50 AND $apm_obj->getLengthOfService() > 0 ) {
-					Debug::Text('  MileStone is in Hours...', __FILE__, __LINE__, __METHOD__, 10);
+					Debug::Text('  Milestone is in Hours...', __FILE__, __LINE__, __METHOD__, 10);
 					return TRUE;
 				}
 			}
 		}
 
-		Debug::Text('  No HourBased length of service MileStones...', __FILE__, __LINE__, __METHOD__, 10);
+		Debug::Text('  No HourBased length of service Milestones...', __FILE__, __LINE__, __METHOD__, 10);
 		return FALSE;
 	}
 
@@ -802,13 +828,16 @@ class AccrualPolicyFactory extends Factory {
 		}
 
 		if ( getTTProductEdition() > 10 ) {
-			$apumlf = TTNew('AccrualPolicyUserModifierListFactory');
-			$apumlf->getByUserIdAndAccrualPolicyId( $u_obj->getId(), $this->getId() );
-			if ( $apumlf->getRecordCount() == 1 ) {
-				$apum_obj = $apumlf->getCurrent();
-				Debug::Text('  Found Accrual Policy User Modifier: Length of Service: '. $apum_obj->getLengthOfServiceDate() .' Accrual Rate: '. $apum_obj->getAccrualRateModifier(), __FILE__, __LINE__, __METHOD__, 10);
-
-				return $apum_obj;
+			if ( isset($this->user_modifier_obj) AND is_object($this->user_modifier_obj) AND $this->user_modifier_obj->getUser() == $u_obj->getID() AND $this->user_modifier_obj->getAccrualPolicy() == $this->getID() ) {
+				return $this->user_modifier_obj;
+			} else {
+				$apumlf = TTNew('AccrualPolicyUserModifierListFactory');
+				$apumlf->getByUserIdAndAccrualPolicyId( $u_obj->getId(), $this->getId() );
+				if ( $apumlf->getRecordCount() == 1 ) {
+					$this->user_modifier_obj = $apumlf->getCurrent();
+					Debug::Text('  Found Accrual Policy User Modifier: Length of Service: '. TTDate::getDate('DATE+TIME', $this->user_modifier_obj->getLengthOfServiceDate() )  .' Accrual Rate: '. $this->user_modifier_obj->getAccrualRateModifier(), __FILE__, __LINE__, __METHOD__, 10);
+					return $this->user_modifier_obj;
+				}
 			}
 		}
 
@@ -864,7 +893,7 @@ class AccrualPolicyFactory extends Factory {
 				} else {
 					Debug::Text('  MileStone is in Days...', __FILE__, __LINE__, __METHOD__, 10);
 					//Calendar based
-					$milestone_rollover_date = $apm_obj->getLengthOfServiceDate( $this->getMilestoneRolloverDate( $u_obj->getHireDate(), $modifier_obj ) );
+					$milestone_rollover_date = $apm_obj->getLengthOfServiceDate( $this->getMilestoneRolloverDate( $u_obj, $modifier_obj ) );
 
 					//When a milestone first rolls-over, the Maximum rollover won't apply in many cases as it uses the new milestone rollover
 					//at that time which often has a higher rollover amount. This only happens the first time the milestone rolls-over.
@@ -989,11 +1018,14 @@ class AccrualPolicyFactory extends Factory {
 		// Projected Balance by 01-Jul-12: 15hrs
 		// Projected Remaining Balance:		7hrs
 
+		//Debug::Arr($other_policy_balance_arr, 'Current Time: '. TTDate::getHours( $current_time ) .' Previous Time: '. TTDate::getHours( $previous_time ) .' Other Policy Balance Arr: ', __FILE__, __LINE__, __METHOD__, 10);
+
 		//Now that multiple Accrual Policies can deposit to the same account, we need to loop through all accrual policies that affect
 		//any given account and add the projected balances together.
+		//  Make sure we account for the available balance which is calculated on the first pass.
 		$other_policy_projected_balance = 0;
 		if ( is_array($other_policy_balance_arr) AND isset($other_policy_balance_arr['projected_balance']) ) {
-			$other_policy_projected_balance = $other_policy_balance_arr['projected_balance'];
+			$other_policy_projected_balance = ( $other_policy_balance_arr['projected_balance'] - $other_policy_balance_arr['available_balance'] );
 			Debug::Text('Other Policy Projected Balance: '. TTDate::getHours( $other_policy_projected_balance ), __FILE__, __LINE__, __METHOD__, 10);
 
 		}
@@ -1005,9 +1037,9 @@ class AccrualPolicyFactory extends Factory {
 		$retarr = array(
 						'available_balance' => $available_balance,
 						'current_time' => $current_time,
-						'remaining_balance' => $available_balance - $current_time,
+						'remaining_balance' => ( $available_balance - $current_time ),
 						'projected_balance' => $projected_accrual,
-						'projected_remaining_balance' => $projected_accrual - $current_time,
+						'projected_remaining_balance' => ( $projected_accrual - $current_time ),
 						);
 
 		Debug::Arr($retarr, 'Projected Accrual Arr: ', __FILE__, __LINE__, __METHOD__, 10);
@@ -1089,7 +1121,7 @@ class AccrualPolicyFactory extends Factory {
 					} else {
 						Debug::Arr($pay_period_dates, '   No Pay Period Dates Found.', __FILE__, __LINE__, __METHOD__, 10);
 					}
-				} elseif ( $this->inApplyFrequencyWindow( $epoch, $offset, NULL, $u_obj->getHireDate() ) == TRUE ) {
+				} elseif ( $this->inApplyFrequencyWindow( $epoch, $offset, NULL, $u_obj ) == TRUE ) {
 					Debug::Text('  User IS in NON-PayPeriod Apply Frequency Window.', __FILE__, __LINE__, __METHOD__, 10);
 					$in_apply_frequency_window = TRUE;
 				} else {
@@ -1098,7 +1130,7 @@ class AccrualPolicyFactory extends Factory {
 				}
 			}
 
-			if ( $this->inRolloverFrequencyWindow( $epoch, $offset, $u_obj->getHireDate(), $pay_period_start_date ) ) {
+			if ( $this->inRolloverFrequencyWindow( $epoch, $offset, $u_obj, $pay_period_start_date ) ) {
 				Debug::Text('   In rollover window...', __FILE__, __LINE__, __METHOD__, 10);
 				$in_apply_rollover_window = TRUE;
 			}
@@ -1121,7 +1153,7 @@ class AccrualPolicyFactory extends Factory {
 					}
 					if ( $alf->getRecordCount() == 0 ) {
 						//Get effective date, try to use the current milestone rollover date to make things more clear.
-						$current_milestone_rollover_date = $this->getCurrentMilestoneRolloverDate( $epoch, $u_obj->getHireDate() );
+						$current_milestone_rollover_date = $this->getCurrentMilestoneRolloverDate( $epoch, $u_obj );
 						//If milestone rollover date comes after the current epoch, back date it by one year.
 						if ( $current_milestone_rollover_date > $epoch ) {
 							$current_milestone_rollover_date = mktime( 0, 0, 0, TTDate::getMonth($current_milestone_rollover_date), TTDate::getDayOfMonth($current_milestone_rollover_date), (TTDate::getYear($epoch) - 1) );

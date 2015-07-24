@@ -82,6 +82,7 @@ class APIAbout extends APIFactory {
 		$data['application_name'] = APPLICATION_NAME;
 
 		$data['organization_url'] = ORGANIZATION_URL;
+		
 		//Get Employee counts for this month, and last month
 		$month_of_year_arr = TTDate::getMonthOfYearArray();
 
@@ -124,6 +125,10 @@ class APIAbout extends APIFactory {
 								);
 		}
 		$data['show_license_data'] = FALSE;
+
+		$license = new TTLicense();
+		$data['hardware_id'] = $license->getHardwareID();
+
 		if ( ( ( DEPLOYMENT_ON_DEMAND == FALSE AND $current_company->getId() == 1 ) OR ( isset($config_vars['other']['primary_company_id']) AND $current_company->getId() == $config_vars['other']['primary_company_id'] ) ) AND getTTProductEdition() > 10 ) {
 
 			if ( !isset($system_settings['license']) ) {
@@ -133,7 +138,6 @@ class APIAbout extends APIFactory {
 			//Set this so the license upload area at least shows up regardles of edition.
 			$data['license_data'] = array();
 
-			$license = new TTLicense();
 			$retval = $license->validateLicense( $system_settings['license'] );
 
 			if ( $retval == TRUE ) {

@@ -14,7 +14,7 @@ class Maestrano_Sso_SessionTest extends PHPUnit_Framework_TestCase
       Maestrano::configure(array('environment' => 'production', 'sso' => array('slo_enabled' => true)));
       
       $this->mnoSession = array(
-    		"uid" => "usr-1",
+		"uid" => "usr-1",
         "group_uid" => "cld-1",
         "session" => "sessiontoken",
         "session_recheck" => "2014-06-22T01:00:00Z"
@@ -22,8 +22,7 @@ class Maestrano_Sso_SessionTest extends PHPUnit_Framework_TestCase
       
       $this->httpSession = array();
       SessionTestHelper::setMnoEntry($this->httpSession,$this->mnoSession);
-    		
-      
+
       $this->httpClient = new MnoHttpClientStub();
     }
     
@@ -246,5 +245,31 @@ class Maestrano_Sso_SessionTest extends PHPUnit_Framework_TestCase
   		// test 1 - validity
   		$this->assertFalse($this->subject->isValid(false,$this->httpClient));
   	}
+
+	public function ssoTokenExists_IfSsoTokenExists_ItShouldReturnTrue()
+	{
+		$this->subject = new Maestrano_Sso_Session($this->httpSession);
+
+		// test 1 - validity
+		$this->assertTrue($this->subject->ssoTokenExists());
+	}
+
+	public function ssoTokenExists_IfNoSsoTokenExists_ItShouldReturnFalse()
+	{
+		$emptySession = array();
+		$this->subject = new Maestrano_Sso_Session($emptySession);
+
+		// test 1 - validity
+		$this->assertFalse($this->subject->ssoTokenExists());
+	}
+
+	public function isValid_WhenNoSsoTokenIsPresent_ItShouldReturnFalse()
+	{
+		$emptySession = array();
+		$this->subject = new Maestrano_Sso_Session($emptySession);
+
+		// test 1 - validity
+		$this->assertFalse($this->subject->isValid());
+	}
 }
 ?>

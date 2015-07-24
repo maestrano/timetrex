@@ -26,6 +26,19 @@ abstract class Maestrano_Api_Resource extends Maestrano_Api_Object
     return $this;
   }
 
+  protected function getRelated($subpath, $params=null, $apiToken=null)
+  {
+    $realParams = $params;
+    if ($realParams && is_array($params)) {
+      $realParams = Maestrano_Api_Util::convertMaestranoObjectToArray($params);
+    }
+
+    $requestor = new Maestrano_Api_Requestor($apiToken);
+    $url = $this->instanceUrl() . $subpath;
+    list($response, $apiToken) = $requestor->request('get', $url, $realParams);
+    return Maestrano_Api_Util::convertToMaestranoObject($response, $apiToken);
+  }
+
   /**
    * @param string $class
    *
@@ -97,7 +110,7 @@ abstract class Maestrano_Api_Resource extends Maestrano_Api_Object
     if ($realParams && is_array($params)) {
       $realParams = Maestrano_Api_Util::convertMaestranoObjectToArray($params);
     }
-    
+
     self::_validateCall('all', $realParams, $apiToken);
     $requestor = new Maestrano_Api_Requestor($apiToken);
     $url = self::_scopedLsb($class, 'classUrl', $class);
@@ -110,9 +123,9 @@ abstract class Maestrano_Api_Resource extends Maestrano_Api_Object
     self::_validateCall('create', $params, $apiToken);
     $requestor = new Maestrano_Api_Requestor($apiToken);
     $url = self::_scopedLsb($class, 'classUrl', $class);
-    
+
     $realParams = Maestrano_Api_Util::convertMaestranoObjectToArray($params);
-    
+
     list($response, $apiToken) = $requestor->request('post', $url, $realParams);
     return Maestrano_Api_Util::convertToMaestranoObject($response, $apiToken);
   }

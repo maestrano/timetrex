@@ -80,7 +80,7 @@ class Maestrano_Saml_Response
             
             // Keep only one value for each entry type
             foreach ($entry->childNodes as $childNode) {
-                if (preg_match('/AttributeValue/',$childNode->tagName)){
+                if (is_a($childNode, 'DOMElement') && preg_match('/AttributeValue/',$childNode->tagName)){
                     $attributeValue = $childNode->nodeValue;
                 }
             }

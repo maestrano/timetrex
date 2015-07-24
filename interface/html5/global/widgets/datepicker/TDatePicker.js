@@ -50,7 +50,7 @@
 
 		this.isChecked = function() {
 			if ( check_box ) {
-				if ( check_box.attr( 'checked' ) ) {
+				if ( check_box.attr( 'checked' ) || check_box[0].checked === true ) {
 					return true
 				}
 			}
@@ -186,32 +186,6 @@
 			} );
 
 			var format = LocalCacheData.getLoginUserPreference().date_format_1;
-
-			//format null exception
-			if ( !format ) {
-				format = 'dd-mmm-yy';
-			}
-
-			if ( format.indexOf( 'yyyy' ) >= 0 ) {
-				format = format.replace( 'yyyy', 'yy' );
-			} else {
-				format = format.replace( 'yy', 'y' );
-			}
-
-			if ( format.indexOf( 'dddd' ) >= 0 ) {
-				format = format.replace( 'dddd', 'DD' );
-			}
-
-			if ( format.indexOf( 'ddd' ) >= 0 ) {
-				format = format.replace( 'ddd', 'D' );
-			}
-
-			if ( format.indexOf( 'mmmm' ) >= 0 ) {
-				format = format.replace( 'mmmm', 'MM' );
-			} else {
-				format = format.replace( 'mmm', 'M' );
-			}
-
 			var day_name_min = [$.i18n._( "Sun" ), $.i18n._( "Mon" ), $.i18n._( "Tue" ),
 				$.i18n._( "Wed" ), $.i18n._( "Thu" ), $.i18n._( "Fri" ), $.i18n._( "Sat" )];
 			var month_name_short = [$.i18n._( "Jan" ), $.i18n._( "Feb" ),
@@ -219,11 +193,8 @@
 				$.i18n._( "Jun" ), $.i18n._( "Jul" ), $.i18n._( "Aug" ),
 				$.i18n._( "Sep" ), $.i18n._( "Oct" ), $.i18n._( "Nov" ),
 				$.i18n._( "Dec" )];
-
 			var current_text = $.i18n._( 'Today' );
-
 			var close_text = $.i18n._( 'Close' );
-
 			if ( mode === 'date' ) {
 				date_picker_input = date_picker_input.datepicker( {
 					showTime: false,

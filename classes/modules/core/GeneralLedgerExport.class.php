@@ -44,6 +44,8 @@ class GeneralLedgerExport {
 	var $file_format_options = array( 'CSV' );
 	var $file_format = NULL; //File format
 	var $set_journal_entry_errors = 0;
+	var $journal_entry_error_msgs = array();
+
 
 	function __construct() {
 		Debug::Text(' Contruct... ', __FILE__, __LINE__, __METHOD__, 10);
@@ -83,6 +85,7 @@ class GeneralLedgerExport {
 			//Count errors, so we can NOT compile data if something doesn't balance
 			Debug::Text(' Journal Entry did not balance: Errors: '. $this->set_journal_entry_errors, __FILE__, __LINE__, __METHOD__, 10);
 			$this->set_journal_entry_errors++;
+			$this->journal_entry_error_msgs[] = $obj->journal_entry_error_msg;
 		}
 
 		return FALSE;
@@ -113,10 +116,12 @@ class GeneralLedgerExport {
 			case 'quickbooks':
 				$file_format_obj = new GeneralLedgerExport_File_Format_QuickBooks( $this->data );
 				break;
+			case 'sage300':
+				$file_format_obj = new GeneralLedgerExport_File_Format_Sage300( $this->data );
+				break;
 			case 'csv':
 				$file_format_obj = new GeneralLedgerExport_File_Format_CSV( $this->data );
 				break;
-
 		}
 
 		Debug::Text('aData Lines: '. count($this->data), __FILE__, __LINE__, __METHOD__, 10);
@@ -163,6 +168,7 @@ class GeneralLedgerExport {
  */
 class GeneralLedgerExport_JournalEntry extends GeneralLedgerExport {
 	var $journal_entry_data = NULL;
+	var $journal_entry_error_msg = NULL;
 
 	function __construct() {
 		Debug::Text(' GLE_JournalEntry Contruct... ', __FILE__, __LINE__, __METHOD__, 10);
@@ -300,7 +306,6 @@ class GeneralLedgerExport_JournalEntry extends GeneralLedgerExport {
 			$i++;
 		}
 
-
 		Debug::Text(' Debit Amount: '. $debit_amount .' Credit Amount: '. $credit_amount, __FILE__, __LINE__, __METHOD__, 10);
 		if ( $debit_amount != 0 AND $credit_amount != 0
 				AND round($debit_amount, 2) == round($credit_amount, 2) ) {
@@ -309,6 +314,7 @@ class GeneralLedgerExport_JournalEntry extends GeneralLedgerExport {
 		}
 
 		Debug::Text(' Journal Entry DOES NOT BALANCE!', __FILE__, __LINE__, __METHOD__, 10);
+		$this->journal_entry_error_msg = TTi18n::getText('Debit: %1 Credit: %2', array( $debit_amount, $credit_amount ) );
 
 		return FALSE;
 	}
@@ -360,7 +366,8 @@ class GeneralLedgerExport_Record extends GeneralLedgerExport_JournalEntry {
 
 	function setAmount($value) {
 		//Allow negative values, for example if someone is trying to export negative values (for things like vacation accrual)
-		if ( $this->isFloat( $value ) AND strlen( $value ) <= 10 AND $value != 0 ) {
+		//Used to check: strlen( $value ) <= 10, however that would break foriegn currencies that use large amounts.
+		if ( $this->isFloat( $value ) AND $value != 0 ) {
 			$this->record_data['amount'] = $value;
 
 			return TRUE;
@@ -391,6 +398,7 @@ class GeneralLedgerExport_Record extends GeneralLedgerExport_JournalEntry {
 
 	function Validate() {
 		if ( $this->getType() == FALSE OR $this->getAccount() == FALSE OR $this->getAmount() == FALSE ) {
+			Debug::Text(' ERROR: Validation Failed! Amount: '. $this->getAmount() .' Type: '. $this->getType()  .' Account: '. $this->getAccount(), __FILE__, __LINE__, __METHOD__, 10);
 			return FALSE;
 		}
 
@@ -683,4 +691,113 @@ class GeneralLedgerExport_File_Format_QuickBooks Extends GeneralLedgerExport {
 	}
 }
 
+/**
+ * @package Core\GeneralLedgerExport
+ */
+class GeneralLedgerExport_File_Format_Sage300 Extends GeneralLedgerExport {
+	var $data = NULL;
+
+	function __construct( $data ) {
+		Debug::Text(' General Ledger Format Sage300 Contruct... ', __FILE__, __LINE__, __METHOD__, 10);
+
+		$this->data = $data;
+
+		return TRUE;
+	}
+
+	private function toDate($epoch) {
+		return date('Ymd', $epoch);
+	}
+
+	private function compileRecords() {
+		//gets all Detail records.
+
+		if ( count($this->data) == 0 ) {
+			Debug::Text('No data records:', __FILE__, __LINE__, __METHOD__, 10);
+			return FALSE;
+		}
+		/*
+		RECTYPE – this is to identify which of the three parts it is 1 = Journal_Header 2 = Journal_Details, 3 = Journal_Detail_Optional_Fields
+		BATCHID – This is the Batch Number and this can be set to “000001” because this just inherits the batch number that you are importing into.
+		BTCHENTRY – This is the entry number so if there are more than one entries going into the batch you would increment by one, in this case it is just going to be one entry so the values can be set to “00001”
+		SRCELEDGER – This can be set to “GL” in this case.  Used to identify where the entry came from.
+		SRCETYPE – This can be set to “JE” this is the type of entry.
+		DATEENTRY – This is the date of the entry date format is YYYYMMDD
+		JOURNALID – this is the same and the BTCHENTRY in the Journal_Header
+		TRANSNBR – this is to identify the line of the journal entry and it increments by 20
+		ACCTID – this is the account number
+		TRANSAMT – This is the transaction amount positive DEBIT negative is a CREDIT*
+		*/
+
+		//Column headers
+		$retval[] = '"RECTYPE","BATCHID","BTCHENTRY","SRCELEDGER","SRCETYPE","DATEENTRY"';
+		$retval[] = '"RECTYPE","BATCHNBR","JOURNALID","TRANSNBR","ACCTID","TRANSAMT"';
+		$retval[] = '"RECTYPE","BATCHNBR","JOURNALID","TRANSNBR","OPTFIELD"';
+
+		$entry_number = 1;
+		foreach ( $this->data as $key => $journal_entry ) {
+			Debug::Arr($journal_entry, 'Record Object:', __FILE__, __LINE__, __METHOD__, 10);
+
+			$line1[] = 1; //RecType: Header
+			$line1[] = '000001'; //BatchID
+			$line1[] = str_pad( $entry_number, 5, '0', STR_PAD_LEFT ); //BatchEntry
+			$line1[] = 'GL'; //SRCELEDGER
+			$line1[] = 'JE'; //SRCETYPE
+			$line1[] = $this->toDate( $journal_entry->getDate() );
+
+			$line1 = implode('","',  $line1);
+			Debug::Text('Line 1 (Header): '. $line1, __FILE__, __LINE__, __METHOD__, 10);
+			$retval[] = '"'. $line1 .'"';
+
+			$transaction_number = 20;
+			$records = $journal_entry->getRecords();
+			foreach ($records as $record) {
+				$line[] = 2; //RecType: Details
+				$line[] = '000001'; //BatchID
+				$line[] = str_pad( $entry_number, 5, '0', STR_PAD_LEFT ); //BatchEntry
+				$line[] = str_pad( $transaction_number, 5, '0', STR_PAD_LEFT ); //TransNBR
+					
+				$line[] = $record->getAccount();
+				if ( $record->getType() == 'debit' ) {
+					$line[] = $record->getAmount(); //Positive on DEBIT
+				} else {
+					$line[] = ( $record->getAmount() * -1 ); //Negative on CREDIT.
+				}
+
+				$line = implode('","', $line );
+				Debug::Text('Line: '. $line, __FILE__, __LINE__, __METHOD__, 10);
+				$retval[] = '"'. $line .'"';
+
+				$transaction_number += 20; //Increases by 20 each time.
+				unset($line);
+			}
+			unset($line1);
+
+			$entry_number++;
+		}
+
+		if ( isset($retval) ) {
+			Debug::Text('Returning Compiled Records: ', __FILE__, __LINE__, __METHOD__, 10);
+			return $retval;
+		}
+
+		return FALSE;
+	}
+
+	function _compile() {
+		//Processes all the data, padding it, converting dates to julian, incrementing
+		//record numbers.
+
+		$compiled_data = @implode("\r\n", $this->compileRecords() );
+
+		//Make sure the length of at least 3 records exists.
+		if ( strlen( $compiled_data ) >= 10 ) {
+			return $compiled_data;
+		}
+
+		Debug::Text('Not enough compiled data!', __FILE__, __LINE__, __METHOD__, 10);
+
+		return FALSE;
+	}
+}
 ?>

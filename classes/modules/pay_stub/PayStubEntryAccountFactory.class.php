@@ -73,6 +73,7 @@ class PayStubEntryAccountFactory extends Factory {
 									);
 				break;
 			case 'type_calculation_order':
+				//If any of these exceed 3 digits, need to update CalculatePayStub->getDeductionObjectSortValue() to handle more digits. 
 				$retval = array(
 										10 => 40,
 										20 => 50,
@@ -214,6 +215,50 @@ class PayStubEntryAccountFactory extends Factory {
 		return FALSE;
 	}
 
+	function isInUse($id) {
+		$pslf = new PayStubListFactory();
+		$pself = new PayStubEntryListFactory();
+		$psalf = new PayStubAmendmentListFactory();
+
+		$ph = array(
+					'pay_stub_account_id' => $id,
+					'pay_stub_account_idb' => $id,
+					);
+
+		$query = '
+					select	a.id
+					from	'. $pself->getTable() .' as a
+						LEFT JOIN '. $pslf->getTable() .' as b ON ( a.pay_stub_id = b.id )
+					where	a.pay_stub_entry_name_id = ?
+						AND ( a.deleted = 0 AND b.deleted = 0 )
+					UNION ALL
+					select	a.id
+					from	'. $psalf->getTable() .' as a
+					where	a.pay_stub_entry_name_id = ? AND a.deleted = 0
+					LIMIT 1';
+
+		$retval = $this->db->GetOne($query, $ph);
+		Debug::Arr($retval, 'In Use... ID: '. $id, __FILE__, __LINE__, __METHOD__, 10);
+
+		if ( $retval === FALSE ) {
+			return FALSE;
+		}
+
+		return TRUE;
+	}
+
+	function getCurrentType( $id ) {
+		$psealf = TTNew('PayStubEntryAccountListFactory');
+		$psealf->getByIdAndCompanyId( $id, $this->getCompany() );
+		if ( $psealf->getRecordCount() == 1 ) {
+			$retval = $psealf->getCurrent()->getType();
+			Debug::Text('Current Type: '. $retval, __FILE__, __LINE__, __METHOD__, 10);
+			return $retval;
+		}
+
+		return FALSE;
+	}
+
 	function getType() {
 		if ( isset($this->data['type_id']) ) {
 			return (int)$this->data['type_id'];
@@ -227,9 +272,18 @@ class PayStubEntryAccountFactory extends Factory {
 		if ( $this->Validator->inArrayKey(	'type_id',
 											$type,
 											TTi18n::gettext('Incorrect Type'),
-											$this->getOptions('type')) ) {
+											$this->getOptions('type'))
+			) {
 
-			$this->data['type_id'] = $type;
+			Debug::Text('Type: '. $type .' isNew: '. (int)$this->isNew(), __FILE__, __LINE__, __METHOD__, 10);
+			if ( $this->isNew() == FALSE AND $this->getCurrentType( $this->getId() ) != $type AND $this->isInUse( $this->getId() ) == TRUE ) {
+				$this->Validator->isTrue(	'type_id',
+											FALSE,
+											TTi18n::gettext('Type cannot be modified when Pay Stub Account is in use')
+										);
+			} else {
+				$this->data['type_id'] = $type;
+			}
 
 			return TRUE;
 		}
@@ -395,7 +449,7 @@ class PayStubEntryAccountFactory extends Factory {
 				OR
 				$this->Validator->isResultSetWithRows(	'accrual_pay_stub_entry_account_id',
 														$psealf,
-														TTi18n::gettext('Accrual account is invalid')
+														TTi18n::gettext('Accrual Account is invalid')
 													) ) {
 
 			$this->data['accrual_pay_stub_entry_account_id'] = $id;
@@ -426,559 +480,6 @@ class PayStubEntryAccountFactory extends Factory {
 		}
 
 		return FALSE;
-	}
-
-
-	static function addPresets($company_id) {
-		if ( $company_id == '' ) {
-			return FALSE;
-		}
-
-		$clf = TTnew( 'CompanyListFactory' );
-		$clf->getById( $company_id );
-		if ( $clf->getRecordCount() > 0 ) {
-			$company_obj = $clf->getCurrent();
-			$country = $company_obj->getCountry();
-			$province = $company_obj->getProvince();
-		} else {
-			return FALSE;
-		}
-
-		$pseaf = TTnew( 'PayStubEntryAccountFactory' );
-		$pseaf->StartTransaction();
-
-		/*
-										10 => 'Earning',
-										20 => 'Employee Deduction',
-										30 => 'Employer Deduction',
-										40 => 'Total',
-										50 => 'Accrual',
-										60 => 'Advance Earning',
-										65 => 'Advance Deduction',
-		*/
-
-		//See if accounts are already linked
-		$pseallf = TTnew( 'PayStubEntryAccountLinkListFactory' );
-		$pseallf->getByCompanyId( $company_id );
-		if ( $pseallf->getRecordCount() > 0 ) {
-			$psealf = $pseallf->getCurrent();
-		} else {
-			$psealf = TTnew( 'PayStubEntryAccountLinkFactory' );
-			$psealf->setCompany( $company_id );
-		}
-
-		Debug::text('Country: '. $country, __FILE__, __LINE__, __METHOD__, 10);
-		switch (strtolower($country)) {
-			case 'ca':
-				Debug::text('Saving.... Federal Taxes', __FILE__, __LINE__, __METHOD__, 10);
-				$pseaf = TTnew( 'PayStubEntryAccountFactory' );
-				$pseaf->setCompany( $company_id );
-				$pseaf->setStatus(10);
-				$pseaf->setType(20);
-				$pseaf->setName('Federal Income Tax');
-				$pseaf->setOrder(210);
-
-				if ( $pseaf->isValid() ) {
-					$pseaf->Save();
-				}
-
-				$pseaf = TTnew( 'PayStubEntryAccountFactory' );
-				$pseaf->setCompany( $company_id );
-				$pseaf->setStatus(10);
-				$pseaf->setType(20);
-				$pseaf->setName('Provincial Income Tax');
-				$pseaf->setOrder(220);
-
-				if ( $pseaf->isValid() ) {
-					$pseaf->Save();
-				}
-
-				$pseaf = TTnew( 'PayStubEntryAccountFactory' );
-				$pseaf->setCompany( $company_id );
-				$pseaf->setStatus(10);
-				$pseaf->setType(20);
-				$pseaf->setName('Additional Income Tax');
-				$pseaf->setOrder(230);
-
-				if ( $pseaf->isValid() ) {
-					$pseaf->Save();
-				}
-
-				$pseaf = TTnew( 'PayStubEntryAccountFactory' );
-				$pseaf->setCompany( $company_id );
-				$pseaf->setStatus(10);
-				$pseaf->setType(20);
-				$pseaf->setName('CPP');
-				$pseaf->setOrder(240);
-
-				if ( $pseaf->isValid() ) {
-					$psea_id = $pseaf->Save();
-					$psealf->setEmployeeCPP( $psea_id );
-					unset($psea_id);
-				}
-
-				$pseaf = TTnew( 'PayStubEntryAccountFactory' );
-				$pseaf->setCompany( $company_id );
-				$pseaf->setStatus(10);
-				$pseaf->setType(20);
-				$pseaf->setName('EI');
-				$pseaf->setOrder(250);
-
-				if ( $pseaf->isValid() ) {
-					$psea_id = $pseaf->Save();
-					$psealf->setEmployeeEI( $psea_id );
-					unset($psea_id);
-				}
-
-				//Employer Contributions
-				$pseaf = TTnew( 'PayStubEntryAccountFactory' );
-				$pseaf->setCompany( $company_id );
-				$pseaf->setStatus(10);
-				$pseaf->setType(30);
-				$pseaf->setName('CPP - Employer');
-				$pseaf->setOrder(300);
-
-				if ( $pseaf->isValid() ) {
-					$pseaf->Save();
-				}
-
-				$pseaf = TTnew( 'PayStubEntryAccountFactory' );
-				$pseaf->setCompany( $company_id );
-				$pseaf->setStatus(10);
-				$pseaf->setType(30);
-				$pseaf->setName('EI - Employer');
-				$pseaf->setOrder(310);
-
-				if ( $pseaf->isValid() ) {
-					$pseaf->Save();
-				}
-
-				$pseaf = TTnew( 'PayStubEntryAccountFactory' );
-				$pseaf->setCompany( $company_id );
-				$pseaf->setStatus(10);
-				$pseaf->setType(30);
-				$pseaf->setName('WCB - Employer');
-				$pseaf->setOrder(320);
-
-				if ( $pseaf->isValid() ) {
-					$pseaf->Save();
-				}
-
-				Debug::text('Saving.... Vacation Accrual', __FILE__, __LINE__, __METHOD__, 10);
-				$pseaf = TTnew( 'PayStubEntryAccountFactory' );
-				$pseaf->setCompany( $company_id );
-				$pseaf->setStatus(10);
-				$pseaf->setType(50);
-				$pseaf->setName('Vacation Accrual');
-				$pseaf->setOrder(400);
-
-				if ( $pseaf->isValid() ) {
-					$vacation_accrual_id = $pseaf->Save();
-
-					Debug::text('Saving.... Earnings - Vacation Accrual Release', __FILE__, __LINE__, __METHOD__, 10);
-					$pseaf = TTnew( 'PayStubEntryAccountFactory' );
-					$pseaf->setCompany( $company_id );
-					$pseaf->setStatus(10);
-					$pseaf->setType(10);
-					$pseaf->setName('Vacation Accrual Release');
-					$pseaf->setOrder(180);
-					$pseaf->setAccrual($vacation_accrual_id);
-
-					if ( $pseaf->isValid() ) {
-						$pseaf->Save();
-					}
-
-					unset($vaction_accrual_id);
-				}
-
-				break;
-			case 'us':
-				$pseaf = TTnew( 'PayStubEntryAccountFactory' );
-				$pseaf->setCompany( $company_id );
-				$pseaf->setStatus(10);
-				$pseaf->setType(20);
-				$pseaf->setName('Federal Income Tax');
-				$pseaf->setOrder(210);
-
-				if ( $pseaf->isValid() ) {
-					$pseaf->Save();
-				}
-
-				$pseaf = TTnew( 'PayStubEntryAccountFactory' );
-				$pseaf->setCompany( $company_id );
-				$pseaf->setStatus(10);
-				$pseaf->setType(20);
-				$pseaf->setName('Advance EIC');
-				$pseaf->setOrder(215);
-
-				if ( $pseaf->isValid() ) {
-					$pseaf->Save();
-				}
-
-				$pseaf = TTnew( 'PayStubEntryAccountFactory' );
-				$pseaf->setCompany( $company_id );
-				$pseaf->setStatus(10);
-				$pseaf->setType(20);
-				$pseaf->setName('State Income Tax');
-				$pseaf->setOrder(220);
-
-				if ( $pseaf->isValid() ) {
-					$pseaf->Save();
-				}
-
-				$pseaf = TTnew( 'PayStubEntryAccountFactory' );
-				$pseaf->setCompany( $company_id );
-				$pseaf->setStatus(10);
-				$pseaf->setType(20);
-				$pseaf->setName('District Income Tax');
-				$pseaf->setOrder(225);
-
-				if ( $pseaf->isValid() ) {
-					$pseaf->Save();
-				}
-
-				$pseaf = TTnew( 'PayStubEntryAccountFactory' );
-				$pseaf->setCompany( $company_id );
-				$pseaf->setStatus(10);
-				$pseaf->setType(20);
-				$pseaf->setName('Federal Add. Income Tax');
-				$pseaf->setOrder(230);
-
-				if ( $pseaf->isValid() ) {
-					$pseaf->Save();
-				}
-
-				$pseaf = TTnew( 'PayStubEntryAccountFactory' );
-				$pseaf->setCompany( $company_id );
-				$pseaf->setStatus(10);
-				$pseaf->setType(20);
-				$pseaf->setName('State Add. Income Tax');
-				$pseaf->setOrder(235);
-
-				if ( $pseaf->isValid() ) {
-					$pseaf->Save();
-				}
-
-				$pseaf = TTnew( 'PayStubEntryAccountFactory' );
-				$pseaf->setCompany( $company_id );
-				$pseaf->setStatus(10);
-				$pseaf->setType(20);
-				$pseaf->setName('Social Security (FICA)');
-				$pseaf->setOrder(240);
-
-				if ( $pseaf->isValid() ) {
-					$pseaf->Save();
-				}
-
-				$pseaf = TTnew( 'PayStubEntryAccountFactory' );
-				$pseaf->setCompany( $company_id );
-				$pseaf->setStatus(10);
-				$pseaf->setType(30);
-				$pseaf->setName('Social Security (FICA)');
-				$pseaf->setOrder(340);
-
-				if ( $pseaf->isValid() ) {
-					$pseaf->Save();
-				}
-
-				$pseaf = TTnew( 'PayStubEntryAccountFactory' );
-				$pseaf->setCompany( $company_id );
-				$pseaf->setStatus(10);
-				$pseaf->setType(30);
-				$pseaf->setName('Fed. Unemployment Ins.');
-				$pseaf->setOrder(342);
-
-				if ( $pseaf->isValid() ) {
-					$pseaf->Save();
-				}
-
-				$pseaf = TTnew( 'PayStubEntryAccountFactory' );
-				$pseaf->setCompany( $company_id );
-				$pseaf->setStatus(10);
-				$pseaf->setType(20);
-				$pseaf->setName('State Unemployment Ins.');
-				$pseaf->setOrder(240);
-
-				if ( $pseaf->isValid() ) {
-					$pseaf->Save();
-				}
-
-				$pseaf = TTnew( 'PayStubEntryAccountFactory' );
-				$pseaf->setCompany( $company_id );
-				$pseaf->setStatus(10);
-				$pseaf->setType(20);
-				$pseaf->setName('Medicare');
-				$pseaf->setOrder(245);
-
-				if ( $pseaf->isValid() ) {
-					$pseaf->Save();
-				}
-
-				$pseaf = TTnew( 'PayStubEntryAccountFactory' );
-				$pseaf->setCompany( $company_id );
-				$pseaf->setStatus(10);
-				$pseaf->setType(30);
-				$pseaf->setName('Medicare');
-				$pseaf->setOrder(346);
-
-				if ( $pseaf->isValid() ) {
-					$pseaf->Save();
-				}
-
-				$pseaf = TTnew( 'PayStubEntryAccountFactory' );
-				$pseaf->setCompany( $company_id );
-				$pseaf->setStatus(10);
-				$pseaf->setType(20);
-				$pseaf->setName('State Disability Ins.');
-				$pseaf->setOrder(250);
-
-				if ( $pseaf->isValid() ) {
-					$pseaf->Save();
-				}
-
-				$pseaf = TTnew( 'PayStubEntryAccountFactory' );
-				$pseaf->setCompany( $company_id );
-				$pseaf->setStatus(10);
-				$pseaf->setType(30);
-				$pseaf->setName('State Unemployment Ins.');
-				$pseaf->setOrder(350);
-
-				if ( $pseaf->isValid() ) {
-					$pseaf->Save();
-				}
-
-				$pseaf = TTnew( 'PayStubEntryAccountFactory' );
-				$pseaf->setCompany( $company_id );
-				$pseaf->setStatus(10);
-				$pseaf->setType(30);
-				$pseaf->setName('State Employee Training');
-				$pseaf->setOrder(352);
-
-				if ( $pseaf->isValid() ) {
-					$pseaf->Save();
-				}
-
-				break;
-		}
-
-		Debug::text('Province: '. $province, __FILE__, __LINE__, __METHOD__, 10);
-		switch (strtolower($province)) {
-			case 'ny':
-				$pseaf = TTnew( 'PayStubEntryAccountFactory' );
-				$pseaf->setCompany( $company_id );
-				$pseaf->setStatus(10);
-				$pseaf->setType(30);
-				$pseaf->setName('State Reemployment');
-				$pseaf->setOrder(354);
-
-				if ( $pseaf->isValid() ) {
-					$pseaf->Save();
-				}
-
-				break;
-		}
-
-		Debug::text('Saving.... Earnings - Regular Time', __FILE__, __LINE__, __METHOD__, 10);
-		$pseaf = TTnew( 'PayStubEntryAccountFactory' );
-		$pseaf->setCompany( $company_id );
-		$pseaf->setStatus(10);
-		$pseaf->setType(10);
-		$pseaf->setName('Regular Time');
-		$pseaf->setOrder(100);
-
-		if ( $pseaf->isValid() ) {
-			$psea_id = $pseaf->Save();
-			$psealf->setRegularTime( $psea_id );
-			unset($psea_id);
-		}
-
-		Debug::text('Saving.... Earnings - Over Time 1', __FILE__, __LINE__, __METHOD__, 10);
-		$pseaf = TTnew( 'PayStubEntryAccountFactory' );
-		$pseaf->setCompany( $company_id );
-		$pseaf->setStatus(10);
-		$pseaf->setType(10);
-		$pseaf->setName('Over Time 1');
-		$pseaf->setOrder(150);
-
-		if ( $pseaf->isValid() ) {
-			$pseaf->Save();
-		}
-
-		Debug::text('Saving.... Earnings - Over Time 2', __FILE__, __LINE__, __METHOD__, 10);
-		$pseaf = TTnew( 'PayStubEntryAccountFactory' );
-		$pseaf->setCompany( $company_id );
-		$pseaf->setStatus(10);
-		$pseaf->setType(10);
-		$pseaf->setName('Over Time 2');
-		$pseaf->setOrder(151);
-
-		if ( $pseaf->isValid() ) {
-			$pseaf->Save();
-		}
-
-		Debug::text('Saving.... Earnings - Premium Time 1', __FILE__, __LINE__, __METHOD__, 10);
-		$pseaf = TTnew( 'PayStubEntryAccountFactory' );
-		$pseaf->setCompany( $company_id );
-		$pseaf->setStatus(10);
-		$pseaf->setType(10);
-		$pseaf->setName('Premium 1');
-		$pseaf->setOrder(170);
-
-		if ( $pseaf->isValid() ) {
-			$pseaf->Save();
-		}
-
-		Debug::text('Saving.... Earnings - Premium Time 2', __FILE__, __LINE__, __METHOD__, 10);
-		$pseaf = TTnew( 'PayStubEntryAccountFactory' );
-		$pseaf->setCompany( $company_id );
-		$pseaf->setStatus(10);
-		$pseaf->setType(10);
-		$pseaf->setName('Premium 2');
-		$pseaf->setOrder(171);
-
-		if ( $pseaf->isValid() ) {
-			$pseaf->Save();
-		}
-
-		Debug::text('Saving.... Earnings - Bonus', __FILE__, __LINE__, __METHOD__, 10);
-		$pseaf = TTnew( 'PayStubEntryAccountFactory' );
-		$pseaf->setCompany( $company_id );
-		$pseaf->setStatus(10);
-		$pseaf->setType(10);
-		$pseaf->setName('Bonus');
-		$pseaf->setOrder(185);
-
-		if ( $pseaf->isValid() ) {
-			$pseaf->Save();
-		}
-
-		Debug::text('Saving.... Earnings - Expense Reimbursment', __FILE__, __LINE__, __METHOD__, 10);
-		$pseaf = TTnew( 'PayStubEntryAccountFactory' );
-		$pseaf->setCompany( $company_id );
-		$pseaf->setStatus(10);
-		$pseaf->setType(10);
-		$pseaf->setName('Expense Reimbursement');
-		$pseaf->setOrder(186);
-
-		if ( $pseaf->isValid() ) {
-			$pseaf->Save();
-		}
-
-		Debug::text('Saving.... Earnings - Other', __FILE__, __LINE__, __METHOD__, 10);
-		$pseaf = TTnew( 'PayStubEntryAccountFactory' );
-		$pseaf->setCompany( $company_id );
-		$pseaf->setStatus(10);
-		$pseaf->setType(10);
-		$pseaf->setName('Other');
-		$pseaf->setOrder(189);
-
-		if ( $pseaf->isValid() ) {
-			$pseaf->Save();
-		}
-
-		Debug::text('Saving.... Union Dues', __FILE__, __LINE__, __METHOD__, 10);
-		$pseaf = TTnew( 'PayStubEntryAccountFactory' );
-		$pseaf->setCompany( $company_id );
-		$pseaf->setStatus(10);
-		$pseaf->setType(20);
-		$pseaf->setName('Union Dues');
-		$pseaf->setOrder(285);
-
-		if ( $pseaf->isValid() ) {
-			$pseaf->Save();
-		}
-
-		Debug::text('Saving.... Employee Benefits Plan', __FILE__, __LINE__, __METHOD__, 10);
-		$pseaf = TTnew( 'PayStubEntryAccountFactory' );
-		$pseaf->setCompany( $company_id );
-		$pseaf->setStatus(10);
-		$pseaf->setType(20);
-		$pseaf->setName('Benefits Plan');
-		$pseaf->setOrder(225);
-
-		if ( $pseaf->isValid() ) {
-			$pseaf->Save();
-		}
-
-		Debug::text('Saving.... Employer Benefits Plan', __FILE__, __LINE__, __METHOD__, 10);
-		$pseaf = TTnew( 'PayStubEntryAccountFactory' );
-		$pseaf->setCompany( $company_id );
-		$pseaf->setStatus(10);
-		$pseaf->setType(30);
-		$pseaf->setName('Benefits Plan');
-		$pseaf->setOrder(330);
-
-		if ( $pseaf->isValid() ) {
-			$pseaf->Save();
-		}
-
-		Debug::text('Saving.... Total Earnings', __FILE__, __LINE__, __METHOD__, 10);
-		$pseaf = TTnew( 'PayStubEntryAccountFactory' );
-		$pseaf->setCompany( $company_id );
-		$pseaf->setStatus(10);
-		$pseaf->setType(40);
-		$pseaf->setName('Total Gross');
-		$pseaf->setOrder(199);
-
-		if ( $pseaf->isValid() ) {
-			$psea_id = $pseaf->Save();
-			$psealf->setTotalGross( $psea_id );
-			unset($psea_id);
-		}
-
-		Debug::text('Saving.... Total Deductions', __FILE__, __LINE__, __METHOD__, 10);
-		$pseaf = TTnew( 'PayStubEntryAccountFactory' );
-		$pseaf->setCompany( $company_id );
-		$pseaf->setStatus(10);
-		$pseaf->setType(40);
-		$pseaf->setName('Total Deductions');
-		$pseaf->setOrder(298);
-
-		if ( $pseaf->isValid() ) {
-			$psea_id = $pseaf->Save();
-			$psealf->setTotalEmployeeDeduction( $psea_id );
-			unset($psea_id);
-		}
-
-		Debug::text('Saving.... Net Pay', __FILE__, __LINE__, __METHOD__, 10);
-		$pseaf = TTnew( 'PayStubEntryAccountFactory' );
-		$pseaf->setCompany( $company_id );
-		$pseaf->setStatus(10);
-		$pseaf->setType(40);
-		$pseaf->setName('Net Pay');
-		$pseaf->setOrder(299);
-
-		if ( $pseaf->isValid() ) {
-			$psea_id = $pseaf->Save();
-			$psealf->setTotalNetPay( $psea_id );
-			unset($psea_id);
-		}
-
-		Debug::text('Saving.... Employer Total Cont', __FILE__, __LINE__, __METHOD__, 10);
-		$pseaf = TTnew( 'PayStubEntryAccountFactory' );
-		$pseaf->setCompany( $company_id );
-		$pseaf->setStatus(10);
-		$pseaf->setType(40);
-		$pseaf->setName('Employer Total Contributions');
-		$pseaf->setOrder(399);
-
-		if ( $pseaf->isValid() ) {
-			$psea_id = $pseaf->Save();
-			$psealf->setTotalEmployerDeduction( $psea_id );
-			unset($psea_id);
-		}
-
-		if ( $psealf->isValid() == TRUE ) {
-			Debug::text('Saving.... PSA Linking', __FILE__, __LINE__, __METHOD__, 10);
-			$psealf->Save();
-		} else {
-			Debug::text('Saving.... PSA Linking FAILED!', __FILE__, __LINE__, __METHOD__, 10);
-		}
-
-		$pseaf->CommitTransaction();
-		//$pseaf->FailTransaction();
-
-		return TRUE;
 	}
 
 	function Validate() {
@@ -1054,29 +555,97 @@ class PayStubEntryAccountFactory extends Factory {
 
 	}
 
+	function migrate( $company_id, $src_ids, $dst_id, $effective_date ) {
+		$dst_id = (int)$dst_id;
+		$src_ids = array_unique( (array)$src_ids );
+
+		if ( empty($dst_id) ) {
+			return FALSE;
+		}
+
+		Debug::Arr($src_ids, 'Attempting to migrate to: '. $dst_id, __FILE__, __LINE__, __METHOD__, 10);
+
+		$current_epoch = time();
+
+		$pself = TTNew('PayStubEntryListFactory');
+
+		//Loop over just ACTIVE employees.
+		$ulf = TTNew('UserListFactory');
+
+		//Get names of all Pay Stub Accounts
+		$psealf = TTNew('PayStubEntryAccountListFactory');
+		$psealf->getByCompanyId( $company_id );
+		$pay_stub_account_arr = $psealf->getArrayByListFactory( $psealf, FALSE );
+
+		$ulf->StartTransaction();
+
+		$ulf->getByCompanyIdAndStatus( $company_id, 10 );
+		if ( is_array($pay_stub_account_arr) AND count($pay_stub_account_arr) > 0 AND $ulf->getRecordCount() > 0 ) {
+			foreach( $ulf as $u_obj ) {
+				//Get current YTD values assigned to the src_ids.
+				foreach( $src_ids as $src_id ) {
+					$pse_row = $pself->getYTDAmountSumByUserIdAndEntryNameIdAndDate( $u_obj->getId(), $src_id, $current_epoch );
+					if ( isset($pse_row['amount']) AND $pse_row['amount'] != 0 ) {
+						Debug::Text('Found existing YTD amount for User ID: '. $u_obj->getID() .' PayStubEntryNameID: '. $src_id .' Amount: '. $pse_row['amount'], __FILE__, __LINE__, __METHOD__, 10);
+
+						if ( isset($pay_stub_account_arr[$dst_id]) ) {
+							$from_description = TTi18n::getText('Migrated YTD Amount to').': '. $pay_stub_account_arr[$dst_id];
+						} else {
+							$from_description = TTi18n::getText('Migrated YTD Amount to other account');
+						}
+
+						if ( isset($pay_stub_account_arr[$src_id]) ) {
+							$to_description = TTi18n::getText('Migrated YTD Amount from').': '. $pay_stub_account_arr[$src_id];
+						} else {
+							$to_description = TTi18n::getText('Migrated YTD Amount from other account');
+						}
+						Debug::Text('Description: From: '. $from_description.' To: '. $to_description, __FILE__, __LINE__, __METHOD__, 10);
+
+						//Create Pay Stub Amendments to reduce current values to 0.
+						$psaf = TTNew('PayStubAmendmentFactory');
+						$psaf->setStatus( 50 );
+						$psaf->setType( 10 );
+						$psaf->setUser( $u_obj->getID() );
+						$psaf->setPayStubEntryNameId( $src_id );
+						$psaf->setAmount( ( $pse_row['amount'] * -1 ) );
+						$psaf->setEffectiveDate( $effective_date );
+						$psaf->setDescription( $from_description );
+						if ( $psaf->isValid() ) {
+							$psaf->Save();
+						}
+
+						//Create Pay Stub Amendments to copy amounts to new dst_id
+						$psaf = TTNew('PayStubAmendmentFactory');
+						$psaf->setStatus( 50 );
+						$psaf->setType( 10 );
+						$psaf->setUser( $u_obj->getID() );
+						$psaf->setPayStubEntryNameId( $dst_id );
+						$psaf->setAmount( $pse_row['amount'] );
+						$psaf->setEffectiveDate( $effective_date );
+						$psaf->setDescription( $to_description );
+						if ( $psaf->isValid() ) {
+							$psaf->Save();
+						}
+					}
+				}
+			}
+		}
+
+		$ulf->CommitTransaction();
+
+		return TRUE;
+	}
+
+
 	function preSave() {
 		if ( $this->getDeleted() == TRUE ) {
 			Debug::text('Attempting to delete PSE Account', __FILE__, __LINE__, __METHOD__, 10);
-
-			//Check to see if account is in use.
-			$pself = TTnew( 'PayStubEntryListFactory' );
-			$pself->getByEntryNameId( $this->getId() );
-			if ( $pself->getRecordCount() > 0 ) {
+			if ( $this->isInUse( $this->getId() ) ) {
 				Debug::text('PSE Account is in use by Pay Stubs... Disabling instead.', __FILE__, __LINE__, __METHOD__, 10);
 				$this->setDeleted(FALSE); //Can't delete, account is in use.
 				$this->setStatus(20); //Disable instead
 			} else {
 				Debug::text('aPSE Account is NOT in use... Deleting...', __FILE__, __LINE__, __METHOD__, 10);
-			}
-
-			$psalf = TTnew( 'PayStubAmendmentListFactory' );
-			$psalf->getByPayStubEntryNameID( $this->getId() );
-			if ( $psalf->getRecordCount() > 0 ) {
-				Debug::text('PSE Account is in use by PS Amendments... Disabling instead.', __FILE__, __LINE__, __METHOD__, 10);
-				$this->setDeleted(FALSE); //Can't delete, account is in use.
-				$this->setStatus(20); //Disable instead
-			} else {
-				Debug::text('bPSE Account is NOT in use... Deleting...', __FILE__, __LINE__, __METHOD__, 10);
 			}
 		} else {
 			if ( $this->getAccrualType() == '' ) {

@@ -163,6 +163,7 @@ ALayoutIDs.SHIPPING_POLICY = 'global_shipping_policy';
 
 ALayoutIDs.STATION = 'global_station';
 
+
 ALayoutIDs.TAX_POLICY = 'global_tax_policy';
 
 ALayoutIDs.TIMESHEET = 'global_timesheet';

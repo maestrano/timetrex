@@ -85,6 +85,13 @@ GeneratePayStubWizardController = BaseWizardController.extend( {
 		var $this = this;
 		this._super( 'onDoneClick' );
 		this.saveCurrentStep();
+
+		// Function called stacks: TypeError: Cannot read property 'pay_period_id' of undefined
+		if ( !this.stepsDataDic || !this.stepsDataDic[2] || !this.stepsDataDic[3] ) {
+			TAlertManager.showAlert( $.i18n._( 'Wizard data is not correct on step 2 or step 3, please open wizard and try again' ) );
+			$this.onCloseClick();
+		}
+
 		var api = new (APIFactory.getAPIClass( 'APIPayStub' ))();
 		var pay_period_ids = this.stepsDataDic[2].pay_period_id;
 		var user_ids = this.stepsDataDic[3].user_id;
@@ -106,7 +113,7 @@ GeneratePayStubWizardController = BaseWizardController.extend( {
 					UserGenericStatusWindowController.open( user_generic_status_batch_id, user_ids, function() {
 						if ( cal_pay_stub_amendment ) {
 							var filter = {filter_data: {}};
-							var users = {value: user_ids };
+							var users = {value: user_ids};
 							filter.filter_data.user_id = users;
 							IndexViewController.goToView( 'PayStubAmendment', filter );
 						}
@@ -161,35 +168,37 @@ GeneratePayStubWizardController = BaseWizardController.extend( {
 		var current_step_ui = this.stepsWidgetDic[this.current_step];
 
 		if ( !pay_period_ids ) {
-			current_step_ui[ 'calculate_pay_stub_amendment' ].hide();
-			current_step_ui[ 'calculate_pay_stub_amendment_label' ].hide();
-			current_step_ui[ 'calculate_pay_stub_amendment' ].setValue( false );
+			current_step_ui['calculate_pay_stub_amendment'].hide();
+			current_step_ui['calculate_pay_stub_amendment_label'].hide();
+			current_step_ui['calculate_pay_stub_amendment'].setValue( false );
 			return;
 		}
 		args.filter_data.id = pay_period_ids;
 
 		var api = new (APIFactory.getAPIClass( 'APIPayPeriod' ))();
 
-		api.getPayPeriod( args, {onResult: function( result ) {
+		api.getPayPeriod( args, {
+			onResult: function( result ) {
 
-			var result_data = result.getResult();
-			current_step_ui[ 'calculate_pay_stub_amendment' ].show();
-			current_step_ui[ 'calculate_pay_stub_amendment_label' ].show();
+				var result_data = result.getResult();
+				current_step_ui['calculate_pay_stub_amendment'].show();
+				current_step_ui['calculate_pay_stub_amendment_label'].show();
 
-			var len = result_data.length;
+				var len = result_data.length;
 
-			for ( var i = 0; i < len; i++ ) {
-				var item = result_data[i];
+				for ( var i = 0; i < len; i++ ) {
+					var item = result_data[i];
 
-				if ( item.status_id !== 30 ) {
-					current_step_ui[ 'calculate_pay_stub_amendment' ].hide();
-					current_step_ui[ 'calculate_pay_stub_amendment_label' ].hide();
-					current_step_ui[ 'calculate_pay_stub_amendment' ].setValue( false );
-					break;
+					if ( item.status_id !== 30 ) {
+						current_step_ui['calculate_pay_stub_amendment'].hide();
+						current_step_ui['calculate_pay_stub_amendment_label'].hide();
+						current_step_ui['calculate_pay_stub_amendment'].setValue( false );
+						break;
+					}
 				}
-			}
 
-		}} )
+			}
+		} )
 
 	},
 
@@ -229,6 +238,5 @@ GeneratePayStubWizardController = BaseWizardController.extend( {
 		}
 
 	}
-
 
 } );

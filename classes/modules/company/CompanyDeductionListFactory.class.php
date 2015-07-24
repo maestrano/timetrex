@@ -487,7 +487,13 @@ class CompanyDeductionListFactory extends CompanyDeductionFactory implements Ite
 					where	a.company_id = ?
 					';
 
-		$query .= ( isset($filter_data['permission_children_ids']) ) ? $this->getWhereClauseSQL( 'a.created_by', $filter_data['permission_children_ids'], 'numeric_list', $ph ) : NULL;
+		//$query .= ( isset($filter_data['permission_children_ids']) ) ? $this->getWhereClauseSQL( 'a.created_by', $filter_data['permission_children_ids'], 'numeric_list', $ph ) : NULL;
+		if ( isset($filter_data['permission_children_ids']) ) {
+			//Return rows that ONLY have this user assigned to them.
+			$udf = new UserDeductionFactory();
+			$query	.=	' AND a.id IN ( select company_deduction_id from '. $udf->getTable() .' as udf where udf.user_id in ('. $this->getListSQL($filter_data['permission_children_ids'], $ph, 'int') .') AND udf.deleted = 0 )';
+		}
+
 		$query .= ( isset($filter_data['id']) ) ? $this->getWhereClauseSQL( 'a.id', $filter_data['id'], 'numeric_list', $ph ) : NULL;
 		$query .= ( isset($filter_data['exclude_id']) ) ? $this->getWhereClauseSQL( 'a.id', $filter_data['exclude_id'], 'not_numeric_list', $ph ) : NULL;
 

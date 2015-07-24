@@ -41,8 +41,8 @@ require_once(Environment::getBasePath() .'classes/upload/fileupload.class.php');
 
 //PHP must have the upload and POST max sizes set to handle the largest file upload. If these are too low
 //it errors out with a non-helpful error, so set these large and restrict the size in the Upload class.
-ini_set( 'upload_max_filesize', '128M' );
-ini_set( 'post_max_size', '128M' );
+//ini_set( 'upload_max_filesize', '128M' ); //This is PER DIRECTORY and therefore can't be set this way. Must be set in the PHP.INI or .htaccess files instead.
+//ini_set( 'post_max_size', '128M' ); //This has no affect as its set too late. Must be set in the PHP.INI or .htaccess files instead.
 
 extract	(FormVariables::GetVariables(
 										array	(

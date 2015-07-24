@@ -39,17 +39,17 @@
 * $Date: 2014-01-29 08:52:58 -0800 (Wed, 29 Jan 2014) $
 */
 define('TIMETREX_JSON_API', TRUE );
+if ( isset($_GET['disable_db']) && $_GET['disable_db'] == 1 ) {
+	$disable_database_connection = TRUE;
+}
 require_once('../../../includes/global.inc.php');
 require_once('../../../includes/API.inc.php');
 forceNoCacheHeaders(); //Send headers to disable caching.
-header('Content-Type: application/javascript');
+header('Content-Type: application/javascript; charset=UTF-8');
 
 TTi18n::chooseBestLocale(); //Make sure we set the locale as best we can when not logged in, this is needed for getPreLoginData as well.
 $auth = TTNew('APIAuthentication');
-
 ?>
-
-
 function getCookie( cname ) {
 	var name = cname + "=";
 	var ca = document.cookie.split( ';' );

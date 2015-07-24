@@ -137,7 +137,7 @@ class APIReport extends APIFactory {
 				} else {
 					//getOutput() returned FALSE, some error occurred. Likely load too high though.
 					//return $this->returnHandler( FALSE, 'VALIDATION', TTi18n::getText('Error generating report...') );
-					return $this->returnHandler( FALSE, 'VALIDATION', TTi18n::getText('Please try again later... (b)') );
+					return $this->returnHandler( FALSE, 'VALIDATION', TTi18n::getText('ERROR: Please try again later or narrow your search criteria to decrease the size of your report').'...' );
 				}
 			} else {
 				return $this->returnHandler( FALSE, 'VALIDATION', TTi18n::getText('INVALID DATA'), array( 0 => $validation_obj->getErrorsArray() ), array('total_records' => 1, 'valid_records' => 0 ) );

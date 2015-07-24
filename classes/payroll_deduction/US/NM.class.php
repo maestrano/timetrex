@@ -41,6 +41,9 @@
 class PayrollDeduction_US_NM extends PayrollDeduction_US {
 
 	var $state_options = array(
+								1420099200 => array( //01-Jan-2015
+													'allowance' => 4000
+													),
 								1388563200 => array( //01-Jan-2014
 													'allowance' => 3950
 													),

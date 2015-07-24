@@ -368,7 +368,7 @@ class DependencyTree {
 			$obj->setDepth($this->_findDepth($obj));
 		}
 
-		usort( $this->raw_data, array($this, "sort") );
+		usort( $this->raw_data, array($this, 'sort') );
 
 		//Debug::Arr($this->cache, 'dependency cache', __FILE__, __LINE__, __METHOD__, 10);
 		//Debug::Arr($this->provide_id_raw_data, 'provides, raw', __FILE__, __LINE__, __METHOD__, 10);

@@ -68,35 +68,13 @@ class PayStubEntryFactory extends Factory {
 	}
 
 	function getPayStubEntryAccountObject() {
-		if ( is_object($this->pay_stub_entry_account_obj) ) {
-			return $this->pay_stub_entry_account_obj;
-		} else {
-			$psealf = TTnew( 'PayStubEntryAccountListFactory' );
-			$psealf->getByID( $this->getPayStubEntryNameID() );
-			if ( $psealf->getRecordCount() > 0 ) {
-				$this->pay_stub_entry_account_obj = $psealf->getCurrent();
-				return $this->pay_stub_entry_account_obj;
-			}
-
-			return FALSE;
-		}
+		return $this->getGenericObject( 'PayStubEntryAccountListFactory', $this->getPayStubEntryNameID(), 'pay_stub_entry_account_obj' );
 	}
 
 	function getPayStubObject() {
-		if ( is_object($this->pay_stub_obj) ) {
-			return $this->pay_stub_obj;
-		} else {
-			$pslf = TTnew( 'PayStubListFactory' );
-			$pslf->getByID( $this->getPayStub() );
-			if ( $pslf->getRecordCount() > 0 ) {
-				$this->pay_stub_obj = $pslf->getCurrent();
-				return $this->pay_stub_obj;
-			}
-
-			return FALSE;
-		}
+		return $this->getGenericObject( 'PayStubListFactory', $this->getPayStub(), 'pay_stub_obj' );
 	}
-
+	
 	function getPayStubAmendmentObject() {
 		return $this->getGenericObject( 'PayStubAmendmentListFactory', $this->getPayStubAmendment(), 'ps_amendment_obj' );
 	}
@@ -157,16 +135,29 @@ class PayStubEntryFactory extends Factory {
 
 		return FALSE;
 	}
-	function setPayStubAmendment($id) {
+	function setPayStubAmendment($id, $start_date = FALSE, $end_date = FALSE ) {
 		$id = (int)$id;
+
+		if ( $id != 0 ) {
+			if ( $start_date == '' AND $end_date == '' ) {
+				$pay_stub_obj = $this->getPayStubObject();
+				if ( is_object( $pay_stub_obj ) ) {
+					$start_date = $pay_stub_obj->getStartDate();
+					$end_date = $pay_stub_obj->getEndDate();
+				} else {
+					return FALSE;
+				}
+				unset($pay_stub_obj);
+			}
+		}
 
 		Debug::text('PS Amendment ID: '. $id, __FILE__, __LINE__, __METHOD__, 10);
 
 		$psalf = TTnew( 'PayStubAmendmentListFactory' );
 		if (  $id == 0
 				OR $this->Validator->isResultSetWithRows(	'pay_stub_amendment_id',
-														$psalf->getById($id),
-														TTi18n::gettext('Invalid Pay Stub Amendment')
+														$psalf->getByIdAndStartDateAndEndDate($id, $start_date, $end_date ),
+														TTi18n::gettext('Pay Stub Amendment effective date is after employees pay stub end date or termination date')
 														) ) {
 			$this->data['pay_stub_amendment_id'] = $id;
 
@@ -386,7 +377,7 @@ class PayStubEntryFactory extends Factory {
 											16)
 			) {
 			//$this->data['amount'] = Misc::MoneyFormat( $value, FALSE );
-			$this->data['amount'] = ( is_object($this->getPayStubObject()->getCurrencyObject()) ) ? $this->getPayStubObject()->getCurrencyObject()->round( $value ) : Misc::MoneyFormat( $value, FALSE );
+			$this->data['amount'] = ( is_object( $this->getPayStubObject() ) AND is_object( $this->getPayStubObject()->getCurrencyObject() ) ) ? $this->getPayStubObject()->getCurrencyObject()->round( $value ) : Misc::MoneyFormat( $value, FALSE );
 
 			return TRUE;
 		}
@@ -414,7 +405,7 @@ class PayStubEntryFactory extends Factory {
 														TTi18n::gettext('Invalid YTD Amount')
 														) ) {
 			//$this->data['ytd_amount'] = Misc::MoneyFormat( $value, FALSE );
-			$this->data['ytd_amount'] = ( is_object($this->getPayStubObject()->getCurrencyObject()) ) ? $this->getPayStubObject()->getCurrencyObject()->round( $value ) : Misc::MoneyFormat( $value, FALSE );
+			$this->data['ytd_amount'] = ( is_object( $this->getPayStubObject() ) AND is_object( $this->getPayStubObject()->getCurrencyObject() ) ) ? $this->getPayStubObject()->getCurrencyObject()->round( $value ) : Misc::MoneyFormat( $value, FALSE );
 
 			return TRUE;
 		}

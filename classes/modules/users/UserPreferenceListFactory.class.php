@@ -244,6 +244,7 @@ class UserPreferenceListFactory extends UserPreferenceFactory implements Iterato
 					'company_id' => $company_id,
 					'created_date' => $date,
 					'updated_date' => $date,
+					'deleted_date' => $date,
 					);
 
 		$uf = new UserFactory();
@@ -255,7 +256,7 @@ class UserPreferenceListFactory extends UserPreferenceFactory implements Iterato
 					where
 							b.company_id = ?
 						AND
-							( a.created_date >= ? OR a.updated_date >= ? )
+							( a.created_date >= ? OR a.updated_date >= ? OR ( a.deleted = 1 AND a.deleted_date >= ? ) )
 					';
 		$query .= $this->getWhereSQL( $where );
 		$query .= $this->getSortSQL( $order );

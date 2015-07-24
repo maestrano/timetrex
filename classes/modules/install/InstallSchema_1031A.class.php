@@ -322,6 +322,8 @@ class InstallSchema_1031A extends InstallSchema_Base {
 							$cd_obj->setUserValue2(106800);
 							$include_pay_stub_accounts = $cd_obj->getIncludePayStubEntryAccount();
 							$exclude_pay_stub_accounts = $cd_obj->getExcludePayStubEntryAccount();
+
+							$cd_obj->ignore_column_list = TRUE; //Prevents SQL errors due to new columns being added later on.
 							if ( $cd_obj->isValid() ) {
 								$cd_obj->Save();
 							}
@@ -351,6 +353,7 @@ class InstallSchema_1031A extends InstallSchema_Base {
 								$cd_obj->setIncludePayStubEntryAccount( array( $psea_obj->getTotalGross() ));
 							}
 
+							$cd_obj->ignore_column_list = TRUE; //Prevents SQL errors due to new columns being added later on.							
 							if ( $cd_obj->isValid() ) {
 								$cd_obj->Save();
 							}

@@ -1,3 +1,4 @@
 #!/bin/bash
 ROOT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
-$ROOT_DIR/vendor/bin/phpunit --configuration $ROOT_DIR/tests/phpunit.xml $ROOT_DIR/tests/ 
+path=${1:-tests/}
+$ROOT_DIR/vendor/bin/phpunit --configuration $ROOT_DIR/tests/phpunit.xml $ROOT_DIR/$path

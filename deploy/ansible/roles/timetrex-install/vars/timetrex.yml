@@ -1,0 +1,13 @@
+# TimeTrex installation
+timetrex_db_user: timetrex
+timetrex_db_password: timetrex
+timetrex_db_name: timetrex
+timetrex_root_path: /var/lib/timetrex/webapp/
+
+# TimeTrex default configuration
+sso_enabled: "false"
+connec_enabled: "false"
+maestrano_environment: "production"
+server_hostname: "server_hostname"
+api_key: "api_key"
+api_secret: "api_secret"

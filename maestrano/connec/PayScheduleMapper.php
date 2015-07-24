@@ -103,19 +103,23 @@ class PayScheduleMapper extends BaseMapper {
 
   // Persist the TimeTrex PaySchedule
   protected function persistLocalModel($pay_schedule, $resource_hash) {
-    $insert_id = $pay_schedule->Save(false, false, false);
+    if($pay_schedule->isValid()) {
+      $insert_id = $pay_schedule->Save(false, false, false);
 
-    // Map employees assigned to this pay schedule
-    $user_ids = array();
-    foreach ($resource_hash['employees'] as $employee_hash) {
-      $id_map = MnoIdMap::findMnoIdMapByMnoIdAndEntityName($employee_hash['id'], 'User');
-      if($id_map) { $user_ids[] = intval($id_map['app_entity_id']); }
+      // Map employees assigned to this pay schedule
+      $user_ids = array();
+      foreach ($resource_hash['employees'] as $employee_hash) {
+        $id_map = MnoIdMap::findMnoIdMapByMnoIdAndEntityName($employee_hash['id'], 'User');
+        if($id_map) { $user_ids[] = intval($id_map['app_entity_id']); }
+      }
+
+      // Dont create pay periods twice
+      $pay_schedule->setEnableInitialPayPeriods(false);
+      $pay_schedule->setUser($user_ids);
+      $pay_schedule->Save(true, false, false);
+      $pay_schedule->setId($insert_id);
+    } else {
+      error_log("cannot save entity_name=$this->connec_entity_name, entity_id=" . $resource_hash['id'] . ", error=" . $pay_schedule->Validator->getTextErrors());
     }
-
-    // Dont create pay periods twice
-    $pay_schedule->setEnableInitialPayPeriods(false);
-    $pay_schedule->setUser($user_ids);
-    $pay_schedule->Save(true, false, false);
-    $pay_schedule->setId($insert_id);
   }
 }

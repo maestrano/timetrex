@@ -71,7 +71,7 @@
 
 		this.isChecked = function() {
 			if ( check_box ) {
-				if ( check_box.attr( 'checked' ) ) {
+				if ( check_box.attr( 'checked' ) || check_box[0].checked === true ) {
 					return true
 				}
 			}
@@ -351,7 +351,21 @@
 			api_tag = new (APIFactory.getAPIClass( 'APICompanyGenericTag' ))();
 
 			add_tag_input.autocomplete( {
-				source: []
+				source: [],
+				select: function( e, ui ) {
+					$this.createTag( ui.item.value );
+					if ( check_box ) {
+						check_box.attr( 'checked', 'true' );
+					}
+					add_tag_input.autocomplete( "option", "source", [] );
+					$this.trigger( 'formItemChange', [$this] );
+					$this.isSelectedItem = true;
+				},
+				close: function( event, ui ) {
+					if ( $this.isSelectedItem ) {
+						add_tag_input.val( '' );
+					}
+				}
 			} );
 
 			$( this ).append( add_tag_input );
@@ -385,7 +399,10 @@
 				$this.hideErrorTip();
 			} );
 
-			add_tag_input.bind( 'focusout', function() {
+			add_tag_input.bind( 'focusout', function( e ) {
+				if ( $( e.relatedTarget ).attr( 'id' ) === 'ui-active-menuitem' ) {
+					return;
+				}
 				if ( add_tag_input.val().length > 0 ) {
 
 					if ( !enabled ) {

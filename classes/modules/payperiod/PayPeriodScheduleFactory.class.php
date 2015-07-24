@@ -794,7 +794,18 @@ class PayPeriodScheduleFactory extends Factory {
 
 		if	(	$this->Validator->isNumeric(		'timesheet_verify_before_end_date',
 													$int,
-													TTi18n::gettext('Incorrect value for timesheet verification before/after end date')) ) {
+													TTi18n::gettext('Incorrect value for timesheet verification before/after end date'))
+				AND
+				$this->Validator->isLessThan(		'timesheet_verify_before_end_date',
+													$int,
+													TTi18n::gettext('Verification Window Starts is too large'),
+													999 )
+				AND
+				$this->Validator->isGreaterThan(	'timesheet_verify_before_end_date',
+													$int,
+													TTi18n::gettext('Verification Window Starts is too small'),
+													-999 )
+			 ) {
 			$this->data['timesheet_verify_before_end_date'] = ($int * 86400);
 
 			return TRUE;
@@ -814,7 +825,18 @@ class PayPeriodScheduleFactory extends Factory {
 
 		if	(	$this->Validator->isNumeric(		'timesheet_verify_before_transaction_date',
 													$int,
-													TTi18n::gettext('Incorrect value for timesheet verification before/after transaction date')) ) {
+													TTi18n::gettext('Incorrect value for timesheet verification before/after transaction date'))
+				AND
+				$this->Validator->isLessThan(		'timesheet_verify_before_transaction_date',
+													$int,
+													TTi18n::gettext('Verification Window Ends is too large'),
+													999 )
+				AND
+				$this->Validator->isGreaterThan(	'timesheet_verify_before_transaction_date',
+													$int,
+													TTi18n::gettext('Verification Window Ends is too small'),
+													-999 )
+			 ) {
 			$this->data['timesheet_verify_before_transaction_date'] = ($int * 86400); //Convert to seconds to support partial days. Do not cast to INT!
 
 			return TRUE;
@@ -1754,15 +1776,21 @@ class PayPeriodScheduleFactory extends Factory {
 					if ( $p_obj->getPunchControlID() != $shift_data[$shift]['last_out']['punch_control_id']
 							AND (
 									(
-										$p_obj->getType() == 10
-										AND $p_obj->getTimeStamp() != $shift_data[$shift]['last_out']['time_stamp'] //Don't allow transfer punches to cause a new shift to start.
+										( $p_obj->getType() == 10 OR $shift_data[$shift]['last_out']['type_id'] == 10 ) //Handle cases where there is a Normal Out punch, then Lunch In punch about 12-15hrs later. Treat this as a new shift.
+										AND ( ( $new_shift_trigger_time > 0 AND $p_obj->getTimeStamp() != $shift_data[$shift]['last_out']['time_stamp'] ) OR ( $new_shift_trigger_time == 0 AND isset($shift_data[$shift]['first_in']['time_stamp']) AND TTDate::doesRangeSpanMidnight( $shift_data[$shift]['first_in']['time_stamp'], $p_obj->getTimeStamp(), TRUE ) == TRUE ) ) //Don't allow transfer punches to cause a new shift to start, *unless* new shift trigger time is 0 and the shift spans midnight, so we can have 24hr shifts for an entire week with no gap between them, but each assigned to their own day (ie: live-in care).
 										AND ( $p_obj->getTimeStamp() - $shift_data[$shift]['last_out']['time_stamp'] ) >= $new_shift_trigger_time
 									)
 									OR
 									(
+										isset($prev_punch_arr['time_stamp'])
+										AND $prev_punch_arr['punch_control_id'] != $p_obj->getPunchControlId()
+										AND abs( ( $prev_punch_arr['time_stamp'] - $p_obj->getTimeStamp() ) ) > $maximum_shift_time
+									) //If two punches ever exceed the maximum shift time, consider it a new shift. Specifically when a Normal Out punches then a Lunch In punch happen outside maximum shift time.
+									OR
+									(
 										$this->getShiftAssignedDay() == 40
 										//Only split shifts on NORMAL punches.
-										AND $p_obj->getType() == 10
+										AND ( $p_obj->getType() == 10 OR $shift_data[$shift]['last_out']['type_id'] == 10 ) //Handle cases where there is a Normal Out punch, then Lunch In punch about 12-15hrs later. Treat this as a new shift.
 										AND $shift_data[$shift]['last_out']['type_id'] == 10
 										AND TTDate::doesRangeSpanMidnight( $shift_data[$shift]['last_out']['time_stamp'], $p_obj->getTimeStamp(), TRUE ) == TRUE
 									)

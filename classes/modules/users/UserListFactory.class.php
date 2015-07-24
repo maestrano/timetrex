@@ -1062,6 +1062,7 @@ class UserListFactory extends UserFactory implements IteratorAggregate {
 					'created_date' => $date,
 					'updated_date' => $date,
 					'uif_created_date' => $date,
+					'deleted_date' => $date,
 					);
 
 		$uif = new UserIdentificationFactory();
@@ -1076,7 +1077,7 @@ class UserListFactory extends UserFactory implements IteratorAggregate {
 					where
 							a.company_id = ?
 						AND
-							( a.created_date >= ? OR a.updated_date >= ? OR uif.created_date >= ? )
+							( a.created_date >= ? OR a.updated_date >= ? OR uif.created_date >= ? OR ( a.deleted = 1 AND a.deleted_date >= ? ) )
 					';
 		$query .= $this->getWhereSQL( $where );
 		$query .= $this->getSortSQL( $order );
@@ -1815,7 +1816,7 @@ class UserListFactory extends UserFactory implements IteratorAggregate {
 
 		$query .= $this->getSortSQL( $order, FALSE );
 
-		Debug::Arr($ph, 'Query: '. $query, __FILE__, __LINE__, __METHOD__, 10);
+		//Debug::Arr($ph, 'Query: '. $query, __FILE__, __LINE__, __METHOD__, 10);
 
 		$this->ExecuteSQL( $query, $ph );
 
@@ -2089,6 +2090,16 @@ class UserListFactory extends UserFactory implements IteratorAggregate {
 		$query .= ( isset($filter_data['tag']) ) ? $this->getWhereClauseSQL( 'a.id', array( 'company_id' => $company_id, 'object_type_id' => 200, 'tag' => $filter_data['tag'] ), 'tag', $ph ) : NULL;
 
 		//$query .= ( isset($filter_data['longitude']) ) ? $this->getWhereClauseSQL( 'a.longitude', $filter_data['longitude'], 'numeric', $ph ) : NULL;
+
+		//Basic start/end dates assume that the employee is *employed* for the entire date range.
+		//Use employed_start/end_date rather than just start/end_date to prevents other reports that use start/end_date from conflicting with this.
+		//As a time period selection of "all years" will always return no results.
+		if ( isset($filter_data['employed_start_date']) AND (int)$filter_data['employed_start_date'] != 0 ) {
+			$query .= ' AND ( a.hire_date IS NULL OR a.hire_date <= '. (int)$filter_data['employed_start_date'].' ) ';
+		}
+		if ( isset($filter_data['employed_end_date']) AND (int)$filter_data['employed_end_date'] != 0 ) {
+			$query .= ' AND ( a.termination_date IS NULL OR a.termination_date >= '. (int)$filter_data['employed_end_date'].' ) ';
+		}
 
 		if ( isset($filter_data['last_login_date']) AND !is_array($filter_data['last_login_date']) AND trim($filter_data['last_login_date']) != '' ) {
 			$date_filter = $this->getDateRangeSQL( $filter_data['last_login_date'], 'a.last_login_date' );

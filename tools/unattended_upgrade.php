@@ -148,6 +148,7 @@ if ( isset($argv[1]) AND in_array($argv[1], array('--help', '-help', '-h', '-?')
 		if ( in_array('--web_installer', $argv) ) {
 			Debug::Text('  Launched from web installer...', __FILE__, __LINE__, __METHOD__, 10);
 			//When run from the web_installer most requirements are already checked, so exclude the slow ones.
+			$exclude_requirements[] = 'disk_space';
 			$exclude_requirements[] = 'file_checksums';
 			$exclude_requirements[] = 'file_permissions';
 			$exclude_requirements[] = 'clean_cache';

@@ -80,6 +80,184 @@ PayStubEntryAccountViewController = BaseViewController.extend( {
 		this.editFieldResize();
 	},
 
+	buildContextMenuModels: function() {
+
+		//Context Menu
+		var menu = new RibbonMenu( {
+			label: this.context_menu_name,
+			id: this.viewId + 'ContextMenu',
+			sub_menu_groups: []
+		} );
+
+		//menu group
+		var editor_group = new RibbonSubMenuGroup( {
+			label: $.i18n._( 'Editor' ),
+			id: this.viewId + 'Editor',
+			ribbon_menu: menu,
+			sub_menus: []
+		} );
+
+		var other_group = new RibbonSubMenuGroup( {
+			label: $.i18n._( 'Other' ),
+			id: this.viewId + 'other',
+			ribbon_menu: menu,
+			sub_menus: []
+		} );
+
+		var add = new RibbonSubMenu( {
+			label: $.i18n._( 'New' ),
+			id: ContextMenuIconName.add,
+			group: editor_group,
+			icon: Icons.new_add,
+			permission_result: true,
+			permission: null
+		} );
+
+		var view = new RibbonSubMenu( {
+			label: $.i18n._( 'View' ),
+			id: ContextMenuIconName.view,
+			group: editor_group,
+			icon: Icons.view,
+			permission_result: true,
+			permission: null
+		} );
+
+		var edit = new RibbonSubMenu( {
+			label: $.i18n._( 'Edit' ),
+			id: ContextMenuIconName.edit,
+			group: editor_group,
+			icon: Icons.edit,
+			permission_result: true,
+			permission: null
+		} );
+
+		var mass_edit = new RibbonSubMenu( {
+			label: $.i18n._( 'Mass<br>Edit' ),
+			id: ContextMenuIconName.mass_edit,
+			group: editor_group,
+			icon: Icons.mass_edit,
+			permission_result: true,
+			permission: null
+		} );
+
+		var del = new RibbonSubMenu( {
+			label: $.i18n._( 'Delete' ),
+			id: ContextMenuIconName.delete_icon,
+			group: editor_group,
+			icon: Icons.delete_icon,
+			permission_result: true,
+			permission: null
+		} );
+
+		var delAndNext = new RibbonSubMenu( {
+			label: $.i18n._( 'Delete<br>& Next' ),
+			id: ContextMenuIconName.delete_and_next,
+			group: editor_group,
+			icon: Icons.delete_and_next,
+			permission_result: true,
+			permission: null
+		} );
+
+		var copy = new RibbonSubMenu( {
+			label: $.i18n._( 'Copy' ),
+			id: ContextMenuIconName.copy,
+			group: editor_group,
+			icon: Icons.copy_as_new,
+			permission_result: true,
+			permission: null
+		} );
+
+		var copy_as_new = new RibbonSubMenu( {
+			label: $.i18n._( 'Copy<br>as New' ),
+			id: ContextMenuIconName.copy_as_new,
+			group: editor_group,
+			icon: Icons.copy,
+			permission_result: true,
+			permission: null
+		} );
+
+		var save = new RibbonSubMenu( {
+			label: $.i18n._( 'Save' ),
+			id: ContextMenuIconName.save,
+			group: editor_group,
+			icon: Icons.save,
+			permission_result: true,
+			permission: null
+		} );
+
+		var save_and_continue = new RibbonSubMenu( {
+			label: $.i18n._( 'Save<br>& Continue' ),
+			id: ContextMenuIconName.save_and_continue,
+			group: editor_group,
+			icon: Icons.save_and_continue,
+			permission_result: true,
+			permission: null
+		} );
+
+		var save_and_next = new RibbonSubMenu( {
+			label: $.i18n._( 'Save<br>& Next' ),
+			id: ContextMenuIconName.save_and_next,
+			group: editor_group,
+			icon: Icons.save_and_next,
+			permission_result: true,
+			permission: null
+		} );
+
+		var save_and_copy = new RibbonSubMenu( {
+			label: $.i18n._( 'Save<br>& Copy' ),
+			id: ContextMenuIconName.save_and_copy,
+			group: editor_group,
+			icon: Icons.save_and_copy,
+			permission_result: true,
+			permission: null
+		} );
+
+		var save_and_new = new RibbonSubMenu( {
+			label: $.i18n._( 'Save<br>& New' ),
+			id: ContextMenuIconName.save_and_new,
+			group: editor_group,
+			icon: Icons.save_and_new,
+			permission_result: true,
+			permission: null
+		} );
+
+		var cancel = new RibbonSubMenu( {
+			label: $.i18n._( 'Cancel' ),
+			id: ContextMenuIconName.cancel,
+			group: editor_group,
+			icon: Icons.cancel,
+			permission_result: true,
+			permission: null
+		} );
+
+		var wizard = new RibbonSubMenu( {
+			label: $.i18n._( 'Migrate<br>PS Accounts ' ),
+			id: ContextMenuIconName.migrate_pay_stub_account,
+			group: other_group,
+			icon: Icons.wizard,
+			permission_result: true,
+			permission: null
+		} );
+
+		return [menu];
+
+	},
+
+	onCustomContextClick: function( id ) {
+		switch ( id ) {
+			case ContextMenuIconName.migrate_pay_stub_account:
+				this.onWizardClick();
+				break;
+
+		}
+	},
+
+	onWizardClick: function() {
+		var $this = this;
+		IndexViewController.openWizard( 'PayStubAccountWizard', null, function(){
+		} );
+	},
+
 	buildEditViewUI: function() {
 
 		this._super( 'buildEditViewUI' );

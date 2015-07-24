@@ -211,7 +211,7 @@ class UserDeductionFactory extends Factory {
 					OR
 					$this->Validator->isResultSetWithRows(	'company_deduction',
 															$cdlf->getByID($id),
-															TTi18n::gettext('Deduction is invalid')
+															TTi18n::gettext('Tax/Deduction is invalid')
 														)
 				) ) {
 
@@ -1230,7 +1230,7 @@ class UserDeductionFactory extends Factory {
 									$variables[$formula_variable] = $pay_period_obj->getTransactionDate();
 									break;
 								case 'pay_period_total_days':
-									$variables[$formula_variable] = round( TTDate::getDays( TTDate::getEndDayEpoch( $pay_period_obj->getEndDate() ) - TTDate::getBeginDayEpoch( $pay_period_obj->getStartDate() ) ) );
+									$variables[$formula_variable] = round( TTDate::getDays( ( TTDate::getEndDayEpoch( $pay_period_obj->getEndDate() ) - TTDate::getBeginDayEpoch( $pay_period_obj->getStartDate() ) ) ) );
 									break;
 								case 'pay_period_worked_days':
 									$variables[$formula_variable] = count( array_unique( $pay_period_days_worked ) );
@@ -1242,7 +1242,7 @@ class UserDeductionFactory extends Factory {
 									$variables[$formula_variable] = $pay_period_worked_time;
 									break;
 								case 'pay_period_paid_time':
-									$variables[$formula_variable] = $pay_period_worked_time + $pay_period_absence_time;
+									$variables[$formula_variable] = ( $pay_period_worked_time + $pay_period_absence_time );
 									break;
 
 								case 'employee_hire_date':
@@ -1311,7 +1311,7 @@ class UserDeductionFactory extends Factory {
 									break;
 								case 'lookback_total_days':
 									if ( isset($lookback_dates['start_date']) AND isset($lookback_dates['end_date']) ) {
-										$variables[$formula_variable] = round( TTDate::getDays( TTDate::getEndDayEpoch( $lookback_dates['end_date'] ) - TTDate::getBeginDayEpoch( $lookback_dates['start_date'] ) ) );
+										$variables[$formula_variable] = round( TTDate::getDays( ( TTDate::getEndDayEpoch( $lookback_dates['end_date'] ) - TTDate::getBeginDayEpoch( $lookback_dates['start_date'] ) ) ) );
 									} else {
 										$variables[$formula_variable] = 0;
 									}
@@ -1337,7 +1337,7 @@ class UserDeductionFactory extends Factory {
 
 								case 'lookback_pay_stub_total_days':
 									if ( isset($lookback_pay_stub_dates['first_pay_stub_start_date']) AND isset($lookback_pay_stub_dates['last_pay_stub_end_date']) ) {
-										$variables[$formula_variable] = round( TTDate::getDays( TTDate::getEndDayEpoch( $lookback_pay_stub_dates['last_pay_stub_end_date'] ) - TTDate::getBeginDayEpoch( $lookback_pay_stub_dates['first_pay_stub_start_date'] ) ) );
+										$variables[$formula_variable] = round( TTDate::getDays( ( ( TTDate::getEndDayEpoch( $lookback_pay_stub_dates['last_pay_stub_end_date'] ) - TTDate::getBeginDayEpoch( $lookback_pay_stub_dates['first_pay_stub_start_date'] ) ) ) ) );
 									} else {
 										$variables[$formula_variable] = 0;
 									}
@@ -1352,7 +1352,7 @@ class UserDeductionFactory extends Factory {
 									$variables[$formula_variable] = $lookback_pay_stub_worked_time;
 									break;
 								case 'lookback_pay_stub_paid_time':
-									$variables[$formula_variable] = $lookback_pay_stub_worked_time + $lookback_pay_stub_absence_time;
+									$variables[$formula_variable] = ( $lookback_pay_stub_worked_time + $lookback_pay_stub_absence_time );
 									break;
 
 								case 'lookback_include_pay_stub_amount':
@@ -1926,10 +1926,10 @@ class UserDeductionFactory extends Factory {
 											TTi18n::gettext('Employee not specified'));
 		}
 
-		if ( $this->getDeleted() == FALSE AND $this->getCompanyDeduction() > 0 ) {
+		if ( $this->getDeleted() == FALSE AND $this->getCompanyDeduction() > 0 AND is_object( $this->getCompanyDeductionObject() ) ) {
 			$this->Validator->isTrue(				'company_deduction',
 													$this->isUniqueCompanyDeduction( $this->getCompanyDeduction() ),
-													TTi18n::gettext('Deduction is already assigned to employee')
+													TTi18n::gettext('Tax/Deduction is already assigned to employee').': '. $this->getCompanyDeductionObject()->getName()
 													);
 		}
 

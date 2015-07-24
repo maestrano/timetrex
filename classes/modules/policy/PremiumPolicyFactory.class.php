@@ -2022,7 +2022,9 @@ class PremiumPolicyFactory extends Factory {
 				//Due to DST, we need to make sure we always lock time of day so its the exact same. Without this it can walk by one hour either way.
 				$tmp_start_time_stamp = TTDate::getTimeLockedDate( $this->getStartTime(), $i);
 				$next_i = ( $tmp_start_time_stamp + ($end_time_stamp - $start_time_stamp) ); //Get next date to base the end_time_stamp on, and to calculate if we need to adjust for DST.
-				$tmp_end_time_stamp = TTDate::getTimeLockedDate( $end_time_stamp, ( $next_i + ( TTDate::getDSTOffset( $tmp_start_time_stamp, $next_i ) * -1 ) ) ); //Use $end_time_stamp as it can be modified above due to being near midnight. Also adjust for DST by reversing it.
+
+				//$tmp_end_time_stamp = TTDate::getTimeLockedDate( $end_time_stamp, ( $next_i + ( TTDate::getDSTOffset( $tmp_start_time_stamp, $next_i ) * -1 ) ) ); //Use $end_time_stamp as it can be modified above due to being near midnight. Also adjust for DST by reversing it.
+				$tmp_end_time_stamp = TTDate::getTimeLockedDate( $end_time_stamp, $next_i ); //Use $end_time_stamp as it can be modified above due to being near midnight.
 				if ( $this->isActiveTime( $tmp_start_time_stamp, $tmp_end_time_stamp, $calculate_policy_obj ) == TRUE ) {
 					$retval += TTDate::getTimeOverLapDifference( $tmp_start_time_stamp, $tmp_end_time_stamp, $in_epoch, $out_epoch );
 					Debug::text(' Calculating partial time against Start TimeStamp: '. TTDate::getDate('DATE+TIME', $tmp_start_time_stamp) .' End TimeStamp: '. TTDate::getDate('DATE+TIME', $tmp_end_time_stamp) .' Total: '. $retval, __FILE__, __LINE__, __METHOD__, 10);

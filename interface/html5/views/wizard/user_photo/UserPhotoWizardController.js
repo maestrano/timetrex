@@ -33,8 +33,8 @@ UserPhotoWizardController = BaseWizardController.extend( {
 				var combo_box = this.getComboBox( 'image_type' );
 
 				combo_box.setSourceData( [
-					{value: 'file', label: 'File'},
-					{value: 'camera', label: 'Camera'}
+					{value: 'file', label: $.i18n._('File')},
+					{value: 'camera', label: $.i18n._('Camera')}
 				] );
 
 				this.stepsWidgetDic[this.current_step] = {};

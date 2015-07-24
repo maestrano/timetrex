@@ -35,11 +35,13 @@
  ********************************************************************************/
 
 define('TIMETREX_JSON_API', TRUE );
-
+if ( isset($_GET['disable_db']) AND $_GET['disable_db'] == 1 ) {
+	$disable_database_connection = TRUE;
+}
 //Add timetrex.ini.php setting to enable/disable the API. Make an entire [API] section.
 require_once('../../includes/global.inc.php');
 require_once('../../includes/API.inc.php');
-Header('Content-Type: application/json'); //Make sure content type is not text/HTML to help avoid XSS.
+Header('Content-Type: application/json; charset=UTF-8'); //Make sure content type is not text/HTML to help avoid XSS.
 
 function getJSONError() {
 	$retval = FALSE;
@@ -140,6 +142,8 @@ function authenticatedInvokeService(  $class_name, $method, $arguments, $message
 		$current_company = $clf->getByID( $current_user->getCompany() )->getCurrent();
 
 		if ( is_object( $current_company ) ) {
+			Debug::text('Current User: '. $current_user->getFullName() .' (User ID: '. $current_user->getID() .') Company: '. $current_company->getName() .' (Company ID: '. $current_company->getId() .')', __FILE__, __LINE__, __METHOD__, 10);
+			
 			//Debug::text('Handling JSON Call To API Factory: '.  $class_name .' Method: '. $method .' Message ID: '. $message_id .' UserName: '. $current_user->getUserName(), __FILE__, __LINE__, __METHOD__, 10);
 			if ( $class_name != '' AND class_exists( $class_name ) ) {
 				$obj = new $class_name;
@@ -261,7 +265,7 @@ $session_id = getSessionID();
 if ( isset($config_vars['other']['installer_enabled']) AND $config_vars['other']['installer_enabled'] == '' AND $session_id != '' AND !in_array( strtolower($method), array('isloggedin', 'ping' ) ) ) { //When interface calls PING() on a regular basis we need to skip this check and pass it to APIAuthentication immediately to avoid updating the session time.
 	$authentication = new Authentication();
 
-	Debug::text('Session ID: '. $session_id .' Source IP: '. $_SERVER['REMOTE_ADDR'], __FILE__, __LINE__, __METHOD__, 10);
+	Debug::text('Session ID: '. $session_id .' Source IP: '. Misc::getRemoteIPAddress(), __FILE__, __LINE__, __METHOD__, 10);
 	if ( $authentication->Check( $session_id ) === TRUE ) {
 		if ( Misc::checkValidReferer() == TRUE ) { //Help prevent CSRF attacks with this, but this is only needed when the user is already logged in.
 			authenticatedInvokeService( $class_name, $method, $arguments, $message_id, $authentication, $api_auth );

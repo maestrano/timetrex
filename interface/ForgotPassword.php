@@ -56,6 +56,11 @@ extract	(FormVariables::GetVariables(
 												'password2',
 												) ) );
 
+$rl = TTNew('RateLimit');
+$rl->setID( 'password_reset_'. Misc::getRemoteIPAddress() );
+$rl->setAllowedCalls( 10 );
+$rl->setTimeFrame( 900 ); //15 minutes
+
 $validator = new Validator();
 
 $action = Misc::findSubmitButton();
@@ -63,64 +68,89 @@ Debug::Text('Action: '. $action, __FILE__, __LINE__, __METHOD__, 10);
 switch ($action) {
 	case 'change_password':
 		Debug::Text('Change Password: '. $key, __FILE__, __LINE__, __METHOD__, 10);
-		
-		$ulf = TTnew( 'UserListFactory' );
-		$ulf->getByPasswordResetKey( $key );
-		if ( $ulf->getRecordCount() == 1 ) {
-			Debug::Text('FOUND Password reset key! ', __FILE__, __LINE__, __METHOD__, 10);
+		if ( $rl->check() == FALSE ) {
+			Debug::Text('Excessive change password attempts... Preventing resets from: '. Misc::getRemoteIPAddress() .' for up to 15 minutes...', __FILE__, __LINE__, __METHOD__, 10);
+			sleep(5); //Excessive password attempts, sleep longer.
+			$action = 'reset_password';
+		} else {
+			$ulf = TTnew( 'UserListFactory' );
+			$ulf->getByPasswordResetKey( $key );
+			if ( $ulf->getRecordCount() == 1 ) {
+				Debug::Text('FOUND Password reset key! ', __FILE__, __LINE__, __METHOD__, 10);
 
-			$user_obj = $ulf->getCurrent();
-			$user_name = $user_obj->getUserName();
+				$user_obj = $ulf->getCurrent();
+				if ( $user_obj->checkPasswordResetKey( $key ) == TRUE ) {
+					$user_name = $user_obj->getUserName();
 
-			//Make sure passwords match
-			if ( $password != '' AND trim($password) === trim($password2) ) {
-				//Change password
-				$user_obj->setPassword( $password ); //Password reset key is cleared when password is changed.
-				if ( $user_obj->isValid() ) {
-					$user_obj->Save(FALSE);
-					Debug::Text('Password Change succesful!', __FILE__, __LINE__, __METHOD__, 10);
+					//Make sure passwords match
+					if ( $password != '' AND trim($password) === trim($password2) ) {
+						//Change password
+						$user_obj->setPassword( $password ); //Password reset key is cleared when password is changed.
+						if ( $user_obj->isValid() ) {
+							$user_obj->Save(FALSE);
+							Debug::Text('Password Change succesful!', __FILE__, __LINE__, __METHOD__, 10);
 
-					//Logout all sessions for this user when password is successfully reset.
-					$authentication = TTNew('Authentication');
-					$authentication->logoutUser( $user_obj->getId() );
+							//Logout all sessions for this user when password is successfully reset.
+							$authentication = TTNew('Authentication');
+							$authentication->logoutUser( $user_obj->getId() );
 
-					unset($user_obj);
+							unset($user_obj);
 
-					Redirect::Page( URLBuilder::getURL( array('password_reset' => 1 ), Environment::getDefaultInterfaceBaseURL() ) );
+							Redirect::Page( URLBuilder::getURL( array('password_reset' => 1 ), Environment::getDefaultInterfaceBaseURL() ) );
+						}
+					} else {
+						$validator->isTrue('password', FALSE, TTi18n::getText('Passwords do not match') );
+					}
+
+					//Do this once a successful key is found, so the user can get as many password change attempts as needed.
+					$rl->delete(); //Clear password reset rate limit upon successful reset.
+				} else {
+					Debug::Text('DID NOT FIND Valid Password reset key!', __FILE__, __LINE__, __METHOD__, 10);
+					$action = 'reset_password';
 				}
 			} else {
-				$validator->isTrue('password', FALSE, TTi18n::getText('Passwords do not match') );
+				Debug::Text('DID NOT FIND Password reset key!', __FILE__, __LINE__, __METHOD__, 10);
+				$action = 'reset_password';
 			}
-		} else {
-			Debug::Text('DID NOT FIND Password reset key!', __FILE__, __LINE__, __METHOD__, 10);
-			$action = 'reset_password';
+
+			Debug::text('Change Password Failed! Attempt: '. $rl->getAttempts(), __FILE__, __LINE__, __METHOD__, 10);
+			sleep( ($rl->getAttempts() * 0.5) ); //If email is incorrect, sleep for some time to slow down brute force attacks.							
 		}
 		break;
 	case 'password_reset':
 		//Debug::setVerbosity( 11 );
 		Debug::Text('Key: '. $key, __FILE__, __LINE__, __METHOD__, 10);
-		$ulf = TTnew( 'UserListFactory' );
-		$ulf->getByPasswordResetKey( $key );
-		if ( $ulf->getRecordCount() == 1 ) {
-			Debug::Text('FOUND Password reset key!', __FILE__, __LINE__, __METHOD__, 10);
-			$user_obj = $ulf->getCurrent();
-
-			$user_name = $user_obj->getUserName();
-		} else {
-			Debug::Text('DID NOT FIND Password reset key!', __FILE__, __LINE__, __METHOD__, 10);
+		if ( $rl->check() == FALSE ) {
+			Debug::Text('Excessive password reset attempts... Preventing resets from: '. Misc::getRemoteIPAddress() .' for up to 15 minutes...', __FILE__, __LINE__, __METHOD__, 10);
+			sleep(5); //Excessive password attempts, sleep longer.
 			$action = 'reset_password';
+		} else {
+			$ulf = TTnew( 'UserListFactory' );
+			$ulf->getByPasswordResetKey( $key );
+			if ( $ulf->getRecordCount() == 1 ) {
+				Debug::Text('FOUND Password reset key!', __FILE__, __LINE__, __METHOD__, 10);				
+				$user_obj = $ulf->getCurrent();
+				if ( $user_obj->checkPasswordResetKey( $key ) == TRUE ) {
+					$user_name = $user_obj->getUserName();					
+					$rl->delete(); //Clear password reset rate limit upon successful reset.									
+				} else {
+					Debug::Text('DID NOT FIND Valid Password reset key!', __FILE__, __LINE__, __METHOD__, 10);
+					$action = 'reset_password';					
+				}
+			} else {
+				Debug::Text('DID NOT FIND Password reset key!', __FILE__, __LINE__, __METHOD__, 10);
+				$action = 'reset_password';
+			}
+			
+			Debug::text('Password Reset Failed! Attempt: '. $rl->getAttempts(), __FILE__, __LINE__, __METHOD__, 10);
+			sleep( ($rl->getAttempts() * 0.5) ); //If email is incorrect, sleep for some time to slow down brute force attacks.			
 		}
 		break;
 	case 'reset_password':
 		//Debug::setVerbosity( 11 );
 		Debug::Text('Email: '. $email, __FILE__, __LINE__, __METHOD__, 10);
-
-		$rl = TTNew('RateLimit');
-		$rl->setID( 'password_reset_'.$_SERVER['REMOTE_ADDR'] );
-		$rl->setAllowedCalls( 10 );
-		$rl->setTimeFrame( 900 ); //15 minutes
 		if ( $rl->check() == FALSE ) {
-			Debug::Text('Excessive password reset attempts... Preventing resets from: '. $_SERVER['REMOTE_ADDR'] .' for up to 15 minutes...', __FILE__, __LINE__, __METHOD__, 10);
+			Debug::Text('Excessive reset password attempts... Preventing resets from: '. Misc::getRemoteIPAddress() .' for up to 15 minutes...', __FILE__, __LINE__, __METHOD__, 10);
 			sleep(5); //Excessive password attempts, sleep longer.
 			$validator->isTrue('email', FALSE, TTi18n::getText('Email address was not found in our database (z)') );
 		} else {
@@ -151,8 +181,7 @@ switch ($action) {
 				$validator->isTrue('email', FALSE, TTi18n::getText('Email address was not found in our database (a)') );
 			}
 
-			Debug::text('Password Reset Failed! Attempt: '. $rl->getAttempts(), __FILE__, __LINE__, __METHOD__, 10);
-
+			Debug::text('Reset Password Failed! Attempt: '. $rl->getAttempts(), __FILE__, __LINE__, __METHOD__, 10);
 			sleep( ($rl->getAttempts() * 0.5) ); //If email is incorrect, sleep for some time to slow down brute force attacks.
 		}
 		break;

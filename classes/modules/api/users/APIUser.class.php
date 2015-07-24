@@ -315,24 +315,29 @@ class APIUser extends APIFactory {
 						//Unset all advanced fields.
 						unset(
 							$row['user_name'],
-							$row['tags'],
 							$row['currency_id'],
-							$row['hire_date'],
-							$row['termination_date'],
 							$row['employee_number'], //This must always be set
 							$row['default_branch_id'],
 							$row['default_department_id'],
 							$row['group_id'],
 							$row['title_id'],
-							$row['sin'],
+							$row['first_name'],
+							$row['middle_name'],
+							$row['last_name'],
+							$row['city'],
 							$row['country'],
 							$row['province'],
+							$row['hire_date'],
+							$row['birth_date'],
+							$row['termination_date'],
+							$row['sin'],
 							$row['other_id1'],
 							$row['other_id2'],
 							$row['other_id3'],
 							$row['other_id4'],
 							$row['other_id5'],
-							$row['note']
+							$row['note'],
+							$row['tags']
 						);
 					}
 
@@ -595,7 +600,7 @@ class APIUser extends APIFactory {
 
 			global $authentication;
 			if ( $authentication->rl->check() == FALSE ) {
-				Debug::Text('Excessive failed password attempts... Preventing password change from: '. $_SERVER['REMOTE_ADDR'] .' for up to 15 minutes...', __FILE__, __LINE__, __METHOD__, 10);
+				Debug::Text('Excessive failed password attempts... Preventing password change from: '. Misc::getRemoteIPAddress() .' for up to 15 minutes...', __FILE__, __LINE__, __METHOD__, 10);
 				sleep(5); //Excessive password attempts, sleep longer.
 
 				$uf->Validator->isTrue(	'current_password',

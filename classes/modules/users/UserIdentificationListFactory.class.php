@@ -174,7 +174,7 @@ class UserIdentificationListFactory extends UserIdentificationFactory implements
 		}
 
 		if ( $order == NULL ) {
-			$order = array( 'a.user_id' => 'asc', 'a.type_id' => 'asc', 'a.number' => 'asc' );
+			$order = array( 'a.user_id' => 'asc', 'a.type_id' => 'asc', 'a.number' => 'asc', 'a.id' => 'asc' );
 			$strict = FALSE;
 		} else {
 			$strict = TRUE;
@@ -376,6 +376,13 @@ class UserIdentificationListFactory extends UserIdentificationFactory implements
 			return FALSE;
 		}
 
+		if ( $order == NULL ) {
+			$order = array( 'number' => 'asc', 'id' => 'asc' );
+			$strict = FALSE;
+		} else {
+			$strict = TRUE;
+		}
+
 		$ph = array(
 					'user_id' => $user_id,
 					'type_id' => $type_id,
@@ -411,6 +418,13 @@ class UserIdentificationListFactory extends UserIdentificationFactory implements
 
 		if ( $number === '') {
 			return FALSE;
+		}
+
+		if ( $order == NULL ) {
+			$order = array( 'a.number' => 'asc', 'a.id' => 'asc' );
+			$strict = FALSE;
+		} else {
+			$strict = TRUE;
 		}
 
 		$uf = new UserFactory();
@@ -523,6 +537,8 @@ class UserIdentificationListFactory extends UserIdentificationFactory implements
 					'updated_date' => $date,
 					'user_created_date' => $date,
 					'user_updated_date' => $date,
+					'deleted_date' => $date,
+					'user_deleted_date' => $date,
 					);
 
 		//INCLUDE Deleted rows in this query.
@@ -534,11 +550,12 @@ class UserIdentificationListFactory extends UserIdentificationFactory implements
 					LEFT JOIN '. $uf->getTable() .' as b ON a.user_id = b.id
 					where	b.company_id = ?
 						AND
-							( ( a.created_date >= ? OR a.updated_date >= ? ) OR ( b.created_date >= ? OR b.updated_date >= ? ) )
+							( ( a.created_date >= ? OR a.updated_date >= ? ) OR ( b.created_date >= ? OR b.updated_date >= ? )
+								OR ( a.deleted = 1 AND a.deleted_date >= ? ) OR ( b.deleted = 1 AND b.deleted_date >= ? )  )
 						';
 		$query .= $this->getSortSQL( $order );
 
-		$this->ExecuteSQL( $query, $ph );
+		$this->rs = $this->db->SelectLimit($query, 1, -1, $ph);
 		if ( $this->getRecordCount() > 0 ) {
 			Debug::text('User Identification rows have been modified: '. $this->getRecordCount(), __FILE__, __LINE__, __METHOD__, 10);
 			return TRUE;

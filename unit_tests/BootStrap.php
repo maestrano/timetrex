@@ -17,6 +17,7 @@ $config_vars['other']['disable_audit_log_detail'] = TRUE;
 
 Debug::setBufferOutput(FALSE);
 Debug::setEnable(FALSE); //Set to TRUE to see debug output. Leave buffer output FALSE.
+Debug::setEnableDisplay(TRUE); 
 Debug::setVerbosity(10);
 
 //Use this command to launch the Selenium server: java -jar /opt/selenium-server/selenium-server-standalone-2.43.0.jar

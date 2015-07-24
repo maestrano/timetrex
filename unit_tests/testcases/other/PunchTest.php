@@ -164,7 +164,7 @@ class PunchTest extends PHPUnit_Framework_TestCase {
 		return TRUE;
 	}
 
-	function createPayPeriodSchedule( $shift_assigned_day = 10 ) {
+	function createPayPeriodSchedule( $shift_assigned_day = 10, $maximum_shift_time = 57600, $new_shift_trigger_time = 14400 ) {
 		$ppsf = new PayPeriodScheduleFactory();
 
 		$ppsf->setCompany( $this->company_id );
@@ -186,8 +186,8 @@ class PunchTest extends PHPUnit_Framework_TestCase {
 		$ppsf->setTimeZone('PST8PDT');
 
 		$ppsf->setDayStartTime( 0 );
-		$ppsf->setNewDayTriggerTime( (4 * 3600) );
-		$ppsf->setMaximumShiftTime( (16 * 3600) );
+		$ppsf->setNewDayTriggerTime( $new_shift_trigger_time );
+		$ppsf->setMaximumShiftTime( $maximum_shift_time );
 		$ppsf->setShiftAssignedDay( $shift_assigned_day );
 
 		$ppsf->setEnableInitialPayPeriods( FALSE );
@@ -231,7 +231,7 @@ class PunchTest extends PHPUnit_Framework_TestCase {
 
 				Debug::Text('I: '. $i .' End Date: '. TTDate::getDate('DATE+TIME', $end_date), __FILE__, __LINE__, __METHOD__, 10);
 
-				$pps_obj->createNextPayPeriod( $end_date , (86400*3600), FALSE ); //Don't import punches, as that causes deadlocks when running tests in parallel.
+				$pps_obj->createNextPayPeriod( $end_date, (86400 * 3600), FALSE ); //Don't import punches, as that causes deadlocks when running tests in parallel.
 			}
 
 		}
@@ -398,13 +398,22 @@ class PunchTest extends PHPUnit_Framework_TestCase {
 		return FALSE;
 	}
 
-	function createSchedulePolicy( $meal_policy_id ) {
+	function createSchedulePolicy( $type, $meal_policy_id ) {
 		$spf = TTnew( 'SchedulePolicyFactory' );
-
 		$spf->setCompany( $this->company_id );
-		$spf->setName( 'Schedule Policy' );
-		$spf->setAbsencePolicyID( 0 );
-		$spf->setStartStopWindow( (3600 * 2) );
+
+		switch ( $type ) {
+			case 10: //Normal
+				$spf->setName( 'Schedule Policy' );
+				$spf->setAbsencePolicyID( 0 );
+				$spf->setStartStopWindow( (3600 * 2) );
+				break;
+			case 20: //No Lunch
+				$spf->setName( 'No Lunch' );
+				$spf->setAbsencePolicyID( 0 );
+				$spf->setStartStopWindow( (3600 * 2) );
+				break;
+		}
 
 		if ( $spf->isValid() ) {
 			$insert_id = $spf->Save( FALSE );
@@ -506,12 +515,10 @@ class PunchTest extends PHPUnit_Framework_TestCase {
 		$udtlf->getByCompanyIDAndUserIdAndObjectTypeAndStartDateAndEndDate( $this->company_id, $this->user_id, array(5, 20, 30, 40, 100, 110), $start_date, $end_date);
 		if ( $udtlf->getRecordCount() > 0 ) {
 			foreach($udtlf as $udt_obj) {
-				$user_date_stamp = TTDate::strtotime( $udt_obj->getColumn('user_date_stamp') );
-
 				$type_and_policy_id = $udt_obj->getObjectType().(int)$udt_obj->getPayCode();
 
-				$date_totals[$user_date_stamp][] = array(
-												'date_stamp' => $udt_obj->getColumn('user_date_stamp'),
+				$date_totals[$udt_obj->getDateStamp()][] = array(
+												'date_stamp' => $udt_obj->getDateStamp(),
 												'id' => $udt_obj->getId(),
 
 												//Keep legacy status_id/type_id for now, so we don't have to change as many unit tests.
@@ -577,6 +584,7 @@ class PunchTest extends PHPUnit_Framework_TestCase {
 
 		return FALSE;
 	}
+
 	/*
 	 Tests:
 		[PP Schedule Assigns shift to day they start on]
@@ -634,7 +642,6 @@ class PunchTest extends PHPUnit_Framework_TestCase {
 		--------------------------- DONE ABOVE THIS LINE --------------------------
 
 		- Make sure we can't assign a punch to some random punch_control_id for another user/company.
-
 	*/
 
 	/**
@@ -977,6 +984,109 @@ class PunchTest extends PHPUnit_Framework_TestCase {
 		return TRUE;
 	}
 
+	/**
+	 * @group Punch_testDayShiftStartsBasicG
+	 */
+	function testDayShiftStartsBasicG() {
+		//Special test to handle 24hr shifts with no gaps between them for multiple days. (such as fire fighters/live-in care homes)
+		global $dd;
+
+		$this->createPayPeriodSchedule( 10, (25 * 3600), 0 ); //NewShiftTriggerTime=0
+		$this->createPayPeriods();
+		$this->getAllPayPeriods();
+
+		$date_epoch = TTDate::getBeginWeekEpoch( time() );
+		$date_stamp = TTDate::getDate('DATE', $date_epoch );
+		$date_epoch2 = TTDate::getBeginDayEpoch( TTDate::getBeginWeekEpoch( time() ) + (1 * 86400 + 3601) );
+		$date_stamp2 = TTDate::getDate('DATE', $date_epoch2 );
+
+		$date_epoch3 = TTDate::getBeginDayEpoch( TTDate::getBeginWeekEpoch( time() ) + (2 * 86400 + 3601) );
+		$date_stamp3 = TTDate::getDate('DATE', $date_epoch3 );
+		$date_epoch4 = TTDate::getBeginDayEpoch( TTDate::getBeginWeekEpoch( time() ) + (3 * 86400 + 3601) );				
+		$date_stamp4 = TTDate::getDate('DATE', $date_epoch4 );
+
+		$dd->createPunchPair( 	$this->user_id,
+								strtotime($date_stamp.' 3:00PM'),
+								strtotime($date_stamp2.' 3:00PM'),
+								array(
+											'in_type_id' => 10,
+											'out_type_id' => 10,
+											'branch_id' => 0,
+											'department_id' => 0,
+											'job_id' => 0,
+											'job_item_id' => 0,
+										),
+								TRUE
+								);
+
+		$dd->createPunchPair( 	$this->user_id,
+								strtotime($date_stamp2.' 3:00PM'),
+								strtotime($date_stamp3.' 3:00PM'),
+								array(
+											'in_type_id' => 10,
+											'out_type_id' => 10,
+											'branch_id' => 0,
+											'department_id' => 0,
+											'job_id' => 0,
+											'job_item_id' => 0,
+										),
+								TRUE
+								);
+
+		$dd->createPunchPair( 	$this->user_id,
+								strtotime($date_stamp3.' 3:00PM'),
+								strtotime($date_stamp4.' 3:00PM'),
+								array(
+											'in_type_id' => 10,
+											'out_type_id' => 10,
+											'branch_id' => 0,
+											'department_id' => 0,
+											'job_id' => 0,
+											'job_item_id' => 0,
+										),
+								TRUE
+								);
+
+		//Date 1
+		$punch_arr = $this->getPunchDataArray( TTDate::getBeginDayEpoch($date_epoch), TTDate::getEndDayEpoch($date_epoch) );
+		//print_r($punch_arr);
+		$this->assertEquals( 1, count($punch_arr[$date_epoch]) );
+		$this->assertEquals( $date_epoch, $punch_arr[$date_epoch][0]['date_stamp'] );
+		$this->assertEquals( $punch_arr[$date_epoch][0]['shift_data']['punches'][0]['punch_control_id'], $punch_arr[$date_epoch][0]['shift_data']['punches'][1]['punch_control_id'] ); //Make sure punch_control_id from both shifts DO match.
+
+		$udt_arr = $this->getUserDateTotalArray( $date_epoch, $date_epoch );
+		//Total Time
+		$this->assertEquals( 5, $udt_arr[$date_epoch][0]['object_type_id'] );
+		$this->assertEquals( (24 * 3600), $udt_arr[$date_epoch][0]['total_time'] );
+
+		//Date 2
+		$punch_arr = $this->getPunchDataArray( TTDate::getBeginDayEpoch($date_epoch2), TTDate::getEndDayEpoch($date_epoch2) );
+		//print_r($punch_arr);
+		$this->assertEquals( 1, count($punch_arr[$date_epoch2]) );
+		$this->assertEquals( $date_epoch2, $punch_arr[$date_epoch2][0]['date_stamp'] );
+		$this->assertEquals( $punch_arr[$date_epoch2][0]['shift_data']['punches'][0]['punch_control_id'], $punch_arr[$date_epoch2][0]['shift_data']['punches'][1]['punch_control_id'] ); //Make sure punch_control_id from both shifts DO match.
+
+		$udt_arr = $this->getUserDateTotalArray( $date_epoch2, $date_epoch2 );
+		//Total Time
+		$this->assertEquals( 5, $udt_arr[$date_epoch2][0]['object_type_id'] );
+		$this->assertEquals( (24 * 3600), $udt_arr[$date_epoch2][0]['total_time'] );
+
+		//Date 3
+		$punch_arr = $this->getPunchDataArray( TTDate::getBeginDayEpoch($date_epoch3), TTDate::getEndDayEpoch($date_epoch3) );
+		//print_r($punch_arr);
+		$this->assertEquals( 1, count($punch_arr[$date_epoch3]) );
+		$this->assertEquals( $date_epoch3, $punch_arr[$date_epoch3][0]['date_stamp'] );
+		$this->assertEquals( $punch_arr[$date_epoch3][0]['shift_data']['punches'][0]['punch_control_id'], $punch_arr[$date_epoch3][0]['shift_data']['punches'][1]['punch_control_id'] ); //Make sure punch_control_id from both shifts DO match.
+
+		$udt_arr = $this->getUserDateTotalArray( $date_epoch3, $date_epoch3 );
+		//Total Time
+		$this->assertEquals( 5, $udt_arr[$date_epoch3][0]['object_type_id'] );
+		$this->assertEquals( (24 * 3600), $udt_arr[$date_epoch3][0]['total_time'] );
+		
+		return TRUE;
+	}
+
+	
 	/**
 	 * @group Punch_testDayShiftEndsBasicA
 	 */
@@ -1929,6 +2039,141 @@ class PunchTest extends PHPUnit_Framework_TestCase {
 	}
 
 	/**
+	 * @group Punch_testPunchControlMatchingF
+	 */
+	function testPunchControlMatchingF() {
+		global $dd;
+
+		$this->createPayPeriodSchedule( 10 );
+		$this->createPayPeriods();
+		$this->getAllPayPeriods();
+
+		$date_epoch = TTDate::getBeginWeekEpoch( time() );
+		$date_stamp = TTDate::getDate('DATE', $date_epoch );
+
+		$date_epoch2 = TTDate::getBeginDayEpoch( ( TTDate::getBeginWeekEpoch( time() ) + 86400 + 3600 ) );
+		$date_stamp2 = TTDate::getDate('DATE', $date_epoch2 );
+
+		//Create just an IN and Lunch Out punch.
+		$dd->createPunchPair( 	$this->user_id,
+								strtotime($date_stamp.' 8:00AM'),
+								strtotime($date_stamp.' 1:30PM'),
+								array(
+											'in_type_id' => 10,
+											'out_type_id' => 20,
+											'branch_id' => 0,
+											'department_id' => 0,
+											'job_id' => 0,
+											'job_item_id' => 0,
+										),
+								TRUE
+								);
+
+		//Lunch IN and Normal Out punch more than maximum shift time apart.
+		$dd->createPunchPair( 	$this->user_id,
+								strtotime($date_stamp2.' 1:30PM'),
+								strtotime($date_stamp2.' 2:00PM'), //Normal Out
+								array(
+											'in_type_id' => 20,
+											'out_type_id' => 10,
+											'branch_id' => 0,
+											'department_id' => 0,
+											'job_id' => 0,
+											'job_item_id' => 0,
+										),
+								TRUE
+								);
+
+		//Day 1
+		$punch_arr = $this->getPunchDataArray( TTDate::getBeginDayEpoch($date_epoch), TTDate::getEndDayEpoch($date_epoch) );
+		//print_r($punch_arr);
+		$this->assertEquals( 2, count($punch_arr[$date_epoch][0]['shift_data']['punches']) );
+		$this->assertEquals( 1, count($punch_arr[$date_epoch][0]['shift_data']['punch_control_ids']) );
+		$this->assertEquals( $date_epoch, $punch_arr[$date_epoch][0]['date_stamp'] );
+
+		$udt_arr = $this->getUserDateTotalArray( $date_epoch, $date_epoch );
+		//Total Time
+		$this->assertEquals( 5, $udt_arr[$date_epoch][0]['object_type_id'] );
+		$this->assertEquals( (5.5 * 3600), $udt_arr[$date_epoch][0]['total_time'] );
+
+		//Day 2
+		$punch_arr = $this->getPunchDataArray( TTDate::getBeginDayEpoch($date_epoch2), TTDate::getEndDayEpoch($date_epoch2) );
+		//print_r($punch_arr);
+		$this->assertEquals( 2, count($punch_arr[$date_epoch2][0]['shift_data']['punches']) );
+		$this->assertEquals( 1, count($punch_arr[$date_epoch2][0]['shift_data']['punch_control_ids']) );
+		$this->assertEquals( $date_epoch2, $punch_arr[$date_epoch2][0]['date_stamp'] );
+
+		$udt_arr = $this->getUserDateTotalArray( $date_epoch2, $date_epoch2 );
+		//Total Time
+		$this->assertEquals( 5, $udt_arr[$date_epoch2][0]['object_type_id'] );
+		$this->assertEquals( (0.5 * 3600), $udt_arr[$date_epoch2][0]['total_time'] );
+
+		return TRUE;
+	}
+
+	/**
+	 * @group Punch_testPunchControlMatchingG
+	 */
+	function testPunchControlMatchingG() {
+		global $dd;
+
+		$this->createPayPeriodSchedule( 10 );
+		$this->createPayPeriods();
+		$this->getAllPayPeriods();
+
+		$date_epoch = TTDate::getBeginWeekEpoch( time() );
+		$date_stamp = TTDate::getDate('DATE', $date_epoch );
+
+		$date_epoch2 = TTDate::getBeginDayEpoch( ( TTDate::getBeginWeekEpoch( time() ) + 86400 + 3600 ) );
+		$date_stamp2 = TTDate::getDate('DATE', $date_epoch2 );
+
+		//Create just an IN and Lunch Out punch.
+		$dd->createPunchPair( 	$this->user_id,
+								strtotime($date_stamp.' 8:00AM'),
+								strtotime($date_stamp.' 11:30PM'),
+								array(
+											'in_type_id' => 10,
+											'out_type_id' => 20,
+											'branch_id' => 0,
+											'department_id' => 0,
+											'job_id' => 0,
+											'job_item_id' => 0,
+										),
+								TRUE
+								);
+
+		//Lunch IN and Normal Out punch less than maximum shift time apart.
+		$dd->createPunchPair( 	$this->user_id,
+								strtotime($date_stamp2.' 1:30PM'),
+								strtotime($date_stamp2.' 2:00PM'), //Normal Out
+								array(
+											'in_type_id' => 20,
+											'out_type_id' => 10,
+											'branch_id' => 0,
+											'department_id' => 0,
+											'job_id' => 0,
+											'job_item_id' => 0,
+										),
+								TRUE
+								);
+
+		//Day 1
+		$punch_arr = $this->getPunchDataArray( TTDate::getBeginDayEpoch($date_epoch), TTDate::getEndDayEpoch($date_epoch) );
+		//print_r($punch_arr);
+		$this->assertEquals( 4, count($punch_arr[$date_epoch][0]['shift_data']['punches']) );
+		$this->assertEquals( 2, count($punch_arr[$date_epoch][0]['shift_data']['punch_control_ids']) );
+		$this->assertEquals( $date_epoch, $punch_arr[$date_epoch][0]['date_stamp'] );
+
+		$udt_arr = $this->getUserDateTotalArray( $date_epoch, $date_epoch );
+		//Total Time
+		$this->assertEquals( 5, $udt_arr[$date_epoch][0]['object_type_id'] );
+		$this->assertEquals( (16 * 3600), $udt_arr[$date_epoch][0]['total_time'] );
+		
+		return TRUE;
+	}
+
+
+	/**
 	 * @group Punch_testPunchEditingA
 	 */
 	function testPunchEditingA() {
@@ -2195,6 +2440,115 @@ class PunchTest extends PHPUnit_Framework_TestCase {
 
 		return TRUE;
 	}
+
+
+	/**
+	 * @group testPunchEditingTimeZoneA
+	 */
+	function testPunchEditingTimeZoneA() {
+		global $dd;
+
+		//
+		//Cause punch to switch days due to timezone, and not actually changing the dates.
+		//  Make sure that UDT records follow the date properly too.
+		//
+		TTDate::setTimeZone('PST8PDT', TRUE); //Due to being a singleton and PHPUnit resetting the state, always force the timezone to be set.
+		
+		$this->createPayPeriodSchedule( 10 ); //Day shift starts on
+		$this->createPayPeriods();
+		$this->getAllPayPeriods();
+
+		$date_epoch = TTDate::getBeginWeekEpoch( time() );
+		$date_stamp = TTDate::getDate('DATE', $date_epoch );
+
+		$date_epoch2 = TTDate::getBeginDayEpoch( ( TTDate::getBeginWeekEpoch( time() ) + 86400 + 3600 ) );
+		$date_stamp2 = TTDate::getDate('DATE', $date_epoch2 );
+
+		//Create just an IN punch.
+		$dd->createPunchPair( 	$this->user_id,
+								strtotime($date_stamp.' 11:30PM'),
+								strtotime($date_stamp2.' 7:30AM'),
+								array(
+											'in_type_id' => 10,
+											'out_type_id' => 10,
+											'branch_id' => 0,
+											'department_id' => 0,
+											'job_id' => 0,
+											'job_item_id' => 0,
+										),
+								TRUE
+								);
+
+		$punch_arr = $this->getPunchDataArray( TTDate::getBeginDayEpoch($date_epoch), TTDate::getEndDayEpoch($date_epoch2) );
+		//print_r($punch_arr);
+		$this->assertEquals( 2, count($punch_arr[$date_epoch][0]['shift_data']['punches']) );
+		$this->assertEquals( 1, count($punch_arr[$date_epoch][0]['shift_data']['punch_control_ids']) );
+		$this->assertEquals( $date_epoch, $punch_arr[$date_epoch][0]['date_stamp'] );
+
+		$udt_arr = $this->getUserDateTotalArray( $date_epoch, $date_epoch2 );
+		//Total Time
+		$this->assertEquals( 5, $udt_arr[$date_epoch][0]['object_type_id'] );
+		$this->assertEquals( (8 * 3600), $udt_arr[$date_epoch][0]['total_time'] );
+
+
+		TTDate::setTimeZone('MST7MDT', TRUE); //Due to being a singleton and PHPUnit resetting the state, always force the timezone to be set.
+
+		//Edit punch to move out time into next day.
+		$dd->editPunch($punch_arr[$date_epoch][0]['shift_data']['punches'][1]['id'],
+						array(
+								//'time_stamp' => strtotime($date_stamp.' 11:00PM'),
+								'time_stamp' => strtotime( date('Ymd H:i:s', $punch_arr[$date_epoch][0]['shift_data']['punches'][1]['time_stamp'] ) ),
+								) );
+
+		$punch_arr = $this->getPunchDataArray( TTDate::getBeginDayEpoch($date_epoch), TTDate::getEndDayEpoch($date_epoch2) );
+		//print_r($punch_arr);
+
+		if ( isset($punch_arr[$date_epoch]) ) {
+			$this->assertTrue( FALSE );
+		} else {
+			$this->assertTrue( TRUE );
+		}
+
+		$this->assertEquals( 2, count($punch_arr[$date_epoch2][0]['shift_data']['punches']) );
+		$this->assertEquals( 1, count($punch_arr[$date_epoch2][0]['shift_data']['punch_control_ids']) );
+		$this->assertEquals( $date_epoch2, $punch_arr[$date_epoch2][0]['date_stamp'] );
+
+		$udt_arr = $this->getUserDateTotalArray( $date_epoch, $date_epoch2 );
+		//Total Time
+		$this->assertEquals( 5, $udt_arr[$date_epoch2][0]['object_type_id'] );
+		$this->assertEquals( (8 * 3600), $udt_arr[$date_epoch2][0]['total_time'] );
+
+
+		TTDate::setTimeZone('PST8PDT', TRUE); //Due to being a singleton and PHPUnit resetting the state, always force the timezone to be set.
+
+		//Edit punch to move out time into next day.
+		$dd->editPunch($punch_arr[$date_epoch2][0]['shift_data']['punches'][1]['id'],
+						array(
+								//'time_stamp' => strtotime($date_stamp.' 11:00PM'),
+								'time_stamp' => strtotime( date('Ymd H:i:s', $punch_arr[$date_epoch2][0]['shift_data']['punches'][1]['time_stamp'] ) ),
+								) );
+
+		$punch_arr = $this->getPunchDataArray( TTDate::getBeginDayEpoch($date_epoch), TTDate::getEndDayEpoch($date_epoch2) );
+		//print_r($punch_arr);
+
+		if ( isset($punch_arr[$date_epoch2]) ) {
+			$this->assertTrue( FALSE );
+		} else {
+			$this->assertTrue( TRUE );
+		}
+
+		$this->assertEquals( 2, count($punch_arr[$date_epoch][0]['shift_data']['punches']) );
+		$this->assertEquals( 1, count($punch_arr[$date_epoch][0]['shift_data']['punch_control_ids']) );
+		$this->assertEquals( $date_epoch, $punch_arr[$date_epoch][0]['date_stamp'] );
+
+		$udt_arr = $this->getUserDateTotalArray( $date_epoch, $date_epoch2 );
+		//Total Time
+		$this->assertEquals( 5, $udt_arr[$date_epoch][0]['object_type_id'] );
+		$this->assertEquals( (8 * 3600), $udt_arr[$date_epoch][0]['total_time'] );
+
+		return TRUE;
+	}
+
 
 	/**
 	 * @group Punch_testPunchEditingShiftDayChangeA
@@ -3852,7 +4206,7 @@ class PunchTest extends PHPUnit_Framework_TestCase {
 		$date_stamp = TTDate::getDate('DATE', $date_epoch );
 
 		$meal_policy_id = $this->createMealPolicy( 10 ); //60min autodeduct
-		$schedule_policy_id = $this->createSchedulePolicy( $meal_policy_id );
+		$schedule_policy_id = $this->createSchedulePolicy( 10,  $meal_policy_id );
 		$this->createSchedule( $this->user_id, $date_epoch, array(
 																	'schedule_policy_id' => $schedule_policy_id,
 																	'start_time' => ' 8:00AM',
@@ -3920,7 +4274,7 @@ class PunchTest extends PHPUnit_Framework_TestCase {
 		$date_stamp = TTDate::getDate('DATE', $date_epoch );
 
 		$meal_policy_id = $this->createMealPolicy( 10 ); //60min autodeduct
-		$schedule_policy_id = $this->createSchedulePolicy( $meal_policy_id );
+		$schedule_policy_id = $this->createSchedulePolicy( 10,  $meal_policy_id );
 		$this->createSchedule( $this->user_id, $date_epoch, array(
 																	'schedule_policy_id' => $schedule_policy_id,
 																	'start_time' => ' 8:00AM',
@@ -4195,7 +4549,7 @@ class PunchTest extends PHPUnit_Framework_TestCase {
 
 
 		$meal_policy_id = $this->createMealPolicy( 10 ); //60min autodeduct
-		$schedule_policy_id = $this->createSchedulePolicy( $meal_policy_id );
+		$schedule_policy_id = $this->createSchedulePolicy( 10,  $meal_policy_id );
 		$this->createSchedule( $this->user_id, $date_epoch, array(
 																	'schedule_policy_id' => $schedule_policy_id,
 																	'start_time' => ' 8:00AM',
@@ -4250,7 +4604,7 @@ class PunchTest extends PHPUnit_Framework_TestCase {
 
 
 		$meal_policy_id = $this->createMealPolicy( 10 ); //60min autodeduct
-		$schedule_policy_id = $this->createSchedulePolicy( $meal_policy_id );
+		$schedule_policy_id = $this->createSchedulePolicy( 10,  $meal_policy_id );
 		$this->createSchedule( $this->user_id, $date_epoch, array(
 																	'schedule_policy_id' => $schedule_policy_id,
 																	'start_time' => ' 8:00AM',
@@ -4325,7 +4679,7 @@ class PunchTest extends PHPUnit_Framework_TestCase {
 
 
 		$meal_policy_id = $this->createMealPolicy( 10 ); //60min autodeduct
-		$schedule_policy_id = $this->createSchedulePolicy( $meal_policy_id );
+		$schedule_policy_id = $this->createSchedulePolicy( 10,  $meal_policy_id );
 		$this->createSchedule( $this->user_id, $date_epoch, array(
 																	'schedule_policy_id' => $schedule_policy_id,
 																	'start_time' => ' 11:00PM',
@@ -4383,7 +4737,7 @@ class PunchTest extends PHPUnit_Framework_TestCase {
 
 
 		$meal_policy_id = $this->createMealPolicy( 10 ); //60min autodeduct
-		$schedule_policy_id = $this->createSchedulePolicy( $meal_policy_id );
+		$schedule_policy_id = $this->createSchedulePolicy( 10,  $meal_policy_id );
 		$this->createSchedule( $this->user_id, $date_epoch, array(
 																	'schedule_policy_id' => $schedule_policy_id,
 																	'start_time' => ' 11:00PM',
@@ -4444,7 +4798,7 @@ class PunchTest extends PHPUnit_Framework_TestCase {
 
 
 		$meal_policy_id = $this->createMealPolicy( 10 ); //60min autodeduct
-		$schedule_policy_id = $this->createSchedulePolicy( $meal_policy_id );
+		$schedule_policy_id = $this->createSchedulePolicy( 10,  $meal_policy_id );
 		$this->createSchedule( $this->user_id, $date_epoch2, array(
 																	'schedule_policy_id' => $schedule_policy_id,
 																	'start_time' => ' 12:30AM',
@@ -4480,6 +4834,138 @@ class PunchTest extends PHPUnit_Framework_TestCase {
 
 		//$this->assertEquals( 1, count($udt_arr) );
 		$this->assertEquals( 2, count($udt_arr[$date_epoch]) );
+
+		return TRUE;
+	}
+
+	/**
+	 * @group Punch_testScheduleMatchingF
+	 */
+	function testScheduleMatchingF() {
+		global $dd;
+
+		$this->createPayPeriodSchedule( 10 );
+		$this->createPayPeriods();
+		$this->getAllPayPeriods();
+
+
+		$date_epoch = TTDate::getBeginWeekEpoch( time() );
+		$date_stamp = TTDate::getDate('DATE', $date_epoch );
+
+		$date_epoch2 = TTDate::getBeginDayEpoch( ( $date_epoch + 86400 + 3600 ) );
+		$date_stamp2 = TTDate::getDate('DATE', $date_epoch2 );
+
+
+		$meal_policy_id = $this->createMealPolicy( 10 ); //60min autodeduct
+		$schedule_policy_id = $this->createSchedulePolicy( 10,  $meal_policy_id );
+		$no_lunch_schedule_policy_id = $this->createSchedulePolicy( 20, -1 );
+		$this->createSchedule( $this->user_id, $date_epoch, array(
+																	'schedule_policy_id' => $schedule_policy_id,
+																	'start_time' => ' 10:00PM',
+																	'end_time' => '7:00AM',
+																	) );
+
+		$this->createSchedule( $this->user_id, $date_epoch2, array(
+																	'schedule_policy_id' => $no_lunch_schedule_policy_id, //No meal policy on this shift.
+																	'start_time' => ' 7:30AM',
+																	'end_time' => '4:30PM',
+																	) );
+
+		$dd->createPunchPair( 	$this->user_id,
+								strtotime($date_stamp.' 10:00PM'),
+								strtotime($date_stamp2.' 7:00AM'),
+								array(
+											'in_type_id' => 10,
+											'out_type_id' => 10,
+											'branch_id' => 0,
+											'department_id' => 0,
+											'job_id' => 0,
+											'job_item_id' => 0,
+										),
+								TRUE
+								);
+
+		$punch_arr = $this->getPunchDataArray( TTDate::getBeginDayEpoch($date_epoch), TTDate::getEndDayEpoch($date_epoch2) );
+		//print_r($punch_arr);
+		$this->assertEquals( 1, count($punch_arr) ); //Make sure only one day exists.
+		$this->assertEquals( 1, count($punch_arr[$date_epoch]) );
+		$this->assertEquals( $date_epoch, $punch_arr[$date_epoch][0]['date_stamp'] );
+
+		$udt_arr = $this->getUserDateTotalArray( $date_epoch, $date_epoch2 );
+		//print_r($udt_arr);
+
+		//Total Time
+		$this->assertEquals( 5, $udt_arr[$date_epoch][0]['object_type_id'] );
+		$this->assertEquals( (8 * 3600), $udt_arr[$date_epoch][0]['total_time'] );
+
+		//$this->assertEquals( 1, count($udt_arr) );
+		$this->assertEquals( 2, count($udt_arr[$date_epoch]) );
+
+		return TRUE;
+	}
+
+	/**
+	 * @group Punch_testScheduleMatchingG
+	 */
+	function testScheduleMatchingG() {
+		global $dd;
+
+		$this->createPayPeriodSchedule( 10 );
+		$this->createPayPeriods();
+		$this->getAllPayPeriods();
+
+
+		$date_epoch = TTDate::getBeginWeekEpoch( time() );
+		$date_stamp = TTDate::getDate('DATE', $date_epoch );
+
+		$date_epoch2 = TTDate::getBeginDayEpoch( ( $date_epoch + 86400 + 3600 ) );
+		$date_stamp2 = TTDate::getDate('DATE', $date_epoch2 );
+
+
+		$meal_policy_id = $this->createMealPolicy( 10 ); //60min autodeduct
+		$schedule_policy_id = $this->createSchedulePolicy( 10,  $meal_policy_id );
+		$no_lunch_schedule_policy_id = $this->createSchedulePolicy( 20, -1 );
+		$this->createSchedule( $this->user_id, $date_epoch, array(
+																	'schedule_policy_id' => $no_lunch_schedule_policy_id, //No meal policy on this shift.
+																	'start_time' => ' 10:00PM',
+																	'end_time' => '7:00AM',
+																	) );
+
+		$this->createSchedule( $this->user_id, $date_epoch2, array(
+																	'schedule_policy_id' => $schedule_policy_id,
+																	'start_time' => ' 7:30AM',
+																	'end_time' => '4:30PM',
+																	) );
+
+		$dd->createPunchPair( 	$this->user_id,
+								strtotime($date_stamp2.' 7:30AM'),
+								strtotime($date_stamp2.' 4:30PM'),
+								array(
+											'in_type_id' => 10,
+											'out_type_id' => 10,
+											'branch_id' => 0,
+											'department_id' => 0,
+											'job_id' => 0,
+											'job_item_id' => 0,
+										),
+								TRUE
+								);
+
+		$punch_arr = $this->getPunchDataArray( TTDate::getBeginDayEpoch($date_epoch), TTDate::getEndDayEpoch($date_epoch2) );
+		//print_r($punch_arr);
+		$this->assertEquals( 1, count($punch_arr) ); //Make sure only one day exists.
+		$this->assertEquals( 1, count($punch_arr[$date_epoch2]) );
+		$this->assertEquals( $date_epoch2, $punch_arr[$date_epoch2][0]['date_stamp'] );
+
+		$udt_arr = $this->getUserDateTotalArray( $date_epoch, $date_epoch2 );
+		//print_r($udt_arr);
+
+		//Total Time
+		$this->assertEquals( 5, $udt_arr[$date_epoch2][0]['object_type_id'] );
+		$this->assertEquals( (8 * 3600), $udt_arr[$date_epoch2][0]['total_time'] );
+
+		//$this->assertEquals( 1, count($udt_arr) );
+		$this->assertEquals( 2, count($udt_arr[$date_epoch2]) );
 
 		return TRUE;
 	}
@@ -5053,7 +5539,7 @@ class PunchTest extends PHPUnit_Framework_TestCase {
 		$date_stamp = TTDate::getDate('DATE', $date_epoch );
 		
 		$meal_policy_id = $this->createMealPolicy( 10 ); //60min autodeduct
-		$schedule_policy_id = $this->createSchedulePolicy( $meal_policy_id );
+		$schedule_policy_id = $this->createSchedulePolicy( 10,  $meal_policy_id );
 		$this->createSchedule( $this->user_id, $date_epoch, array(
 																	'schedule_policy_id' => $schedule_policy_id,
 																	'start_time' => ' 8:00AM',
@@ -5107,7 +5593,7 @@ class PunchTest extends PHPUnit_Framework_TestCase {
 		$date_stamp = TTDate::getDate('DATE', $date_epoch );
 		
 		$meal_policy_id = $this->createMealPolicy( 10 ); //60min autodeduct
-		$schedule_policy_id = $this->createSchedulePolicy( $meal_policy_id );
+		$schedule_policy_id = $this->createSchedulePolicy( 10,  $meal_policy_id );
 		$this->createSchedule( $this->user_id, $date_epoch, array(
 																	'schedule_policy_id' => $schedule_policy_id,
 																	'start_time' => ' 8:00AM',
@@ -5161,7 +5647,7 @@ class PunchTest extends PHPUnit_Framework_TestCase {
 		$date_stamp = TTDate::getDate('DATE', $date_epoch );
 				
 		$meal_policy_id = $this->createMealPolicy( 10 ); //60min autodeduct
-		$schedule_policy_id = $this->createSchedulePolicy( $meal_policy_id );
+		$schedule_policy_id = $this->createSchedulePolicy( 10,  $meal_policy_id );
 		$this->createSchedule( $this->user_id, $date_epoch, array(
 																	'schedule_policy_id' => $schedule_policy_id,
 																	'start_time' => ' 8:00AM',
@@ -5228,7 +5714,7 @@ class PunchTest extends PHPUnit_Framework_TestCase {
 		$date_stamp = TTDate::getDate('DATE', $date_epoch );
 
 		$meal_policy_id = $this->createMealPolicy( 10 ); //60min autodeduct
-		$schedule_policy_id = $this->createSchedulePolicy( $meal_policy_id );
+		$schedule_policy_id = $this->createSchedulePolicy( 10,  $meal_policy_id );
 		$this->createSchedule( $this->user_id, $date_epoch, array(
 																	'schedule_policy_id' => $schedule_policy_id,
 																	'start_time' => ' 8:00AM',
@@ -5295,7 +5781,7 @@ class PunchTest extends PHPUnit_Framework_TestCase {
 		$date_stamp = TTDate::getDate('DATE', $date_epoch );
 
 		$meal_policy_id = $this->createMealPolicy( 10 ); //60min autodeduct
-		$schedule_policy_id = $this->createSchedulePolicy( $meal_policy_id );
+		$schedule_policy_id = $this->createSchedulePolicy( 10,  $meal_policy_id );
 		$this->createSchedule( $this->user_id, $date_epoch, array(
 																	'schedule_policy_id' => $schedule_policy_id,
 																	'start_time' => ' 8:00AM',
@@ -5362,7 +5848,7 @@ class PunchTest extends PHPUnit_Framework_TestCase {
 		$date_stamp = TTDate::getDate('DATE', $date_epoch );
 
 		$meal_policy_id = $this->createMealPolicy( 10 ); //60min autodeduct
-		$schedule_policy_id = $this->createSchedulePolicy( $meal_policy_id );
+		$schedule_policy_id = $this->createSchedulePolicy( 10,  $meal_policy_id );
 		$this->createSchedule( $this->user_id, $date_epoch, array(
 																	'schedule_policy_id' => $schedule_policy_id,
 																	'start_time' => ' 8:00AM',
@@ -5429,7 +5915,7 @@ class PunchTest extends PHPUnit_Framework_TestCase {
 		$date_stamp = TTDate::getDate('DATE', $date_epoch );
 
 		$meal_policy_id = $this->createMealPolicy( 10 ); //60min autodeduct
-		$schedule_policy_id = $this->createSchedulePolicy( $meal_policy_id );
+		$schedule_policy_id = $this->createSchedulePolicy( 10,  $meal_policy_id );
 		$this->createSchedule( $this->user_id, $date_epoch, array(
 																	'schedule_policy_id' => $schedule_policy_id,
 																	'start_time' => ' 8:00AM',
@@ -5496,7 +5982,7 @@ class PunchTest extends PHPUnit_Framework_TestCase {
 		$date_stamp = TTDate::getDate('DATE', $date_epoch );
 
 		$meal_policy_id = $this->createMealPolicy( 10 ); //60min autodeduct
-		$schedule_policy_id = $this->createSchedulePolicy( $meal_policy_id );
+		$schedule_policy_id = $this->createSchedulePolicy( 10,  $meal_policy_id );
 		$this->createSchedule( $this->user_id, $date_epoch, array(
 																	'schedule_policy_id' => $schedule_policy_id,
 																	'start_time' => ' 8:00AM',
@@ -5571,7 +6057,7 @@ class PunchTest extends PHPUnit_Framework_TestCase {
 		$date_stamp = TTDate::getDate('DATE', $date_epoch );
 
 		$meal_policy_id = $this->createMealPolicy( 10 ); //60min autodeduct
-		$schedule_policy_id = $this->createSchedulePolicy( $meal_policy_id );
+		$schedule_policy_id = $this->createSchedulePolicy( 10,  $meal_policy_id );
 		$this->createSchedule( $this->user_id, $date_epoch, array(
 																	'schedule_policy_id' => $schedule_policy_id,
 																	'start_time' => ' 8:00AM',
@@ -5646,7 +6132,7 @@ class PunchTest extends PHPUnit_Framework_TestCase {
 		$date_stamp = TTDate::getDate('DATE', $date_epoch );
 
 		$meal_policy_id = $this->createMealPolicy( 10 ); //60min autodeduct
-		$schedule_policy_id = $this->createSchedulePolicy( $meal_policy_id );
+		$schedule_policy_id = $this->createSchedulePolicy( 10,  $meal_policy_id );
 		$this->createSchedule( $this->user_id, $date_epoch, array(
 																	'schedule_policy_id' => $schedule_policy_id,
 																	'start_time' => ' 8:00AM',

@@ -10,6 +10,7 @@ return array(
     'Maestrano_Account_Bill' => $vendorDir . '/maestrano/maestrano-php/lib/Maestrano/Account/Bill.php',
     'Maestrano_Account_Group' => $vendorDir . '/maestrano/maestrano-php/lib/Maestrano/Account/Group.php',
     'Maestrano_Account_RecurringBill' => $vendorDir . '/maestrano/maestrano-php/lib/Maestrano/Account/RecurringBill.php',
+    'Maestrano_Account_Reseller' => $vendorDir . '/maestrano/maestrano-php/lib/Maestrano/Account/Reseller.php',
     'Maestrano_Account_User' => $vendorDir . '/maestrano/maestrano-php/lib/Maestrano/Account/User.php',
     'Maestrano_Api_AuthenticationError' => $vendorDir . '/maestrano/maestrano-php/lib/Maestrano/Api/AuthenticationError.php',
     'Maestrano_Api_ConnectionError' => $vendorDir . '/maestrano/maestrano-php/lib/Maestrano/Api/ConnectionError.php',

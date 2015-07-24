@@ -14,7 +14,7 @@ class EmployeeSalaryMapper extends BaseMapper {
 
     $this->connec_entity_name = 'EmployeeSalary';
     $this->local_entity_name = 'UserWage';
-    $this->connec_resource_name = 'employee_salaries';
+    $this->connec_resource_name = 'employees';
     $this->connec_resource_endpoint = 'employees/:employee_id/employee_salaries';
 
     $this->employee_id = $employee_id;
@@ -39,8 +39,7 @@ class EmployeeSalaryMapper extends BaseMapper {
     $employee_salary->setWageGroup(0);
     $employee_salary->setLaborBurdenPercent(0.0);
 
-    // Hourly rate mapped as Wage in UserWage
-    if($this->is_set($employee_salary_hash['hourly_rate'])) { $employee_salary->setWage($employee_salary_hash['hourly_rate']); }
+    if($this->is_set($employee_salary_hash['hourly_rate'])) { $employee_salary->setHourlyRate($employee_salary_hash['hourly_rate']); }
     if($this->is_set($employee_salary_hash['annual_salary'])) { $employee_salary->setWage($employee_salary_hash['annual_salary']); }
     if($this->is_set($employee_salary_hash['hours_per_week'])) { $employee_salary->setWeeklyTime($employee_salary_hash['hours_per_week'] * 60 * 60); }
 
@@ -49,10 +48,6 @@ class EmployeeSalaryMapper extends BaseMapper {
         $employee_salary->setType(20);
       } else if($employee_salary_hash['type'] == 'MONTHLY') {
         $employee_salary->setType(15);
-      } else if($employee_salary_hash['type'] == 'BIWEEKLY') {
-        $employee_salary->setType(13);
-      } else if($employee_salary_hash['type'] == 'WEEKLY') {
-        $employee_salary->setType(12);
       } else if($employee_salary_hash['type'] == 'HOURLY') {
         $employee_salary->setType(10);
       }
@@ -63,21 +58,12 @@ class EmployeeSalaryMapper extends BaseMapper {
   protected function mapModelToConnecResource($employee_salary) {
     $employee_salary_hash = array();
 
-    // For Hourly rate, map Wage as hourly rate, otherwise us annual salary
-    if($employee_salary->getType() == 10) {
-      $employee_salary_hash['hourly_rate'] = $employee_salary->getWage();
-    } else {
-      $employee_salary_hash['annual_salary'] = $employee_salary->getWage();
-    }
-
+    if($employee_salary->getHourlyRate()) { $employee_salary_hash['hourly_rate'] = $employee_salary->getHourlyRate(); }
+    if($employee_salary->getWage()) { $employee_salary_hash['annual_salary'] = $employee_salary->getWage(); }
     if($employee_salary->getWeeklyTime()) { $employee_salary_hash['hours_per_week'] = $employee_salary->getWeeklyTime() / 60 / 60; }
     
     if($employee_salary->getType() == 10) {
       $employee_salary_hash['type'] = 'HOURLY';
-    } else if($employee_salary->getType() == 12) {
-      $employee_salary_hash['type'] = 'WEEKLY';
-    } else if($employee_salary->getType() == 13) {
-      $employee_salary_hash['type'] = 'BIWEEKLY';
     } else if($employee_salary->getType() == 15) {
       $employee_salary_hash['type'] = 'MONTHLY';
     } else if($employee_salary->getType() == 20) {
@@ -89,6 +75,10 @@ class EmployeeSalaryMapper extends BaseMapper {
 
   // Persist the TimeTrex UserWage
   protected function persistLocalModel($employee_salary, $resource_hash) {
-    $employee_salary->Save(false, false, false);
+    if($employee_salary->isValid()) {
+      $employee_salary->Save(false, false, false);
+    } else {
+      error_log("cannot save entity_name=$this->connec_entity_name, entity_id=" . $resource_hash['id'] . ", error=" . $employee_salary->Validator->getTextErrors());
+    }
   }
 }

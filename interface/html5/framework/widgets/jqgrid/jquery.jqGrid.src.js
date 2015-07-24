@@ -2952,6 +2952,7 @@
                                 $( ts ).jqGrid( "setSelection", ri, true, e );
                             } else if ( e.shiftKey ) {//Kevin: add support to shift multi selection.
                                 var grid_selected_id_array = $( ts ).jqGrid( 'getGridParam', 'selarrrow' );
+                                $( ts ).resetSelection();
                                 var firstIndex = $( ts ).jqGrid( 'getInd', grid_selected_id_array[0] );
                                 var currentIndex = ptr[0].rowIndex;
                                 var startIndex = 0;
@@ -2966,8 +2967,6 @@
                                 }
 
                                 var data = $( ts ).jqGrid( 'getGridParam', 'data' );
-
-                                ts.p.selarrrow = [];
                                 for ( i = startIndex; i < endIndex; i++ ) {
                                     var item = data[i];
 

@@ -61,7 +61,7 @@ class PayStubFactory extends Factory {
 		$retval = NULL;
 		switch( $name ) {
 			case 'filtered_status':
-				$retval = Option::getByArray( array(25, 40), $this->getOptions('status') );
+				$retval = Option::getByArray( array(25, 40, 100), $this->getOptions('status') );
 				break;
 			case 'status':
 				$retval = array(
@@ -70,7 +70,7 @@ class PayStubFactory extends Factory {
 										25 => TTi18n::gettext('Open'),
 										30 => TTi18n::gettext('Pending Transaction'),
 										40 => TTi18n::gettext('Paid'), 
-										//100 => TTi18n::gettext('Initial YTD Adjustment'),
+										100 => TTi18n::gettext('Opening Balance (YTD)'),
 									);
 				break;
 			case 'export_type':
@@ -111,6 +111,7 @@ class PayStubFactory extends Factory {
 										'-2010-csv' => TTi18n::gettext('Excel (CSV)'),
 										'-2020-simply' => TTi18n::gettext('Simply Accounting GL'),
 										'-2030-quickbooks' => TTi18n::gettext('Quickbooks GL'),
+										'-2040-sage300' => TTi18n::gettext('Sage 300 (Accpac)'),
 									);
 				break;
 			case 'columns':
@@ -371,7 +372,7 @@ class PayStubFactory extends Factory {
 				AND
 				$this->Validator->isTrue(		'start_date',
 												$this->isValidStartDate($epoch),
-												TTi18n::gettext('Conflicting start date'))
+												TTi18n::gettext('Conflicting start date, does not match pay period'))
 
 			) {
 
@@ -419,7 +420,7 @@ class PayStubFactory extends Factory {
 				AND
 				$this->Validator->isTrue(		'end_date',
 												$this->isValidEndDate($epoch),
-												TTi18n::gettext('Conflicting end date'))
+												TTi18n::gettext('Conflicting end date, does not match pay period'))
 
 			) {
 
@@ -479,7 +480,11 @@ class PayStubFactory extends Factory {
 	}
 
 	function getStatus() {
-		return (int)$this->data['status_id'];
+		if ( isset($this->data['status_id']) ) {
+			return (int)$this->data['status_id'];
+		}
+
+		return FALSE;
 	}
 	function setStatus($status) {
 		$status = trim($status);
@@ -506,7 +511,11 @@ class PayStubFactory extends Factory {
 	}
 
 	function getStatusDate() {
-		return $this->data['status_date'];
+		if ( isset($this->data['status_date']) ) {
+			return $this->data['status_date'];
+		}
+
+		return FALSE;
 	}
 	function setStatusDate($epoch = NULL) {
 		$epoch = trim($epoch);
@@ -529,7 +538,11 @@ class PayStubFactory extends Factory {
 	}
 
 	function getStatusBy() {
-		return $this->data['status_by'];
+		if ( isset($this->data['status_by']) ) {
+			return $this->data['status_by'];
+		}
+
+		return FALSE;
 	}
 	function setStatusBy($id = NULL) {
 		$id = trim($id);
@@ -933,88 +946,89 @@ class PayStubFactory extends Factory {
 	}
 
 	function Validate() {
-		//Make sure we're not submitted two pay stubs for the same pay period per user.
-		//Unless the pay period type of Monthly + Advance
-		/*
-		$pplf = TTnew( 'PayPeriodListFactory' );
-		$ppslf = TTnew( 'PayPeriodScheduleListFactory' );
-		$pay_period_type = $ppslf->getById( $pplf->getById( $this->getPayPeriod() )->getCurrent()->getPayPeriodSchedule() )->getCurrent()->getType();
-		Debug::Text('Pay Period Type: '. $pay_period_type, __FILE__, __LINE__, __METHOD__, 10);
-		*/
+		Debug::Text('Validating PayStub...', __FILE__, __LINE__, __METHOD__, 10);
+		//We could re-check these after processEntries are validated,
+		//but that might duplicate the error messages?
+		if ( $this->getDeleted() == FALSE AND $this->isUniquePayStub() == FALSE ) {
+			Debug::Text('Unique Pay Stub...', __FILE__, __LINE__, __METHOD__, 10);
+			$this->Validator->isTrue(		'user_id',
+											FALSE,
+											TTi18n::gettext('Employee already has a pay stub for this Pay Period') );
+		}
+
+		//When mass editing, don't require all dates to be set.
+		if ( $this->validate_only == FALSE ) {
+			if ( $this->getCurrency() == FALSE ) {
+				$this->Validator->isTrue(		'currency_id',
+												FALSE,
+												TTi18n::gettext('Currency not specified') );
+			}
+			if ( $this->getStartDate() == FALSE ) {
+					$this->Validator->isDate(		'start_date',
+													$this->getStartDate(),
+													TTi18n::gettext('Incorrect start date'));
+			}
+			if ( $this->getEndDate() == FALSE ) {
+					$this->Validator->isDate(		'end_date',
+													$this->getEndDate(),
+													TTi18n::gettext('Incorrect end date'));
+			}
+			if ( $this->getTransactionDate() == FALSE ) {
+					$this->Validator->isDate(		'transaction_date',
+													$this->getTransactionDate(),
+													TTi18n::gettext('Incorrect transaction date'));
+			}
+
+			if ( $this->isValidTransactionDate( $this->getTransactionDate() ) == FALSE ) {
+					$this->Validator->isTrue(		'transaction_date',
+													FALSE,
+													TTi18n::gettext('Transaction date is before pay period end date'));
+			}
+		}
+
+		//Make sure they aren't setting a pay stub to OPEN if the pay period is closed.
+		if ( is_object( $this->getPayPeriodObject() ) ) {
+			if ( $this->getDeleted() == TRUE ) {
+				if ( $this->getStatus() == 40 OR $this->getStatus() == 100 ) {
+					$this->Validator->isTrue(		'status_id',
+													FALSE,
+													TTi18n::gettext('Unable to delete pay stubs that are marked as PAID'));
+				}
+
+				if ( $this->getPayPeriodObject()->getStatus() == 20 ) {
+					$this->Validator->isTrue(		'status_id',
+													FALSE,
+													TTi18n::gettext('Unable to delete pay stubs in closed pay periods'));
+				}
+			} else {
+				//Make sure we aren't creating a new pay stub in a already closed pay period
+				if ( $this->getStatus() != 40 AND $this->getPayPeriodObject()->getStatus() == 20 ) {
+					if ( $this->isNew() == TRUE ) {
+						$this->Validator->isTrue(		'status_id',
+														FALSE,
+														TTi18n::gettext('Unable to create pay stubs in a closed pay period'));
+					} else {
+						$this->Validator->isTrue(		'status_id',
+														FALSE,
+														TTi18n::gettext('Unable to modify pay stubs assigned to a closed pay period'));
+					}
+				}
+			}
+		}
+
+		if ( $this->getDeleted() == FALSE AND $this->getStatus() == 100 AND $this->getStartDate() != '' ) { //Opening Balance
+			//Check for any earlier pay stubs so Opening Balance Pay Stubs must be first.
+			$pslf = TTNew('PayStubListFactory');
+			$pslf->getLastPayStubByUserIdAndStartDate( $this->getUser(), $this->getStartDate() );
+			if ( $pslf->getRecordCount() > 0 ) {
+				$this->Validator->isTrue(		'status_id',
+												FALSE,
+												TTi18n::gettext('Opening Balance Pay Stubs must not come after any other pay stub for this employee'));
+			}
+		}
 
 		if ( $this->getEnableProcessEntries() == TRUE ) {
 			$this->ValidateEntries();
-		} else {
-			Debug::Text('Validating PayStub...', __FILE__, __LINE__, __METHOD__, 10);
-			//We could re-check these after processEntries are validated,
-			//but that might duplicate the error messages?
-			if ( $this->isUniquePayStub() == FALSE ) {
-				Debug::Text('Unique Pay Stub...', __FILE__, __LINE__, __METHOD__, 10);
-				$this->Validator->isTrue(		'user_id',
-												FALSE,
-												TTi18n::gettext('Invalid unique User and/or Pay Period') );
-			}
-
-			//When mass editing, don't require all dates to be set.
-			if ( $this->validate_only == FALSE ) {
-				if ( $this->getCurrency() == FALSE ) {
-					$this->Validator->isTrue(		'currency_id',
-													FALSE,
-													TTi18n::gettext('Currency not specified') );
-				}
-				if ( $this->getStartDate() == FALSE ) {
-						$this->Validator->isDate(		'start_date',
-														$this->getStartDate(),
-														TTi18n::gettext('Incorrect start date'));
-				}
-				if ( $this->getEndDate() == FALSE ) {
-						$this->Validator->isDate(		'end_date',
-														$this->getEndDate(),
-														TTi18n::gettext('Incorrect end date'));
-				}
-				if ( $this->getTransactionDate() == FALSE ) {
-						$this->Validator->isDate(		'transaction_date',
-														$this->getTransactionDate(),
-														TTi18n::gettext('Incorrect transaction date'));
-				}
-
-				if ( $this->isValidTransactionDate( $this->getTransactionDate() ) == FALSE ) {
-						$this->Validator->isTrue(		'transaction_date',
-														FALSE,
-														TTi18n::gettext('Transaction date is before pay period end date'));
-				}
-			}
-
-			//Make sure they aren't setting a pay stub to OPEN if the pay period is closed.
-			if ( is_object( $this->getPayPeriodObject() ) ) {
-				if ( $this->getDeleted() == TRUE ) {
-					if ( $this->getStatus() == 40 ) {
-						$this->Validator->isTrue(		'status_id',
-														FALSE,
-														TTi18n::gettext('Unable to delete pay stubs that are marked as PAID'));
-					}
-
-					if ( $this->getPayPeriodObject()->getStatus() == 20 ) {
-						$this->Validator->isTrue(		'status_id',
-														FALSE,
-														TTi18n::gettext('Unable to delete pay stubs in closed pay periods'));
-					}
-				} else {
-					if ( $this->getStatus() == 25 AND !( $this->getPayPeriodObject()->getStatus() == 10 OR $this->getPayPeriodObject()->getStatus() == 30 ) ) {
-						$this->Validator->isTrue(		'status_id',
-														FALSE,
-														TTi18n::gettext('Pay stub is assigned to a closed pay period'));
-					}
-
-					//Make sure we aren't creating a new pay stub in a already closed pay period
-					if ( $this->getStatus() != 40 AND ( $this->getPayPeriodObject()->getStatus() == 20 ) ) {
-						$this->Validator->isTrue(		'status_id',
-														FALSE,
-														TTi18n::gettext('Pay period is already closed'));
-					}
-				}
-
-			}
 		}
 
 		return TRUE;
@@ -1054,7 +1068,9 @@ class PayStubFactory extends Factory {
 		$this->removeCache( $this->getId() );
 
 		if ( $this->getEnableProcessEntries() == TRUE ) {
-			$this->savePayStubEntries();
+			if ( $this->savePayStubEntries() == FALSE ) {
+				$this->FailTransaction(); //Fail transaction as one of the PS entries was not saved.
+			}
 		}
 
 		//This needs to be run even if entries aren't being processed,
@@ -1734,7 +1750,9 @@ class PayStubFactory extends Factory {
 
 					$this->Validator->isTrue(		'entry',
 													FALSE,
-													TTi18n::gettext('Invalid Pay Stub entry'));
+													//TTi18n::gettext('Invalid Pay Stub entry')
+													$psef->Validator->getTextErrors( FALSE ) //Get specific error messages from PSEF, rather than use a generic message, as user does see these.
+													);
 					return FALSE;
 				}
 			}
@@ -2315,6 +2333,11 @@ class PayStubFactory extends Factory {
 					foreach ($pslf as $key => $pay_stub_obj) {
 						Debug::Text('Looping over Pay Stub... ID: '. $pay_stub_obj->getId(), __FILE__, __LINE__, __METHOD__, 10);
 
+						if ( $pay_stub_obj->getStatus() == 100 ) {
+							Debug::Text('  Opening Balance pay stub, not exporting... ID: '. $pay_stub_obj->getId(), __FILE__, __LINE__, __METHOD__, 10);
+							continue;
+						}
+
 						//Get pay stub entries.
 						$pself = TTnew( 'PayStubEntryListFactory' );
 						$pself->getByPayStubId( $pay_stub_obj->getId() );
@@ -2460,6 +2483,11 @@ class PayStubFactory extends Factory {
 					$numbers_words = new Numbers_Words();
 					$i = 0;
 					foreach ($pslf as $pay_stub_obj) {
+						if ( $pay_stub_obj->getStatus() == 100 ) {
+							Debug::Text('  Opening Balance pay stub, not exporting... ID: '. $pay_stub_obj->getId(), __FILE__, __LINE__, __METHOD__, 10);
+							continue;
+						}
+
 						//Get pay stub entries.
 						$pself = TTnew( 'PayStubEntryListFactory' );
 						$pself->getByPayStubId( $pay_stub_obj->getId() );
@@ -2633,7 +2661,10 @@ class PayStubFactory extends Factory {
 					if ( stristr( $export_type, 'cheque') ) {
 						$output_format = 'PDF';
 					}
-					$output = $this->getFormObject()->output( $output_format );
+
+					if ( $i > 0 ) {
+						$output = $this->getFormObject()->output( $output_format );
+					}
 
 					break;
 			}
@@ -2660,20 +2691,25 @@ class PayStubFactory extends Factory {
 
 		if ( $pslf->getRecordCount() > 0 ) {
 
-			$pdf = new TTPDF('P', 'mm', 'Letter');
-			$pdf->setMargins(0, 0);
-			//$pdf->SetAutoPageBreak(TRUE, 30);
-			$pdf->SetAutoPageBreak(FALSE);
-
 			$i = 0;
 			foreach ($pslf as $pay_stub_obj) {
+				if ( $i == 0 ) {
+					$pdf = new TTPDF('P', 'mm', 'Letter', $pay_stub_obj->getUserObject()->getCompanyObject()->getEncoding() );
+					$pdf->setMargins(0, 0);
+					//$pdf->SetAutoPageBreak(TRUE, 30);
+					$pdf->SetAutoPageBreak(FALSE);
+
+					$pdf->SetFont( TTi18n::getPDFDefaultFont( $pay_stub_obj->getUserObject()->getUserPreferenceObject()->getLanguage(), $pay_stub_obj->getUserObject()->getCompanyObject()->getEncoding() ), '', 10);
+
+					$company_obj = $pay_stub_obj->getUserObject()->getCompanyObject();
+				}
+
 				$psealf = TTnew( 'PayStubEntryAccountListFactory' );
 
 				//Debug::text($i .'. Pay Stub Transaction Date: '. $pay_stub_obj->getTransactionDate(), __FILE__, __LINE__, __METHOD__, 10);
 
 				//Get Pay Period information
-				$pplf = TTnew( 'PayPeriodListFactory' );
-				$pay_period_obj = $pplf->getById( $pay_stub_obj->getPayPeriod() )->getCurrent();
+				$pay_period_obj = $this->getPayPeriodObject();
 
 				//Use Pay Stub dates, not Pay Period dates.
 				$pp_start_date = $pay_stub_obj->getStartDate();
@@ -2682,18 +2718,12 @@ class PayStubFactory extends Factory {
 
 				//Get User information
 				$ulf = TTnew( 'UserListFactory' );
-				$user_obj = $ulf->getById( $pay_stub_obj->getUser() )->getCurrent();
-
-				//Get company information
-				$clf = TTnew( 'CompanyListFactory' );
-				$company_obj = $clf->getById( $user_obj->getCompany() )->getCurrent();
+				$user_obj = $pay_stub_obj->getUserObject();
 
 				//Change locale to users own locale.
 				TTi18n::setLanguage( $user_obj->getUserPreferenceObject()->getLanguage() );
 				TTi18n::setCountry( $user_obj->getCountry() );
 				TTi18n::setLocale();
-
-				$pdf->SetFont( TTi18n::getPDFDefaultFont( $user_obj->getUserPreferenceObject()->getLanguage() ), '', 10);
 
 				//
 				// Pay Stub Header
@@ -2703,6 +2733,31 @@ class PayStubFactory extends Factory {
 
 				$adjust_x = 20;
 				$adjust_y = 10;
+
+				//Print important status as watermark on invoice.
+				$pdf->setXY( Misc::AdjustXY(0, 20), Misc::AdjustXY(0, 240) );
+
+				$status_text = NULL;
+				if ( $pay_stub_obj->getStatus() == 100 ) {
+					$status_text = TTi18n::gettext('OPENING BALANCE');
+				}
+
+				$pdf->StartTransform();
+				$pdf->Rotate(57);
+				$pdf->SetFont('', 'B', 80);
+				$pdf->setTextColor(255, 200, 200);
+				if ( $status_text != '' ) {
+					$pdf->Cell(250, 50, $status_text, $border, 0, 'C');
+				}
+				$pdf->StopTransform();
+
+				$pdf->setPageMark(); //Must be set to multicells know about the background text.
+
+				$pdf->SetFont('', '', 10);
+				$pdf->setTextColor(0, 0, 0);
+				unset($status_ext);
+
+				//Reset pointer to the beginning of the page after watermark is drawn
 
 				//Logo
 				$pdf->Image( $company_obj->getLogoFileName( NULL, TRUE, FALSE, 'large' ), Misc::AdjustXY(0, $adjust_x ), Misc::AdjustXY(1, $adjust_y ), $pdf->pixelsToUnits( 167 ), $pdf->pixelsToUnits( 42 ), '', '', '', FALSE, 300, '', FALSE, FALSE, 0, TRUE);
@@ -2751,6 +2806,15 @@ class PayStubFactory extends Factory {
 				$pdf->Line( Misc::AdjustXY(0, $adjust_x), Misc::AdjustXY(27, $adjust_y), Misc::AdjustXY(185, $adjust_y), Misc::AdjustXY(27, $adjust_y) );
 
 				$pdf->setLineWidth( 0.25 );
+
+				if ( $pay_stub_obj->getStatus() == 100 ) {
+					$pdf->setXY( Misc::AdjustXY(0, $adjust_x), Misc::AdjustXY( 30, $adjust_y) );
+					$pdf->SetFont('', 'B', 35);
+					$pdf->setTextColor(255, 0, 0);
+					$pdf->Cell(175, 12, TTi18n::getText('VOID'), $border, 0, 'C');
+					$pdf->SetFont('', '', 10);
+					$pdf->setTextColor(0, 0, 0);
+				}
 
 				//Get pay stub entries.
 				$pself = TTnew( 'PayStubEntryListFactory' );
@@ -3390,6 +3454,15 @@ class PayStubFactory extends Factory {
 				$pdf->SetFont('', 'B', 14);
 				$pdf->setXY( Misc::AdjustXY(0, $adjust_x), Misc::AdjustXY( ($block_adjust_y + 3), $adjust_y) );
 				$pdf->Cell(175, 5, TTi18n::gettext('NON NEGOTIABLE'), $border, 0, 'C', FALSE, '', 1);
+
+				if ( $pay_stub_obj->getStatus() == 100 ) {
+					$pdf->setXY( Misc::AdjustXY(0, $adjust_x), Misc::AdjustXY( ($block_adjust_y + 15), $adjust_y) );
+					$pdf->SetFont('', 'B', 35);
+					$pdf->setTextColor(255, 0, 0);
+					$pdf->Cell(175, 12, TTi18n::getText('VOID'), $border, 0, 'C');
+					$pdf->SetFont('', '', 10);
+					$pdf->setTextColor(0, 0, 0);
+				}
 
 				//Employee Address
 				$pdf->SetFont('', 'B', 12);

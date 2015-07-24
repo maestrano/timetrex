@@ -666,6 +666,58 @@ class APICompany extends APIFactory {
 	}
 
 	/**
+	 * Get timeclock stations associated with each company.
+	 * @param array $data filter data
+	 * @return array
+	 */
+	function getCompanyTimeClockStations( $data = NULL, $disable_paging = FALSE ) {
+		if ( !$this->getPermissionObject()->Check('company', 'enabled')
+				OR !( $this->getPermissionObject()->Check('company', 'view') OR $this->getPermissionObject()->Check('company', 'view_own') OR $this->getPermissionObject()->Check('company', 'view_child')	) ) {
+			return $this->getPermissionObject()->PermissionDenied();
+		}
+		$data = $this->initializeFilterAndPager( $data, $disable_paging );
+
+		if ( $this->getPermissionObject()->Check('company', 'view') == FALSE ) {
+			if ( $this->getPermissionObject()->Check('company', 'view_child') ) {
+				$data['filter_data']['company_id'] = $this->getCurrentCompanyObject()->getId();
+			}
+			if ( $this->getPermissionObject()->Check('company', 'view_own') ) {
+				$data['filter_data']['company_id'] = $this->getCurrentCompanyObject()->getId();
+			}
+		}
+
+		$llf = TTnew( 'StationListFactory' );
+		if ( !isset($data['filter_data']['status_id']) ) {
+			$data['filter_data']['status_id'] = array(20);
+		}
+		if ( !isset($data['filter_data']['type_id']) ) {
+			$data['filter_data']['type_id'] = array(150);
+		}
+		if ( !isset($data['filter_columns']) ) {
+			$data['filter_columns'] = array('id' => TRUE, 'station_id' => TRUE, 'status_id' => TRUE, 'type_id' => TRUE, 'updated_date' => TRUE );
+		}
+
+		$llf->getAPITimeClockStationsByArrayCriteria( $data['filter_data'] );
+		Debug::Text('Record Count: '. $llf->getRecordCount(), __FILE__, __LINE__, __METHOD__, 10);
+		if ( $llf->getRecordCount() > 0 ) {
+			$this->getProgressBarObject()->start( $this->getAMFMessageID(), $llf->getRecordCount() );
+
+			$this->setPagerObject( $llf );
+
+			foreach( $llf as $l_obj ) {
+				$retarr[] = $l_obj->getObjectAsArray( $data['filter_columns'] );
+				$this->getProgressBarObject()->set( $this->getAMFMessageID(), $llf->getCurrentRow() );
+			}
+
+			$this->getProgressBarObject()->stop( $this->getAMFMessageID() );
+
+			return $this->returnHandler( $retarr );
+		}
+
+		return $this->returnHandler( TRUE ); //No records returned.
+	}
+
+	/**
 	 * Return an array to determine if branches, department, job and task dropdown boxes should be enabled and have data.
 	 * @return array
 	 */

@@ -56,7 +56,7 @@ class Authentication {
 		$this->db = $db;
 
 		$this->rl = TTNew('RateLimit');
-		$this->rl->setID( 'authentication_'.$_SERVER['REMOTE_ADDR'] );
+		$this->rl->setID( 'authentication_'. Misc::getRemoteIPAddress() );
 		$this->rl->setAllowedCalls( 20 );
 		$this->rl->setTimeFrame( 900 ); //15 minutes
 
@@ -81,7 +81,7 @@ class Authentication {
 	}
 	function setIPAddress($ip_address = NULL) {
 		if (empty( $ip_address ) ) {
-			$ip_address = $_SERVER['REMOTE_ADDR'];
+			$ip_address = Misc::getRemoteIPAddress();
 		}
 
 		if ( !empty($ip_address) ) {
@@ -243,7 +243,7 @@ class Authentication {
 	}
 
 	private function genSessionID() {
-		return sha1( uniqid( dechex( mt_srand() ) ) );
+		return sha1( uniqid( dechex( mt_rand() ), TRUE ) );
 	}
 
 	function checkCompanyStatus( $user_name ) {
@@ -604,13 +604,13 @@ class Authentication {
 		if ( $user_name == '' OR (!$nopassword && $password == '') ) {
 			return FALSE;
 		}
-
+		
 		Debug::text('Login Type: '. $type, __FILE__, __LINE__, __METHOD__, 10);
 		try {
 			//Prevent brute force attacks by IP address.
 			//Allowed up to 20 attempts in a 30 min period.
 			if ( $this->rl->check() == FALSE ) {
-				Debug::Text('Excessive failed password attempts... Preventing login from: '. $_SERVER['REMOTE_ADDR'] .' for up to 15 minutes...', __FILE__, __LINE__, __METHOD__, 10);
+				Debug::Text('Excessive failed password attempts... Preventing login from: '. Misc::getRemoteIPAddress() .' for up to 15 minutes...', __FILE__, __LINE__, __METHOD__, 10);
 				sleep(5); //Excessive password attempts, sleep longer.
 				return FALSE;
 			}
@@ -735,7 +735,7 @@ class Authentication {
 			}
 		}
 
-		Debug::text('Session ID: '. $session_id .' IP Address: '. $_SERVER['REMOTE_ADDR'] .' URL: '. $_SERVER['REQUEST_URI'] .' Touch Updated Date: '. (int)$touch_updated_date, __FILE__, __LINE__, __METHOD__, 10);
+		Debug::text('Session ID: '. $session_id .' IP Address: '. Misc::getRemoteIPAddress() .' URL: '. $_SERVER['REQUEST_URI'] .' Touch Updated Date: '. (int)$touch_updated_date, __FILE__, __LINE__, __METHOD__, 10);
 		//Checks session cookie, returns user_id;
 		if ( isset( $session_id ) ) {
 			/*

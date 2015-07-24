@@ -49,6 +49,9 @@
 class PayrollDeduction_US_DC extends PayrollDeduction_US {
 
 	var $state_options = array(
+								1420099200 => array( //01-Jan-2015
+													'allowance' => 1775
+													),		
 								//01-Jan-2014 - No Changes.
 								//01-Jan-2013 - No Changes.
 								//01-Jan-2012 - No Changes.

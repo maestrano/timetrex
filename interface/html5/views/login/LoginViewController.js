@@ -239,44 +239,23 @@ LoginViewController = BaseViewController.extend( {
 
 							LocalCacheData.loginUserPreference.time_zone_offset = hoursResultData;
 
-							login_view_this.user_preference_api.getOptions( 'jquery_date_format', {
+							login_view_this.user_preference_api.getOptions( 'moment_date_format', {
 								onResult: function( jsDateFormatRes ) {
 
 									var jsDateFormatResultData = jsDateFormatRes.getResult();
 
 									//For moment date parser
-									LocalCacheData.loginUserPreference.js_date_format = {
-										'D, F d Y': 'ddd, MMMM DD YYYY',
-										'D, M d Y': 'ddd, MMM DD YYYY',
-										'D, d-M-Y': 'ddd, DD-MMM-YYYY',
-										'D, dMY': 'ddd, DDMMMYYYY',
-										'M-d-Y': 'MMM-DD-YYYY',
-										'M-d-y': 'MMM-DD-YY',
-										'Y-m-d': 'YYYY-MM-DD',
-										'd-M-Y': 'DD-MMM-YYYY',
-										'd-M-y': 'DD-MMM-YY',
-										'd-m-Y': 'DD-MM-YYYY',
-										'd-m-y': 'DD-MM-YY',
-										'd/m/Y': 'DD/MM/YYYY',
-										'd/m/y': 'DD/MM/YY',
-										'dMY': 'DDMMMYYYY',
-										'l, F d Y': 'dddd, MMMM DD YYYY',
-										'm-d-Y': 'MM-DD-YYYY',
-										'm-d-y': 'MM-DD-YY',
-										'm/d/Y': 'MM/DD/YYYY',
-										'm/d/y': 'MM/DD/YY'
-									};
+									LocalCacheData.loginUserPreference.js_date_format = jsDateFormatResultData;
 
 									var date_format = LocalCacheData.loginUserPreference.date_format;
 
 									LocalCacheData.loginUserPreference.date_format = LocalCacheData.loginUserPreference.js_date_format[date_format];
 
-									//For date picker
-									LocalCacheData.loginUserPreference.js_date_format_1 = jsDateFormatResultData;
+									////For date picker
+									//LocalCacheData.loginUserPreference.js_date_format_1 = jsDateFormatResultData;
+									LocalCacheData.loginUserPreference.date_format_1 = Global.convertTojQueryFormat( date_format );
 
-									LocalCacheData.loginUserPreference.date_format_1 = LocalCacheData.loginUserPreference.js_date_format_1[date_format];
-
-									login_view_this.user_preference_api.getOptions( 'js_time_format', {
+									login_view_this.user_preference_api.getOptions( 'moment_time_format', {
 										onResult: function( jsTimeFormatRes ) {
 
 											var jsTimeFormatResultData = jsTimeFormatRes.getResult();

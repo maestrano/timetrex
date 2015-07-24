@@ -1669,7 +1669,14 @@ abstract class Factory {
 
 	function CommitTransaction() {
 		Debug::text('CommitTransaction(): Transaction Count: '. $this->db->transCnt .' Trans Off: '. $this->db->transOff, __FILE__, __LINE__, __METHOD__, 9);
-		return $this->db->CompleteTrans();
+		$retval = $this->db->CompleteTrans();
+
+		if ( $retval == FALSE ) { //Check to see if the transaction has failed.
+			//In PostgreSQL, when SESSION/LOCAL variables are set within a transaction that later rollsback, the session variables also rollback. This ensures the timezone still matches what we think it should.
+			TTDate::setTimeZone( TTDate::getTimeZone(), TRUE );
+		}
+
+		return $retval;
 	}
 
 	//Call class specific validation function just before saving.

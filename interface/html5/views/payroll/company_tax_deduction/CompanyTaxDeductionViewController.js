@@ -33,7 +33,11 @@ CompanyTaxDeductionViewController = BaseViewController.extend( {
 
 		this._super( 'initialize' );
 		this.edit_view_tpl = 'CompanyTaxDeductionEditView.html';
-		this.permission_id = 'company_tax_deduction';
+		if ( this.sub_view_mode ) {
+			this.permission_id = 'user_tax_deduction';
+		} else {
+			this.permission_id = 'company_tax_deduction';
+		}
 		this.viewId = 'CompanyTaxDeduction';
 		this.script_name = 'CompanyTaxDeductionView';
 		this.table_name_key = 'company_deduction';
@@ -201,14 +205,11 @@ CompanyTaxDeductionViewController = BaseViewController.extend( {
 
 	saveInsideEditorData: function( callBack ) {
 		var $this = this;
-
 		if ( !this.current_edit_record || !this.current_edit_record.id ) {
 			if ( Global.isSet( callBack ) ) {
 				callBack();
 			}
-
 		}
-
 		var data = this.employee_setting_grid.getGridParam( 'data' );
 		var columns = this.employee_setting_grid.getGridParam( 'colModel' );
 
@@ -432,7 +433,6 @@ CompanyTaxDeductionViewController = BaseViewController.extend( {
 		this.is_add = false;
 		LocalCacheData.current_doing_context_action = 'save';
 		if ( this.is_mass_editing ) {
-
 			var check_fields = {};
 			for ( var key in this.edit_view_ui_dic ) {
 				var widget = this.edit_view_ui_dic[key];
@@ -443,7 +443,6 @@ CompanyTaxDeductionViewController = BaseViewController.extend( {
 					}
 				}
 			}
-
 			record = [];
 			$.each( this.mass_edit_record_ids, function( index, value ) {
 				var common_record = Global.clone( check_fields );
@@ -454,28 +453,114 @@ CompanyTaxDeductionViewController = BaseViewController.extend( {
 		} else {
 			record = this.current_edit_record;
 		}
-
 		record = this.uniformVariable( record );
-
-		if ( !this.sub_view_mode || this.current_edit_record.id ) {
+		if ( !this.sub_view_mode ) {
 			this.api['set' + this.api.key_name]( record, {
 				onResult: function( result ) {
-
 					$this.onSaveResult( result );
-
 				}
 			} );
-
 		} else {
-			this.user_deduction_api.setUserDeduction( record, {
+			if ( !this.current_edit_record.id ) {
+				this.user_deduction_api.setUserDeduction( record, {
+					onResult: function( result ) {
+						$this.onSaveResult( result );
+					}
+				} );
+			} else {
+				$this.saveInsideEditorData( function() {
+					$this.refresh_id = $this.current_edit_record.id; // as add
+					$this.search();
+					$this.current_edit_record = null;
+					$this.removeEditView();
+				} );
+			}
+		}
+
+	},
+
+	onSaveAndContinue: function() {
+		var $this = this;
+		this.is_add = false;
+		LocalCacheData.current_doing_context_action = 'save_and_continue';
+		var record = this.current_edit_record;
+		record = this.uniformVariable( record );
+		if ( !this.sub_view_mode ) {
+			this.api['set' + this.api.key_name]( record, {
 				onResult: function( result ) {
-
-					$this.onSaveResult( result );
-
+					$this.onSaveAndContinueResult( result );
 				}
+			} );
+		} else {
+			// Only edit record can go here
+			$this.saveInsideEditorData( function() {
+				$this.refresh_id = $this.current_edit_record.id;
+				$this.search( false );
+				$this.onEditClick( $this.refresh_id, true );
 			} );
 		}
 
+
+	},
+
+	onSaveAndNextClick: function() {
+		var $this = this;
+		this.is_add = false;
+		var record = this.current_edit_record;
+		LocalCacheData.current_doing_context_action = 'save_and_next';
+		record = this.uniformVariable( record );
+
+		if ( !this.sub_view_mode ) {
+			this.api['set' + this.api.key_name]( record, {
+				onResult: function( result ) {
+					$this.onSaveAndNextResult( result );
+				}
+			} );
+		} else {
+			// Only edit record can go here
+			$this.saveInsideEditorData( function() {
+				$this.refresh_id = $this.current_edit_record.id;
+				$this.onRightArrowClick();
+				$this.search( false );
+			} );
+		}
+
+
+	},
+
+	//Make sure this.current_edit_record is updated before validate
+	validate: function() {
+		var $this = this;
+		var record = {};
+		if ( this.is_mass_editing ) {
+			for ( var key in this.edit_view_ui_dic ) {
+				if ( !this.edit_view_ui_dic.hasOwnProperty( key ) ) {
+					continue;
+				}
+				var widget = this.edit_view_ui_dic[key];
+				if ( Global.isSet( widget.isChecked ) ) {
+					if ( widget.isChecked() && widget.getEnabled() ) {
+						record[key] = widget.getValue();
+					}
+				}
+			}
+		} else {
+			record = this.current_edit_record;
+		}
+		record = this.uniformVariable( record );
+		if ( !this.sub_view_mode ) {
+			this.api['validate' + this.api.key_name]( record, {
+				onResult: function( result ) {
+					$this.validateResult( result );
+				}
+			} );
+		} else {
+			this.user_deduction_api.validateUserDeduction( record, {
+				onResult: function( result ) {
+					$this.validateResult( result );
+				}
+			} );
+		}
 	},
 
 	uniformVariable: function( record ) {
@@ -501,39 +586,24 @@ CompanyTaxDeductionViewController = BaseViewController.extend( {
 		if ( result.isValid() ) {
 			var result_data = result.getResult();
 
-			if ( this.sub_view_mode ) {
-
-				if ( result_data === true ) {
-					$this.refresh_id = $this.current_edit_record.id; // as add
-					$this.saveInsideEditorData( function() {
-
-						$this.search();
-						$this.onSaveDone( result );
-						$this.current_edit_record = null;
-						$this.removeEditView();
-
-					} );
-				} else if ( result_data > 0 ) { // as new
-					$this.search();
-					$this.onSaveDone( result );
-					$this.current_edit_record = null;
-					$this.removeEditView();
-				}
-
-			} else {
+			if ( !this.sub_view_mode ) {
 				if ( result_data === true ) {
 					$this.refresh_id = $this.current_edit_record.id; // as add
 				} else if ( result_data > 0 ) { // as new
 					$this.refresh_id = result_data;
 				}
-
 				$this.saveInsideEditorData( function() {
-
 					$this.search();
 					$this.onSaveDone( result );
 					$this.current_edit_record = null;
 					$this.removeEditView();
 				} );
+			} else {
+				$this.refresh_id = null;
+				$this.search();
+				$this.onSaveDone( result );
+				$this.current_edit_record = null;
+				$this.removeEditView();
 			}
 
 		} else {
@@ -549,18 +619,16 @@ CompanyTaxDeductionViewController = BaseViewController.extend( {
 			var result_data = result.getResult();
 			if ( result_data === true ) {
 				$this.refresh_id = $this.current_edit_record.id;
-
 			} else if ( result_data > 0 ) { // as new
 				$this.refresh_id = result_data;
 			}
-
-			$this.saveInsideEditorData( function() {
-				$this.search( false );
-				$this.onEditClick( $this.refresh_id, true );
-
-				$this.onSaveAndContinueDone( result );
-
-			} );
+			if ( !this.sub_view_mode ) {
+				$this.saveInsideEditorData( function() {
+					$this.search( false );
+					$this.onEditClick( $this.refresh_id, true );
+					$this.onSaveAndContinueDone( result );
+				} );
+			}
 
 		} else {
 			$this.setErrorTips( result );
@@ -684,7 +752,6 @@ CompanyTaxDeductionViewController = BaseViewController.extend( {
 			var result_data = result.getResult();
 			if ( result_data === true ) {
 				$this.refresh_id = $this.current_edit_record.id;
-
 			} else if ( result_data > 0 ) {
 				$this.refresh_id = result_data;
 			}
@@ -693,7 +760,6 @@ CompanyTaxDeductionViewController = BaseViewController.extend( {
 				$this.onRightArrowClick();
 				$this.search( false );
 				$this.onSaveAndNextDone( result );
-
 			} );
 
 		} else {
@@ -867,7 +933,6 @@ CompanyTaxDeductionViewController = BaseViewController.extend( {
 			case 'country':
 				var widget = this.edit_view_ui_dic['province'];
 				var widget_2 = this.edit_view_ui_dic['district'];
-				this.eSetProvince( c_value );
 				widget.setValue( null );
 				widget_2.setValue( null );
 				this.current_edit_record.province = false;
@@ -894,6 +959,7 @@ CompanyTaxDeductionViewController = BaseViewController.extend( {
 		}
 
 		if ( key === 'country' ) {
+			this.onCountryChange();
 			return;
 		}
 		if ( !doNotValidate ) {

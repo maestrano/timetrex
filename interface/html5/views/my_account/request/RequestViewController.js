@@ -987,14 +987,17 @@ RequestViewController = BaseViewController.extend( {
 	},
 
 	getFilterColumnsFromDisplayColumns: function( authorization_history ) {
-		var display_columns;
-
+		// Error: Unable to get property 'getGridParam' of undefined or null reference
+		var display_columns = [];
 		if ( authorization_history ) {
-			display_columns = this.authorization_history_grid.getGridParam( 'colModel' );
+			if ( this.authorization_history_grid ) {
+				display_columns = this.authorization_history_grid.getGridParam( 'colModel' );
+			}
 		} else {
-			display_columns = this.grid.getGridParam( 'colModel' );
+			if ( this.grid ) {
+				display_columns = this.grid.getGridParam( 'colModel' );
+			}
 		}
-
 		var column_filter = {};
 		column_filter.is_owner = true;
 		column_filter.id = true;
