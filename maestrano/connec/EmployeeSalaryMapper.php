@@ -9,7 +9,7 @@ require_once 'MnoIdMap.php';
 class EmployeeSalaryMapper extends BaseMapper {
   private $employee_id = null;
 
-  public function __construct($employee_id) {
+  public function __construct($employee_id=null) {
     parent::__construct();
 
     $this->connec_entity_name = 'EmployeeSalary';

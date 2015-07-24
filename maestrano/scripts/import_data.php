@@ -51,7 +51,9 @@ function fetchData($client, $entity, $params=array()) {
         if($test_class->isAbstract()) { continue; }
 
         $mapper = new $mapperClass();
-        $mapper->persistAll($result[$mapper->getConnecResourceName()]);
+        if(array_key_exists($mapper->getConnecResourceName(), $result)) {
+          $mapper->persistAll($result[$mapper->getConnecResourceName()]);
+        }
       }
     }
 
