@@ -92,6 +92,10 @@ class WorkLocationMapper extends BaseMapper {
 
   // Persist the TimeTrex WorkLocation
   protected function persistLocalModel($work_location, $resource_hash) {
-    $work_location->Save(false, false, false);
+    if($work_location->isValid()) {
+      $work_location->Save(false, false, false);
+    } else {
+      error_log("cannot save entity_name=$this->connec_entity_name, entity_id=" . $resource_hash['id'] . ", error=" . $work_location->Validator->getTextErrors());
+    }
   }
 }

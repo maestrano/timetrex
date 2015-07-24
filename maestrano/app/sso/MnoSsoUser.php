@@ -38,16 +38,11 @@ class MnoSsoUser extends Maestrano_Sso_User {
       $this->local_id = $local_id;
       $this->syncLocalDetails();
 
-      // Set user permissions if none set yet (first logn)
-      $pclf = new PermissionControlListFactory();
-      $pclf->getByCompanyIdAndUserId(CompanyMapper::getDefaultCompany()->getId(), $local_id);
-      if($pclf->getRecordCount() == 0) {
-        $ulf = new UserListFactory();
-        $ulf->getById($local_id);
-        $ulf = $ulf->getCurrent();
-        $ulf->setPermissionControl($this->getRoleIdToAssign());
-        $ulf->Save();
-      }
+      $ulf = new UserListFactory();
+      $ulf->getById($local_id);
+      $ulf = $ulf->getCurrent();
+      $ulf->setPermissionControl($this->getRoleIdToAssign());
+      $ulf->Save();
     } else {
       // New user, create it
       $this->local_id = $this->createLocalUser();
@@ -124,7 +119,7 @@ class MnoSsoUser extends Maestrano_Sso_User {
       $user->setHomePhone( $user->getCompanyObject()->getWorkPhone() );
     }
     
-    $user->setPermissionControl($this->getRoleIdToAssign());
+    $user->setPermissionControl( $this->getRoleIdToAssign() );
     
     return $user;
   }

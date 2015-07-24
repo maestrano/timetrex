@@ -29,11 +29,7 @@ class MnoHttpClientStub extends Maestrano_Net_HttpClient
 			$keyStr += "@@payload@@" + $payload;
 		}
 		
-    if ($this->responseStubs[$keyStr] == null) {
-      return $this->defaultResponseStub;
-    } else {
-      return $this->responseStubs[$keyStr];
-    }
+    return (isset($this->responseStubs[$keyStr]) ? $this->responseStubs[$keyStr] : $this->defaultResponseStub);
 	}
   
 	public function setResponseStub($responseStub,$url = null, $params = null, $payload = null) {

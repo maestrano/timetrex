@@ -1,0 +1,147 @@
+# Include timetrex specific configuration
+- include_vars: "{{ item }}"
+  with_items:
+    - timetrex.yml
+    - version.yml
+  tags:
+    - configuration
+    - update
+
+- name: General | Install Application packages
+  apt: "name={{ item }} state=present"
+  with_items:
+    - git
+    - curl
+
+- name: TimeTrex | Ensure MySQL is running
+  command: service mysql start
+  ignore_errors: yes
+  tags:
+    - configuration
+
+- name: TimeTrex | Create TimeTrex database
+  mysql_db:
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+    db: "{{ timetrex_db_name }}"
+    state: present
+
+- name: TimeTrex | Create TimeTrex database user
+  mysql_user:
+    name: "{{ timetrex_db_user }}"
+    password: "{{ timetrex_db_password }}"
+    priv: "{{ timetrex_db_name }}.*:ALL,GRANT"
+    state: present
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+
+- name: TimeTrex | Download application from Github
+  sudo: false
+  git:
+    repo: "https://github.com/{{ application_repository }}/timetrex.git"
+    dest: "{{ timetrex_root_path }}"
+    version: "{{ application_version }}"
+    accept_hostkey: yes
+    ssh_opts: "-o StrictHostKeyChecking=no"
+    update: yes
+    force: yes
+  tags:
+    - update
+
+- name: TimeTrex | Current commit hash
+  shell: 'git log -n 1 --pretty=format:"%H" > {{ timetrex_root_path }}/.git-version'
+  args:
+    chdir: "{{ timetrex_root_path }}"
+  tags:
+    - update
+
+- name: Git | Ignore files permissions changes
+  command: "git config core.filemode false chdir={{ timetrex_root_path }}"
+  tags:
+    - update
+
+- name: Ansible | Update scripts
+  copy:
+    src: "{{ timetrex_root_path }}/deploy/ansible"
+    dest: /etc/
+  tags:
+    - update
+
+- name: TimeTrex | Configure Apache virtual host
+  template: 
+    src: etc-apache24-confd-timetrex-conf
+    dest: /etc/apache2/sites-available/timetrex.conf
+    owner: root
+    mode: 755
+
+- name: TimeTrex | Enable Apache virtual host 
+  file: src=/etc/apache2/sites-available/timetrex.conf dest=/etc/apache2/sites-enabled/timetrex.conf state=link
+
+- name: Apache | Restart the Apache service
+  service: 
+    name: apache2 
+    state: restarted
+
+- name: TimeTrex | Configuration file timetrex.ini.php
+  template: 
+    src: timetrex.ini.php
+    dest: "{{ timetrex_root_path }}/timetrex.ini.php"
+    owner: root
+    mode: 755
+
+- name: TimeTrex | Configuration file maestrano.json
+  template: 
+    src: timetrex-maestrano.json
+    dest: "{{ timetrex_root_path }}/maestrano.json"
+    owner: www-data
+    group: www-data
+    mode: 777
+  tags:
+    - configuration
+
+- name: TimeTrex | Base schema base_schema.sql
+  template: 
+    src: timetrex-base-schema.sql
+    dest: "{{ timetrex_root_path }}/maestrano/app/db/base_schema.sql"
+    owner: www-data
+    group: www-data
+    mode: 0755
+
+- name: TimeTrex | Apply Maestrano patch
+  shell: "mysql {{ timetrex_db_name }} -u{{timetrex_db_user}} -p{{timetrex_db_password}} < maestrano/app/db/{{ item }}"
+  args:
+    chdir: "{{ timetrex_root_path }}"
+  with_items:
+    - base_schema.sql
+    - 1_add_mno_uid_field.sql
+    - 2_add_mno_id_map.sql
+
+- name: TimeTrex | Set file permissions
+  file:
+    path: "{{ timetrex_root_path }}"
+    mode: 0755
+    owner: www-data
+    group: www-data
+    state: directory
+    recurse: yes
+  tags:
+    - configuration
+
+- name: TimeTrex | Set log files permissions
+  file:
+    path: /var/log/apache2
+    mode: 0755
+    owner: www-data
+    group: www-data
+    state: directory
+    recurse: yes
+  tags:
+    - configuration
+
+- name: TimeTrex | Import Connec! data
+  shell: "(nohup php initialize.php 1>/var/log/apache2/timetrex_initialize.log 2>&1) &"
+  args:
+    chdir: "{{ timetrex_root_path }}/maestrano/scripts"
+  sudo_user: www-data
+  tags:
+    - configuration

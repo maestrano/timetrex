@@ -10,7 +10,7 @@ Maestrano Cloud Integration is currently in closed beta. Want to know more? Send
   
 - - -
 
-1.  [Getting Setup](#getting-setup)
+1. [Getting Setup](#getting-setup)
 2. [Getting Started](#getting-started)
   * [Installation](#installation)
   * [Configuration](#configuration)
@@ -54,7 +54,7 @@ To install maestrano-php using Composer, add this dependency to your project's c
 ```
 {
   "require": {
-    "maestrano/maestrano-php": "~0.5"
+    "maestrano/maestrano-php": "~0.6"
   }
 }
 ```
@@ -100,12 +100,14 @@ The json file may look like this:
   
   # ===> Api Configuration
   #
-  # => id and key
+  # => id, key and group_id
   # Your application App ID and API key which you can retrieve on http://maestrano.com via your cloud partner dashboard. 
-  # For testing you can retrieve/generate an api.id and api.key from the API Sandbox directly on http://api-sandbox.maestrano.io
+  # For testing you can retrieve/generate an api.id and api.key from the API Sandbox directly on http://api-sandbox.maestrano.io.
+  # The group_id is optional and can be defined when instantiating your Connec!™ Client
   "api": {
     "id": "prod_or_sandbox_app_id",
-    "key": "prod_or_sandbox_api_key"
+    "key": "prod_or_sandbox_api_key",
+    "group_id": "group_id"
   },
   
   # ===> SSO Configuration
@@ -116,28 +118,28 @@ The json file may look like this:
     # Enable/Disable single sign-on. When troubleshooting authentication issues you might want to disable SSO temporarily
     "enabled": true,
     
-    # => sloEnabled
+    # => slo_enabled
     # Enable/Disable single logout. When troubleshooting authentication issues you might want to disable SLO temporarily. 
     # If set to false then MnoSession#isValid - which should be used in a controller action filter to check user session - always return true
-    "sloEnabled": true,
+    "slo_enabled": true,
     
     # => idm
     # By default we consider that the domain managing user identification is the same as your application host (see above config.app.host parameter). 
     # If you have a dedicated domain managing user identification and therefore responsible for the single sign-on handshake (e.g: https://idp.my-app.com) then you can specify it below
     "idm": "https://idp.myapp.com",
     
-    # => initPath
+    # => init_path
     # This is your application path to the SAML endpoint that allows users to initialize SSO authentication. 
     # Upon reaching this endpoint users your application will automatically create a SAML request and redirect the user to Maestrano. Maestrano will then authenticate and authorize the user. 
     # Upon authorization the user gets redirected to your application consumer endpoint (see below) for initial setup and/or login.
-    "initPath": "/maestrano/auth/saml/init.php"
+    "init_path": "/maestrano/auth/saml/init.php"
     
-    # => consumePath
+    # => consume_path
     #This is your application path to the SAML endpoint that allows users to finalize SSO authentication. 
     # During the 'consume' action your application sets users (and associated group) up and/or log them in.
-    "consumePath": "/maestrano/auth/saml/consume.php"
+    "consume_path": "/maestrano/auth/saml/consume.php"
     
-    # => creationMode
+    # => creation_mode
     # !IMPORTANT
     # On Maestrano users can take several "instances" of your service. You can consider
     # each "instance" as 1) a billing entity and 2) a collaboration group (this is
@@ -167,12 +169,23 @@ The json file may look like this:
     # in a whole new user account can be created for him without any validation problem. In this
     # mode the email we assign to him looks like "usr-sdf54.cld-45aa2@mail.maestrano.com". But don't
     # worry we take care of forwarding any email you would send to this address
-    "creationMode": "virtual",
+    "creation_mode": "virtual",
   },
-    
-  
+
+  # ===> Connec!™ Configuration
+  #
+  # => host and API paths
+  # The Connec!™ endpoint to use if you need to overwrite it (i.e. if you want to proxy requests or use a stub) 
+  "connec": {
+    "enabled": true,
+    "host": "http://connec.maestrano.io",
+    "base_path": "/api",
+    "v2_path": "/v2",
+    "reports_path": "/reports"
+  },
+
   # ===> Webhooks
-  # This section describe how to configure the Account and Connec! webhooks
+  # This section describe how to configure the Account and Connec!™ webhooks
   
   "webhook": {
     
@@ -186,8 +199,8 @@ The json file may look like this:
     # to notify you of any service cancellation (group deletion) or any user being
     # removed from a group.
     "account": {
-      "groupsPath": "/maestrano/account/groups/:id",
-      "groupUsersPath": "/maestrano/account/groups/:group_id/users/:id"
+      "groups_path": "/maestrano/account/groups/:id",
+      "group_users_path": "/maestrano/account/groups/:group_id/users/:id"
     },
     
     # ==> Connec Subscriptions/Webhook
@@ -197,6 +210,13 @@ The json file may look like this:
     #
     "connec": {
       
+      # == Initialization Path
+      # Only for applications hosted on Maestrano
+      # The endpoint to trigger when the application is started.
+      # This should be used as a hook to retrieve updates from Connec!™ whils the application was idle.
+      #
+      "initialization_path": "/maestrano/connec/initialization",
+
       # == Notification Path
       # This is the path of your application where notifications (created/updated entities) will
       # be POSTed to.
@@ -210,19 +230,34 @@ The json file may look like this:
       # notified upon creation/update in Connec!™
       # 
       "subscriptions": {
-        accounts: false,
-        company: false,
-        invoices: false,
-        items: false,
-        organizations: false,
-        people: false,
-        tax_codes: false,
-        tax_rates: false
+        "accounts": true,
+        "company": true,
+        "events": false,
+        "event_orders": false,
+        "invoices": true,
+        "items": true,
+        "journals": false,
+        "organizations": true,
+        "payments": false,
+        "pay_items": false,
+        "pay_schedules": false,
+        "pay_stubs": false,
+        "pay_runs": false,
+        "people": true,
+        "projects": false,
+        "purchase_orders": false,
+        "quotes": false,
+        "sales_orders": false,
+        "tax_codes": true,
+        "tax_rates": false,
+        "time_activities": false,
+        "time_sheets": false,
+        "venues": false,
+        "warehouses": false,
+        "work_locations": false
       }
     }
   }
-  
-  
 }
 
 ```
@@ -265,6 +300,9 @@ if (Maestrano::authenticate($_SERVER['PHP_AUTH_USER'],$_SERVER['PHP_AUTH_PW'])) 
 ```
 
 ## Single Sign-On Setup
+
+> **Heads up!** Prefer to use OpenID rather than our SAML implementation? Just look at our [OpenID Guide](https://maestrano.atlassian.net/wiki/display/CONNECAPIV2/SSO+via+OpenID) to get started!
+
 In order to get setup with single sign-on you will need a user model and a group model. It will also require you to write a controller for the init phase and consume phase of the single sign-on handshake.
 
 You might wonder why we need a 'group' on top of a user. Well Maestrano works with businesses and as such expects your service to be able to manage groups of users. A group represents 1) a billing entity 2) a collaboration group. During the first single sign-on handshake both a user and a group should be created. Additional users logging in via the same group should then be added to this existing group (see controller setup below)
@@ -531,8 +569,17 @@ $bill->setPriceCents(2000);
 <td>read/write</td>
 <td>Date</td>
 <td>-</td>
-<td>-</td>
+<td>false</td>
 <td>If the bill relates to a specific period then specifies when the period ended. Both period_started_at and period_ended_at need to be filled in order to appear on customer invoice.</td>
+<tr>
+
+<tr>
+<td><b>thirdParty</b></td>
+<td>read/write</td>
+<td>Boolean</td>
+<td>-</td>
+<td>-</td>
+<td>Whether this bill is related to a third party cost or not. External expenses engaged for customers - such as paying a  provider for sending SMS on behalf of customers - should be flagged as third party.</td>
 <tr>
 
 </table>
@@ -999,7 +1046,7 @@ The Maestrano API provides a built-in client - based on CURL - for connecting to
 
 
 ```php
-# Pass the customer group id as argument
+# Pass the customer group id as argument or use the default one specified in the json configuration
 $client = new Maestrano_Connec_Client("cld-f7f5g4")
 
 # Retrieve all organizations (customers and suppliers) created in other applications
@@ -1012,8 +1059,10 @@ $client->post('/organizations', array('organizations' => array('name' => "DoeCor
 
 # Update an organization
 $client->put('/organizations/e32303c1-5102-0132-661e-600308937d74', array('organizations' => array('is_customer_' => true)))
-```
 
+# Retrieve a report
+$client->getReport('/profit_and_loss', array('from' => '2015-01-01', 'to' => '2015-01-01', 'period' => 'MONTHLY'))
+```
 
 
 ### Webhook Notifications
@@ -1046,4 +1095,3 @@ So if you have any question or need help integrating with us just let us know at
 MIT License. Copyright 2014 Maestrano Pty Ltd. https://maestrano.com
 
 You are not granted rights or licenses to the trademarks of Maestrano.
-

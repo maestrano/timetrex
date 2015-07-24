@@ -31,8 +31,7 @@ class EmployeeMapper extends BaseMapper {
   protected function matchLocalModel($employee_hash) {
     if($this->is_set($employee_hash['email']['address'])) {
       $ulf = new UserListFactory();
-      $ulf->getByHomeEmailOrWorkEmail($employee_hash['email']['address']);
-      return $ulf->getCurrent();
+      return $ulf->getByHomeEmailOrWorkEmail($employee_hash['email']['address']);
     }
     return null;
   }
@@ -53,14 +52,14 @@ class EmployeeMapper extends BaseMapper {
       if($this->is_set($employee_hash['employee_id'])) {
         $employee->setEmployeeNumber($employee_hash['employee_id']);
       } else {
-        // Employee Number is mandatory, get the next available or default to code
-        $employee_id = UserFactory::getNextAvailableEmployeeNumber($company->getId());
-        if(is_null($employee_id)) { $employee_id = $employee_hash['code']; }
-        $employee->setEmployeeNumber($employee_id);
+        $employee->setEmployeeNumber(UserFactory::getNextAvailableEmployeeNumber($company->getId()));
       }
     }
     if(!$employee->getCurrency()) {
       $employee->setCurrency(CompanyMapper::getDefaultCurrency()->getId());
+    }
+    if(!$employee->getPermissionControl()) {
+      $employee->setPermissionControl($this->getDefaultPermission($company));
     }
     
     if(!$employee->getUserName()) {
@@ -76,13 +75,13 @@ class EmployeeMapper extends BaseMapper {
     if($this->is_set($employee_hash['email']['address'])) { $employee->setWorkEmail($employee_hash['email']['address']); }
     if($this->is_set($employee_hash['email']['address2'])) { $employee->setHomeEmail($employee_hash['email']['address2']); }
 
-    if($this->is_set($employee_hash['address']['shipping'])) {
-      if($this->is_set($employee_hash['address']['shipping']['country'])) { $employee->setCountry($employee_hash['address']['shipping']['country']); }
-      if($this->is_set($employee_hash['address']['shipping']['region'])) { $employee->setProvince($employee_hash['address']['shipping']['region']); }
-      if($this->is_set($employee_hash['address']['shipping']['line1'])) { $employee->setAddress1($employee_hash['address']['shipping']['line1']); }
-      if($this->is_set($employee_hash['address']['shipping']['line2'])) { $employee->setAddress2($employee_hash['address']['shipping']['line2']); }
-      if($this->is_set($employee_hash['address']['shipping']['city'])) { $employee->setCity($employee_hash['address']['shipping']['city']); }
-      if($this->is_set($employee_hash['address']['shipping']['postal_code'])) { $employee->setPostalCode($employee_hash['address']['shipping']['postal_code']); }
+    if($this->is_set($employee_hash['address']['billing'])) {
+      if($this->is_set($employee_hash['address']['billing']['country'])) { $employee->setCountry($employee_hash['address']['billing']['country']); }
+      if($this->is_set($employee_hash['address']['billing']['region'])) { $employee->setProvince($employee_hash['address']['billing']['region']); }
+      if($this->is_set($employee_hash['address']['billing']['line1'])) { $employee->setAddress1($employee_hash['address']['billing']['line1']); }
+      if($this->is_set($employee_hash['address']['billing']['line2'])) { $employee->setAddress2($employee_hash['address']['billing']['line2']); }
+      if($this->is_set($employee_hash['address']['billing']['city'])) { $employee->setCity($employee_hash['address']['billing']['city']); }
+      if($this->is_set($employee_hash['address']['billing']['postal_code'])) { $employee->setPostalCode($employee_hash['address']['billing']['postal_code']); }
     }
 
     if($this->is_set($employee_hash['phone'])) {
@@ -131,12 +130,12 @@ class EmployeeMapper extends BaseMapper {
     if($employee->getWorkEmail()) { $employee_hash['email']['address'] = $employee->getWorkEmail(); }
     if($employee->getHomeEmail()) { $employee_hash['email']['address2'] = $employee->getHomeEmail(); }
 
-    if($employee->getCountry()) { $employee_hash['address']['shipping']['country'] = $employee->getCountry(); }
-    if($employee->getProvince()) { $employee_hash['address']['shipping']['region'] = $employee->getProvince(); }
-    if($employee->getAddress1()) { $employee_hash['address']['shipping']['line1'] = $employee->getAddress1(); }
-    if($employee->getAddress2()) { $employee_hash['address']['shipping']['line2'] = $employee->getAddress2(); }
-    if($employee->getCity()) { $employee_hash['address']['shipping']['city'] = $employee->getCity(); }
-    if($employee->getPostalCode()) { $employee_hash['address']['shipping']['postal_code'] = $employee->getPostalCode(); }
+    if($employee->getCountry()) { $employee_hash['address']['billing']['country'] = $employee->getCountry(); }
+    if($employee->getProvince()) { $employee_hash['address']['billing']['region'] = $employee->getProvince(); }
+    if($employee->getAddress1()) { $employee_hash['address']['billing']['line1'] = $employee->getAddress1(); }
+    if($employee->getAddress2()) { $employee_hash['address']['billing']['line2'] = $employee->getAddress2(); }
+    if($employee->getCity()) { $employee_hash['address']['billing']['city'] = $employee->getCity(); }
+    if($employee->getPostalCode()) { $employee_hash['address']['billing']['postal_code'] = $employee->getPostalCode(); }
 
     if($employee->getWorkPhone()) { $employee_hash['phone']['landline'] = $employee->getWorkPhone(); }
     if($employee->getHomePhone()) { $employee_hash['phone']['landline2'] = $employee->getHomePhone(); }
@@ -173,15 +172,26 @@ class EmployeeMapper extends BaseMapper {
 
   // Persist the TimeTrex Employee
   protected function persistLocalModel($employee, $employee_hash) {
-    $employee_id = $employee->Save(false, false, false);
+    if($employee->isValid()) {
+      $employee_id = $employee->Save(false, false, false);
 
-    // Employee Salary
-    if($employee_id && !is_null($employee_hash['employee_salaries']) && !empty($employee_hash['employee_salaries'])) {
-      $employeeSalaryMapper = new EmployeeSalaryMapper($employee_id);
-      foreach ($employee_hash['employee_salaries'] as $employee_salary_hash) {
-        $employee_salary = $employeeSalaryMapper->saveConnecResource($employee_salary_hash, true);
+      // Employee Salary
+      if($employee_id && !is_null($employee_hash['employee_salaries'])) {
+        $employeeSalaryMapper = new EmployeeSalaryMapper($employee_id);
+        foreach ($employee_hash['employee_salaries'] as $employee_salary_hash) {
+          $employee_salary = $employeeSalaryMapper->saveConnecResource($employee_salary_hash, true);
+        }
       }
+    } else {
+      error_log("cannot save entity_name=$this->connec_entity_name, entity_id=" . $employee_hash['id'] . ", error=" . $employee->Validator->getTextErrors());
     }
+  }
+
+  private function getDefaultPermission($company) {
+    $pclf = TTnew('PermissionControlListFactory');
+    $level = 2; // Regular Employee (Manual Entry)  2
+    $pclf->getByCompanyIdAndLevel($company->getId(), $level, null, null, null, array( 'level' => 'desc' ));
+    return $pclf->getCurrent()->getId();
   }
 
   private function startsWith($haystack, $needle) {

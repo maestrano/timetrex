@@ -1,0 +1,10 @@
+---
+
+# This playbook installs and configures TimeTrex
+- hosts: localhost
+  connection: local
+  roles:
+    - apache
+    - mysql
+    - ssmtp
+    - timetrex-install

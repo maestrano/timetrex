@@ -7,21 +7,26 @@ class Maestrano_Connec_Client
 {
   private $group_id;
   private $base_url;
+
+  private $v2_path;
+  private $reports_path;
   
   /**
    * Constructor
    * @param group_id The customer group id (defaults to Maestrano configuration)
    */
   public function __construct($group_id = null) {
-      if(!is_null($group_id)) {
-        $this->group_id = $group_id;
-      } else {
-        $this->group_id = Maestrano::param('api.group_id');
-      }
+    if(!is_null($group_id)) {
+      $this->group_id = $group_id;
+    } else {
+      $this->group_id = Maestrano::param('api.group_id');
+    }
 
-      $this->base_url = Maestrano::param('connec.host') . Maestrano::param('connec.base_path');
+    $this->base_url = Maestrano::param('connec.host') . Maestrano::param('connec.base_path');
+    $this->v2_path = Maestrano::param('connec.v2_path');
+    $this->reports_path = Maestrano::param('connec.reports_path');
   }
-  
+
   /**
    * Perform a GET request to Connec!
    * 
@@ -32,9 +37,25 @@ class Maestrano_Connec_Client
   public function get($relativePath, $params = null) {
     return $this->_curlRequest(
       'GET',
-      $this->scopedUrl($relativePath),
+      $this->scopedUrl($this->v2_path, $relativePath),
       $this->defaultHeaders(),
       $params
+    );
+  }
+
+  /**
+   * Perform a GET request to Connec! reports
+   *
+   * @param relativePath The relative path to the report
+   * @param params Optional filtering parameters
+   * @return associative array describing the response. E.g. ( 'code' => 200, 'body' => {...} )
+   */
+  public function getReport($relativePath, $params = null) {
+    return $this->_curlRequest(
+        'GET',
+        $this->scopedUrl($this->reports_path, $relativePath),
+        $this->defaultHeaders(),
+        $params
     );
   }
   
@@ -48,7 +69,7 @@ class Maestrano_Connec_Client
   public function post($relativePath, $attributes = null) {
     return $this->_curlRequest(
       'POST',
-      $this->scopedUrl($relativePath),
+      $this->scopedUrl($this->v2_path, $relativePath),
       $this->defaultHeaders(),
       $attributes
     );
@@ -64,7 +85,7 @@ class Maestrano_Connec_Client
   public function put($relativePath, $attributes = null) {
     return $this->_curlRequest(
       'PUT',
-      $this->scopedUrl($relativePath),
+      $this->scopedUrl($this->v2_path, $relativePath),
       $this->defaultHeaders(),
       $attributes
     );
@@ -93,17 +114,19 @@ class Maestrano_Connec_Client
     $clean_path = preg_replace('/^\/+/','',$relativePath);
     $clean_path = preg_replace('/\/+$/','',$clean_path);
     
-    return "/" . $this->group_id . "/" . $relativePath;
+    return "/" . $this->group_id . "/" . $clean_path;
   }
-  
+
+
   /**
-   * @param relativePath the API resource path. E.g. '/organizations'
-   * @return String the absolute url to the resource
+   * @param $api the API to use (eg. v2 or reports)
+   * @param $relativePath the API resource path. E.g. '/organizations'
+   * @return string the absolute url to the resource
    */
-  private function scopedUrl($relativePath) {
-    return $this->base_url . $this->scopedPath($relativePath);
+  private function scopedUrl($api, $relativePath) {
+    return $this->base_url . $api . $this->scopedPath($relativePath);
   }
-  
+
   /**
    * @param array $arr An map of param keys to values.
    *
@@ -201,9 +224,21 @@ class Maestrano_Connec_Client
       $rbody = curl_exec($curl);
     }
 
+    if ($rbody === false) {
+      $errno = curl_errno($curl);
+      $message = curl_error($curl);
+      curl_close($curl);
+      $this->handleCurlError($errno, $message);
+    }
+
     $rcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
     curl_close($curl);
     
     return array( 'body' => $rbody, 'code' => $rcode);
+  }
+
+  private function handleCurlError($errno, $message)
+  {
+    throw new Maestrano_Api_Error("curl_errno: $errno, message: $message");
   }
 }
