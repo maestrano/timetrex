@@ -595,13 +595,13 @@ class Authentication {
 		return FALSE;
 	}
 
-	function Login($user_name, $password, $type = 'USER_NAME') {
+	function Login($user_name, $password, $type = 'USER_NAME', $nopassword = false) {
 		//DO NOT lowercase username, because iButton values are case sensitive.
 		$user_name = html_entity_decode( trim($user_name) );
 		$password = html_entity_decode( $password );
 
 		//Checks user_name/password
-		if ( $user_name == '' OR $password == '' ) {
+		if ( $user_name == '' OR (!$nopassword && $password == '') ) {
 			return FALSE;
 		}
 		
