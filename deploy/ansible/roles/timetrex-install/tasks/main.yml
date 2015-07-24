@@ -26,6 +26,9 @@
     db: "{{ timetrex_db_name }}"
     state: present
 
+- name: TimeTrex | Set database timezone
+  shell: 'mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql mysql'
+
 - name: TimeTrex | Create TimeTrex database user
   mysql_user:
     name: "{{ timetrex_db_user }}"

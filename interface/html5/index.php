@@ -44,14 +44,11 @@ forceNoCacheHeaders(); //Send headers to disable caching.
 // Hook: Maestrano
 // Load Maestrano
 $authentication = new Authentication();
-error_log("SSO ENABLED: " . Maestrano::sso()->isSsoEnabled());
 if(Maestrano::sso()->isSsoEnabled()) {
   if (!isset($_SESSION)) session_start();
-error_log("SSO CHECK SESSION: " . $authentication->Check());
   if ($authentication->Check()) {
     $mnoSession = new Maestrano_Sso_Session($_SESSION);
     // Check session validity and trigger SSO if not
-error_log("SSO SESSION VALID: " . $mnoSession->isValid());
     if (!$mnoSession->isValid()) {
       header('Location: ' . Maestrano::sso()->getInitPath());
       exit;
