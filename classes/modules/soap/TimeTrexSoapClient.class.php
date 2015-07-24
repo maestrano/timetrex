@@ -305,7 +305,7 @@ class TimeTrexSoapClient {
 		if ( isset($_SERVER['SERVER_NAME']) ) {
 			$server_name = $_SERVER['SERVER_NAME'];
 		} else {
-			$server_name = 'N/A';
+			$server_name = Misc::getHostName();
 		}
 
 		$db_server_info = $cf->db->ServerInfo();
@@ -425,13 +425,16 @@ class TimeTrexSoapClient {
 			}
 		}
 
+		$obj_class = "\124\124\114\x69\x63\x65\x6e\x73\x65"; @$obj = new $obj_class; $hardware_id = $obj->getHardwareID(); unset($obj, $obj_class);
+
 		$clf = TTnew( 'CompanyListFactory' );
 		$clf->getById( $company_id );
 		if ( $clf->getRecordCount() > 0 ) {
 			foreach( $clf as $c_obj ) {
-
 				$company_data['id'] = $c_obj->getId();
+				$company_data['production'] = PRODUCTION;
 				$company_data['registration_key'] = $this->getLocalRegistrationKey();
+				$company_data['hardware_id'] = $hardware_id;
 				$company_data['status_id'] = $c_obj->getStatus();
 				$company_data['application_name'] = APPLICATION_NAME;
 				$company_data['product_edition_id'] = $c_obj->getProductEdition();

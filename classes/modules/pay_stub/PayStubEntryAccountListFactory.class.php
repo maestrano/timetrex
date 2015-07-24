@@ -348,6 +348,37 @@ class PayStubEntryAccountListFactory extends PayStubEntryAccountFactory implemen
 		return $this;
 	}
 
+	function isInUseById( $id ) {
+		if ( $id == '') {
+			return FALSE;
+		}
+
+		$pself = new PayStubEntryListFactory();
+		$psalf = new PayStubAmendmentListFactory();
+
+		$ph = array(
+					'pay_stub_account_id' => $id,
+					);
+
+		$query = '
+					select	a.id
+					from	'. $pself->getTable() .' as a
+					where	a.pay_stub_entry_name_id = ? AND a.deleted = 0
+					UNION ALL
+					select	a.id
+					from	'. $psalf->getTable() .' as a
+					where	a.pay_stub_entry_name_id = ? AND a.deleted = 0
+					LIMIT 1';
+
+		$id = $this->db->GetOne($query, $ph);
+
+		if ( $id === FALSE ) {
+			return FALSE;
+		}
+
+		return TRUE;
+	}
+
 	function getAPISearchByCompanyIdAndArrayCriteria( $company_id, $filter_data, $limit = NULL, $page = NULL, $where = NULL, $order = NULL ) {
 		if ( $company_id == '') {
 			return FALSE;

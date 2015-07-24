@@ -2,52 +2,55 @@ msgid ""
 msgstr ""
 "Project-Id-Version: timetrex\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-02-13 16:01-0800\n"
-"PO-Revision-Date: 2012-02-03 11:52+0000\n"
-"Last-Translator: Almufadado <Unknown>\n"
+"POT-Creation-Date: 2015-06-03 08:08-0700\n"
+"PO-Revision-Date: 2015-07-08 05:59+0000\n"
+"Last-Translator: Shalinee Rayapen <shalinee.rayapen@mu.pwc.com>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
 "Language: pt\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2013-11-27 00:44+0000\n"
-"X-Generator: Launchpad (build 16845)\n"
+"X-Launchpad-Export-Date: 2015-07-10 17:46+0000\n"
+"X-Generator: Launchpad (build 17620)\n"
 
 msgid " "
-msgstr ""
+msgstr " "
 
 msgid " and "
-msgstr ""
+msgstr " e "
 
 msgid " expected)"
-msgstr ""
+msgstr " esperado)"
 
 msgid " or contact a TimeTrex support expert for "
 msgstr ""
 
 msgid " requires a modern HTML5 standards compatible web browser, click here for more information."
-msgstr ""
+msgstr " requer um navegador moderno com capacidade HTML5, clique aqui para mais informação."
 
 msgid "#"
 msgstr "Nº"
 
 msgid "%"
-msgstr ""
+msgstr "%"
 
 msgid "%1 database has not been initialized yet, please run the installer again and follow the on screen instructions. <a href=\"%2\">Click here to run the installer now.</a>"
-msgstr ""
+msgstr "%1 a base de dados ainda não foi inicializada, por favor, corra o instalador novamente e siga as instruções no ecrã. <a href=\"%2\">Clique aqui para correr o instalador agora.</a>"
 
 msgid "%1 database query has timed-out, if you were trying to run a report it may be too large, please narrow your search criteria and try again."
+msgstr "% 1 o tempo de consulta da base de dados foi excedido, se estava a tentar executar um relatório, este poderá ser demasiado grande, por favor, restrinja os critérios de pesquisa e tente novamente."
+
+msgid "%1 entry for amount: %2 is invalid"
 msgstr ""
 
 msgid "%1 experienced a general error, please contact technical support."
-msgstr ""
+msgstr "%1 erro geral, por favor, contacte o suporte técnico."
 
 msgid "%1 is currently undergoing maintenance. We're sorry for any inconvenience this may cause. Please try again in 15 minutes."
-msgstr ""
+msgstr "%1 encontra-se neste momento em manutenção. Pedimos desculpa pelo incomodo que possa causar. Por favor, tente novamente daqui a 15 minutos."
 
 msgid "%1 is unable to connect to its database, please make sure that the database service on your own local %1 server has been started and is running. If you are unsure, try rebooting your server."
-msgstr ""
+msgstr "%1 é incapaz de ligar-se a esta base de dados, por favor, certifique-se que o serviço da sua base de dados no seu servidor local %1 iniciou e encontra-se a correr. Se não tem a certeza, tente reiniciar o seu servidor."
 
 msgid "(A) Shortage of Work"
 msgstr "(A) Falta do trabalho"
@@ -110,13 +113,13 @@ msgid "(Use 0 for no minimum)"
 msgstr "(use 0 para o mínimo)"
 
 msgid "(ie: 389 or 636 for SSL)"
-msgstr ""
+msgstr "(ex: 389 ou636 para SSL)"
 
 msgid "(ie: ldap.example.com or ldaps://ldap.example.com for SSL)"
-msgstr ""
+msgstr "(ex: ldap.examplo.com ou ldaps://ldap.examplo.com para SSL)"
 
 msgid "(ie: ou=People,dc=example,dc=com)"
-msgstr ""
+msgstr "(ex: ou=People,dc=example,dc=com)"
 
 msgid "(install the PEAR RPM or package from %1)"
 msgstr "(instalar a PERA RPM ou a empacotar de %1)"
@@ -128,10 +131,10 @@ msgid "(try running: \"<b>go-pear.bat</b>\")"
 msgstr "(corredor da tentativa: “<b>go-pear.bat</b>”)"
 
 msgid "****WARNING****"
-msgstr ""
+msgstr "****AVISO****"
 
 msgid "*DO NOT REPLY TO THIS EMAIL - PLEASE USE THE LINK BELOW INSTEAD*"
-msgstr ""
+msgstr "*NÃO RESPONDA A ESTE EMAIL - POR FAVOR, UTILIZE O LINK ABAIXO*"
 
 msgid "*HIGHLY RECOMMENDED"
 msgstr "*HIGHLY RECOMENDADO"
@@ -146,7 +149,7 @@ msgid "- Multi-state Employer -"
 msgstr ""
 
 msgid "- Please Choose -"
-msgstr ""
+msgstr "- Por favor Escolha -"
 
 msgid "--"
 msgstr "--"
@@ -155,58 +158,58 @@ msgid "-- All --"
 msgstr "-- Tudo --"
 
 msgid "-- Custom --"
-msgstr ""
+msgstr "-- Personalizado --"
 
 msgid "-- DO NOT EXPORT --"
-msgstr ""
+msgstr "-- NÃO EXPORTE --"
 
 msgid "-- Default --"
 msgstr "-- Defeito --"
 
 msgid "-- Defined By Pay Code --"
-msgstr ""
+msgstr "-- Definido por Código Pago --"
 
 msgid "-- Defined By Policy --"
-msgstr ""
+msgstr "-- Definido Por Política --"
 
 msgid "-- Defined By Policy Group --"
-msgstr ""
+msgstr "-- Definido Pela Política de Grupo --"
 
 msgid "-- Direct Deposit --"
-msgstr ""
+msgstr "-- Depósito Direto --"
 
 msgid "-- Laser Cheques --"
-msgstr ""
+msgstr "-- Cheques Laser --"
 
 msgid "-- NONE --"
-msgstr ""
+msgstr "-- NENHUM --"
 
 msgid "-- No Meal --"
 msgstr ""
 
 msgid "-- No Shipping --"
-msgstr ""
+msgstr "-- Sem Envios --"
 
 msgid "-- None --"
 msgstr "-- Nenhum --"
 
 msgid "-- Please Choose --"
-msgstr ""
+msgstr "-- Por Favor Escolha --"
 
 msgid "--Other--"
-msgstr ""
+msgstr "--Outro--"
 
 msgid "-Default-"
-msgstr "- Defeito"
+msgstr "-Defeito-"
 
 msgid "0.75 for 75 cent/hr"
-msgstr ""
+msgstr "0.75 por 75 cent/h"
 
 msgid "1"
-msgstr ""
+msgstr "1"
 
 msgid "1 Hour"
-msgstr ""
+msgstr "1 Hora"
 
 msgid "1 Minute"
 msgstr "1 Minuto"
@@ -221,49 +224,49 @@ msgid "1.5 for time and a half"
 msgstr "1.5 para uma metade de tempo e"
 
 msgid "10"
-msgstr ""
+msgstr "10"
 
 msgid "10 Minutes"
-msgstr ""
+msgstr "10 minutos"
 
 msgid "10.00/hr"
 msgstr "10.00/h"
 
 msgid "12 Hours"
-msgstr ""
+msgstr "12 Horas"
 
 msgid "15 Minutes"
-msgstr ""
+msgstr "15 minutos"
 
 msgid "1944 Revolution Day"
-msgstr ""
+msgstr "1944 Dia da Revolução"
 
 msgid "1st"
 msgstr "1o"
 
 msgid "1st Quarter (Last Year)"
-msgstr ""
+msgstr "1º Trimestre (Ano Passado)"
 
 msgid "1st Quarter (This Year)"
-msgstr ""
+msgstr "1º Trimestre (Ano Corrente)"
 
 msgid "2"
-msgstr ""
+msgstr "2"
 
 msgid "2 Hours"
-msgstr ""
+msgstr "2 Horas"
 
 msgid "2 Minutes"
-msgstr ""
+msgstr "2 Minutos"
 
 msgid "2 Or More Days Consecutively Worked"
-msgstr ""
+msgstr "2 ou mais dias trabalhados consecutivamente"
 
 msgid "2 Or More Days/Week Consecutively Worked"
-msgstr ""
+msgstr "2 ou mais dias/semanas trabalhados consecutivamente"
 
 msgid "2 Or More Days/Week Worked"
-msgstr ""
+msgstr "2 ou mais dias/semanas trabalhados"
 
 msgid "2. System Check Acceptance"
 msgstr "2. Aceitação da verificação do sistema"
@@ -275,11 +278,11 @@ msgid "20:09 GMT"
 msgstr "GMT de 20:09"
 
 msgid "24 Hours"
-msgstr ""
+msgstr "24 horas"
 
 #, javascript-format
 msgid "25% burden"
-msgstr ""
+msgstr "25% carga"
 
 msgid "25-Feb-01 (dd-mmm-yy)"
 msgstr "25-Feb-01 (dd-mmm-yy)"
@@ -288,7 +291,7 @@ msgid "25-Feb-2001 (dd-mmm-yyyy)"
 msgstr "25-Feb-2001 (dd-mmm-yyyy)"
 
 msgid "25/02/2001"
-msgstr ""
+msgstr "25/02/2001"
 
 msgid "25Feb2001 (ddmmmyyyy)"
 msgstr "25Feb2001 (ddmmmyyyy)"
@@ -297,58 +300,58 @@ msgid "2nd"
 msgstr "2o"
 
 msgid "2nd Consecutive Day Worked"
-msgstr ""
+msgstr "2do dia consecutivo trabalhado"
 
 msgid "2nd Quarter (Last Year)"
-msgstr ""
+msgstr "2º Trimestre (Ano passado)"
 
 msgid "2nd Quarter (This Year)"
-msgstr ""
+msgstr "2º Trimestre (Ano Corrente)"
 
 msgid "3"
-msgstr ""
+msgstr "3"
 
 msgid "3 Hours"
-msgstr ""
+msgstr "3 Horas"
 
 msgid "3 Or More Days Consecutively Worked"
-msgstr ""
+msgstr "3 ou mais dias consecutivamente trabalhados"
 
 msgid "3 Or More Days/Week Consecutively Worked"
-msgstr ""
+msgstr "3 ou mais dias/semanas consecutivamente trabalhados"
 
 msgid "3 Or More Days/Week Worked"
-msgstr ""
+msgstr "3 ou mais dias/semanas trabalhadas"
 
 msgid "3. Database Configuration"
 msgstr "3. Configuração da base de dados"
 
 msgid "30 Minutes"
-msgstr ""
+msgstr "30 Minutos"
 
 msgid "3rd"
 msgstr "3o"
 
 msgid "3rd Consecutive Day Worked"
-msgstr ""
+msgstr "3º dia consecutivo trabalhado"
 
 msgid "3rd Quarter (Last Year)"
-msgstr ""
+msgstr "3º Trimestre (Ano Passado)"
 
 msgid "3rd Quarter (This Year)"
-msgstr ""
+msgstr "3º Trimestre (Ano Corrente)"
 
 msgid "4"
-msgstr ""
+msgstr "4"
 
 msgid "4 Or More Days Consecutively Worked"
-msgstr ""
+msgstr "4 ou mais dias consecutivamente trabalhados"
 
 msgid "4 Or More Days/Week Consecutively Worked"
-msgstr ""
+msgstr "4 ou mais dias/semanas consecutivamente trabalhadas"
 
 msgid "4 Or More Days/Week Worked"
-msgstr ""
+msgstr "4 ou mais dias trabalhados"
 
 msgid "4. System Settings"
 msgstr "4. Ajustes do sistema"
@@ -357,52 +360,52 @@ msgid "4. Upgrade Complete"
 msgstr "4. Melhoramento completo"
 
 msgid "40 hours / week"
-msgstr ""
+msgstr "40 horas / semana"
 
 msgid "48 Hours"
-msgstr ""
+msgstr "48 horas"
 
 msgid "4a. Fringe benefits"
-msgstr ""
+msgstr "4a. Benefícios extras"
 
 msgid "4b. Group term life insurance"
-msgstr ""
+msgstr "4b. Grupo de seguro de vida"
 
 msgid "4c. Retirement/Pension"
-msgstr ""
+msgstr "4c. Reforma/Pensão"
 
 msgid "4d. Dependant care"
-msgstr ""
+msgstr "4d. Cuidado dependente"
 
 msgid "4e. Other"
-msgstr ""
+msgstr "4e. Outro"
 
 msgid "4th"
 msgstr "4o"
 
 msgid "4th Consecutive Day Worked"
-msgstr ""
+msgstr "4º dia consecutivo trabalhado"
 
 msgid "4th Quarter (Last Year)"
-msgstr ""
+msgstr "4º Trimeste (Ano Passado)"
 
 msgid "4th Quarter (This Year)"
-msgstr ""
+msgstr "4º Trimeste (Ano Corrente)"
 
 msgid "5"
-msgstr ""
+msgstr "5"
 
 msgid "5 Minutes"
-msgstr ""
+msgstr "5 Minutos"
 
 msgid "5 Or More Days Consecutively Worked"
-msgstr ""
+msgstr "5 ou mais dias consecutivamente trabalhados"
 
 msgid "5 Or More Days/Week Consecutively Worked"
-msgstr ""
+msgstr "5 ou mais dias/semanas consecutivamente trabalhadas"
 
 msgid "5 Or More Days/Week Worked"
-msgstr ""
+msgstr "5 ou mais dias/semanas trabalhadas"
 
 msgid "5. Company Information"
 msgstr "5. Informação da companhia"
@@ -411,52 +414,52 @@ msgid "5th"
 msgstr "5o"
 
 msgid "5th Consecutive Day Worked"
-msgstr ""
+msgstr "5º dia consecutivamente trabalhado"
 
 msgid "6"
-msgstr ""
+msgstr "6"
 
 msgid "6 Hours"
-msgstr ""
+msgstr "6 Horas"
 
 msgid "6 Or More Days Consecutively Worked"
-msgstr ""
+msgstr "6 ou mais dias consecutivamente trabalhados"
 
 msgid "6 Or More Days/Week Consecutively Worked"
-msgstr ""
+msgstr "6 ou mais dias/semanas consecutivamente trabalhados"
 
 msgid "6 Or More Days/Week Worked"
-msgstr ""
+msgstr "6 ou mais dias/semanas trabalhados"
 
 msgid "6. Administrator User"
 msgstr "6. Usuário do administrador"
 
 msgid "6th Consecutive Day Worked"
-msgstr ""
+msgstr "6º dia consecutivamente trabalhado"
 
 msgid "7"
-msgstr ""
+msgstr "7"
 
 msgid "7 Or More Days Consecutively Worked"
-msgstr ""
+msgstr "7 ou mais dias consecutivamente trabalhados"
 
 msgid "7 Or More Days/Week Consecutively Worked"
-msgstr ""
+msgstr "7 ou mais dias/semanas consecutivamente trabalhadas"
 
 msgid "7 Or More Days/Week Worked"
-msgstr ""
+msgstr "7 ou mais dias/semanas trabalhadas"
 
 msgid "7. Maintenance Jobs"
 msgstr "7. Trabalhos da manutenção"
 
 msgid "72 Hours"
-msgstr ""
+msgstr "72 Horas"
 
 msgid "7th Consecutive Day Worked"
-msgstr ""
+msgstr "7º ou mais dias consecutivamente trabalhados"
 
 msgid "8"
-msgstr ""
+msgstr "8"
 
 msgid "8:09 PM"
 msgstr "8:09 PM"
@@ -468,61 +471,64 @@ msgid "8:09 pm"
 msgstr "8:09 pm"
 
 msgid "9"
-msgstr ""
+msgstr "9"
 
 msgid "<b>Congratulations!</b> You have successfully"
 msgstr "<b>Felicitações!</b> Você tem com sucesso"
 
 msgid "<b>Congratulations!</b> You have successfully upgraded %1 to <b>%2</b>."
-msgstr "<b>Felicitações!</b> Você promoveu com sucesso %1 a <b>%2</b>."
+msgstr "<b>Felicitações!</b> Você foi promovido com sucesso de %1 para <b>%2</b>."
 
 msgid "<b>NOTE:</b> In order to access new features you may need to re-apply the <b>Administrator</b> permission preset to each administrator employee in %1."
-msgstr "<b>NOTA:</b> Para poder usar as novas funcionalidades você poderá ter que re-aplicar a permissão de <b>Administrador</b> pré-ajustada a cada Trabalhador administrador em %1."
+msgstr "<b>NOTA:</b> Para puder usar as novas funcionalidades você poderá ter que re-aplicar a permissão de <b>Administrador</b> pré-ajustada a cada Trabalhador administrador em %1."
 
 msgid "<b>Note:</b> Your PHP configuration file (php.ini) is located at:<br> %1"
 msgstr "%1"
 
 msgid "A"
-msgstr ""
+msgstr "A"
 
 msgid "A Newer Version of TimeTrex is Available."
 msgstr ""
 
 msgid "A password reset has been requested for"
-msgstr ""
+msgstr "Uma reposição de palavra-passe foi requisitada"
 
 msgid "ACH"
-msgstr ""
+msgstr "ACH"
 
 msgid "ACH - United States"
-msgstr ""
+msgstr "ACH - Estados Unidos da América"
 
 msgid "ACTIVE"
 msgstr "ATIVO"
 
 msgid "ADP"
+msgstr "ADP"
+
+msgid "ADP Hours"
 msgstr ""
 
 msgid "ADP Hours Code"
 msgstr "Código de \"Tempo Médio de trabalho efectivo\""
 
 msgid "ADVANCED SEARCH"
-msgstr ""
+msgstr "PESQUISA AVANÇADA"
 
 msgid "ALLOW"
-msgstr ""
+msgstr "PERMITIR"
 
 msgid "AMEX"
 msgstr "AMEX"
 
 msgid "ANNIVERSARY"
-msgstr ""
+msgstr "ANIVERSÁRIO"
 
 msgid "AOL"
 msgstr ""
 
 msgid "ASC"
-msgstr ""
+msgstr "ASC"
 
 msgid "AUTHORIZATION DECLINED"
 msgstr "AUTORIZAÇÃO DECLINADA"
@@ -531,31 +537,31 @@ msgid "AUTHORIZATION OPEN"
 msgstr "AUTORIZAÇÃO ABERTA"
 
 msgid "AUTHORIZED"
-msgstr ""
+msgstr "AUTORIZADO"
 
 msgid "Aberdeen"
-msgstr ""
+msgstr "Aberdeen"
 
 msgid "Aberdeenshire"
-msgstr ""
+msgstr "Aberdeenshire"
 
 msgid "About"
 msgstr "Sobre"
 
 msgid "Above Average"
-msgstr ""
+msgstr "Acima da média"
 
 msgid "Above Table"
-msgstr ""
+msgstr "Acima da tabela"
 
 msgid "Abra"
-msgstr ""
+msgstr "Abra"
 
 msgid "Absence"
 msgstr "Ausência"
 
 msgid "Absence (Taken)"
-msgstr ""
+msgstr "Ausente (Tomado)"
 
 msgid "Absence (incl. Vacation)"
 msgstr "Ausência (incl. Férias)"
@@ -570,103 +576,112 @@ msgid "Absence Policy is invalid"
 msgstr "A política da ausência é inválida"
 
 msgid "Absence Policy: %1 requires this Pay Formula Policy to be defined"
-msgstr ""
+msgstr "Política de Ausência: %1 requere esta fórmula de política de pagamento seja definida"
 
 msgid "Absence Time"
 msgstr "Ausência Tempo"
 
 msgid "Absence Time by Employee"
-msgstr ""
+msgstr "Tempo de ausência por empregado"
 
 msgid "Absence Time+Wage by Branch"
-msgstr ""
+msgstr "Tempo de ausência+Salário por Filial"
 
 msgid "Absence Time+Wage by Branch/Department"
-msgstr ""
+msgstr "Tempo de ausência+Salário por Filial/Departamento"
 
 msgid "Absence Time+Wage by Branch/Department/Pay Period"
-msgstr ""
+msgstr "Tempo de ausência+Salário por Filial/Departamento/Período de pagamento"
 
 msgid "Absence Time+Wage by Branch/Pay Period"
-msgstr ""
+msgstr "Tempo de ausência+Salário por Filial/Período de pagamento"
 
 msgid "Absence Time+Wage by Date/Employee"
-msgstr ""
+msgstr "Tempo de ausência+Salário por data/Empregado"
 
 msgid "Absence Time+Wage by Department"
-msgstr ""
+msgstr "Tempo de ausência+Salário por Departamento"
 
 msgid "Absence Time+Wage by Department/Pay Period"
-msgstr ""
+msgstr "Tempo de ausência+Salário por Departamento/Período de Pagamento"
 
 msgid "Absence Time+Wage by Employee"
-msgstr ""
+msgstr "Tempo de ausência+Salário por Empregado"
 
 msgid "Absence Time+Wage by Employee/Date"
-msgstr ""
+msgstr "Tempo de ausência+Salário por Empregado/Data"
 
 msgid "Absence Time+Wage by Employee/Pay Period"
-msgstr ""
+msgstr "Tempo de ausência+Salário por Empregado/Período de pagamento"
 
 msgid "Absence Time+Wage by Pay Period"
-msgstr ""
+msgstr "Tempo de ausência+Salário por Pagamento de período"
 
 msgid "Absence Time+Wage by Pay Period/Employee"
-msgstr ""
+msgstr "Tempo de ausência+Salário por Pagamento de período/Empregado"
 
 msgid "Absence Time+Wage by Title"
-msgstr ""
+msgstr "Tempo de ausência+Salário por Título"
 
 msgid "Absence is after employees termination date"
-msgstr ""
+msgstr "Tempo de ausência+Salário por Data de rescisão"
 
 msgid "Absence is before employees hire date"
-msgstr ""
+msgstr "A ausência é anterior à data de contratação do empregado"
 
 msgid "Absence<br>Policies"
+msgstr "Políticas<br>de Ausência"
+
+msgid "Absences"
 msgstr ""
 
 msgid "Absense Policy"
-msgstr ""
+msgstr "Política de Ausência"
 
 msgid "Absent"
-msgstr ""
+msgstr "Ausência"
 
 msgid "Academic"
+msgstr "Académico"
+
+msgid "Accero"
 msgstr ""
 
 msgid "Access from station Allowed"
-msgstr ""
+msgstr "Acesso a partir da estação autorizado"
 
 msgid "Accident/Injury"
-msgstr ""
+msgstr "Acidente/lesão"
 
 msgid "Accolade"
-msgstr ""
+msgstr "Elogio"
 
 msgid "Accommodation and Food Services"
-msgstr ""
+msgstr "Serviço de alojamento e comida"
 
 msgid "Account"
 msgstr "Conta"
 
-msgid "Account Number"
+msgid "Account Name"
 msgstr ""
 
+msgid "Account Number"
+msgstr "Número de Conta"
+
 msgid "Account Type"
-msgstr ""
+msgstr "Tipo de Conta"
 
 msgid "Accrual"
 msgstr "Agregação (Receitas/Desoesas)"
 
 msgid "Accrual Account"
-msgstr ""
+msgstr "Conta de Acréscimo"
 
 msgid "Accrual Account is invalid"
-msgstr ""
+msgstr "Conta de acréscimo é inválida"
 
 msgid "Accrual Balance"
-msgstr ""
+msgstr "Balaço da acumulação"
 
 msgid "Accrual Balance Summary"
 msgstr "Sumário do Balanço de Agregação"
@@ -704,6 +719,9 @@ msgstr "A política Accrual é inválida"
 msgid "Accrual Rate"
 msgstr "Taxa sobre Agregação:"
 
+msgid "Accrual Rate Modifier"
+msgstr ""
+
 msgid "Accrual Rate/Hour"
 msgstr ""
 
@@ -720,7 +738,10 @@ msgid "Accrual Time Balances as of"
 msgstr ""
 
 msgid "Accrual Total Maximum"
-msgstr "Total da Agregação máximo"
+msgstr "Total da Agregação Máxima"
+
+msgid "Accrual Total Maximum Modifier"
+msgstr ""
 
 msgid "Accrual Total Maximum Time"
 msgstr ""
@@ -735,40 +756,40 @@ msgid "Accrual account is invalid"
 msgstr "O cliente Accrual é inválido"
 
 msgid "Accrual<br>Accounts"
-msgstr ""
+msgstr "Contas de<br>Investimento"
 
 msgid "Accrual<br>Balances"
-msgstr ""
+msgstr "Balanço<br>Investimento"
 
 msgid "Accrual<br>Policies"
-msgstr ""
+msgstr "Política<br>Investimento"
 
 msgid "Accruals"
 msgstr "Agregações"
 
 msgid "Accruals By Account"
-msgstr ""
+msgstr "Investimentos por conta"
 
 msgid "Accruals By Account/Employee"
-msgstr ""
+msgstr "Investimento por conta/empregado"
 
 msgid "Accruals By Account/Type/Date"
-msgstr ""
+msgstr "Investimentos por conta/tipo/data"
 
 msgid "Accruals By Account/Type/Employee"
-msgstr ""
+msgstr "Investimentos por conta/tipo/empregado"
 
 msgid "Accruals By Account/Type/Employee/Date"
-msgstr ""
+msgstr "Investimentos por conta/tipo/empregado/data"
 
 msgid "Accruals By Type"
-msgstr ""
+msgstr "Investimentos por tipo"
 
 msgid "Accruals By Type/Employee"
-msgstr ""
+msgstr "Investimentos por tipo/empregado"
 
 msgid "Accruals by Employee"
-msgstr ""
+msgstr "Investimentos por empregado"
 
 msgid "Accumulated Time"
 msgstr "Tempo acumulado"
@@ -777,10 +798,10 @@ msgid "Accumulated<br>Time"
 msgstr ""
 
 msgid "Aceh"
-msgstr ""
+msgstr "Aceh"
 
 msgid "Acre"
-msgstr ""
+msgstr "Acre"
 
 msgid "Action"
 msgstr "Ação"
@@ -801,10 +822,10 @@ msgid "Active After Weekly (Regular) Hours"
 msgstr "Activo depois das Horas (normais) semanais"
 
 msgid "Active Before"
-msgstr ""
+msgstr "Ativo antes"
 
 msgid "Active Employee Licenses"
-msgstr ""
+msgstr "Licenças de empregados ativas"
 
 msgid "Actual Cost"
 msgstr "Custo real"
@@ -998,12 +1019,6 @@ msgstr ""
 msgid "Administrator<br>Guide"
 msgstr ""
 
-msgid "Advance end date is set"
-msgstr "A data avançada da extremidade é ajustada"
-
-msgid "Advance transaction date is set"
-msgstr "A data avançada da transação é ajustada"
-
 msgid "Advanced"
 msgstr "Avançadas"
 
@@ -1167,9 +1182,6 @@ msgid "All Punches"
 msgstr "Todos os perfuradores"
 
 msgid "All Saint Day"
-msgstr ""
-
-msgid "All Saints Day"
 msgstr ""
 
 msgid "All System Requirements have been met successfully"
@@ -1361,6 +1373,9 @@ msgstr ""
 msgid "Amended"
 msgstr ""
 
+msgid "Amendment"
+msgstr ""
+
 msgid "America Online"
 msgstr ""
 
@@ -1458,6 +1473,9 @@ msgid "Annual Hourly Rate is too high"
 msgstr ""
 
 msgid "Annual Maximum Rollover"
+msgstr ""
+
+msgid "Annual Maximum Rollover Modifier"
 msgstr ""
 
 msgid "Annual Pay Periods"
@@ -2144,9 +2162,6 @@ msgstr ""
 msgid "Bank Accounts"
 msgstr ""
 
-msgid "Bank Day"
-msgstr ""
-
 msgid "Bank Information"
 msgstr "Informação do banco"
 
@@ -2807,6 +2822,9 @@ msgstr "Cambodia"
 msgid "Cambridgeshire"
 msgstr ""
 
+msgid "Camera"
+msgstr ""
+
 msgid "Cameroon"
 msgstr "República dos Camarões"
 
@@ -3056,6 +3074,9 @@ msgstr ""
 msgid "Chontales"
 msgstr ""
 
+msgid "Choose Layout"
+msgstr ""
+
 msgid "Choose image file to upload"
 msgstr ""
 
@@ -3072,9 +3093,6 @@ msgid "Chris21"
 msgstr ""
 
 msgid "Christ Church"
-msgstr ""
-
-msgid "Christmas"
 msgstr ""
 
 msgid "Christmas Day"
@@ -3260,7 +3278,10 @@ msgstr ""
 msgid "Colorado"
 msgstr ""
 
-msgid "Columbus Day"
+msgid "Column Name"
+msgstr ""
+
+msgid "Columns"
 msgstr ""
 
 msgid "Columns:"
@@ -3428,8 +3449,14 @@ msgstr "Confirmado"
 msgid "Conflicting end date"
 msgstr "Data opondo da extremidade"
 
+msgid "Conflicting end date, does not match pay period"
+msgstr ""
+
 msgid "Conflicting start date"
 msgstr "Data opondo do começo"
+
+msgid "Conflicting start date, does not match pay period"
+msgstr ""
 
 msgid "Conflicting start/end time, schedule already exists for this employee"
 msgstr ""
@@ -4115,6 +4142,9 @@ msgstr "Conta de débito"
 msgid "Debit Card"
 msgstr ""
 
+msgid "Debit: %1 Credit: %2"
+msgstr ""
+
 msgid "Debits By Client"
 msgstr ""
 
@@ -4158,13 +4188,13 @@ msgid "Debits By Product Type/Name"
 msgstr ""
 
 msgid "Debits By Quarter"
-msgstr ""
+msgstr "Débitos por trimestre"
 
 msgid "Debits By Year"
 msgstr ""
 
 msgid "Debits By Year/Quarter/Month/Day"
-msgstr ""
+msgstr "Débitos por ano/trimestre/mês/dia"
 
 msgid "Dec"
 msgstr "Dec"
@@ -4186,9 +4216,6 @@ msgstr ""
 
 msgid "Deduction"
 msgstr "Dedução"
-
-msgid "Deduction is already assigned to employee"
-msgstr "A dedução é atribuída já ao empregado"
 
 msgid "Deduction is invalid"
 msgstr "A dedução é inválida"
@@ -4251,6 +4278,9 @@ msgid "Default Task is invalid"
 msgstr ""
 
 msgid "Default Transfer On"
+msgstr ""
+
+msgid "Default Value"
 msgstr ""
 
 msgid "Default settings for this company already exist"
@@ -4334,6 +4364,9 @@ msgstr "A filial do departamento é inválida"
 msgid "Department Code"
 msgstr ""
 
+msgid "Department Override Code"
+msgstr ""
+
 msgid "Department Selection Type"
 msgstr ""
 
@@ -4415,6 +4448,9 @@ msgstr ""
 msgid "Desktop PC"
 msgstr ""
 
+msgid "Destination Pay Stub Account"
+msgstr ""
+
 msgid "Detailed"
 msgstr "Detalhado"
 
@@ -4476,6 +4512,12 @@ msgid "Disabled - Failed"
 msgstr "Disabled - falhado"
 
 msgid "Discipline"
+msgstr ""
+
+msgid "Disk Space"
+msgstr ""
+
+msgid "Disk Space:"
 msgstr ""
 
 msgid "Display"
@@ -4697,10 +4739,22 @@ msgstr ""
 msgid "ERROR: Invalid Absence Policy"
 msgstr ""
 
+msgid "ERROR: Journal entries do not balance"
+msgstr ""
+
 msgid "ERROR: NO INVOICE SETTINGS DEFINED, UNABLE TO GENERATE INVOICE"
 msgstr ""
 
+msgid "ERROR: No data matches criteria."
+msgstr ""
+
+msgid "ERROR: No data to export..."
+msgstr ""
+
 msgid "ERROR: Operation cannot be completed."
+msgstr ""
+
+msgid "ERROR: Please try again later or narrow your search criteria to decrease the size of your report"
 msgstr ""
 
 msgid "ERROR: UnAssigned Regular Time"
@@ -4725,9 +4779,6 @@ msgid "Each Day (Split at Midnight)"
 msgstr ""
 
 msgid "Earned Income Credit (EIC)"
-msgstr ""
-
-msgid "Earned Income Credit (EIC) (Line 9)"
 msgstr ""
 
 msgid "Earning"
@@ -5138,9 +5189,6 @@ msgstr ""
 msgid "Employee Contact"
 msgstr ""
 
-msgid "Employee Contact "
-msgstr ""
-
 msgid "Employee Contacts"
 msgstr ""
 
@@ -5225,7 +5273,13 @@ msgstr ""
 msgid "Employee Last Name"
 msgstr ""
 
+msgid "Employee License"
+msgstr ""
+
 msgid "Employee Licenses"
+msgstr ""
+
+msgid "Employee Membership"
 msgstr ""
 
 msgid "Employee Memberships"
@@ -5285,6 +5339,9 @@ msgstr ""
 msgid "Employee Review KPI"
 msgstr ""
 
+msgid "Employee Sequence"
+msgstr ""
+
 msgid "Employee Settings"
 msgstr "Definições do Trabalhador"
 
@@ -5293,6 +5350,9 @@ msgstr ""
 
 msgid "Employee Signature:"
 msgstr "Assinatura do empregado:"
+
+msgid "Employee Skill"
+msgstr ""
 
 msgid "Employee Skills"
 msgstr ""
@@ -5331,6 +5391,9 @@ msgid "Employee Wage Effective Date"
 msgstr ""
 
 msgid "Employee Wages"
+msgstr ""
+
+msgid "Employee already has a pay stub for this Pay Period"
 msgstr ""
 
 msgid "Employee already has a wage entry on this date for the same wage group. Try using a different date instead."
@@ -6107,9 +6170,6 @@ msgstr ""
 msgid "Firmware Update Succeeded!"
 msgstr ""
 
-msgid "First Cry of Independence"
-msgstr ""
-
 msgid "First Day Worked"
 msgstr ""
 
@@ -6153,9 +6213,6 @@ msgid "Fixed Amount (Range Bracket)"
 msgstr ""
 
 msgid "Fixed Amount (w/Target)"
-msgstr ""
-
-msgid "Flag Day"
 msgstr ""
 
 msgid "Flat Amount"
@@ -6527,15 +6584,6 @@ msgstr "Boa"
 msgid "Good Friday"
 msgstr "Sexta-feira boa"
 
-msgid "Good Saturday"
-msgstr ""
-
-msgid "Good Thursday"
-msgstr ""
-
-msgid "Good Wednesday"
-msgstr ""
-
 msgid "Good:"
 msgstr "Bom:"
 
@@ -6737,6 +6785,9 @@ msgstr ""
 msgid "Handling fee is invalid"
 msgstr ""
 
+msgid "Hardware ID"
+msgstr ""
+
 msgid "Hartlepool"
 msgstr ""
 
@@ -6927,6 +6978,9 @@ msgid "Hour"
 msgstr ""
 
 msgid "Hour Based"
+msgstr ""
+
+msgid "Hour Type"
 msgstr ""
 
 msgid "Hour is invalid"
@@ -7868,12 +7922,6 @@ msgstr "Selo de tempo real incorreto"
 msgid "Incorrect actual total time"
 msgstr "Tempo total real incorreto"
 
-msgid "Incorrect advance end date"
-msgstr "Data avançada incorreta da extremidade"
-
-msgid "Incorrect advance transaction date"
-msgstr "Data avançada incorreta da transação"
-
 msgid "Incorrect allowed date"
 msgstr ""
 
@@ -7974,7 +8022,7 @@ msgid "Incorrect frequency month"
 msgstr "Mês incorreto da freqüência"
 
 msgid "Incorrect frequency quarter month"
-msgstr ""
+msgstr "Trimestre mensal com frequência incorreta"
 
 msgid "Incorrect grace value"
 msgstr "Valor incorreto do grace"
@@ -8163,9 +8211,6 @@ msgid "Incurred date is invalid"
 msgstr ""
 
 msgid "Independence Day"
-msgstr ""
-
-msgid "Independence Day CR"
 msgstr ""
 
 msgid "India"
@@ -8468,7 +8513,7 @@ msgstr "Topo inválido do pagamento"
 msgid "Invalid Pay Stub Account"
 msgstr "Cliente inválido do topo do pagamento"
 
-msgid "Invalid Pay Stub Amendment"
+msgid "Invalid Pay Stub Accounts"
 msgstr ""
 
 msgid "Invalid Pay Stub Amendment Description Length"
@@ -8662,9 +8707,6 @@ msgstr "Comprimento inválido do número de trânsito"
 
 msgid "Invalid transit number, must be digits only"
 msgstr "O número de trânsito inválido, deve ser dígitos somente"
-
-msgid "Invalid unique User and/or Pay Period"
-msgstr "Período original inválido do usuário e/ou do pagamento"
 
 msgid "Invalid vacation pay"
 msgstr "Pagamento inválido das férias"
@@ -9063,7 +9105,7 @@ msgid "Job Item does not exist"
 msgstr "O artigo do trabalho não existe"
 
 msgid "Job Name"
-msgstr "Nome de trabalho"
+msgstr ""
 
 msgid "Job Note"
 msgstr ""
@@ -9495,7 +9537,7 @@ msgid "Last Pay Period"
 msgstr ""
 
 msgid "Last Quarter"
-msgstr ""
+msgstr "Último trimestre"
 
 msgid "Last Three Years"
 msgstr ""
@@ -9600,6 +9642,9 @@ msgid "Length of Service"
 msgstr ""
 
 msgid "Length of Service Date"
+msgstr ""
+
+msgid "Length of Service Modifier"
 msgstr ""
 
 msgid "Length of service is invalid"
@@ -10175,9 +10220,6 @@ msgstr "Consoles de Marshall"
 msgid "Martinique"
 msgstr "Martinica"
 
-msgid "Martyr`s Day"
-msgstr ""
-
 msgid "Maryland"
 msgstr ""
 
@@ -10445,10 +10487,28 @@ msgstr ""
 msgid "Midlothian"
 msgstr ""
 
+msgid "Migrate PS Accounts"
+msgstr ""
+
 msgid "Migrate Pay Codes"
 msgstr ""
 
+msgid "Migrate<br>PS Accounts "
+msgstr ""
+
 msgid "Migrate<br>Pay Codes"
+msgstr ""
+
+msgid "Migrated YTD Amount from"
+msgstr ""
+
+msgid "Migrated YTD Amount from other account"
+msgstr ""
+
+msgid "Migrated YTD Amount to"
+msgstr ""
+
+msgid "Migrated YTD Amount to other account"
 msgstr ""
 
 msgid "Milan"
@@ -10701,7 +10761,7 @@ msgid "Month is invalid"
 msgstr "O mês é inválido"
 
 msgid "Month of Quarter"
-msgstr ""
+msgstr "Mẽs do trimestre"
 
 msgid "Month(s)"
 msgstr "Meses"
@@ -10849,6 +10909,9 @@ msgstr ""
 
 msgid "Name is invalid"
 msgstr "O nome é inválido"
+
+msgid "Name is not specified"
+msgstr ""
 
 msgid "Name is too long, consider using description instead"
 msgstr ""
@@ -11094,7 +11157,7 @@ msgid "Next Month"
 msgstr ""
 
 msgid "Next Quarter"
-msgstr ""
+msgstr "Próximo trimestre"
 
 msgid "Next Schedule Date"
 msgstr ""
@@ -11342,6 +11405,9 @@ msgstr ""
 msgid "Not Verified"
 msgstr "Não verificado"
 
+msgid "Not enough disk space available, please free up disk space and try again."
+msgstr ""
+
 msgid "Not generating final pay stub!"
 msgstr "Não gerando o topo final do pagamento!"
 
@@ -11431,6 +11497,9 @@ msgstr "APROVAÇÃO"
 
 msgid "OPEN"
 msgstr "ABERTO"
+
+msgid "OPENING BALANCE"
+msgstr ""
 
 msgid "OVERDUE"
 msgstr ""
@@ -11559,6 +11628,12 @@ msgid "Open"
 msgstr "Aberto"
 
 msgid "Open Shift Multiplier"
+msgstr ""
+
+msgid "Opening Balance (YTD)"
+msgstr ""
+
+msgid "Opening Balance Pay Stubs must not come after any other pay stub for this employee"
 msgstr ""
 
 msgid "Optional"
@@ -11840,6 +11915,9 @@ msgstr ""
 msgid "Overall Total"
 msgstr ""
 
+msgid "Overall Totals"
+msgstr ""
+
 msgid "Overdue"
 msgstr "Overdue"
 
@@ -12074,6 +12152,9 @@ msgstr ""
 msgid "Parma"
 msgstr ""
 
+msgid "Parse Hint"
+msgstr ""
+
 msgid "Parsing import data..."
 msgstr ""
 
@@ -12131,7 +12212,7 @@ msgstr ""
 msgid "Password Reset"
 msgstr "Restauração da senha"
 
-msgid "Password Reset requested at "
+msgid "Password Reset requested at"
 msgstr ""
 
 msgid "Password Updated"
@@ -12207,7 +12288,7 @@ msgid "Pay Codes"
 msgstr ""
 
 msgid "Pay End Date"
-msgstr ""
+msgstr "Pagar Data Final"
 
 msgid "Pay Formula Policy"
 msgstr ""
@@ -12294,7 +12375,7 @@ msgid "Pay Periods"
 msgstr "Períodos do Salários"
 
 msgid "Pay Start Date"
-msgstr ""
+msgstr "Pagar data de início"
 
 msgid "Pay Stub"
 msgstr "Recibo de Salário"
@@ -12324,6 +12405,9 @@ msgid "Pay Stub Amendment"
 msgstr "Extorno de Recibo de Salário"
 
 msgid "Pay Stub Amendment - Employee"
+msgstr ""
+
+msgid "Pay Stub Amendment effective date is after employees pay stub end date or termination date"
 msgstr ""
 
 msgid "Pay Stub Amendments"
@@ -12383,9 +12467,6 @@ msgstr "Recibos de Salário"
 msgid "Pay Type"
 msgstr "Tipo do Salário:"
 
-msgid "Pay period is already closed"
-msgstr ""
-
 msgid "Pay period prior to %1 is not closed, please close all previous pay periods and try again..."
 msgstr ""
 
@@ -12393,9 +12474,6 @@ msgid "Pay period schedules are critical to the operation of"
 msgstr ""
 
 msgid "Pay stub entry account is invalid"
-msgstr ""
-
-msgid "Pay stub is assigned to a closed pay period"
 msgstr ""
 
 msgid "Pay<br>Codes"
@@ -12429,7 +12507,7 @@ msgid "Payment"
 msgstr ""
 
 msgid "Payment Date"
-msgstr ""
+msgstr "Data de Pagamento"
 
 msgid "Payment Details"
 msgstr ""
@@ -12607,9 +12685,6 @@ msgstr ""
 msgid "Permission Group is invalid"
 msgstr ""
 
-msgid "Permission Group: "
-msgstr ""
-
 msgid "Permission Groups"
 msgstr "Grupos de premissões"
 
@@ -12781,9 +12856,6 @@ msgid "Please specify an employee"
 msgstr ""
 
 msgid "Please try again later..."
-msgstr ""
-
-msgid "Please try again later... (b)"
 msgstr ""
 
 msgid "Please upload file again"
@@ -13015,9 +13087,6 @@ msgid "Primary Transaction Day"
 msgstr ""
 
 msgid "Primary account is too short or too long"
-msgstr ""
-
-msgid "Primer Grito de Independencia de la Villa de los Santos"
 msgstr ""
 
 msgid "Prince Edward Island"
@@ -13453,7 +13522,7 @@ msgid "Quantity:"
 msgstr "Quantidade:"
 
 msgid "Quarter"
-msgstr "Quarto"
+msgstr "Trimestre"
 
 msgid "Quarter (Ending)"
 msgstr ""
@@ -13462,10 +13531,10 @@ msgid "Quarter (Starting)"
 msgstr ""
 
 msgid "Quarter+Year"
-msgstr ""
+msgstr "Trimestre+Ano"
 
 msgid "Quarterly"
-msgstr ""
+msgstr "Trimestral"
 
 msgid "Quebec"
 msgstr ""
@@ -13872,6 +13941,9 @@ msgstr ""
 msgid "Remote Version"
 msgstr ""
 
+msgid "Removed invalid or bouncing email address"
+msgstr ""
+
 msgid "Renewal Date"
 msgstr ""
 
@@ -14097,9 +14169,6 @@ msgstr "Revisão"
 msgid "Revisions"
 msgstr "Revisões"
 
-msgid "Revolution Day"
-msgstr ""
-
 msgid "Rhode Island"
 msgstr ""
 
@@ -14211,6 +14280,9 @@ msgstr ""
 msgid "Row"
 msgstr ""
 
+msgid "Rows Per Page"
+msgstr ""
+
 msgid "Rows Per page"
 msgstr ""
 
@@ -14280,6 +14352,9 @@ msgstr "Modo Seguro desligado:"
 msgid "Safe Mode is On. (Please disable it in php.ini)"
 msgstr "A modalidade segura é sobre. (A incapacitar por favor em php.ini)"
 
+msgid "Sage 300 (Accpac)"
+msgstr ""
+
 msgid "Saint Helena"
 msgstr "Saint Helena"
 
@@ -14331,13 +14406,13 @@ msgstr ""
 msgid "Samoa"
 msgstr "Samoa"
 
+msgid "Sample Row"
+msgstr ""
+
 msgid "San Andres y Providencia"
 msgstr ""
 
 msgid "San Blas"
-msgstr ""
-
-msgid "San Jacinto Battle"
 msgstr ""
 
 msgid "San Jose"
@@ -14356,9 +14431,6 @@ msgid "San Miguel"
 msgstr ""
 
 msgid "San Salvador"
-msgstr ""
-
-msgid "San Salvador Party"
 msgstr ""
 
 msgid "San Vicente"
@@ -14425,6 +14497,9 @@ msgid "Save Setup"
 msgstr ""
 
 msgid "Save TimeSheet State"
+msgstr ""
+
+msgid "Save and Close"
 msgstr ""
 
 msgid "Save as New"
@@ -14809,10 +14884,10 @@ msgstr ""
 msgid "Selected employee is invalid, or already assigned to another permission group"
 msgstr ""
 
-msgid "Selected subordinate is invalid or already assigned to another hierarchy with the same object. User ID: "
+msgid "Selected subordinate is invalid or already assigned to another hierarchy with the same object. User ID: %1"
 msgstr ""
 
-msgid "Selected subordinate is invalid or already assigned to another hierarchy with the same objects "
+msgid "Selected subordinate is invalid or already assigned to another hierarchy with the same objects"
 msgstr ""
 
 msgid "Selection"
@@ -14862,9 +14937,6 @@ msgstr "Emitido"
 
 msgid "Sep"
 msgstr "Setembro"
-
-msgid "Separation Day from Colombia"
-msgstr ""
 
 msgid "September"
 msgstr "Setembro"
@@ -14980,6 +15052,9 @@ msgstr ""
 msgid "Shift is before employees hire date"
 msgstr ""
 
+msgid "Shifts"
+msgstr ""
+
 msgid "Shifts Scheduled Absent"
 msgstr ""
 
@@ -15050,6 +15125,9 @@ msgid "Show All"
 msgstr ""
 
 msgid "Show Duplicate Values"
+msgstr ""
+
+msgid "Show Pre-Mature"
 msgstr ""
 
 msgid "Show Sub-Expenses"
@@ -15236,6 +15314,9 @@ msgid "Source"
 msgstr "Fonte"
 
 msgid "Source Object"
+msgstr ""
+
+msgid "Source Pay Stub Account(s)"
 msgstr ""
 
 msgid "SourceIP"
@@ -15457,14 +15538,14 @@ msgstr "Status “D”"
 msgid "Status \"F\""
 msgstr "Status “F”"
 
-msgid "Status \"M\" Claiming $3000"
-msgstr "Status “M” que reivindica $3000"
+msgid "Status \"M\": Claiming $3000"
+msgstr ""
 
 msgid "Status \"MS\""
 msgstr "Status “ms”"
 
-msgid "Status \"S\" Claiming $1500"
-msgstr "Status “S” que reivindica $1500"
+msgid "Status \"S\": Claiming $1500"
+msgstr ""
 
 msgid "Status By"
 msgstr ""
@@ -16003,6 +16084,12 @@ msgstr ""
 msgid "Tax/Deduction Rate"
 msgstr ""
 
+msgid "Tax/Deduction is already assigned to employee"
+msgstr ""
+
+msgid "Tax/Deduction is invalid"
+msgstr ""
+
 msgid "Tax<br>Reports"
 msgstr ""
 
@@ -16160,7 +16247,7 @@ msgid "This Payment"
 msgstr ""
 
 msgid "This Quarter"
-msgstr ""
+msgstr "Este trimestre"
 
 msgid "This Week"
 msgstr ""
@@ -16220,6 +16307,9 @@ msgid "This will delete all attendance data assigned to this pay period. Are you
 msgstr ""
 
 msgid "This will import employee attendance data from other pay periods into this pay period.Are you sure you wish to continue?"
+msgstr ""
+
+msgid "This wizard will automatically create Pay Stub Amendments to migrate Year-To-Date amounts from one Pay Stub Account to another as of a specific effective date."
 msgstr ""
 
 msgid "This wizard will migrate data associated with one pay code to another pay code without recalculating timesheets or otherwise affecting employees time or wages. "
@@ -16526,7 +16616,7 @@ msgid "Total Deductions"
 msgstr "Totalizar deduções"
 
 msgid "Total Deposits For This Quarter"
-msgstr ""
+msgstr "Depósitos totais para este trimestre"
 
 msgid "Total Employees"
 msgstr ""
@@ -16732,6 +16822,9 @@ msgstr "Total:"
 msgid "Totaling Data..."
 msgstr ""
 
+msgid "Totals"
+msgstr ""
+
 msgid "Totals by Branch"
 msgstr ""
 
@@ -16894,6 +16987,9 @@ msgstr "Datilografar o Exclusive"
 msgid "Type already exists"
 msgstr "Datilografar existe já"
 
+msgid "Type cannot be modified when Pay Stub Account is in use"
+msgstr ""
+
 msgid "Type is invalid"
 msgstr ""
 
@@ -16997,6 +17093,9 @@ msgstr ""
 msgid "Unable to change status of your own record"
 msgstr ""
 
+msgid "Unable to create pay stubs in a closed pay period"
+msgstr ""
+
 msgid "Unable to delete expenses after they have been authorized/declined"
 msgstr ""
 
@@ -17025,6 +17124,9 @@ msgid "Unable to generate pay stub(s), employee(s) may not be assigned to a pay 
 msgstr ""
 
 msgid "Unable to modify Pay Stub Amendment that is currently be used by a Pay Stub marked PAID"
+msgstr ""
+
+msgid "Unable to modify pay stubs assigned to a closed pay period"
 msgstr ""
 
 msgid "Unable to process payment #"
@@ -17163,7 +17265,7 @@ msgid "Up To Last Pay Period"
 msgstr ""
 
 msgid "Up To Last Quarter"
-msgstr ""
+msgstr "Até ao último trimestre"
 
 msgid "Up To Last Week"
 msgstr ""
@@ -17178,7 +17280,7 @@ msgid "Up To This Pay Period"
 msgstr ""
 
 msgid "Up To This Quarter"
-msgstr ""
+msgstr "Até ao trimestre atual"
 
 msgid "Up To This Week"
 msgstr ""
@@ -17264,22 +17366,10 @@ msgstr ""
 msgid "User Date Total ID is invalid"
 msgstr "O total ID da data do usuário é inválido"
 
-msgid "User Education"
-msgstr ""
-
 msgid "User Expense"
 msgstr ""
 
 msgid "User Filter"
-msgstr ""
-
-msgid "User Language"
-msgstr ""
-
-msgid "User License"
-msgstr ""
-
-msgid "User Membership"
 msgstr ""
 
 msgid "User Name"
@@ -17307,9 +17397,6 @@ msgid "User Name:"
 msgstr "Nome do usuário:"
 
 msgid "User Setting - Name"
-msgstr ""
-
-msgid "User Skill"
 msgstr ""
 
 msgid "User Value 1 is invalid"
@@ -17410,6 +17497,9 @@ msgstr ""
 
 msgid "VISA"
 msgstr "VISA"
+
+msgid "VOID"
+msgstr ""
 
 msgid "Vacation Pay (Box 17A)"
 msgstr ""
@@ -17534,7 +17624,19 @@ msgstr ""
 msgid "Verification Window Ends"
 msgstr ""
 
+msgid "Verification Window Ends is too large"
+msgstr ""
+
+msgid "Verification Window Ends is too small"
+msgstr ""
+
 msgid "Verification Window Starts"
+msgstr ""
+
+msgid "Verification Window Starts is too large"
+msgstr ""
+
+msgid "Verification Window Starts is too small"
 msgstr ""
 
 msgid "Verification Windows Ends"
@@ -17857,6 +17959,9 @@ msgstr "Aviso: Não instalado. (A extensão de BCMATH deve ser activada)"
 msgid "Warning: Not Installed. (ZIP extension must be enabled)"
 msgstr ""
 
+msgid "Warning: Not enough disk space available, please free up disk space and try again."
+msgstr ""
+
 msgid "Warning: Not writable"
 msgstr "Aviso: Nao writable"
 
@@ -18067,6 +18172,9 @@ msgstr ""
 msgid "Wisconsin"
 msgstr ""
 
+msgid "Wizard data is not correct on step 2 or step 3, please open wizard and try again"
+msgstr ""
+
 msgid "Wk Total"
 msgstr ""
 
@@ -18254,7 +18362,7 @@ msgid "YTD Adjustment"
 msgstr ""
 
 msgid "YTD Amount"
-msgstr "Quantidad de horas de YTD"
+msgstr "Montante YTD"
 
 msgid "YTD Units/Hours"
 msgstr ""
@@ -18266,9 +18374,6 @@ msgid "Year (Ending)"
 msgstr ""
 
 msgid "Year (Starting)"
-msgstr ""
-
-msgid "Year to Date (YTD) Adjustment"
 msgstr ""
 
 msgid "Year(s)"
@@ -18509,10 +18614,7 @@ msgid "by Pay Period/Employee"
 msgstr ""
 
 msgid "by Quarter"
-msgstr ""
-
-msgid "by Regular Time policies"
-msgstr ""
+msgstr "por trimestre"
 
 msgid "by Title"
 msgstr ""
@@ -18527,6 +18629,9 @@ msgid "by break policies"
 msgstr ""
 
 msgid "by contributing shift policies"
+msgstr ""
+
+msgid "by employee timesheets"
 msgstr ""
 
 msgid "by meal policies"
@@ -18545,6 +18650,9 @@ msgid "by regular time policies"
 msgstr ""
 
 msgid "click here"
+msgstr ""
+
+msgid "click to search"
 msgstr ""
 
 msgid "configuration file"
@@ -18578,30 +18686,6 @@ msgid "days"
 msgstr ""
 
 msgid "days after end of pay period"
-msgstr ""
-
-msgid "dd-mmm-yy"
-msgstr ""
-
-msgid "dd-mmm-yyyy"
-msgstr ""
-
-msgid "ddd, dd-mmm-yyyy"
-msgstr ""
-
-msgid "ddd, ddmmmyyyy"
-msgstr ""
-
-msgid "ddd, mmm dd yyyy"
-msgstr ""
-
-msgid "ddd, mmmm dd yyyy"
-msgstr ""
-
-msgid "dddd, mmmm dd yyyy"
-msgstr ""
-
-msgid "ddmmmyyyy"
 msgstr ""
 
 msgid "description"
@@ -18782,12 +18866,6 @@ msgid "min"
 msgstr ""
 
 msgid "minute( #time_stamp# )"
-msgstr ""
-
-msgid "mmm-dd-yy"
-msgstr ""
-
-msgid "mmm-dd-yyyy"
 msgstr ""
 
 msgid "month( #time_stamp# )"
@@ -18975,3236 +19053,3 @@ msgstr ""
 
 msgid "yrs"
 msgstr ""
-
-#~ msgid "% (ie: 25% burden)"
-#~ msgstr "% (IE: burden de 25%)"
-
-#~ msgid "%1 for %2"
-#~ msgstr "%1 para %2"
-
-#~ msgid "(Choose Date)"
-#~ msgstr "(Escolher a data)"
-
-#~ msgid "(Even if they are not eligible for holiday pay)"
-#~ msgstr "(Mesmo se não são elegíveis para cálculo do 13º Salário)"
-
-#~ msgid "(Hours from Midnight)"
-#~ msgstr "(Horas da meia-noite)"
-
-#~ msgid "(Must override to modify)"
-#~ msgstr "(Deve cancelar para modificar)"
-
-#~ msgid "(Or first day since last ROE)"
-#~ msgstr "(Ou primeiro dia deste o ultimo Registro de Emprego)"
-
-#~ msgid "(Pay stub only)"
-#~ msgstr "(Apenas Recibo de Salário)"
-
-#~ msgid "(Select one or more)"
-#~ msgstr "(Selecione um ou mais)"
-
-#~ msgid "(base all other conversion rates off this currency)"
-#~ msgstr "(basear todas taxas de conversão restantes fora desta moeda corrente)"
-
-#~ msgid "(days after end of pay period)"
-#~ msgstr "(dias após o fim do Período de Salários)"
-
-#~ msgid "(download rate from real-time data feed)"
-#~ msgstr "(taxa do download da alimentação real-time dos dados)"
-
-#~ msgid "(ie: 40 hours / week)"
-#~ msgstr "(IE: 40 horas/semana)"
-
-#~ msgid "- No Job -"
-#~ msgstr "- Nenhum trabalho -"
-
-#~ msgid "- No Task -"
-#~ msgstr "- Nenhuma tarefa -"
-
-#~ msgid "-- ALL --"
-#~ msgstr "-- TUDO --"
-
-#~ msgid "-- Any --"
-#~ msgstr "-- Alguns --"
-
-#~ msgid "-- Select Action --"
-#~ msgstr "-- Selecionar a ação --"
-
-#~ msgid "0 Requests found."
-#~ msgstr "Os pedidos 0 encontraram."
-
-#~ msgid "0 TimeSheets found."
-#~ msgstr "Nenhuma Folha de Horas encontrada."
-
-#~ msgid "0.75 for 75 cents/hr"
-#~ msgstr "0.75 para 75 cents/hr"
-
-#~ msgid "1- State (15)"
-#~ msgstr "1 - Estado (15)"
-
-#~ msgid "1- State Income Tax (17)"
-#~ msgstr "1 - Imposto de renda do estado (17)"
-
-#~ msgid "1- State Wages, Tips, Other (16)"
-#~ msgstr "1 - Salários do estado, pontas, outras (16)"
-
-#~ msgid "2 Weeks"
-#~ msgstr "2 semanas"
-
-#~ msgid "3 Weeks"
-#~ msgstr "3 semanas"
-
-#~ msgid "4 Weeks"
-#~ msgstr "4 semanas"
-
-#~ msgid "5 Weeks"
-#~ msgstr "5 semanas"
-
-#~ msgid "6 Weeks"
-#~ msgstr "6 semanas"
-
-#~ msgid "<b>NOTICE:</b> Messages marked in red require your immediate attention."
-#~ msgstr "<b>OBSERVAÇÃO:</b> As mensagens marcadas no vermelho requerem sua atenção imediata."
-
-#~ msgid "<b>NOTICE:</b> This messages requires your acknowledgment."
-#~ msgstr "<b>OBSERVAÇÃO:</b> Este as mensagens requerem seu reconhecimento."
-
-#~ msgid "<b>NOTICE:</b> This pay period is currently locked, modifications are not permitted."
-#~ msgstr "<b>NOTA:</b> Este Período de Salário está atualmente bloqueado, as modificações não são permitidas."
-
-#~ msgid ">Employer Contributions"
-#~ msgstr ">Contribuições do Empregador"
-
-#~ msgid "ADP Hours"
-#~ msgstr "Tempo Médio de trabalho efectivo (ADP hours)"
-
-#~ msgid "Absence Policy List"
-#~ msgstr "Lista da política da ausência"
-
-#~ msgid "Absence Policy:"
-#~ msgstr "Política de Ausências:"
-
-#~ msgid "Absence: "
-#~ msgstr "Falta: "
-
-#~ msgid "Absent:"
-#~ msgstr "Ausente:"
-
-#~ msgid "Account Number:"
-#~ msgstr "Número de cliente:"
-
-#~ msgid "Accrual Balance List"
-#~ msgstr "Lista Accrual do contrapeso"
-
-#~ msgid "Accrual List"
-#~ msgstr "Lista Accrual"
-
-#~ msgid "Accrual Policies:"
-#~ msgstr "Políticas de Agregação:"
-
-#~ msgid "Accrual Policy List"
-#~ msgstr "Lista Accrual da política"
-
-#~ msgid "Accrual Policy:"
-#~ msgstr "Política de Agregação:"
-
-#~ msgid "Accrual Rate:"
-#~ msgstr "Taxa sobre Agregação:"
-
-#~ msgid "Accrual Total Minimum"
-#~ msgstr "Total da Agregação mínimo"
-
-#~ msgid "Accrual:"
-#~ msgstr "Agregação:"
-
-#~ msgid "Ack Date"
-#~ msgstr "Data do Ack"
-
-#~ msgid "Acknowledge Message"
-#~ msgstr "Reconhecer a mensagem"
-
-#~ msgid "Action:"
-#~ msgstr "Ação:"
-
-#~ msgid "Actions"
-#~ msgstr "Ações"
-
-#~ msgid "Active After:"
-#~ msgstr "Ativo em seguida:"
-
-#~ msgid "Active Employee Licenses:"
-#~ msgstr "Licenças de Trabalhadores activos :"
-
-#~ msgid "Actual"
-#~ msgstr "Real"
-
-#~ msgid "Actual Rate:"
-#~ msgstr "Taxa real:"
-
-#~ msgid "Actual Time:"
-#~ msgstr "Tempo real:"
-
-#~ msgid "Add Bracket"
-#~ msgstr "Adicionar um Parêntesis"
-
-#~ msgid "Add Company"
-#~ msgstr "Adicionar uma Empresa"
-
-#~ msgid "Add Deductions:"
-#~ msgstr "Adicionar deduções:"
-
-#~ msgid "Add Job"
-#~ msgstr "Adicionar Trabalho"
-
-#~ msgid "Add Level"
-#~ msgstr "Adicionar Nível"
-
-#~ msgid "Add Milestone"
-#~ msgstr "Adicionar o marco miliário"
-
-#~ msgid "Add Presets"
-#~ msgstr "Adicionar pré-ajustes"
-
-#~ msgid "Add Revision"
-#~ msgstr "Adicionar a revisão"
-
-#~ msgid "Add Week"
-#~ msgstr "Adicionar Semana"
-
-#~ msgid "Add:"
-#~ msgstr "Adicionar:"
-
-#~ msgid "Additional Deduction Amount:"
-#~ msgstr "Uma quantidade adicional da dedução:"
-
-#~ msgid "Address (Line 3):"
-#~ msgstr "Endereço (linha 3):"
-
-#~ msgid "Admin"
-#~ msgstr "Admin"
-
-#~ msgid "Administrative Contact:"
-#~ msgstr "Contato administrativo:"
-
-#~ msgid "Advance"
-#~ msgstr "Avanço"
-
-#~ msgid "Advance EIC Payment (Box 9):"
-#~ msgstr "Pagamento avançado dos Créditos de Rendas Auferidas (caixa 6):"
-
-#~ msgid "Advance End Date:"
-#~ msgstr "Data final avançada:"
-
-#~ msgid "Advance Transaction Date:"
-#~ msgstr "Data da transação avançada:"
-
-#~ msgid "After First Punch"
-#~ msgstr "Depois da primeira Marcação de Ponto"
-
-#~ msgid "After Minimum Employed Days:"
-#~ msgstr "Após o mínimo dias empregados:"
-
-#~ msgid "After:"
-#~ msgstr "Em seguida:"
-
-#~ msgid "All In (incl. Lunch)"
-#~ msgstr "Tudo dentro (incl. Lunch)"
-
-#~ msgid "All Out (incl. Lunch)"
-#~ msgstr "Tudo para fora (incl. Lunch)"
-
-#~ msgid "All pay periods are currently closed."
-#~ msgstr "Todos os Períodos De Salários são fechados atualmente."
-
-#~ msgid "Allocated Tips (Box 8):"
-#~ msgstr "Gratificações alocadas (caixa 8):"
-
-#~ msgid "Always Release Vacation:"
-#~ msgstr "Sempre férias da liberação:"
-
-#~ msgid "Amount Type:"
-#~ msgstr "Tipo de valor:"
-
-#~ msgid "Annual Pay Periods:"
-#~ msgstr "Período de Salários Anuais:"
-
-#~ msgid "Apply Preset"
-#~ msgstr "Aplicar pré-ajustam"
-
-#~ msgid "Are you sure you want to add all presets based on your company location?"
-#~ msgstr "Tem a certeza que quer adicionar todos os pré-ajustes baseados na localização da sua empresa?"
-
-#~ msgid "Are you sure you want to recalculate the pay stub of this employee?"
-#~ msgstr "Tem a certeza que quer recalcular o Recibo de Salário deste Trabalhador?"
-
-#~ msgid "Are you sure you want to recalculate the timesheets of every employee?"
-#~ msgstr "Tem a certeza que quer recalcular as Folhas de Horas de cada Trabalhador?"
-
-#~ msgid "Assign Shifts To:"
-#~ msgstr "Atribuir Turnos a:"
-
-#~ msgid "Assigned Employees"
-#~ msgstr "Trabalhadores atribuídos"
-
-#~ msgid "Attach Document"
-#~ msgstr "Unir o original"
-
-#~ msgid "Attach Existing Document"
-#~ msgstr "Anexar Documento Existente"
-
-#~ msgid "Attendance History"
-#~ msgstr "Histórico de assiduidade"
-
-#~ msgid "Authorization List"
-#~ msgstr "Lista da autorização"
-
-#~ msgid "Auto Update:"
-#~ msgstr "Auto Update:"
-
-#~ msgid "Auto-Detect Breaks By:"
-#~ msgstr "Ato-detetar Tempo de Descanso por:"
-
-#~ msgid "Auto-Detect Meals By:"
-#~ msgstr "Auto-detetar Tempo de refeição por:"
-
-#~ msgid "Auto-Pilot:"
-#~ msgstr "Auto-Pilot:"
-
-#~ msgid "Automatic Refresh:"
-#~ msgstr "Auto-atualizar:"
-
-#~ msgid "Available Balance:"
-#~ msgstr "Contrapeso disponível:"
-
-#~ msgid "Average Time / Week:"
-#~ msgstr "Tempo médio/semana:"
-
-#~ msgid "Bad Quantity Billable Rate:"
-#~ msgstr "Taxa Billable da quantidade má:"
-
-#~ msgid "Bad Quantity Rate:"
-#~ msgstr "Taxa má da quantidade:"
-
-#~ msgid "Bad:"
-#~ msgstr "Bad:"
-
-#~ msgid "Balance:"
-#~ msgstr "Saldo:"
-
-#~ msgid "Bank"
-#~ msgstr "Banco"
-
-#~ msgid "Bank Transit:"
-#~ msgstr "Trânsito do banco:"
-
-#~ msgid "Bank Type:"
-#~ msgstr "Tipo de Banco:"
-
-#~ msgid "Barcode:"
-#~ msgstr "Barcode:"
-
-#~ msgid "Barcodes"
-#~ msgstr "Barcodes"
-
-#~ msgid "Base"
-#~ msgstr "Base"
-
-#~ msgid "Base Currency:"
-#~ msgstr "Moeda corrente baixa:"
-
-#~ msgid "Base Price:"
-#~ msgstr "Preço Base:"
-
-#~ msgid "Bcc Address:"
-#~ msgstr "Endereço de Bcc:"
-
-#~ msgid "Billable"
-#~ msgstr "Billable"
-
-#~ msgid "Billable Cost:"
-#~ msgstr "Custo Billable:"
-
-#~ msgid "Billable Difference %:"
-#~ msgstr "Diferença Billable %:"
-
-#~ msgid "Billable Rate:"
-#~ msgstr "Taxa Billable:"
-
-#~ msgid "Billing Contact:"
-#~ msgstr "Contato da faturação:"
-
-#~ msgid "Birth Date:"
-#~ msgstr "Data do nascimento:"
-
-#~ msgid "Body:"
-#~ msgstr "Corpo:"
-
-#~ msgid "Box 12a:"
-#~ msgstr "Caixa 12a:"
-
-#~ msgid "Box 12b:"
-#~ msgstr "Caixa 12b:"
-
-#~ msgid "Box 12c:"
-#~ msgstr "Caixa 12c:"
-
-#~ msgid "Box 12d:"
-#~ msgstr "Caixa 12d:"
-
-#~ msgid "Box 14 (Other):"
-#~ msgstr "Caixa 14 (outras):"
-
-#~ msgid "Branch List"
-#~ msgstr "Lista da filial"
-
-#~ msgid "Branch Summary"
-#~ msgstr "Sumário da filial"
-
-#~ msgid "Branch/Dept"
-#~ msgstr "Filial/departamento"
-
-#~ msgid "Branches Currently Selected, Click the arrow to modify."
-#~ msgstr "Filiais atualmente selecionados. Clique na seta para modificar."
-
-#~ msgid "Branches:"
-#~ msgstr "Filiais:"
-
-#~ msgid "Break Policies:"
-#~ msgstr "Politicas de descanso:"
-
-#~ msgid "Business / Employer Identification Number:"
-#~ msgstr "Negócio/número identificação do empregador:"
-
-#~ msgid "By clicking the checkbox, I <b>%1</b> hereby acknowledge<br> that I have read and understand this message in its entirety on"
-#~ msgstr "que eu li e compreendi esta mensagem em sua totalidade sobre"
-
-#~ msgid "COMM Key"
-#~ msgstr "Tecla COMM"
-
-#~ msgid "CPP Exempt:"
-#~ msgstr "CPP Exempt:"
-
-#~ msgid "CPP Pensionable Earnings (Box: 26):"
-#~ msgstr "Ganhos incluiveis no Canada Pension Plan (CPP) (Caixa: 26):"
-
-#~ msgid "CSV (Excel)"
-#~ msgstr "CSV (Excel)"
-
-#~ msgid "Calculate"
-#~ msgstr "Calcular"
-
-#~ msgid "Calculate Accruals Immediately For The Following Dates"
-#~ msgstr "Calcular a Agregação imediatamente para as Datas seguintes"
-
-#~ msgid "Calculating Employee Pay Stub Adjustment for Pay Period:"
-#~ msgstr "Ajuste calculador do topo do pagamento do empregado para o período do pagamento:"
-
-#~ msgid "Calculating Employee Pay Stub for Pay Period:"
-#~ msgstr "Topo calculador do pagamento do empregado para o período do pagamento:"
-
-#~ msgid "Calculation Criteria"
-#~ msgstr "Critério de cálculo"
-
-#~ msgid "Calculation Order:"
-#~ msgstr "Ordem do cálculo:"
-
-#~ msgid "Calculation:"
-#~ msgstr "Cálculo:"
-
-#~ msgid "Card Holder Name:"
-#~ msgstr "Nome do suporte de cartão:"
-
-#~ msgid "Card Issuing Banks Phone Number:"
-#~ msgstr "Cartão que emite o número de telefone dos bancos:"
-
-#~ msgid "Change Log:"
-#~ msgstr "Registro da mudança:"
-
-#~ msgid "Change Web Password"
-#~ msgstr "Mudar a senha da correia fotorreceptora"
-
-#~ msgid "Charitable Donations (Box: 46):"
-#~ msgstr "Doações à Caridade (Caixa: 46):"
-
-#~ msgid "City, Province, Postal Code"
-#~ msgstr "Cidade, província, código postal"
-
-#~ msgid "Click the \"...\" icon to upload a company logo. (170px by 40px)"
-#~ msgstr "Clique no ícone “…” para carregar um logótipo da empresa (170px por 40px)"
-
-#~ msgid "Click the \"...\" icon to upload a license file."
-#~ msgstr "Clique no ícone “…” para upload um arquivo de licença"
-
-#~ msgid "Click the \"...\" icon to upload a logo."
-#~ msgstr "Clicar no ícone “…” para fazer upload do logótipo."
-
-#~ msgid "Click the item you wish to get help on."
-#~ msgstr "Estalar o artigo que você deseja começar sobre a ajuda."
-
-#~ msgid "Client Contact List"
-#~ msgstr "Lista do contato do cliente"
-
-#~ msgid "Client Group List"
-#~ msgstr "Lista do grupo do cliente"
-
-#~ msgid "Client List"
-#~ msgstr "Lista do cliente"
-
-#~ msgid "Client Name:"
-#~ msgstr "Nome do cliente:"
-
-#~ msgid "Client Payment List"
-#~ msgstr "Lista do pagamento do cliente"
-
-#~ msgid "Client Portal"
-#~ msgstr "Portal da Internet do cliente"
-
-#~ msgid "Client:"
-#~ msgstr "Cliente:"
-
-#~ msgid "Code:"
-#~ msgstr "Código:"
-
-#~ msgid "Columns"
-#~ msgstr "Colunas"
-
-#~ msgid "Commands"
-#~ msgstr "Comandos"
-
-#~ msgid "Comment"
-#~ msgstr "Comentário"
-
-#~ msgid "Comments:"
-#~ msgstr "Comentários:"
-
-#~ msgid "Company Address:"
-#~ msgstr "Endereço da empresa:"
-
-#~ msgid "Company Administration"
-#~ msgstr "Administração da companhia"
-
-#~ msgid "Company Bank Information"
-#~ msgstr "Informação do banco da companhia"
-
-#~ msgid "Company List"
-#~ msgstr "Lista da companhia"
-
-#~ msgid "Company:"
-#~ msgstr "Companhia:"
-
-#~ msgid "Complete Date"
-#~ msgstr "Terminar a data"
-
-#~ msgid "Configuration Modes:"
-#~ msgstr "Modos de Configuração:"
-
-#~ msgid "Confirmation Number:"
-#~ msgstr "Número da confirmação:"
-
-#~ msgid "Conflicting start time"
-#~ msgstr "Tempo de começo opondo"
-
-#~ msgid "Continue"
-#~ msgstr "Continuar"
-
-#~ msgid "Conversion Rate:"
-#~ msgstr "Taxa de conversão:"
-
-#~ msgid "Cost"
-#~ msgstr "Custo"
-
-#~ msgid "Cost Difference %:"
-#~ msgstr "Diferença de custo %:"
-
-#~ msgid "Cost Difference:"
-#~ msgstr "Diferença de custo:"
-
-#~ msgid "Cote D'Ivoire"
-#~ msgstr "Cote D'Ivoire"
-
-#~ msgid "Create Initial Pay Periods From:"
-#~ msgstr "Criar Períodos de Salário iniciais a partir de:"
-
-#~ msgid "Created By:"
-#~ msgstr "Criado Por:"
-
-#~ msgid "Credit Account Number"
-#~ msgstr "Número de conta de crédito"
-
-#~ msgid "Credit Account:"
-#~ msgstr "Conta de crédito:"
-
-#~ msgid "Credit Amount"
-#~ msgstr "Uma quantidade do crédito"
-
-#~ msgid "Credit Card Number:"
-#~ msgstr "Número de cartão do crédito:"
-
-#~ msgid "Credit Card Security Code (CSC):"
-#~ msgstr "Código de segurança do cartão de crédito (CSC):"
-
-#~ msgid "Credit Card Type:"
-#~ msgstr "Tipo do cartão de crédito:"
-
-#~ msgid "Criteria"
-#~ msgstr "Critérios"
-
-#~ msgid "Currency List"
-#~ msgstr "Lista da moeda corrente"
-
-#~ msgid "Currency:"
-#~ msgstr "Moeda:"
-
-#~ msgid "Current Balance:"
-#~ msgstr "Contrapeso atual:"
-
-#~ msgid "Current Exceptions"
-#~ msgstr "Exceções atuais"
-
-#~ msgid "Current Password:"
-#~ msgstr "Senha atual:"
-
-#~ msgid "Current Payment"
-#~ msgstr "Pagamento atual"
-
-#~ msgid "Current Stock:"
-#~ msgstr "Estoque atual:"
-
-#~ msgid "Customer ID:"
-#~ msgstr "Identificação do Cliente:"
-
-#~ msgid "Customs Unit Value:"
-#~ msgstr "Valor de unidade alfandegário:"
-
-#~ msgid "DELETED CONFLICTING SHIFT"
-#~ msgstr "DESLOCAMENTO OPONDO SUPRIMIDO"
-
-#~ msgid "Data Center / Immediate Destination:"
-#~ msgstr "Centro de dados/destino imediato:"
-
-#~ msgid "Date Format:"
-#~ msgstr "Formato de data:"
-
-#~ msgid "Day Of Month:"
-#~ msgstr "Dia do mês:"
-
-#~ msgid "Day Of Week:"
-#~ msgstr "Dia da semana:"
-
-#~ msgid "Day of the Month:"
-#~ msgstr "Dia do mês:"
-
-#~ msgid "Day of the Week:"
-#~ msgstr "Dia da semana:"
-
-#~ msgid "Days"
-#~ msgstr "Dias"
-
-#~ msgid "Days Worked:"
-#~ msgstr "Dias trabalhados:"
-
-#~ msgid "Debit Account Number"
-#~ msgstr "Número de conta de débito"
-
-#~ msgid "Debit Account:"
-#~ msgstr "Conta de débito:"
-
-#~ msgid "Debit Amount"
-#~ msgstr "Uma quantidade do débito"
-
-#~ msgid "Deductions:"
-#~ msgstr "Deduções:"
-
-#~ msgid "Default Branch:"
-#~ msgstr "Filial/Sucursal Padrão:"
-
-#~ msgid "Default Currency:"
-#~ msgstr "Moeda corrente do defeito:"
-
-#~ msgid "Default Department:"
-#~ msgstr "Departamento Padrão:"
-
-#~ msgid "Default Policy:"
-#~ msgstr "Política do defeito:"
-
-#~ msgid "Default Punch Settings"
-#~ msgstr "Definições de Marcação de Ponto padrão"
-
-#~ msgid "Default Schedule Status:"
-#~ msgstr "Estado do Agendamento padrão:"
-
-#~ msgid "Default Task:"
-#~ msgstr "Tarefa do defeito:"
-
-#~ msgid "Delete Data"
-#~ msgstr "Apagar os Dados"
-
-#~ msgid "Delete Level"
-#~ msgstr "Apagar Nível"
-
-#~ msgid "Demerits"
-#~ msgstr "Deméritos"
-
-#~ msgid "Department Employees"
-#~ msgstr "Empregados do departamento"
-
-#~ msgid "Department List"
-#~ msgstr "Lista do departamento"
-
-#~ msgid "Departments Currently Selected, Click the arrow to modify."
-#~ msgstr "Departamentos atualmente selecionados. Clique na seta para modificar."
-
-#~ msgid "Dependent Care Benefits (Box 10):"
-#~ msgstr "Benefícos de pessoas a carga (Caixa 10):"
-
-#~ msgid "Dept:"
-#~ msgstr "Departamento:"
-
-#~ msgid "Description:"
-#~ msgstr "Descrição:"
-
-#~ msgid "Difference"
-#~ msgstr "Diferença"
-
-#~ msgid "Difference:"
-#~ msgstr "Diferença:"
-
-#~ msgid "Dimension Unit:"
-#~ msgstr "Unidade da dimensão:"
-
-#~ msgid "Disable Rounding:"
-#~ msgstr "Incapacitar arredondar-se:"
-
-#~ msgid "Display Balance on Pay Stub:"
-#~ msgstr "Mostrar o Saldo no Recibo de Salário:"
-
-#~ msgid "Display Detailed TimeSheet"
-#~ msgstr "Visualizar a Folha de Horas detalhada"
-
-#~ msgid "Display Form"
-#~ msgstr "Formulário da exposição"
-
-#~ msgid "Display Number on Invoice:"
-#~ msgstr "Número da exposição no Invoice:"
-
-#~ msgid "Display Order:"
-#~ msgstr "Ordem de visualização:"
-
-#~ msgid "Display Permissions:"
-#~ msgstr "Visualizar Permissões:"
-
-#~ msgid "Display Report"
-#~ msgstr "Relatório da exposição"
-
-#~ msgid "Display T4's"
-#~ msgstr "Indicar T4"
-
-#~ msgid "Display T4A's"
-#~ msgstr "Visualizar Impressos de Imposto"
-
-#~ msgid "Display TimeSheet"
-#~ msgstr "Visualizar a Folha de Horas"
-
-#~ msgid "District / County:"
-#~ msgstr "Distrito/condado:"
-
-#~ msgid "District List"
-#~ msgstr "Lista do distrito"
-
-#~ msgid "District:"
-#~ msgstr "Distrito:"
-
-#~ msgid "Districts"
-#~ msgstr "Distritos"
-
-#~ msgid "Docked Absences"
-#~ msgstr "Ausências acopladas"
-
-#~ msgid "Docked Time"
-#~ msgstr "Tempo acoplado"
-
-#~ msgid "Docs"
-#~ msgstr "Docs"
-
-#~ msgid "Document Attachment List"
-#~ msgstr "Documentar a lista do acessório"
-
-#~ msgid "Document Group List"
-#~ msgstr "Documentar a lista do grupo"
-
-#~ msgid "Document List"
-#~ msgstr "Documentar a lista"
-
-#~ msgid "Document:"
-#~ msgstr "Original:"
-
-#~ msgid "Download Frequency:"
-#~ msgstr "Transferir a frequência:"
-
-#~ msgid "Driver:"
-#~ msgstr "Condutor:"
-
-#~ msgid "EI Exempt:"
-#~ msgstr "EI Exempt:"
-
-#~ msgid "EI Insurable Earnings (Box: 24):"
-#~ msgstr "Salário Insurable EI (caixa: 24):"
-
-#~ msgid "ERROR: Employee TimeSheet(s) not available!"
-#~ msgstr "ERRO: Empregado TimeSheet nao disponível!"
-
-#~ msgid "ERROR: Form has not been setup yet! Please click the arrow below to do so now."
-#~ msgstr "ERRO: Dar forma não setup ainda! Estalar por favor a seta abaixo para fazer assim agora."
-
-#~ msgid "ERROR: No Data to Export!"
-#~ msgstr "ERRO: Nenhuns dados a exportar!"
-
-#~ msgid "ERROR: No Items Selected!"
-#~ msgstr "ERRO: Nenhuns artigos selecionados!"
-
-#~ msgid "ERROR: Report has not been setup yet! Please click the arrow below to do so now."
-#~ msgstr "ERRO: Relatar não setup ainda! Estalar por favor a seta abaixo para fazer assim agora."
-
-#~ msgid "Edit Absence"
-#~ msgstr "Editar a ausência"
-
-#~ msgid "Edit Absence Policy"
-#~ msgstr "Editar a política da ausência"
-
-#~ msgid "Edit Accrual"
-#~ msgstr "Editar a acumulação"
-
-#~ msgid "Edit Accrual Policy"
-#~ msgstr "Editar a política Accrual"
-
-#~ msgid "Edit Branch"
-#~ msgstr "Editar a filial"
-
-#~ msgid "Edit Client Contact"
-#~ msgstr "Editar o contato do cliente"
-
-#~ msgid "Edit Client Group"
-#~ msgstr "Editar o grupo do cliente"
-
-#~ msgid "Edit Client Payment Method"
-#~ msgstr "Editar o método do pagamento do cliente"
-
-#~ msgid "Edit Company"
-#~ msgstr "Editar a companhia"
-
-#~ msgid "Edit Currency"
-#~ msgstr "Editar a moeda corrente"
-
-#~ msgid "Edit District"
-#~ msgstr "Editar o distrito"
-
-#~ msgid "Edit Document"
-#~ msgstr "Editar o original"
-
-#~ msgid "Edit Document Group"
-#~ msgstr "Editar o grupo do original"
-
-#~ msgid "Edit Employee"
-#~ msgstr "Editar o empregado"
-
-#~ msgid "Edit Employee Group"
-#~ msgstr "Editar o grupo do empregado"
-
-#~ msgid "Edit Employee Pay Stub"
-#~ msgstr "Editar o topo do pagamento do empregado"
-
-#~ msgid "Edit Employee Tax / Deduction"
-#~ msgstr "Editar o imposto/dedução do empregado"
-
-#~ msgid "Edit Employee Tax Options"
-#~ msgstr "Editar opções do imposto do empregado"
-
-#~ msgid "Edit Employee Title"
-#~ msgstr "Editar o título do empregado"
-
-#~ msgid "Edit Employee Wage"
-#~ msgstr "Editar o salário do empregado"
-
-#~ msgid "Edit Exception Policy"
-#~ msgstr "Editar a política da exceção"
-
-#~ msgid "Edit Help"
-#~ msgstr "Editar a ajuda"
-
-#~ msgid "Edit Help Group"
-#~ msgstr "Editar o grupo da ajuda"
-
-#~ msgid "Edit Help Group Entries"
-#~ msgstr "Editar entradas do grupo da ajuda"
-
-#~ msgid "Edit Hierarchy List"
-#~ msgstr "Editar a lista da hierarquia"
-
-#~ msgid "Edit Holiday"
-#~ msgstr "Editar o feriado"
-
-#~ msgid "Edit Holiday Policy"
-#~ msgstr "Editar a política do feriado"
-
-#~ msgid "Edit Hour"
-#~ msgstr "Editar a hora"
-
-#~ msgid "Edit Invoice"
-#~ msgstr "Editar o Invoice"
-
-#~ msgid "Edit Invoice Settings"
-#~ msgstr "Editar ajustes do Invoice"
-
-#~ msgid "Edit Job"
-#~ msgstr "Editar o trabalho"
-
-#~ msgid "Edit Job Group"
-#~ msgstr "Editar o grupo do trabalho"
-
-#~ msgid "Edit Meal Policy"
-#~ msgstr "Editar a política da refeição"
-
-#~ msgid "Edit Other Field"
-#~ msgstr "Editar o outro campo"
-
-#~ msgid "Edit Overtime Policy"
-#~ msgstr "Editar fora do tempo estipulado a política"
-
-#~ msgid "Edit Pay Period"
-#~ msgstr "Editar o período do pagamento"
-
-#~ msgid "Edit Pay Stub Account"
-#~ msgstr "Editar o cliente do topo do pagamento"
-
-#~ msgid "Edit Pay Stub Account Links"
-#~ msgstr "Editar as ligações do cliente do topo do pagamento"
-
-#~ msgid "Edit Pay Stub Amendment"
-#~ msgstr "Editar a emenda do topo do pagamento"
-
-#~ msgid "Edit Payment Gateway"
-#~ msgstr "Editar a passagem do pagamento"
-
-#~ msgid "Edit Premium Policy"
-#~ msgstr "Editar a política superior"
-
-#~ msgid "Edit Product"
-#~ msgstr "Editar o produto"
-
-#~ msgid "Edit Product Group"
-#~ msgstr "Editar o grupo de produto"
-
-#~ msgid "Edit Punch"
-#~ msgstr "Editar o perfurador"
-
-#~ msgid "Edit Record Of Employment"
-#~ msgstr "Editar o registro do emprego"
-
-#~ msgid "Edit Recurring Holiday"
-#~ msgstr "Editar o feriado retornando"
-
-#~ msgid "Edit Recurring Pay Stub Amendment"
-#~ msgstr "Editar a emenda retornando do topo do pagamento"
-
-#~ msgid "Edit Recurring Schedule"
-#~ msgstr "Editar a programação retornando"
-
-#~ msgid "Edit Recurring Schedule Template"
-#~ msgstr "Editar o molde retornando da programação"
-
-#~ msgid "Edit Request"
-#~ msgstr "Editar o pedido"
-
-#~ msgid "Edit Rounding Policy"
-#~ msgstr "Editar arredondar a política"
-
-#~ msgid "Edit Schedule"
-#~ msgstr "Editar a programação"
-
-#~ msgid "Edit Schedule Policy"
-#~ msgstr "Editar a política da programação"
-
-#~ msgid "Edit Station"
-#~ msgstr "Editar a estação"
-
-#~ msgid "Edit Task"
-#~ msgstr "Editar a tarefa"
-
-#~ msgid "Edit Task Amendment"
-#~ msgstr "Editar a emenda da tarefa"
-
-#~ msgid "Edit Task Group"
-#~ msgstr "Editar o grupo de tarefa"
-
-#~ msgid "Edit Tax / Deduction"
-#~ msgstr "Editar o imposto/dedução"
-
-#~ msgid "Edit Tax Policy"
-#~ msgstr "Editar a política de imposto"
-
-#~ msgid "Edit Transaction"
-#~ msgstr "Editar a transação"
-
-#~ msgid "Effective Date:"
-#~ msgstr "Data efectiva:"
-
-#~ msgid "Eligibility Criteria"
-#~ msgstr "Critério de elegibilidade"
-
-#~ msgid "Eligible Retiring Allowances (Box: 26):"
-#~ msgstr "Subsidio de Aposentadoria Elegível (Caixa: 26):"
-
-#~ msgid "Email Invoice To Contact(s):"
-#~ msgstr "Factura por email para:"
-
-#~ msgid "Employee Administration"
-#~ msgstr "Administração de Trabalhadores"
-
-#~ msgid "Employee CPP (Box: 16):"
-#~ msgstr "CPP do Trabalhador (Caixa: 16):"
-
-#~ msgid "Employee CPP:"
-#~ msgstr "Canada Pension Plan (CPP) do Trabalhador :"
-
-#~ msgid "Employee Detail Report"
-#~ msgstr "Relatório do detalhe do empregado"
-
-#~ msgid "Employee EI (Box: 18):"
-#~ msgstr "EI do Trabalhador (Caixa: 18):"
-
-#~ msgid "Employee EI:"
-#~ msgstr "EI do Trabalhador:"
-
-#~ msgid "Employee Group List"
-#~ msgstr "Lista do grupo do empregado"
-
-#~ msgid "Employee Groups Currently Selected, Click the arrow to modify."
-#~ msgstr "Grupos de Trabalhadores atualmente selecionados, clique na seta para modificar."
-
-#~ msgid "Employee Information Report"
-#~ msgstr "Relatório de informação do empregado"
-
-#~ msgid "Employee Information Summary"
-#~ msgstr "Resumo da informação do Trabalhador"
-
-#~ msgid "Employee List"
-#~ msgstr "Lista de Trabalhadores"
-
-#~ msgid "Employee Must Work at Least:"
-#~ msgstr "O Trabalhador tem de trabalhar pelo menos:"
-
-#~ msgid "Employee Number:"
-#~ msgstr "Número do Trabalhador:"
-
-#~ msgid "Employee Pay Stub Summary"
-#~ msgstr "Sumário do topo do pagamento do empregado"
-
-#~ msgid "Employee Search"
-#~ msgstr "Busca do empregado"
-
-#~ msgid "Employee Status:"
-#~ msgstr "Estado do Trabalhador:"
-
-#~ msgid "Employee Statuses"
-#~ msgstr "Estados dos Trabalhadores"
-
-#~ msgid "Employee Tax / Deduction List"
-#~ msgstr "Imposto do empregado/lista da dedução"
-
-#~ msgid "Employee Title List"
-#~ msgstr "Lista do título do empregado"
-
-#~ msgid "Employee Title:"
-#~ msgstr "Título do Trabalhador:"
-
-#~ msgid "Employee Titles"
-#~ msgstr "Títulos de Trabalhadores"
-
-#~ msgid "Employee Wage List"
-#~ msgstr "Lista do salário do empregado"
-
-#~ msgid "Employee can't work more than scheduled time"
-#~ msgstr "O Trabalhador não pode trabalhar mais que o tempo previsto"
-
-#~ msgid "Employee is not assigned to a Pay Period Schedule."
-#~ msgstr "O Trabalhador não está atribuído a um Agendamento de Período de Salário"
-
-#~ msgid "Employee's Hire Date:"
-#~ msgstr "Data de contratação do Trabalhador:"
-
-#~ msgid "Employee(s):"
-#~ msgstr "Trabalhador(es):"
-
-#~ msgid "Employee/Employer CPP Accounts:"
-#~ msgstr "Contas CPP de empregado/empregador:"
-
-#~ msgid "Employee/Employer EI Accounts:"
-#~ msgstr "Clientes EI do empregado/empregador:"
-
-#~ msgid "Employees Currently Selected, Click the arrow to modify."
-#~ msgstr "Trabalhadores selecionados atualmente, clique na seta para modificar."
-
-#~ msgid "Employees:"
-#~ msgstr "Trabalhadores:"
-
-#~ msgid "Employer CPP:"
-#~ msgstr "Empregador CPP:"
-
-#~ msgid "Employer Deductions"
-#~ msgstr "Deduções do empregador"
-
-#~ msgid "Employer EI:"
-#~ msgstr "Empregador EI:"
-
-#~ msgid "Employer State ID Number"
-#~ msgstr "Número do ID do estado do empregador"
-
-#~ msgid "Employment Income (Box: 14):"
-#~ msgstr "Renda do emprego (caixa: 14):"
-
-#~ msgid "Enable Automatic Punch Status:"
-#~ msgstr "Activar o estado da Marcação de Ponto automática:"
-
-#~ msgid "Enable Second Surname:"
-#~ msgstr "Activar Segundo apelido"
-
-#~ msgid "Enable Time Bank:"
-#~ msgstr "Permitir o banco de Tempo:"
-
-#~ msgid "Enable:"
-#~ msgstr "Activar:"
-
-#~ msgid "End Date:"
-#~ msgstr "Data de término:"
-
-#~ msgid "End of Pay Period"
-#~ msgstr "Fim do período de Salários"
-
-#~ msgid "Estimate"
-#~ msgstr "Estimativa"
-
-#~ msgid "Estimate Bad Quantity:"
-#~ msgstr "Quantidade má da estimativa:"
-
-#~ msgid "Estimate Quantity:"
-#~ msgstr "Quantidade da estimativa:"
-
-#~ msgid "Estimate Time:"
-#~ msgstr "Estimativa Tempo:"
-
-#~ msgid "Estimated Bad Quantity:"
-#~ msgstr "Quantidade má estimada:"
-
-#~ msgid "Estimated Quantity:"
-#~ msgstr "Quantidade estimada:"
-
-#~ msgid "Estimated Time:"
-#~ msgstr "Tempo estimado:"
-
-#~ msgid "Exactly as shown in Quickbooks"
-#~ msgstr "Exatamente como mostrado nos Quickbooks"
-
-#~ msgid "Exactly as shown in exported timer list"
-#~ msgstr "Exatamente como mostrado na lista de tempos exportada"
-
-#~ msgid "Exception History"
-#~ msgstr "Histórico das exceções"
-
-#~ msgid "Exception Legend"
-#~ msgstr "Legenda da exceção"
-
-#~ msgid "Exception List"
-#~ msgstr "Lista da exceção"
-
-#~ msgid "Exception Policy List"
-#~ msgstr "Lista da política da exceção"
-
-#~ msgid "Exception Policy:"
-#~ msgstr "Política da exceção:"
-
-#~ msgid "Exception:"
-#~ msgstr "Excepções:"
-
-#~ msgid "Exceptions:"
-#~ msgstr "Exceções:"
-
-#~ msgid "Exclude Area Policy:"
-#~ msgstr "Excluir Politica Local:"
-
-#~ msgid "Exclude Clients"
-#~ msgstr "Excluir clientes"
-
-#~ msgid "Exclude Employees:"
-#~ msgstr "Excluir Trabalhadores:"
-
-#~ msgid "Exclude Jobs"
-#~ msgstr "Excluir trabalhos"
-
-#~ msgid "Exclude Pay Stub Accounts:"
-#~ msgstr "Excluir Contas de Recibos de Salário"
-
-#~ msgid "Exclude Products"
-#~ msgstr "Excluir produtos"
-
-#~ msgid "Exclude Tax Policy:"
-#~ msgstr "Excluir a política de imposto:"
-
-#~ msgid "Excluded Pay Stub Accounts"
-#~ msgstr "Contas de Recibos de Salário excluidas"
-
-#~ msgid "Excluded Pay Stub Accounts Currently Selected, Click the arrow to modify."
-#~ msgstr "Contas de Recibos de Salário excluídas atualmente selecionadas. clique na seta para modificar."
-
-#~ msgid "Exclusivity:"
-#~ msgstr "Exclusivity:"
-
-#~ msgid "Exempt Payments (Line 2):"
-#~ msgstr "Pagamentos isentos (linha 2):"
-
-#~ msgid "Exempt Payments (Line 4):"
-#~ msgstr "Pagamentos isentos (Linha 4)"
-
-#~ msgid "Exempt Payments:"
-#~ msgstr "Pagamentos isentos:"
-
-#~ msgid "Expected Date of Recall:"
-#~ msgstr "Data prevista da recordação:"
-
-#~ msgid "Expire Date:"
-#~ msgstr "Data de Expiração:"
-
-#~ msgid "Expiry Date:"
-#~ msgstr "Data de Expiry:"
-
-#~ msgid "Export Format Settings"
-#~ msgstr "Definições de Formato de exportação"
-
-#~ msgid "Export Format:"
-#~ msgstr "Formato da exportação:"
-
-#~ msgid "Ext:"
-#~ msgstr "Ext:"
-
-#~ msgid "FINAL"
-#~ msgstr "FINAL"
-
-#~ msgid "FUTA - Form 940"
-#~ msgstr "FUTA - Formulário 940"
-
-#~ msgid "FUTA - Form 940-EZ"
-#~ msgstr "FUTA - Dar forma a 940-EZ"
-
-#~ msgid "FUTA Tax Deposited For The Year (Line 13):"
-#~ msgstr "Impostos do ano Depositados  (Linha 13):"
-
-#~ msgid "Failed:"
-#~ msgstr "Falhado:"
-
-#~ msgid "Fax:"
-#~ msgstr "Fax:"
-
-#~ msgid "Features"
-#~ msgstr "Funcionalidades"
-
-#~ msgid "Federal Additional Deduction:"
-#~ msgstr "Dedução adicional federal:"
-
-#~ msgid "Federal Allowance:"
-#~ msgstr "Permissão federal:"
-
-#~ msgid "Federal Claim Amount:"
-#~ msgstr "Uma quantidade federal da reivindicação:"
-
-#~ msgid "Federal Filing Status:"
-#~ msgstr "Status federal do arquivamento:"
-
-#~ msgid "Federal Income Tax Withheld (Box 2):"
-#~ msgstr "Retenção de Imposto Federal de renda  (Caixa 2):"
-
-#~ msgid "Federal Income Tax Withheld (Box 4):"
-#~ msgstr "O imposto de renda federal reteve (caixa 4):"
-
-#~ msgid "Federal Tax Exempt:"
-#~ msgstr "Imposto federal - exempt:"
-
-#~ msgid "File Upload"
-#~ msgstr "Arquivar o Upload"
-
-#~ msgid "File Upload failed"
-#~ msgstr "O Upload da lima falha"
-
-#~ msgid "File:"
-#~ msgstr "Lima:"
-
-#~ msgid "Final Pay Period Ending Date:"
-#~ msgstr "Data de fim do Período de Salário final:"
-
-#~ msgid "Fingerprint 1 is too long"
-#~ msgstr "A impressão digital 1 é demasiado longa"
-
-#~ msgid "Fingerprint 2 is too long"
-#~ msgstr "A impressão digital 2 é demasiado longa"
-
-#~ msgid "Fingerprint 3 is too long"
-#~ msgstr "A impressão digital 3 é demasiado longa"
-
-#~ msgid "Fingerprint 4 is too long"
-#~ msgstr "A impressão digital 4 é demasiado longa"
-
-#~ msgid "First"
-#~ msgstr "Primeiramente"
-
-#~ msgid "First Day"
-#~ msgstr "Primeiro dia"
-
-#~ msgid "First Day Worked:"
-#~ msgstr "O primeiro dia trabalhou:"
-
-#~ msgid "First In"
-#~ msgstr "Primeiramente dentro"
-
-#~ msgid "Folder:"
-#~ msgstr "Dobrador:"
-
-#~ msgid "Force Time Zone:"
-#~ msgstr "Forçar Fuso horário:"
-
-#~ msgid "Form 1099-Misc Report"
-#~ msgstr "Dar forma ao relatório 1099-Misc"
-
-#~ msgid "Form 940-EZ Report"
-#~ msgstr "Dar forma ao relatório 940-EZ"
-
-#~ msgid "Form Setup:"
-#~ msgstr "O formulário Setup:"
-
-#~ msgid "Form Type:"
-#~ msgstr "Tipo de Impresso:"
-
-#~ msgid "Frequency:"
-#~ msgstr "Frequência:"
-
-#~ msgid "From Address:"
-#~ msgstr "Endereço do Remetente :"
-
-#~ msgid "From:"
-#~ msgstr "De:"
-
-#~ msgid "Full Name:"
-#~ msgstr "Nome cheio:"
-
-#~ msgid "Full Upload Frequency:"
-#~ msgstr "Upload total da Frequência:"
-
-#~ msgid "Functions"
-#~ msgstr "Funções"
-
-#~ msgid "General Ledger Accounts"
-#~ msgstr "Clientes de livro-razão geral"
-
-#~ msgid "Generate Final Pay Stub:"
-#~ msgstr "Gerar Recibo de Salário Final:"
-
-#~ msgid "Generate Paystubs"
-#~ msgstr "Gerar Recibos de Salários"
-
-#~ msgid "Generated:"
-#~ msgstr "Gerado:"
-
-#~ msgid "Generating Pay Stubs..."
-#~ msgstr "Gerando topos do pagamento…"
-
-#~ msgid "Generic Tax Summary Report"
-#~ msgstr "Relatório sumário do imposto genérico"
-
-#~ msgid "Get Employee Rate"
-#~ msgstr "Obter a taxa do Trabalhador"
-
-#~ msgid "Glossary"
-#~ msgstr "Glossário"
-
-#~ msgid "Good Quantity"
-#~ msgstr "Boa Quantidade"
-
-#~ msgid "Grace Period:"
-#~ msgstr "Período de Grace:"
-
-#~ msgid "Group A:"
-#~ msgstr "Agrupar A:"
-
-#~ msgid "Group B:"
-#~ msgstr "Grupo B:"
-
-#~ msgid "Group Schedule"
-#~ msgstr "Agenda de Grupo"
-
-#~ msgid "Group T:"
-#~ msgstr "Grupo T:"
-
-#~ msgid "Group:"
-#~ msgstr "Grupo:"
-
-#~ msgid "Handling Fee:"
-#~ msgstr "Despesas de envio"
-
-#~ msgid "Heading"
-#~ msgstr "Título"
-
-#~ msgid "Heading:"
-#~ msgstr "Título:"
-
-#~ msgid "Height:"
-#~ msgstr "Altura:"
-
-#~ msgid "Help Administration"
-#~ msgstr "Administração da ajuda"
-
-#~ msgid "Help Entries"
-#~ msgstr "Entradas da ajuda"
-
-#~ msgid "Help Group"
-#~ msgstr "Grupo da ajuda"
-
-#~ msgid "Help Group Administration"
-#~ msgstr "Administração do grupo da ajuda"
-
-#~ msgid "Help Group Control"
-#~ msgstr "Controle do grupo da ajuda"
-
-#~ msgid "Help Group List"
-#~ msgstr "Ajudar à lista do grupo"
-
-#~ msgid "Help List"
-#~ msgstr "Ajudar alistar"
-
-#~ msgid "Help:"
-#~ msgstr "Ajuda:"
-
-#~ msgid "Hide Employer Contributions:"
-#~ msgstr "Ocultar Contribuições do Empregador:"
-
-#~ msgid "Hierarchies"
-#~ msgstr "Hierarquias"
-
-#~ msgid "Hierarchy List"
-#~ msgstr "Lista da hierarquia"
-
-#~ msgid "Hire Date:"
-#~ msgstr "Data do Hire:"
-
-#~ msgid "Hired Date:"
-#~ msgstr "Data de início do emprego:"
-
-#~ msgid "Holiday Eligibility"
-#~ msgstr "Elegibilidade para Férias"
-
-#~ msgid "Holiday List"
-#~ msgstr "Lista do feriado"
-
-#~ msgid "Holiday Policies:"
-#~ msgstr "Politicas de Tempo de Férias:"
-
-#~ msgid "Holiday Policy List"
-#~ msgstr "Lista da política do feriado"
-
-#~ msgid "Holiday Time Calculation"
-#~ msgstr "Cálculo do tempode Férias"
-
-#~ msgid "Holiday Time:"
-#~ msgstr "Tempo de Férias:"
-
-#~ msgid "Home"
-#~ msgstr "Home"
-
-#~ msgid "Home Address (Line 1):"
-#~ msgstr "Endereço Home (linha 1):"
-
-#~ msgid "Home Address (Line 2):"
-#~ msgstr "Endereço Home (linha 2):"
-
-#~ msgid "Home Email:"
-#~ msgstr "Email Home:"
-
-#~ msgid "Home Phone:"
-#~ msgstr "Telefone Home:"
-
-#~ msgid "Hour List"
-#~ msgstr "Lista da hora"
-
-#~ msgid "Hourly Rate:"
-#~ msgstr "Valor da hora:"
-
-#~ msgid "ID"
-#~ msgstr "ID"
-
-#~ msgid "ID:"
-#~ msgstr "ID:"
-
-#~ msgid "ISO Currency:"
-#~ msgstr "Moeda corrente do ISO:"
-
-#~ msgid "Identification #:"
-#~ msgstr "Identificação #:"
-
-#~ msgid "Import Data"
-#~ msgstr "Importar Dados"
-
-#~ msgid "In / Out"
-#~ msgstr "Em/para fora"
-
-#~ msgid "In:"
-#~ msgstr "Em:"
-
-#~ msgid "Include Any Punched Time for Break:"
-#~ msgstr "Incluir qualquer Marcação de Ponto para o Tempo de Descanso:"
-
-#~ msgid "Include Any Punched Time for Lunch:"
-#~ msgstr "Incluir qualquer Marcação de Ponto para Almoço:"
-
-#~ msgid "Include Area Policy:"
-#~ msgstr "Incluir Politica Local:"
-
-#~ msgid "Include Clients"
-#~ msgstr "Incluir clientes"
-
-#~ msgid "Include Employees with no data:"
-#~ msgstr "Incluir Trabalhadores sem dados:"
-
-#~ msgid "Include Employees:"
-#~ msgstr "Incluir Trabalhadores:"
-
-#~ msgid "Include Instruction Page:"
-#~ msgstr "Incluir página de instruções:"
-
-#~ msgid "Include Instruction Pages:"
-#~ msgstr "Incluir páginas da instrução:"
-
-#~ msgid "Include Jobs"
-#~ msgstr "Incluir trabalhos"
-
-#~ msgid "Include Over Time in Average:"
-#~ msgstr "Incluir tempo excedente na média:"
-
-#~ msgid "Include Paid Absence Time in Average:"
-#~ msgstr "Incluir ausência paga Tempo na média:"
-
-#~ msgid "Include Pay Stub Accounts:"
-#~ msgstr "Incluir Contas de Recibos de Salário:"
-
-#~ msgid "Include Products"
-#~ msgstr "Incluir produtos"
-
-#~ msgid "Include Tax Policy:"
-#~ msgstr "Incluir a política de imposto:"
-
-#~ msgid "Included Pay Stub Accounts"
-#~ msgstr "Contas de Recibos de Salário Incluídas"
-
-#~ msgid "Included Pay Stub Accounts Currently Selected, Click the arrow to modify."
-#~ msgstr "Contas de Recibos de Salário incluídas atualmente selecionadas, clique na seta para modificar."
-
-#~ msgid "Income Tax (Box: 22):"
-#~ msgstr "Imposto de renda (caixa: 22):"
-
-#~ msgid "Income Tax (Line 3):"
-#~ msgstr "Imposto de renda (linha 3):"
-
-#~ msgid "Income Tax Accounts:"
-#~ msgstr "Contas de imposto de renda/IRS:"
-
-#~ msgid "Income Tax Deducted (Box: 22):"
-#~ msgstr "Imposto de rendimento Deduzido (Caixa: 22):"
-
-#~ msgid "Incorrect iButton ID length"
-#~ msgstr "Comprimento incorreto do ID do iButton"
-
-#~ msgid "Institution Number:"
-#~ msgstr "Número da instituição:"
-
-#~ msgid "Insurable Earnings (Box 15B):"
-#~ msgstr "Salário Insurable (caixa 15B):"
-
-#~ msgid "Insurable Earnings:"
-#~ msgstr "Salário Insurable:"
-
-#~ msgid "Insurable Hours:"
-#~ msgstr "Horas Insurable:"
-
-#~ msgid "Interval:"
-#~ msgstr "Intervalo:"
-
-#~ msgid "Invalid Overtime Policy ID"
-#~ msgstr "Política inválida ID das horas extras"
-
-#~ msgid "Invalid Pay Stub Amendment Id"
-#~ msgstr "Identificação inválida da emenda do topo do pagamento"
-
-#~ msgid "Invalid Premium Policy ID"
-#~ msgstr "Política superior inválida ID"
-
-#~ msgid "Invalid User Date ID"
-#~ msgstr "Data inválida ID do usuário"
-
-#~ msgid "Invoice #:"
-#~ msgstr "Factura nº"
-
-#~ msgid "Invoice Date:"
-#~ msgstr "Data da Factura"
-
-#~ msgid "Invoice List"
-#~ msgstr "Facturar a lista"
-
-#~ msgid "Is your payroll company or software package not in the list?"
-#~ msgstr "O seu fornecedor ou software de Gestão de Salários não está listado ?"
-
-#~ msgid "Issue Date:"
-#~ msgstr "Data de emissão:"
-
-#~ msgid "Job / Task Barcodes"
-#~ msgstr "Trabalho/tarefa Barcodes"
-
-#~ msgid "Job End Date:"
-#~ msgstr "Data do fim do trabalho:"
-
-#~ msgid "Job Group List"
-#~ msgstr "Lista do grupo do trabalho"
-
-#~ msgid "Job Groups Currently Selected, Click the arrow to modify."
-#~ msgstr "Grupos de Trabalho atualmente selecionados, clique na seta para modificar"
-
-#~ msgid "Job List"
-#~ msgstr "Lista do trabalho"
-
-#~ msgid "Job Start Date:"
-#~ msgstr "Data do começo do trabalho:"
-
-#~ msgid "JobTracking"
-#~ msgstr "Rastreio de Trabalhos"
-
-#~ msgid "Jobs Currently Selected, Click the arrow to modify."
-#~ msgstr "Trabalhos atualmente selecionados, clique na seta para modificar."
-
-#~ msgid "Keywords:"
-#~ msgstr "Keywords:"
-
-#~ msgid "Korea, Democratic People's Republic of"
-#~ msgstr "Coreia, república de pessoa democrática de"
-
-#~ msgid "LDAP Authentication:"
-#~ msgstr "Autenticação LDAP:"
-
-#~ msgid "Labor Burden Percent:"
-#~ msgstr "Por cento Labor do Burden:"
-
-#~ msgid "Labor Cost:"
-#~ msgstr "Custo Labor:"
-
-#~ msgid "Language:"
-#~ msgstr "Língua:"
-
-#~ msgid "Lao People's Democratic Republic"
-#~ msgstr "República democrática do pessoa do Lao"
-
-#~ msgid "Last"
-#~ msgstr "Último"
-
-#~ msgid "Last Day"
-#~ msgstr "Último dia"
-
-#~ msgid "Last Day For Which Paid:"
-#~ msgstr "Último dia por que pagou:"
-
-#~ msgid "Last Downloaded Date:"
-#~ msgstr "Data Downloaded último:"
-
-#~ msgid "Last Downloaded Punch:"
-#~ msgstr "Última Marcação de Ponto transferida"
-
-#~ msgid "Last Out"
-#~ msgstr "Último para fora"
-
-#~ msgid "Leave blank for no date restriction"
-#~ msgstr "Deixar  em branco para nenhuma restrição de data"
-
-#~ msgid "Length:"
-#~ msgstr "Comprimento:"
-
-#~ msgid "Less Advance"
-#~ msgstr "Menos avanço"
-
-#~ msgid "Level one denotes the top or last level of the hierarchy and employees at the same level share responsibilities."
-#~ msgstr "O nível 1 indica o Topo ou ultimo nível da hierarquia e trabalhadores ao mesmo nível  partilham responsabilidades."
-
-#~ msgid "Location:"
-#~ msgstr "Local:"
-
-#~ msgid "Lock Description:"
-#~ msgstr "Descrição do fechamento:"
-
-#~ msgid "Lock Price:"
-#~ msgstr "Preço do fechamento:"
-
-#~ msgid "Login Failed!"
-#~ msgstr "O início de uma sessão falha!"
-
-#~ msgid "Logo Height:"
-#~ msgstr "Altura do Logótipo:"
-
-#~ msgid "Logo Left/Right Position:"
-#~ msgstr "Posição esquerda/direita do Logótipo:"
-
-#~ msgid "Logo Top/Bottom Position:"
-#~ msgstr "Posição superior/inferior do Logótipo:"
-
-#~ msgid "Logo Width:"
-#~ msgstr "Largura do Logótipo:"
-
-#~ msgid "Logo:"
-#~ msgstr "Logótipo:"
-
-#~ msgid "Lump-sum Payments (Box: 18):"
-#~ msgstr "Pagamentos a pronto (Caixa: 18):"
-
-#~ msgid "Lunch End"
-#~ msgstr "Extremidade do Lunch"
-
-#~ msgid "Lunch Start"
-#~ msgstr "Começo do Lunch"
-
-#~ msgid "Maintenance Jobs Last Ran:"
-#~ msgstr "Os trabalhos da manutenção funcionaram por último:"
-
-#~ msgid "Manual Command:"
-#~ msgstr "Comando manual:"
-
-#~ msgid "Mark Paid"
-#~ msgstr "Marcar como paga"
-
-#~ msgid "Mark UnPaid"
-#~ msgstr "Marcar como por pagar"
-
-#~ msgid "Markup Percent:"
-#~ msgstr "Margem de lucro percentual:"
-
-#~ msgid "Married or Qualified Widow(er)"
-#~ msgstr "Viúva casada ou qualificada (er)"
-
-#~ msgid "Mass Punch"
-#~ msgstr "Marcações de Ponto em massa"
-
-#~ msgid "Mass Schedule"
-#~ msgstr "Agendamento em massa"
-
-#~ msgid "Matching Employees"
-#~ msgstr "Trabalhadores que coincidem"
-
-#~ msgid "Maximum Length Of Service:"
-#~ msgstr "Duração máxima do serviço:"
-
-#~ msgid "Maximum Price:"
-#~ msgstr "Preço máximo:"
-
-#~ msgid "Maximum Punch Time:"
-#~ msgstr "Tempo máximo da Marcação de Ponto:"
-
-#~ msgid "Maximum Purchase Quantity:"
-#~ msgstr "Quantidades Máxima de compra:"
-
-#~ msgid "Maximum Shift Time:"
-#~ msgstr "Tempo máximo de Turno"
-
-#~ msgid "Maximum Time:"
-#~ msgstr "Tempo máximo:"
-
-#~ msgid "Meal Policies:"
-#~ msgstr "Politicas de Tempo de Refeições:"
-
-#~ msgid "Meal Policy List"
-#~ msgstr "Lista da política da refeição"
-
-#~ msgid "Meal Policy is invalid"
-#~ msgstr "A política da refeição é inválida"
-
-#~ msgid "Meal Policy:"
-#~ msgstr "Política da refeição:"
-
-#~ msgid "Medical and Health Care Payments (Box 6):"
-#~ msgstr "Pagamentos médicos e de cuidados de saúde (Caixa 6):"
-
-#~ msgid "Medicare Exempt:"
-#~ msgstr "Medicare isento:"
-
-#~ msgid "Medicare Tax Withheld (Box 6):"
-#~ msgstr "Retenções de Imposto de Seguro Médico (caixa 6):"
-
-#~ msgid "Medicare Wages and Tips (Box 5):"
-#~ msgstr "Salários de Seguro Médico e gratificações (caixa 5):"
-
-#~ msgid "Message Acknowledgment"
-#~ msgstr "Reconhecimento da mensagem"
-
-#~ msgid "Message List"
-#~ msgstr "Lista da mensagem"
-
-#~ msgid "Messages:"
-#~ msgstr "Mensagens"
-
-#~ msgid "Middle Name:"
-#~ msgstr "Nome médio:"
-
-#~ msgid "Minimum Billable Time:"
-#~ msgstr "Tempo Billable mínimo:"
-
-#~ msgid "Minimum Employed Days:"
-#~ msgstr "Dias empregados mínimo:"
-
-#~ msgid "Minimum Length Of Service:"
-#~ msgstr "Duração miníma do serviço:"
-
-#~ msgid "Minimum Price:"
-#~ msgstr "Preço mínimo:"
-
-#~ msgid "Minimum Punch Time:"
-#~ msgstr "Tempo mínimo da marcação de Ponto:"
-
-#~ msgid "Minimum Purchase Quantity:"
-#~ msgstr "Quantidades Mínimas de compra:"
-
-#~ msgid "Minimum Time-Off Between Shifts:"
-#~ msgstr "Tempo de Descanso minimo entre turnos:"
-
-#~ msgid "Minimum Time:"
-#~ msgstr "Tempo mínimo:"
-
-#~ msgid "Mobile Phone:"
-#~ msgstr "Telefone móvel:"
-
-#~ msgid "Month:"
-#~ msgstr "Mês:"
-
-#~ msgid "Months"
-#~ msgstr "Meses"
-
-#~ msgid "My Schedule"
-#~ msgstr "Minha programação"
-
-#~ msgid "My Timesheet"
-#~ msgstr "Meu Timesheet"
-
-#~ msgid "MySchedule"
-#~ msgstr "A Minha Agenda"
-
-#~ msgid "MyTimeSheet"
-#~ msgstr "MyTimeSheet"
-
-#~ msgid "NONE"
-#~ msgstr "NENHUNS"
-
-#~ msgid "NOTE"
-#~ msgstr "NOTA"
-
-#~ msgid "NOTE:"
-#~ msgstr "NOTA:"
-
-#~ msgid "NOTICE:"
-#~ msgstr "OBSERVAÇÃO:"
-
-#~ msgid "Net"
-#~ msgstr "Total"
-
-#~ msgid "Net Pay:"
-#~ msgstr "Salário líquido:"
-
-#~ msgid "Net Pay: $"
-#~ msgstr "Pagamento líquido: $"
-
-#~ msgid "Net:"
-#~ msgstr "Total:"
-
-#~ msgid "New Message"
-#~ msgstr "Mensagem nova"
-
-#~ msgid "Next available code"
-#~ msgstr "Proximo código disponível"
-
-#~ msgid "Next available:"
-#~ msgstr "Disponível seguinte:"
-
-#~ msgid "No Data To Export!"
-#~ msgstr "Nenhuns dados a exportar!"
-
-#~ msgid "No Employees Match Your Criteria!"
-#~ msgstr "Nenhum empregado combina seus critérios!"
-
-#~ msgid "No Exception History"
-#~ msgstr "Nenhum histórico de exceções"
-
-#~ msgid "No Exceptions Found"
-#~ msgstr "Nenhuma Exceção encontrada"
-
-#~ msgid "No Grouping"
-#~ msgstr "Nenhum agrupar"
-
-#~ msgid "No Job Found"
-#~ msgstr "Nenhum Trabalho encontrado"
-
-#~ msgid "No Pending Requests"
-#~ msgstr "Nenhuns pedidos pendentes"
-
-#~ msgid "No Policy"
-#~ msgstr "Nenhuma política"
-
-#~ msgid "No Punches Found"
-#~ msgstr "Nenhuma Marcação de Ponto encontrada"
-
-#~ msgid "No Recent Messages"
-#~ msgstr "Nenhumas mensagens recentes"
-
-#~ msgid "No Recent Requests"
-#~ msgstr "Nenhuns pedidos recentes"
-
-#~ msgid "No Scheduled Shifts Found"
-#~ msgstr "Nenhum Turno agendado encontrado"
-
-#~ msgid "No Wage History"
-#~ msgstr "Nenhum histórico salarial"
-
-#~ msgid "No results match your filter criteria."
-#~ msgstr "Nenhum resultado combina seus critérios do filtro."
-
-#~ msgid "No. of Employees"
-#~ msgstr "Número de Trabalhadores"
-
-#~ msgid "Non-Eligible Retiring Allowances (Box: 27):"
-#~ msgstr "Subsidio de Aposentadoria Não-elegível (Caixa: 26):"
-
-#~ msgid "Nonemployee compensation (Box 7):"
-#~ msgstr "Compensação de não-empregado (Caixa 7):"
-
-#~ msgid "Nonqualified Plans (Box 11):"
-#~ msgstr "Planos não qualificados (Caixa 11):"
-
-#~ msgid "Not including handling fee"
-#~ msgstr "Não incluindo despesas de envio"
-
-#~ msgid "Note (private):"
-#~ msgstr "Nota (confidencial):"
-
-#~ msgid "Note (public):"
-#~ msgstr "Nota (pública):"
-
-#~ msgid "Objects:"
-#~ msgstr "Objetos:"
-
-#~ msgid "Once a Pay Period is closed it cannot be re-opened, and Pay Stubs cannot be modified. Are you sure you want to close this Pay Period now?"
-#~ msgstr "Depois do Período de Salário ser fechado não pode ser re-aberto e os Recibos de Salários não podem ser alterados. Tem certeza que quer bloquear este Período de Salário agora?"
-
-#~ msgid "Online University"
-#~ msgstr "Universidade na Internet"
-
-#~ msgid "Only These Day(s):"
-#~ msgstr "Apenas Este(s) Dia(s):"
-
-#~ msgid "Options"
-#~ msgstr "Opções"
-
-#~ msgid "Order Date:"
-#~ msgstr "Data do pedido:"
-
-#~ msgid "Order:"
-#~ msgstr "Ordem:"
-
-#~ msgid "Origin Country:"
-#~ msgstr "País de origem:"
-
-#~ msgid "Originator ID / Immediate Origin:"
-#~ msgstr "Originator ID/origem imediata:"
-
-#~ msgid "Other Contact:"
-#~ msgstr "Outros contatos:"
-
-#~ msgid "Other Field List"
-#~ msgstr "A outra lista do campo"
-
-#~ msgid "Other ID1:"
-#~ msgstr "O outro ID1:"
-
-#~ msgid "Other ID2:"
-#~ msgstr "O outro ID2:"
-
-#~ msgid "Other ID3:"
-#~ msgstr "O outro ID3:"
-
-#~ msgid "Other ID4:"
-#~ msgstr "O outro ID4:"
-
-#~ msgid "Other ID5:"
-#~ msgstr "O outro ID5:"
-
-#~ msgid "Other Income (Box: 28):"
-#~ msgstr "Outros Rendimentos (Caixa: 28):"
-
-#~ msgid "Other Information"
-#~ msgstr "A outra informação"
-
-#~ msgid "Our highly skilled developers will be happy to add it for you, in most cases this can take less then 72 hours to complete, please contact our sales department for more information."
-#~ msgstr "Os nossos programadores altamente qualificados estão disponíveis para adicioná-lo, o que na maioria dos casos levará menos de 72 horas. Por favor contate o nosso Departamento de Vendas para mais Informações."
-
-#~ msgid "Out:"
-#~ msgstr "Para fora:"
-
-#~ msgid "Over Time Shift Default Attribute:"
-#~ msgstr "Atributo excedente do defeito do deslocamento de tempo:"
-
-#~ msgid "Overall Total:"
-#~ msgstr "Globalmente total:"
-
-#~ msgid "Override:"
-#~ msgstr "Ultrapassagem:"
-
-#~ msgid "Overtime Policies:"
-#~ msgstr "Fora do tempo estipulado políticas:"
-
-#~ msgid "Overtime Policy List"
-#~ msgstr "Fora do tempo estipulado lista da política"
-
-#~ msgid "Overtime Policy:"
-#~ msgstr "Fora do tempo estipulado política:"
-
-#~ msgid "Overtime Week:"
-#~ msgstr "Fora do tempo estipulado semana:"
-
-#~ msgid "Overtime: "
-#~ msgstr "Horas extraordinárias/extra: "
-
-#~ msgid "Overwrite Existing Shifts:"
-#~ msgstr "Sobrescrever Turnos Existentes:"
-
-#~ msgid "PO Number:"
-#~ msgstr "Número do PO:"
-
-#~ msgid "PS Amendment"
-#~ msgstr "Emenda do picosegundo"
-
-#~ msgid "Packing Slip"
-#~ msgstr "Listagem da encomenda"
-
-#~ msgid "Paid Absences"
-#~ msgstr "Ausências pagas"
-
-#~ msgid "Paid Time"
-#~ msgstr "Tempo pago"
-
-#~ msgid "Parent:"
-#~ msgstr "Pai:"
-
-#~ msgid "Part #"
-#~ msgstr "Parte #"
-
-#~ msgid "Part Number:"
-#~ msgstr "Número da peça:"
-
-#~ msgid "Part Numbers:"
-#~ msgstr "Números de série:"
-
-#~ msgid "Partial Upload Frequency:"
-#~ msgstr "Upload parcial da Frequência:"
-
-#~ msgid "Pay End Date:"
-#~ msgstr "Data de Fim de Salário:"
-
-#~ msgid "Pay Period %1 of %2"
-#~ msgstr "Período de Salário %1 de %2"
-
-#~ msgid "Pay Period Daily Start Time:"
-#~ msgstr "Tempo de Inicio diário do Período de Salário:"
-
-#~ msgid "Pay Period List"
-#~ msgstr "Pagar a lista do período"
-
-#~ msgid "Pay Period Schedule List"
-#~ msgstr "Pagar a lista da programação do período"
-
-#~ msgid "Pay Period Schedule:"
-#~ msgstr "Agendamento do Período de Salários:"
-
-#~ msgid "Pay Period Schedules"
-#~ msgstr "Agendamento dos Períodos de Salários"
-
-#~ msgid "Pay Period Start Day Of Month:"
-#~ msgstr "Dia do Mês para o inicio do Período de Salário:"
-
-#~ msgid "Pay Period Starts On:"
-#~ msgstr "Começos do período do pagamento sobre:"
-
-#~ msgid "Pay Period Type:"
-#~ msgstr "Tipo do Período de Salário:"
-
-#~ msgid "Pay Period(s):"
-#~ msgstr "Período(s) de Salário:"
-
-#~ msgid "Pay Period:"
-#~ msgstr "Período de Salário:"
-
-#~ msgid "Pay Start Date:"
-#~ msgstr "Data de Início de Salário:"
-
-#~ msgid "Pay Stub Account List"
-#~ msgstr "Lista do cliente do topo do pagamento"
-
-#~ msgid "Pay Stub Account(s)"
-#~ msgstr "Conta(s) de Recibos de Salário"
-
-#~ msgid "Pay Stub Account:"
-#~ msgstr "Conta de Recibos de Salário:"
-
-#~ msgid "Pay Stub Amendment List"
-#~ msgstr "Pagar a lista da emenda do topo"
-
-#~ msgid "Pay Stub List"
-#~ msgstr "Pagar a lista do topo"
-
-#~ msgid "Payment Date:"
-#~ msgstr "Data de Pagamento:"
-
-#~ msgid "Payment Gateway List"
-#~ msgstr "Lista da passagem do pagamento"
-
-#~ msgid "Payment Gateway:"
-#~ msgstr "Passagem do pagamento:"
-
-#~ msgid "Payment Method:"
-#~ msgstr "Método do pagamento:"
-
-#~ msgid "Payment Process Date:"
-#~ msgstr "Data de Processamento de pagamento:"
-
-#~ msgid "Payment Process Message:"
-#~ msgstr "Mensagem de Processamento de pagamento:"
-
-#~ msgid "Payment Required:"
-#~ msgstr "Tipo de pagamento:"
-
-#~ msgid "Payment Type:"
-#~ msgstr "Tipo do pagamento:"
-
-#~ msgid "Pending Requests:"
-#~ msgstr "Durante pedidos:"
-
-#~ msgid "Pending TimeSheets"
-#~ msgstr "Folhas de Horas pendentes"
-
-#~ msgid "Pension Adjustment (Box: 34):"
-#~ msgstr "Pensão ajustada (Caixa: 34):"
-
-#~ msgid "Pension Adjustment (Box: 52):"
-#~ msgstr "Ajustamento de Pensão (Caixa: 52):"
-
-#~ msgid "Pension Or Superannuation (Box: 16):"
-#~ msgstr "Pensão ou Superanualidade (Caixa: 16):"
-
-#~ msgid "Per Day"
-#~ msgstr "Diário"
-
-#~ msgid "Per Month"
-#~ msgstr "Mensal"
-
-#~ msgid "Per Week"
-#~ msgstr "Semanal"
-
-#~ msgid "Percent Of:"
-#~ msgstr "Percentagem de:"
-
-#~ msgid "Percent of Estimate"
-#~ msgstr "Por cento da estimativa"
-
-#~ msgid "Percent:"
-#~ msgstr "Percentagem:"
-
-#~ msgid "Permission DENIED!"
-#~ msgstr "Permissão NEGADA!"
-
-#~ msgid "Permission Group:"
-#~ msgstr "Grupo de Permissão:"
-
-#~ msgid "Permission Presets:"
-#~ msgstr "Pré-ajustes da permissão:"
-
-#~ msgid "Phone ID"
-#~ msgstr "Telefone ID"
-
-#~ msgid "Phone ID:"
-#~ msgstr "Telefone ID:"
-
-#~ msgid "Pick a date"
-#~ msgstr "Escolher uma data"
-
-#~ msgid "Pivot Day Direction:"
-#~ msgstr "Sentido do dia do pivô:"
-
-#~ msgid "Please submit at least one message describing the reason for this %1."
-#~ msgstr "Submeter por favor pelo menos uma mensagem que descreve a razão para estes %1."
-
-#~ msgid "Policies highlighted in yellow may not be active yet because they are not assigned to a"
-#~ msgstr "As Politicas realçadas a amarelo podem não estar activas por que não estão atribuidas a"
-
-#~ msgid "Policy Group List"
-#~ msgstr "Lista do grupo da política"
-
-#~ msgid "Policy Group:"
-#~ msgstr "Grupo da política:"
-
-#~ msgid "Policy Groups"
-#~ msgstr "Grupos da política"
-
-#~ msgid "Port:"
-#~ msgstr "Porto:"
-
-#~ msgid "Position:"
-#~ msgstr "Posição:"
-
-#~ msgid "Posted By / Date"
-#~ msgstr "Por afixado/data"
-
-#~ msgid "Prefs"
-#~ msgstr "Prefs"
-
-#~ msgid "Premium Policies:"
-#~ msgstr "Políticas superiores:"
-
-#~ msgid "Premium Policy List"
-#~ msgstr "Lista superior da política"
-
-#~ msgid "Premium Policy:"
-#~ msgstr "Política superior:"
-
-#~ msgid "Premium: "
-#~ msgstr "Premium: "
-
-#~ msgid "Price Type:"
-#~ msgstr "Tipo de preço:"
-
-#~ msgid "Price:"
-#~ msgstr "Preço:"
-
-#~ msgid "Primary Account:"
-#~ msgstr "Conta Primária:"
-
-#~ msgid "Primary Support Contact:"
-#~ msgstr "Contato preliminar da sustentação:"
-
-#~ msgid "Print Detailed Timesheet"
-#~ msgstr "Imprimir Folha de Horas detalhada"
-
-#~ msgid "Print Form"
-#~ msgstr "Impresso para impressão:"
-
-#~ msgid "Print Schedule"
-#~ msgstr "Imprimir Agenda"
-
-#~ msgid "Priority:"
-#~ msgstr "Prioridade:"
-
-#~ msgid "Private:"
-#~ msgstr "Confidencial:"
-
-#~ msgid "Product Edition:"
-#~ msgstr "Edição do produto:"
-
-#~ msgid "Product Group List"
-#~ msgstr "Lista do grupo de produto"
-
-#~ msgid "Product List"
-#~ msgstr "Lista do produto"
-
-#~ msgid "Product:"
-#~ msgstr "Produto:"
-
-#~ msgid "Province:"
-#~ msgstr "Província:"
-
-#~ msgid "Provincial Claim Amount:"
-#~ msgstr "Uma quantidade provincial da reivindicação:"
-
-#~ msgid "Provincial Tax Exempt:"
-#~ msgstr "Imposto provincial - exempt:"
-
-#~ msgid "Published By"
-#~ msgstr "Publicado perto"
-
-#~ msgid "Published Date"
-#~ msgstr "Data publicada"
-
-#~ msgid "Punch Branch:"
-#~ msgstr "Filial da Marcação de Ponto:"
-
-#~ msgid "Punch Department:"
-#~ msgstr "Departamento da Marcação de Ponto:"
-
-#~ msgid "Punch Failed!"
-#~ msgstr "A Marcação de Ponto falhou!"
-
-#~ msgid "Qty"
-#~ msgstr "Qty"
-
-#~ msgid "Quarter 1 (01-Jan to 31-Mar)"
-#~ msgstr "Quarto 1 (01-Jan a 31-Mar)"
-
-#~ msgid "Quarter 2 (01-Apr to 30-Jun)"
-#~ msgstr "Quarto 2 (01-Apr a 30-Jun)"
-
-#~ msgid "Quarter 3 (01-Jul to 30-Sep)"
-#~ msgstr "Quarto 3 (01-Jul a 30-Sep)"
-
-#~ msgid "Quarter 4 (01-Oct to 31-Dec)"
-#~ msgstr "Quarto 4 (01-Oct a 31-Dec)"
-
-#~ msgid "Quarter:"
-#~ msgstr "Quarto:"
-
-#~ msgid "ROE List"
-#~ msgstr "Lista dos ROE"
-
-#~ msgid "RPP Contributions (Box: 20):"
-#~ msgstr "Contribuições de FAPI / PPR (Caixa: 20):"
-
-#~ msgid "RPP Contributions (Box: 32):"
-#~ msgstr "Contribuições de Fundo de Aposentadoria/PPR (Caixa: 32):"
-
-#~ msgid "Rate Modify Percent:"
-#~ msgstr "A taxa modifica por cento:"
-
-#~ msgid "Rate:"
-#~ msgstr "Taxa:"
-
-#~ msgid "Re:"
-#~ msgstr "Re:"
-
-#~ msgid "Reason:"
-#~ msgstr "Razão:"
-
-#~ msgid "Recalculate"
-#~ msgstr "Recalcular"
-
-#~ msgid "Recalculate Company"
-#~ msgstr "Recalculate a companhia"
-
-#~ msgid "Recalculate Employee"
-#~ msgstr "Recalculate o empregado"
-
-#~ msgid "Recalculate Pay Stub"
-#~ msgstr "Recalculate o topo do pagamento"
-
-#~ msgid "Recalculating Company Pay Stubs for Pay Periods:"
-#~ msgstr "Recalculating topos do pagamento da companhia por períodos do pagamento:"
-
-#~ msgid "Recalculating Company TimeSheet..."
-#~ msgstr "Recalculating a companhia TimeSheet…"
-
-#~ msgid "Recalculating Employee TimeSheet..."
-#~ msgstr "Recalculating o empregado TimeSheet…"
-
-#~ msgid "Recalculating Pay Stub Year To Date (YTD) amounts..."
-#~ msgstr "Recalculating o ano do topo do pagamento à data (YTD) atinge…"
-
-#~ msgid "Recent Activity Summary for %1"
-#~ msgstr "Sumário recente da atividade para %1"
-
-#~ msgid "Recent Messages"
-#~ msgstr "Mensagens recentes"
-
-#~ msgid "Recent Requests"
-#~ msgstr "Pedidos recentes"
-
-#~ msgid "Recipients Currently Selected, Click the arrow to modify."
-#~ msgstr "Os receptores selecionados atualmente, estalam a seta para modificar."
-
-#~ msgid "Recurring Holiday List"
-#~ msgstr "Lista retornando do feriado"
-
-#~ msgid "Recurring Holidays:"
-#~ msgstr "Feriados retornando:"
-
-#~ msgid "Recurring PS Amendment:"
-#~ msgstr "Emenda PS recurrente:"
-
-#~ msgid "Recurring PS Amendments"
-#~ msgstr "Emendas retornando do picosegundo"
-
-#~ msgid "Recurring Pay Stub Amendment List"
-#~ msgstr "Lista retornando da emenda do topo do pagamento"
-
-#~ msgid "Recurring Schedule List"
-#~ msgstr "Lista retornando da programação"
-
-#~ msgid "Recurring Schedule Template List"
-#~ msgstr "Lista retornando do molde da programação"
-
-#~ msgid "Registration Key:"
-#~ msgstr "Chave do registo:"
-
-#~ msgid "Regular Employee"
-#~ msgstr "Empregado regular"
-
-#~ msgid "Regular Time Earnings:"
-#~ msgstr "Salários do horário-base:"
-
-#~ msgid "Regular Time Wage"
-#~ msgstr "Salário regular de Tempo"
-
-#~ msgid "Regular Time Wage w/Burden"
-#~ msgstr "Salário regular w/Burden de Tempo"
-
-#~ msgid "Regular Time:"
-#~ msgstr "Tempo normal:"
-
-#~ msgid "Repeat Absence for:"
-#~ msgstr "Repetir a ausência para:"
-
-#~ msgid "Repeat Punch for:"
-#~ msgstr "Repetir a Marcação de Ponto para:"
-
-#~ msgid "Repeat Schedule for:"
-#~ msgstr "Repetir Agendamento para:"
-
-#~ msgid "Report Filter Criteria"
-#~ msgstr "Relatar critérios do filtro"
-
-#~ msgid "Report Setup:"
-#~ msgstr "O relatório Setup:"
-
-#~ msgid "Request List"
-#~ msgstr "Lista do pedido"
-
-#~ msgid "Requires Ack"
-#~ msgstr "Requer o Ack"
-
-#~ msgid "Requires Acknowledgment:"
-#~ msgstr "Requer o reconhecimento:"
-
-#~ msgid "Revision:"
-#~ msgstr "Revisão:"
-
-#~ msgid "Right"
-#~ msgstr "Direita"
-
-#~ msgid "Round Interval Policy is invalid"
-#~ msgstr "A política redonda do intervalo é inválida"
-
-#~ msgid "Round Type:"
-#~ msgstr "Tipo redondo:"
-
-#~ msgid "Round Value:"
-#~ msgstr "Valor redondo:"
-
-#~ msgid "Rounding Policies:"
-#~ msgstr "Politicas de arrendamento:"
-
-#~ msgid "Rounding Policy List"
-#~ msgstr "Arredondando a lista da política"
-
-#~ msgid "Rounding Policy:"
-#~ msgstr "Politica de arrendamento:"
-
-#~ msgid "Routing Number:"
-#~ msgstr "Número do roteamento:"
-
-#~ msgid "Rows per Page:"
-#~ msgstr "Fileiras por a página:"
-
-#~ msgid "Run Now"
-#~ msgstr "Executar agora"
-
-#~ msgid "SIN"
-#~ msgstr "SIN"
-
-#~ msgid "SIN / SSN:"
-#~ msgstr "SIN/SSN:"
-
-#~ msgid "SSN"
-#~ msgstr "SSN"
-
-#~ msgid "Saved Schedules"
-#~ msgstr "Agendamentos guardados"
-
-#~ msgid "Schedule Branch:"
-#~ msgstr "Agendamento de Filial:"
-
-#~ msgid "Schedule Department:"
-#~ msgstr "Agendamento de Departamento:"
-
-#~ msgid "Schedule Depositor:"
-#~ msgstr "Agendamento de depósitos:"
-
-#~ msgid "Schedule Filter Criteria"
-#~ msgstr "Critério de filtro de Agendamentos"
-
-#~ msgid "Schedule Policy List"
-#~ msgstr "Lista da política da programação"
-
-#~ msgid "Schedule Policy:"
-#~ msgstr "Política de Agendamento:"
-
-#~ msgid "Schedule is subject to change without notice."
-#~ msgstr "O Agendamento está sujeito a modificações sem aviso prévio."
-
-#~ msgid "Schedule:"
-#~ msgstr "Agenda:"
-
-#~ msgid "Scheduled Branch"
-#~ msgstr "Agendamento de Filial:"
-
-#~ msgid "Scheduled Department"
-#~ msgstr "Agendamento de Departamento:"
-
-#~ msgid "Scheduled:"
-#~ msgstr "Agendado:"
-
-#~ msgid "Script Name:"
-#~ msgstr "Nome do certificado:"
-
-#~ msgid "Script:"
-#~ msgstr "Certificado:"
-
-#~ msgid "Second Surname:"
-#~ msgstr "Segundo Apelido"
-
-#~ msgid "Secondary Account:"
-#~ msgstr "Conta Secundária:"
-
-#~ msgid "Select"
-#~ msgstr "Seleto"
-
-#~ msgid "Select The File You Wish To Upload"
-#~ msgstr "Selecionar o ficheiro que você deseja enviar"
-
-#~ msgid "Selected Branches"
-#~ msgstr "Filiais selecionadas"
-
-#~ msgid "Selected Columns"
-#~ msgstr "Colunas selecionadas"
-
-#~ msgid "Selected Departments"
-#~ msgstr "Departamentos selecionados"
-
-#~ msgid "Selected Employee Statuses"
-#~ msgstr "Estados do Trabalhador selecionados"
-
-#~ msgid "Selected Employees"
-#~ msgstr "Trabalhadores Seleccionados"
-
-#~ msgid "Selected Groups"
-#~ msgstr "Grupos selecionados"
-
-#~ msgid "Selected Job Groups"
-#~ msgstr "Grupos de Trabalho selecionados"
-
-#~ msgid "Selected Jobs"
-#~ msgstr "Trabalhos selecionados"
-
-#~ msgid "Selected Task Groups"
-#~ msgstr "Grupos de Tarefas selecionados"
-
-#~ msgid "Selected Tasks"
-#~ msgstr "Tarefas Seleccionadas"
-
-#~ msgid "Selected Titles"
-#~ msgstr "Títulos selecionados"
-
-#~ msgid "Send Notifications to Home Email:"
-#~ msgstr "Enviar Notificações para o email pessoal:"
-
-#~ msgid "Serial No:"
-#~ msgstr "No. da série:"
-
-#~ msgid "Server:"
-#~ msgstr "Servidor:"
-
-#~ msgid "Severity:"
-#~ msgstr "Severidade:"
-
-#~ msgid "Sex:"
-#~ msgstr "Sexo:"
-
-#~ msgid "Shared"
-#~ msgstr "Compartilhado"
-
-#~ msgid "Shared:"
-#~ msgstr "Compartilhado:"
-
-#~ msgid "Shipped Date:"
-#~ msgstr "Data da expedição:"
-
-#~ msgid "Shipping Contact:"
-#~ msgstr "Contato do expedidor:"
-
-#~ msgid "Shipping Policy:"
-#~ msgstr "Politica de envio de encomenda:"
-
-#~ msgid "Short Name:"
-#~ msgstr "Nome curto:"
-
-#~ msgid "Show Pre-Mature:"
-#~ msgstr "Mostrar Pré-Maduro"
-
-#~ msgid "Show System Time:"
-#~ msgstr "Mostrar o sistema Tempo:"
-
-#~ msgid "Show:"
-#~ msgstr "Mostrar:"
-
-#~ msgid "Since Hired"
-#~ msgstr "Desde empregado"
-
-#~ msgid "Social Security (FICA) Exempt:"
-#~ msgstr "A segurança social (FICA) Exempt:"
-
-#~ msgid "Social Security Tax Withheld (Box 4):"
-#~ msgstr "Retenções de Imposto da Segurança Social (caixa 4):"
-
-#~ msgid "Social Security Tips (Box 7):"
-#~ msgstr "Gratificações da segurança social (caixa 7):"
-
-#~ msgid "Social Security Wages (Box 3):"
-#~ msgstr "Salários da Segurança Social (caixa 3):"
-
-#~ msgid "Sorry, no employees are assigned to this Tax / Deduction."
-#~ msgstr "Desculpe, nenhum Trabalhador está atribuido a esta Taxa / Dedução."
-
-#~ msgid "Sorry, no help is available at this moment."
-#~ msgstr "Pesarosa, nenhuma ajuda está disponível neste momento."
-
-#~ msgid "Sorry, no help is available for that item yet."
-#~ msgstr "Pesarosa, nenhuma ajuda está disponível para esse artigo ainda."
-
-#~ msgid "Sorry, no items match your criteria."
-#~ msgstr "Pesaroso, nenhum artigo combina seus critérios."
-
-#~ msgid "Source:"
-#~ msgstr "Fonte:"
-
-#~ msgid "Special Day:"
-#~ msgstr "Dia especial:"
-
-#~ msgid "Specify which Pay Stub Accounts total for each box in the form. Click arrow to modify."
-#~ msgstr "Especificar quais os Totais das Contas de Recibos de Salário para cada Caixa do Impresso, clique na seta para modificar."
-
-#~ msgid "Specify which criteria is used for each box in the form. Click arrow to modify."
-#~ msgstr "Especificar que critérios são usados para cada caixa no formulário. Estalar a seta para modificar."
-
-#~ msgid "Start / Stop Window:"
-#~ msgstr "Janela do começo/batente:"
-
-#~ msgid "Start Date:"
-#~ msgstr "Data de Início:"
-
-#~ msgid "Start Week:"
-#~ msgstr "Semana do começo:"
-
-#~ msgid "Start Weeks on:"
-#~ msgstr "Começar semanas sobre:"
-
-#~ msgid "Start Window:"
-#~ msgstr "Janela do começo:"
-
-#~ msgid "State Additional Deduction:"
-#~ msgstr "Dedução adicional do estado:"
-
-#~ msgid "State Allowance:"
-#~ msgstr "Permissão do estado:"
-
-#~ msgid "State Filing Status:"
-#~ msgstr "Status do arquivamento do estado:"
-
-#~ msgid "State ID Number"
-#~ msgstr "Número do ID do estado"
-
-#~ msgid "State Reporting Number:"
-#~ msgstr "Número do Estado a reportar:"
-
-#~ msgid "State Tax Exempt:"
-#~ msgstr "Imposto de estado - exempt:"
-
-#~ msgid "State UI Rate:"
-#~ msgstr "Taxa do estado UI:"
-
-#~ msgid "State UI Wage Base:"
-#~ msgstr "Base do salário do estado UI:"
-
-#~ msgid "State where you pay contributions:"
-#~ msgstr "Estado onde você paga contribuições:"
-
-#~ msgid "Station ID:"
-#~ msgstr "Estação ID:"
-
-#~ msgid "Station List"
-#~ msgstr "Postar a lista"
-
-#~ msgid "Station:"
-#~ msgstr "Estação:"
-
-#~ msgid "Status:"
-#~ msgstr "Estado:"
-
-#~ msgid "Statuses"
-#~ msgstr "Status"
-
-#~ msgid "Step 1: Confirm all requests are authorized, and exceptions are handled."
-#~ msgstr "Passo 1: Confirmar se todos os pedidos estão autorizados e que as exceções foram tratadas."
-
-#~ msgid "Step 2: Lock Pay Period to prevent changes."
-#~ msgstr "Passo 2: Bloquear o Periodo de Salários para impedir alterações."
-
-#~ msgid "Step 3: Submit all Pay Stub Amendments."
-#~ msgstr "Passo 3: Submeter todos os Extornos de Recibos de Salário."
-
-#~ msgid "Step 4: Generate and Review Pay Stubs."
-#~ msgstr "Passo 4: Gerar e rever todos os Recibos de Salário."
-
-#~ msgid "Step 5: Transfer Funds or Write Checks."
-#~ msgstr "Etapa 5: Transferir fundos ou escrever verificações."
-
-#~ msgid "Step 6: Close Pay Period."
-#~ msgstr "Passo 6: Fechar o Período de Salário."
-
-#~ msgid "Strict Schedule:"
-#~ msgstr "Agendamento estrito:"
-
-#~ msgid "Strict:"
-#~ msgstr "Estrito:"
-
-#~ msgid "Submit Message"
-#~ msgstr "Submeter a mensagem"
-
-#~ msgid "Subordinates:"
-#~ msgstr "Subordinados:"
-
-#~ msgid "Success!"
-#~ msgstr "Sucesso!"
-
-#~ msgid "Success:"
-#~ msgstr "Sucesso:"
-
-#~ msgid "Summary Totals"
-#~ msgstr "Totais sumários"
-
-#~ msgid "Supervisor:"
-#~ msgstr "Supervisor:"
-
-#~ msgid "Support Forums"
-#~ msgstr "Fóruns de Ajuda"
-
-#~ msgid "Table Header Color:"
-#~ msgstr "Cor do cabeçalho da tabela:"
-
-#~ msgid "Table of Contents"
-#~ msgstr "Índice"
-
-#~ msgid "Tariff Code:"
-#~ msgstr "Código da tarifa"
-
-#~ msgid "Task Amendment List"
-#~ msgstr "Lista da emenda da tarefa"
-
-#~ msgid "Task Group List"
-#~ msgstr "Lista do grupo de tarefa"
-
-#~ msgid "Task Groups Currently Selected, Click the arrow to modify."
-#~ msgstr "Grupos de Tarefas atualmente selecionados, clique na seta para modificar."
-
-#~ msgid "Task List"
-#~ msgstr "Lista da tarefa"
-
-#~ msgid "Task is invalid"
-#~ msgstr "A tarefa é inválida"
-
-#~ msgid "Tasks Currently Selected, Click the arrow to modify."
-#~ msgstr "Tarefas atualmente selecionadas, clique na seta para modificar."
-
-#~ msgid "Tax / Deduction List"
-#~ msgstr "Lista do imposto/dedução"
-
-#~ msgid "Tax Area Policy:"
-#~ msgstr "Política da área do imposto:"
-
-#~ msgid "Tax Data Version:"
-#~ msgstr "Tax a versão dos dados:"
-
-#~ msgid "Tax Engine Version:"
-#~ msgstr "Tax a versão do motor:"
-
-#~ msgid "Tax Number:"
-#~ msgstr "Número do imposto:"
-
-#~ msgid "Tax Policy List"
-#~ msgstr "Lista da política de imposto"
-
-#~ msgid "Tax Policy:"
-#~ msgstr "Política de impostos:"
-
-#~ msgid "Tax Reports"
-#~ msgstr "Relatórios do imposto"
-
-#~ msgid "Tax Summary (Generic)"
-#~ msgstr "Sumário do imposto (genérico)"
-
-#~ msgid "Taxable Medicare Wages (Line 5c):"
-#~ msgstr "Salários Taxable de Medicare (linha 5c):"
-
-#~ msgid "Taxable Social Security Tips (Line 5b):"
-#~ msgstr "Pontas Taxable da segurança social (linha 5b):"
-
-#~ msgid "Taxable Social Security Wages (Line 5a):"
-#~ msgstr "Salários Taxable da segurança social (linha 5a):"
-
-#~ msgid "Template:"
-#~ msgstr "Molde:"
-
-#~ msgid "Termination Date:"
-#~ msgstr "Data do fim do emprego:"
-
-#~ msgid "Test Progress Bar..."
-#~ msgstr "Testar a barra do progresso…"
-
-#~ msgid "The latest version can be downloaded from:"
-#~ msgstr "A versão a mais atrasada pode downloaded de:"
-
-#~ msgid "There are no Pay Periods past their end date yet."
-#~ msgstr "Ainda não há nenhum Período de Salário posterior à data final."
-
-#~ msgid "This absence policy is in use"
-#~ msgstr "Esta política da ausência está no uso"
-
-#~ msgid "This employee is at the final authorization level."
-#~ msgstr "Este Trabalhador está no nível final da autorização."
-
-#~ msgid "This message is pending acknowledgment."
-#~ msgstr "Esta mensagem é reconhecimento pendente."
-
-#~ msgid "This message was acknowledged by <b>%1</b> on"
-#~ msgstr "Esta mensagem foi reconhecida por <b>%1</b> sobre"
-
-#~ msgid "This overtime policy is in use"
-#~ msgstr "Esta política das horas extras está no uso"
-
-#~ msgid "This pay period is currently"
-#~ msgstr "Este Periodo de Salários está atualmente"
-
-#~ msgid "This pay period is currently in the post adjustment state."
-#~ msgstr "Este Periodo de Salários está atualmente no estado de pós-ajustamento."
-
-#~ msgid "Time Clock Configuration"
-#~ msgstr "Configuração do relógio de ponto"
-
-#~ msgid "Time Clock Synchronization"
-#~ msgstr "Sincronizar relógio de ponto"
-
-#~ msgid "Time Format:"
-#~ msgstr "Formato de Tempo:"
-
-#~ msgid "Time Units:"
-#~ msgstr "Unidades de Tempo:"
-
-#~ msgid "Time Zone:"
-#~ msgstr "Zona de tempo:"
-
-#~ msgid "TimeSheet Verification:"
-#~ msgstr "Verificação da folha de tempos:"
-
-#~ msgid "TimeTrex"
-#~ msgstr "TimeTrex"
-
-#~ msgid "Title:"
-#~ msgstr "Título:"
-
-#~ msgid "Titles"
-#~ msgstr "Títulos"
-
-#~ msgid "To Sign-In/Out over the telephone dial <b>1-800-714-5153</b>, press \"<b>8</b>\" at the menu and follow the prompts."
-#~ msgstr "A Sinal-Em/para fora sobre o seletor <b>1-800-714-5153 do</b> telefone, pressionar “<b>8</b>” no menu e seguir os alertas."
-
-#~ msgid "To set different In/Out times for each day of the week, add additional weeks all with the same week number."
-#~ msgstr "Para definir diferentes horários para cada dia da semana, crie semanas adicionais com os diferentes horários, registrando todas como o mesmo Número de ordem da semana."
-
-#~ msgid "To:"
-#~ msgstr "Para:"
-
-#~ msgid "Total Actual Cost:"
-#~ msgstr "Custo real total:"
-
-#~ msgid "Total Balance"
-#~ msgstr "Contrapeso total"
-
-#~ msgid "Total Billable Estimated Cost:"
-#~ msgstr "Custo estimado Billable total:"
-
-#~ msgid "Total Billable:"
-#~ msgstr "Billable total:"
-
-#~ msgid "Total Deposits For This Quarter:"
-#~ msgstr "Total de Depósitos para este Trimestre:"
-
-#~ msgid "Total Employee Deduction:"
-#~ msgstr "Total das deduções do Trabalhador:"
-
-#~ msgid "Total Employer Deduction:"
-#~ msgstr "Total das deduções do empregador:"
-
-#~ msgid "Total Estimated Cost:"
-#~ msgstr "Custo estimado total:"
-
-#~ msgid "Total Gross:"
-#~ msgstr "Total íliquido"
-
-#~ msgid "Total Net Pay:"
-#~ msgstr "Total dos Salários líquidos:"
-
-#~ msgid "Total Over Time"
-#~ msgstr "Total tempo excedente"
-
-#~ msgid "Total Payments (Line 1):"
-#~ msgstr "Pagamentos totais (linha 1):"
-
-#~ msgid "Total Payments (Line 3):"
-#~ msgstr "Total de Pagamentos (Linha 3):"
-
-#~ msgid "Total Punches:"
-#~ msgstr "Marcações de Ponto totais:"
-
-#~ msgid "Totals"
-#~ msgstr "Totais"
-
-#~ msgid "Tracking Number:"
-#~ msgstr "Número de referência:"
-
-#~ msgid "Transaction Always on Business Day:"
-#~ msgstr "Transação sempre no dia de negócio:"
-
-#~ msgid "Transaction Date Format:"
-#~ msgstr "Formato da data da transação:"
-
-#~ msgid "Transaction Date:"
-#~ msgstr "Data da transação:"
-
-#~ msgid "Transaction Day Of Month:"
-#~ msgstr "Dia da transação do mês:"
-
-#~ msgid "Transaction End Date:"
-#~ msgstr "Data da extremidade da transação:"
-
-#~ msgid "Transaction List"
-#~ msgstr "Lista da transação"
-
-#~ msgid "Transaction Report"
-#~ msgstr "Relatório da transação"
-
-#~ msgid "Transaction Start Date:"
-#~ msgstr "Data do começo da transação:"
-
-#~ msgid "Type of Return:"
-#~ msgstr "Tipo de retorno:"
-
-#~ msgid "Type/Status"
-#~ msgstr "Tipo/status"
-
-#~ msgid "Type:"
-#~ msgstr "Tipo:"
-
-#~ msgid "Types"
-#~ msgstr "Tipos"
-
-#~ msgid "UPC:"
-#~ msgstr "UPC:"
-
-#~ msgid "Un-Attach"
-#~ msgstr "Un-Unir"
-
-#~ msgid "UnAssigned Employees"
-#~ msgstr "Trabalhadores não atribuidos"
-
-#~ msgid "UnEmployment Insurance (FUTA) Exempt:"
-#~ msgstr "O seguro de desemprego (FUTA) Exempt:"
-
-#~ msgid "UnSelected Branches"
-#~ msgstr "Filiais UnSelected"
-
-#~ msgid "UnSelected Columns"
-#~ msgstr "Colunas UnSelected"
-
-#~ msgid "UnSelected Departments"
-#~ msgstr "Departamentos UnSelected"
-
-#~ msgid "UnSelected Employee Statuses"
-#~ msgstr "Estados do Trabalhador não selecionados"
-
-#~ msgid "UnSelected Employees"
-#~ msgstr "Trabalhadores Não Seleccionados"
-
-#~ msgid "UnSelected Groups"
-#~ msgstr "Grupos UnSelected"
-
-#~ msgid "UnSelected Job Groups"
-#~ msgstr "Grupos de Trabalho não selecionados"
-
-#~ msgid "UnSelected Jobs"
-#~ msgstr "Trabalhos não selecionados"
-
-#~ msgid "UnSelected Task Groups"
-#~ msgstr "Grupos de Tarefas não selecionados"
-
-#~ msgid "UnSelected Tasks"
-#~ msgstr "Tarefas Não Seleccionadas"
-
-#~ msgid "UnSelected Titles"
-#~ msgstr "Títulos UnSelected"
-
-#~ msgid "Unable to obtain rate when multiple employees are selected."
-#~ msgstr "Impossível obter a taxa quando vários Trabalhadores estão selecionados"
-
-#~ msgid "Unable to obtain rate when no employee is selected."
-#~ msgstr "Impossível obter a taxa quando nenhum Trabalhador está selecionado."
-
-#~ msgid "Unassigned Employees"
-#~ msgstr "Trabalhadores não atribuidos"
-
-#~ msgid "Under Time Shift Default Attribute:"
-#~ msgstr "Sob o atributo do defeito do deslocamento de Tempo:"
-
-#~ msgid "Undertime Absence Policy:"
-#~ msgstr "Política da ausência de Undertime:"
-
-#~ msgid "Union Dues (Box: 44):"
-#~ msgstr "Dívidas da união (caixa: 44):"
-
-#~ msgid "Unit Cost:"
-#~ msgstr "Custo de unidade:"
-
-#~ msgid "Unit Price:"
-#~ msgstr "Preço de unidade:"
-
-#~ msgid "Units:"
-#~ msgstr "Unidades:"
-
-#~ msgid "Update Rates"
-#~ msgstr "Taxas do Update"
-
-#~ msgid "Updated By:"
-#~ msgstr "Actualizado Por:"
-
-#~ msgid "Upload"
-#~ msgstr "Enviar (upload)"
-
-#~ msgid "Upload License:"
-#~ msgstr "Upload de arquivo de Licença:"
-
-#~ msgid "Upload New Document"
-#~ msgstr "Enviar Novo Documento"
-
-#~ msgid "Vacation Pay (Box 17A):"
-#~ msgstr "13° salário:"
-
-#~ msgid "Vacation Rate:"
-#~ msgstr "Taxa das férias:"
-
-#~ msgid "Verification"
-#~ msgstr "Verificação"
-
-#~ msgid "Verification Window Ends:"
-#~ msgstr "Verificação de Janela de términos:"
-
-#~ msgid "Verification Window Starts:"
-#~ msgstr "Verificação da janela de Inícios:"
-
-#~ msgid "Verifications"
-#~ msgstr "Verificações"
-
-#~ msgid "Verified TimeSheets"
-#~ msgstr "TimeSheets verificado"
-
-#~ msgid "Version 2.1.0"
-#~ msgstr "Versão 2.1.0"
-
-#~ msgid "Version 2.2.0"
-#~ msgstr "Versão 2.2.0"
-
-#~ msgid "Version 3.0.0"
-#~ msgstr "Versão 3.0.0"
-
-#~ msgid "Version:"
-#~ msgstr "Versão:"
-
-#~ msgid "View Hierarchy"
-#~ msgstr "Hierarquia da vista"
-
-#~ msgid "View Invoice"
-#~ msgstr "Ver Factura"
-
-#~ msgid "View Job"
-#~ msgstr "Trabalho da vista"
-
-#~ msgid "View Message"
-#~ msgstr "Mensagem da vista"
-
-#~ msgid "View Packing Slip"
-#~ msgstr "Ver Listagem da encomenda"
-
-#~ msgid "View Pay Period"
-#~ msgstr "Ver o período do pagamento"
-
-#~ msgid "View Pay Stubs"
-#~ msgstr "Visualizar os Recibos de Salário"
-
-#~ msgid "View Request"
-#~ msgstr "Ver o pedido"
-
-#~ msgid "View Schedule"
-#~ msgstr "Ver Agendamento"
-
-#~ msgid "View TimeSheet"
-#~ msgstr "Vista TimeSheet"
-
-#~ msgid "View:"
-#~ msgstr "Ver:"
-
-#~ msgid "Virgin Islands, U.s."
-#~ msgstr "Consoles de Virgin, Estados Unidos."
-
-#~ msgid "WARNING:"
-#~ msgstr "AVISO:"
-
-#~ msgid ""
-#~ "WARNING: Deleting a pay period will also delete all punches assigned to that pay period. Once data is deleted it can not be recovered.\n"
-#~ "\n"
-#~ "Are you sure you wish to continue?"
-#~ msgstr ""
-#~ "ATENÇÂO: Eliminando um período de salários também eliminará todos as Marcações de Ponto atribuídos a esse período. Depois dos dados serem eliminados não poderão ser recuperados.\n"
-#~ "\n"
-#~ "Tem a certeza que quer continuar ?"
-
-#~ msgid "WARNING: There is no base currency set. Please create a base currency immediately."
-#~ msgstr "AVISO: Não há nenhum jogo baixo da moeda corrente. Criar por favor uma moeda corrente baixa imediatamente."
-
-#~ msgid "WCB Rate:"
-#~ msgstr "Taxa de WCB:"
-
-#~ msgid "Wage Group:"
-#~ msgstr "Grupo Salarial:"
-
-#~ msgid "Wage History"
-#~ msgstr "Histórico Salárial"
-
-#~ msgid "Wage:"
-#~ msgstr "Salário:"
-
-#~ msgid "Wages Payable Report"
-#~ msgstr "Relatório pagável dos salários"
-
-#~ msgid "Wages, Tips, Other (1)"
-#~ msgstr "Salários, pontas, outras (1)"
-
-#~ msgid "Wages, Tips, Other Compensation (Box 1):"
-#~ msgstr "Salários, gratificações, e outras compensações (caixa 1):"
-
-#~ msgid "Wages, tips and other compensation (Line 2):"
-#~ msgstr "Salários, pontas e a outra compensação (linha 2):"
-
-#~ msgid "Warning:"
-#~ msgstr "Aviso:"
-
-#~ msgid "Website:"
-#~ msgstr "Web site:"
-
-#~ msgid "Week Interval:"
-#~ msgstr "Intervalo da semana:"
-
-#~ msgid "Week Total:"
-#~ msgstr "Total da semana:"
-
-#~ msgid "Weeks"
-#~ msgstr "Semanas"
-
-#~ msgid "Weight Unit:"
-#~ msgstr "Unidade do peso:"
-
-#~ msgid "Weight:"
-#~ msgstr "Peso:"
-
-#~ msgid "Width:"
-#~ msgstr "Largura:"
-
-#~ msgid "Window Length:"
-#~ msgstr "Comprimento da janela:"
-
-#~ msgid "Work Email:"
-#~ msgstr "Email do trabalho:"
-
-#~ msgid "Work Phone:"
-#~ msgstr "Telefone do trabalho:"
-
-#~ msgid "Worked Branch"
-#~ msgstr "Filial trabalhada"
-
-#~ msgid "Worked Days Only:"
-#~ msgstr "Dias trabalhados somente:"
-
-#~ msgid "Worked Department"
-#~ msgstr "Departamento trabalhado"
-
-#~ msgid "X"
-#~ msgstr "X"
-
-#~ msgid "YOUR BANK ADDRESS"
-#~ msgstr "O ENDEREÇO DO SEU BANCO"
-
-#~ msgid "YOUR BANK NAME"
-#~ msgstr "O NOME DE SEU BANCO"
-
-#~ msgid "YTD"
-#~ msgstr "YTD"
-
-#~ msgid "YTD Hours"
-#~ msgstr "Horas de YTD (YearToDate=Do inicio do ano até à data)"
-
-#~ msgid "Year to Date (YTD) Adjustment:"
-#~ msgstr "Ano ao ajuste da data (YTD):"
-
-#~ msgid "Year:"
-#~ msgstr "Ano:"
-
-#~ msgid ""
-#~ "You may use the position links at the top of this window to move it around the screen,\n"
-#~ "\t\t\t\tor to close the window press the X in the upper right of this window, or press the ESC key."
-#~ msgstr "Você pode usar as ligações da posição no alto desta janela movê-lo em torno da tela, ou fechar a imprensa da janela o X na direita da parte superior desta janela, ou pressionar a chave de ESC."
-
-#~ msgid "[R]"
-#~ msgstr "[R]"
-
-#~ msgid "ago"
-#~ msgstr "atrás"
-
-#~ msgid "at"
-#~ msgstr "em"
-
-#~ msgid "closed"
-#~ msgstr "fechado"
-
-#~ msgid "day(s) after above date."
-#~ msgstr "dias em seguida acima da data."
-
-#~ msgid "for"
-#~ msgstr "para"
-
-#~ msgid "iButton ID is already taken"
-#~ msgstr "o iButton ID é feito exame já"
-
-#~ msgid "locked"
-#~ msgstr "bloqueado"
-
-#~ msgid "modifications are not permitted."
-#~ msgstr "as alterações não são possíveis."
-
-#~ msgid "of the:"
-#~ msgstr "da:"
-
-#~ msgid "yrs old"
-#~ msgstr "anos"

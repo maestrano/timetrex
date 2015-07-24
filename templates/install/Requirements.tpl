@@ -483,6 +483,19 @@
 									</span>
 								</td>
 							</tr>
+							<tr>
+								<td class="cellLeftEditTable">
+									{t}Disk Space:{/t}
+								</td>
+								<td class="cellRightEditTable">
+									{if $install_obj->checkDiskSpace() == 0}
+										<span class="">{t}OK{/t}
+									{else}
+										<span class="tblDataError"><b>{t escape="no"}Warning: Not enough disk space available, please free up disk space and try again.{/t}</b>
+									{/if}
+									</span>
+								</td>
+							</tr>
 
 						</table>
 					</td>

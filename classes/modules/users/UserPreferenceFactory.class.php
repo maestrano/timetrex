@@ -99,80 +99,28 @@ class UserPreferenceFactory extends Factory {
 					$retval = Misc::addSortPrefix( $retval );
 				}
 				break;
-			case 'js_date_format':
+			case 'moment_date_format':
 				$retval = array(
-											//http://www.dynarch.com/demos/jscalendar/doc/html/reference.html#node_sec_5
-											'd-M-y'		=> '%d-%b-%y',
-											'd-M-Y'		=> '%d-%b-%Y',
-											'dMY'		=> '%d%b%Y',
-											'd/m/Y'		=> '%d/%m/%Y',
-											'd/m/y'		=> '%d/%m/%y',
-											'd-m-y'		=> '%d-%m-%y',
-											'd-m-Y'		=> '%d-%m-%Y',
-											'm/d/y'		=> '%m/%d/%y',
-											'm/d/Y'		=> '%m/%d/%Y',
-											'm-d-y'		=> '%m-%d-%y',
-											'm-d-Y'		=> '%m-%d-%Y',
-											'Y-m-d'		=> '%Y-%m-%d',
-											'M-d-y'		=> '%b-%d-%y',
-											'M-d-Y'		=> '%b-%d-%Y',
-											'l, F d Y'	=> '%A, %B %d %Y',
-											'D, F d Y'	=> '%a, %B %d %Y',
-											'D, M d Y'	=> '%a, %b %d %Y',
-											'D, d-M-Y'	=> '%a, %d-%b-%Y',
-											'D, dMY'	=> '%a, %d%b%Y'
-									);
-				break;
-			case 'flex_date_format':
-				$retval = array(
-											'd-M-y'		=> 'DD-MMM-YY',
-											'd-M-Y'		=> 'DD-MMM-YYYY',
-											'dMY'		=> 'DDMMMYYYY',
-											'd/m/Y'		=> 'DD/MM/YYYY',
-											'd/m/y'		=> 'DD/MM/YY',
-											'd-m-y'		=> 'DD-MM-YY',
-											'd-m-Y'		=> 'DD-MM-YYYY',
-											'm/d/y'		=> 'MM/DD/YY',
-											'm/d/Y'		=> 'MM/DD/YYYY',
-											'm-d-y'		=> 'MM-DD-YY',
-											'm-d-Y'		=> 'MM-DD-YYYY',
-											'Y-m-d'		=> 'YYYY-MM-DD',
-											'M-d-y'		=> 'MMM-DD-yy',
-											'M-d-Y'		=> 'MMM-DD-YYYY',
-											'l, F d Y'	=> 'EEEE, MMMM DD YYYY',
-											'D, F d Y'	=> 'EEE, MMMM DD YYYY',
-											'D, M d Y'	=> 'EEE, MMM DD YYYY',
-											'D, d-M-Y'	=> 'EEE, DD-MMM-YYYY',
-											'D, dMY'	=> 'EEE, DDMMMYYYY'
-									);
-				break;
-			case 'jquery_date_format':
-				$retval = array(
-											'd-M-y'		=> TTi18n::gettext('dd-mmm-yy'),
-											'd-M-Y'		=> TTi18n::gettext('dd-mmm-yyyy'),
-											//PHP 5.1.2 fails to parse these with strtotime it looks like
-											//'d/M/y'	=> '25/Feb/01 (dd/mmm/yy)',
-											//'d/M/Y'	=> '25/Feb/2001 (dd/mmm/yyyy)',
-											'dMY'		=> TTi18n::gettext('ddmmmyyyy'),
-											'd/m/Y'		=> 'dd/mm/yyyy',
-											'd/m/y'		=> 'dd/mm/yy',
-											'd-m-y'		=> 'dd-mm-yy',
-											'd-m-Y'		=> 'dd-mm-yyyy',
-											'm/d/y'		=> 'mm/dd/yy',
-											'm/d/Y'		=> 'mm/dd/yyyy',
-											'm-d-y'		=> 'mm-dd-yy',
-											'm-d-Y'		=> 'mm-dd-yyyy',
-											'Y-m-d'		=> 'yyyy-mm-dd',
-											//'Ymd'			=> '20010225 (yyyymmdd)', //This can't be parsed properly due to all integer values, parseDateTime() thinks its an epoch.
-											'M-d-y'		=> TTi18n::gettext('mmm-dd-yy'),
-											'M-d-Y'		=> TTi18n::gettext('mmm-dd-yyyy'),
-											'l, F d Y'	=> TTi18n::gettext('dddd, mmmm dd yyyy'),
-											'D, F d Y'	=> TTi18n::gettext('ddd, mmmm dd yyyy'),
-											'D, M d Y'	=> TTi18n::gettext('ddd, mmm dd yyyy'),
-											'D, d-M-Y'	=> TTi18n::gettext('ddd, dd-mmm-yyyy'),
-											'D, dMY'	=> TTi18n::gettext('ddd, ddmmmyyyy')
-									);
-				
+											'D, F d Y'   => 'ddd, MMMM DD YYYY',
+											'D, M d Y'   => 'ddd, MMM DD YYYY',
+											'D, d-M-Y'   => 'ddd, DD-MMM-YYYY',
+											'D, dMY'     => 'ddd, DDMMMYYYY',
+											'M-d-Y'      => 'MMM-DD-YYYY',
+											'M-d-y'      => 'MMM-DD-YY',
+											'Y-m-d'      => 'YYYY-MM-DD',
+											'd-M-Y'      => 'DD-MMM-YYYY',
+											'd-M-y'      => 'DD-MMM-YY',
+											'd-m-Y'      => 'DD-MM-YYYY',
+											'd-m-y'      => 'DD-MM-YY',
+											'd/m/Y'      => 'DD/MM/YYYY',
+											'd/m/y'      => 'DD/MM/YY',
+											'dMY'        => 'DDMMMYYYY',
+											'l, F d Y'   => 'dddd, MMMM DD YYYY',
+											'm-d-Y'      => 'MM-DD-YYYY',
+											'm-d-y'      => 'MM-DD-YY',
+											'm/d/Y'      => 'MM/DD/YYYY',
+											'm/d/y'      => 'MM/DD/YY'
+								);
 				break;
 			case 'time_format':
 				$retval = array(
@@ -187,36 +135,15 @@ class UserPreferenceFactory extends Factory {
 											//'Gis'			=> TTi18n::gettext('200959'), //This sorts to the top
 									);
 				break;
-			case 'jquery_time_format':
+			case 'moment_time_format':
+				$retval = array(
 
-				$retval = array(
-											//'g:i:s A'		=> h:mm:ss TT
-											'g:i A'		=> 'h:mm TT',
-											//'g:i:s a'		=> h:mm:ss tt
-											'g:i a'		=> 'h:mm tt',
-											//'G:i:s'	  => H:mm:ss
-											'G:i'		  => 'H:mm',
-											'g:i A T'	  => 'h:mm TT z',
-											'G:i T'		=> 'H:mm z'
-				);
-				break;
-			case 'js_time_format':
-				$retval = array(
-											'g:i A'		=> '%l:%M %p', //  8:09 PM
-											'g:i a'		=> '%l:%M %P', //8:09 pm
-											'G:i'		=> '%k:%M', //20:09
-											'g:i A T'	=> '%l:%M %p', //8:09 PM GMT
-											'G:i T'		=> '%k:%M' //20:09 PM GMT
-									);
-				break;
-			case 'flex_time_format':
-				$retval = array(
-											'g:i A'		=> 'L:NN A', //	 8:09 PM
-											'g:i a'		=> 'L:NN a', //8:09 pm
-											'G:i'		=> 'JJ:NN', //20:09
-											'g:i A T'	=> 'L:NN A T', //8:09 PM GMT
-											'G:i T'		=> 'JJ:NN T' //20:09 PM GMT
-									);
+											'g:i A'		=> 'hh:mm A',
+											'g:i a'		=> 'hh:mm a',
+											'G:i'		  => 'HH:mm',
+											'g:i A T'	  => 'hh:mm A Z',
+											'G:i T'		=> 'HH:mm Z'
+											);
 				break;
 			case 'date_time_format':
 				//Merge Date and Time formats together.

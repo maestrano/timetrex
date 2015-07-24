@@ -802,7 +802,17 @@ PunchesViewController = BaseViewController.extend( {
 
 		this.collectUIDataToCurrentEditRecord();
 		this.setEditViewDataDone();
+		this.isEditChange();
 
+	},
+
+	isEditChange: function() {
+
+		if ( this.current_edit_record.id || this.is_mass_editing ) {
+			this.edit_view_ui_dic['user_id'].setEnabled( false );
+		} else {
+			this.edit_view_ui_dic['user_id'].setEnabled( true );
+		}
 	},
 
 	//set tab 0 visible after all data set done. This be hide when init edit view data

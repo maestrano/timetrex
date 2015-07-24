@@ -47,59 +47,106 @@ if ( !isset($disable_database_connection) ) {
 			}
 
 			$ADODB_GETONE_EOF = FALSE; //Make sure GetOne returns FALSE rather then NULL.
-
-			$db = ADONewConnection( $config_vars['database']['type'] );
-			$db->SetFetchMode(ADODB_FETCH_ASSOC);
-			if ( isset($config_vars['database']['persistent_connections']) AND $config_vars['database']['persistent_connections'] == TRUE ) {
-				$db->PConnect( $config_vars['database']['host'], $config_vars['database']['user'], $config_vars['database']['password'], $config_vars['database']['database_name']);
-			} else {
-				$db->Connect( $config_vars['database']['host'], $config_vars['database']['user'], $config_vars['database']['password'], $config_vars['database']['database_name']);
-			}
-			/*
-			//Use ADODB performance monitor to aid in optimization.
-			$db->LogSQL();
-			CREATE TABLE adodb_logsql (
-			  created timestamp NOT NULL,
-			  sql0 varchar(250) NOT NULL,
-			  sql1 text NOT NULL,
-			  params text NOT NULL,
-			  tracer text NOT NULL,
-			  timer decimal(16,6) NOT NULL
-			)
-			*/
-			if ( Debug::getVerbosity() == 11 ) {
-				$ADODB_OUTP = 'ADODBDebug';
-				function ADODBDebug( $msg, $newline = TRUE ) {
-					Debug::Text( html_entity_decode( strip_tags( $msg ) ), __FILE__, __LINE__, __METHOD__, 11);
-					return TRUE;
+			if ( strpos( $config_vars['database']['host'], ',' ) !== FALSE ) {
+				require_once( Environment::getBasePath() .'classes'. DIRECTORY_SEPARATOR .'adodb'. DIRECTORY_SEPARATOR .'adodb-loadbalancer.inc.php');
+				if ( !isset($config_vars['database']['persistent_connections']) ) {
+					$config_vars['database']['persistent_connections'] = FALSE;
 				}
 
-				//Use 1 instead of TRUE, so it only outputs some debugging and not things like backtraces for every cache read/write.
-				//Set to 99 to get all debug output.
-				$db->debug = 1;
-			}
+				$db = new ADOdbLoadBalancer();
 
-			//Make sure when inserting times we always include the timezone.
-			//UNLESS we're using MySQL, because MySQL can't store time stamps with time zones.
-			if ( strncmp($db->databaseType, 'mysql', 5) == 0 ) {
-				$db->fmtTimeStamp = "'Y-m-d H:i:s'";
+				if ( Debug::getVerbosity() == 11 ) {
+					$ADODB_OUTP = 'ADODBDebug';
+					function ADODBDebug( $msg, $newline = TRUE ) {
+						Debug::Text( html_entity_decode( strip_tags( $msg ) ), __FILE__, __LINE__, __METHOD__, 11);
+						return TRUE;
+					}
+				}
 
-				//Put MySQL into ANSI mode
-				$db->Execute('SET SESSION sql_mode=\'ansi\'');
-				//READ COMMITTED mode is what PGSQL defaults to.
-				//This should hopefully fix odd issues like hierarchy trees becoming corrupt.
-				$db->Execute('SET TRANSACTION ISOLATION LEVEL READ COMMITTED');
+				//Use comma separated database hosts, assuming the first is always the master, the rest are slaves.
+				//Anything after the # is the weight. Username/password/database is assumed to be the same across all connections.
+				//ie: 127.0.0.1:5433#10,127.0.0.2:5433#100,127.0.0.3:5433#120				
+				$db_hosts = Misc::parseDatabaseHostString( $config_vars['database']['host'] );
+				foreach( $db_hosts as $db_host_arr ) {
+					Debug::Text( 'Adding DB Connection: Host: '. $db_host_arr[0] .' Type: '. $db_host_arr[1] .' Weight: '. $db_host_arr[2], __FILE__, __LINE__, __METHOD__, 1);
+					if ( $db_host_arr[2] == 5 ) {
+						$db_connection_obj = new ADOdbLoadBalancerConnection( $config_vars['database']['type'], $db_host_arr[1], $db_host_arr[2], (bool)$config_vars['database']['persistent_connections'], $db_host_arr[0], $config_vars['database']['user'].'9', $config_vars['database']['password'], $config_vars['database']['database_name'] );
+					} else {
+						$db_connection_obj = new ADOdbLoadBalancerConnection( $config_vars['database']['type'], $db_host_arr[1], $db_host_arr[2], (bool)$config_vars['database']['persistent_connections'], $db_host_arr[0], $config_vars['database']['user'], $config_vars['database']['password'], $config_vars['database']['database_name'] );
+					}
+					$db_connection_obj->getADODbObject()->SetFetchMode(ADODB_FETCH_ASSOC);
+					$db_connection_obj->getADODbObject()->noBlobs = TRUE; //Optimization to tell ADODB to not bother checking for blobs in any result set.
+					$db_connection_obj->getADODbObject()->fmtTimeStamp = "'Y-m-d H:i:s'";
+
+					if ( Debug::getVerbosity() == 11 ) {
+						//Use 1 instead of TRUE, so it only outputs some debugging and not things like backtraces for every cache read/write.
+						//Set to 99 to get all debug output.
+						$db_connection_obj->getADODbObject()->debug = 1;
+					}
+
+					if ( isset($config_vars['database']['disable_row_count']) AND $config_vars['database']['disable_row_count'] == TRUE ) {
+						//Dont count rows for pagination, much faster. However two queries must be run to tell if we are at the last page or not.
+						$db_connection_obj->getADODbObject()->pageExecuteCountRows = FALSE;
+					}
+					$db->addConnection( $db_connection_obj );
+				}
+				unset($db_hosts, $db_host_arr, $db_connection_obj);
+
+				//Make sure when inserting times we always include the timezone.
+				//UNLESS we're using MySQL, because MySQL can't store time stamps with time zones.
+				if ( strncmp($config_vars['database']['type'], 'mysql', 5) == 0 ) {
+					//Put MySQL into ANSI mode
+					//READ COMMITTED mode is what PGSQL defaults to.
+					//This should hopefully fix odd issues like hierarchy trees becoming corrupt.
+					$db->setSessionInitSQL( 'SET SESSION sql_mode=\'ansi\'' );
+					$db->setSessionInitSQL( 'SET TRANSACTION ISOLATION LEVEL READ COMMITTED' );
+				}				
 			} else {
-				//Use long timezone format because PostgreSQL 8.1 doesn't support some short names, like SGT,IST
-				//Using "e" for the timezone fixes the Asia/Calcutta & IST bug where the two were getting confused.
-				//We set the timezone in PostgreSQL like we do with MySQL, so 'e' shouldn't be required anymore.
-				//$db->fmtTimeStamp = "'Y-m-d H:i:s e'";
-				$db->fmtTimeStamp = "'Y-m-d H:i:s'";
-			}
+				//To enable PDO support. Type: pdo_pgsql or pdo_mysql
+				//$dsn = $config_vars['database']['type'].'://'.$config_vars['database']['user'].':'.$config_vars['database']['password'].'@'.$config_vars['database']['host'].'/'.$config_vars['database']['database_name'].'?persist';
+				//$db = ADONewConnection( $dsn );
+				$db = ADONewConnection( $config_vars['database']['type'] );
+				$db->SetFetchMode(ADODB_FETCH_ASSOC);
+				if ( isset($config_vars['database']['persistent_connections']) AND $config_vars['database']['persistent_connections'] == TRUE ) {
+					$db->PConnect( $config_vars['database']['host'], $config_vars['database']['user'], $config_vars['database']['password'], $config_vars['database']['database_name']);
+				} else {
+					$db->Connect( $config_vars['database']['host'], $config_vars['database']['user'], $config_vars['database']['password'], $config_vars['database']['database_name']);
+				}
+				$db->noBlobs = TRUE; //Optimization to tell ADODB to not bother checking for blobs in any result set.
 
-			if ( isset($config_vars['database']['disable_row_count']) AND $config_vars['database']['disable_row_count'] == TRUE ) {
-				//Dont count rows for pagination, much faster. However two queries must be run to tell if we are at the last page or not.
-				$db->pageExecuteCountRows = FALSE;
+				if ( Debug::getVerbosity() == 11 ) {
+					$ADODB_OUTP = 'ADODBDebug';
+					function ADODBDebug( $msg, $newline = TRUE ) {
+						Debug::Text( html_entity_decode( strip_tags( $msg ) ), __FILE__, __LINE__, __METHOD__, 11);
+						return TRUE;
+					}
+
+					//Use 1 instead of TRUE, so it only outputs some debugging and not things like backtraces for every cache read/write.
+					//Set to 99 to get all debug output.
+					$db->debug = 1;
+				}
+
+				//Make sure when inserting times we always include the timezone.
+				//UNLESS we're using MySQL, because MySQL can't store time stamps with time zones.
+				if ( strncmp($db->databaseType, 'mysql', 5) == 0 ) {
+					$db->fmtTimeStamp = "'Y-m-d H:i:s'";
+					//Put MySQL into ANSI mode
+					//READ COMMITTED mode is what PGSQL defaults to.
+					//This should hopefully fix odd issues like hierarchy trees becoming corrupt.
+					$db->Execute('SET SESSION sql_mode=\'ansi\'');
+					$db->Execute('SET TRANSACTION ISOLATION LEVEL READ COMMITTED');
+				} else {
+					//Use long timezone format because PostgreSQL 8.1 doesn't support some short names, like SGT,IST
+					//Using "e" for the timezone fixes the Asia/Calcutta & IST bug where the two were getting confused.
+					//We set the timezone in PostgreSQL like we do with MySQL, so 'e' shouldn't be required anymore.
+					//$db->fmtTimeStamp = "'Y-m-d H:i:s e'";
+					$db->fmtTimeStamp = "'Y-m-d H:i:s'";
+				}
+
+				if ( isset($config_vars['database']['disable_row_count']) AND $config_vars['database']['disable_row_count'] == TRUE ) {
+					//Dont count rows for pagination, much faster. However two queries must be run to tell if we are at the last page or not.
+					$db->pageExecuteCountRows = FALSE;
+				}
 			}
 		} catch (Exception $e) {
 			Debug::Text( 'Error connecting to the database!', __FILE__, __LINE__, __METHOD__, 1);

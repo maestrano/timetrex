@@ -167,15 +167,22 @@ class TTDate {
 				if ( strncmp($db->databaseType, 'postgres', 8) == 0 ) {
 					//PostgreSQL 9.2+ defaults to GMT in many cases, which causes problems with strtotime() and parsing date column types.
 					//Since date columns return times like: 2014-01-01 00:00:00+00, if the timezone in PHP is PST8PDT it parses to 31-Dec-13 4:00 PM
-					if ( @$db->Execute('SET SESSION TIME ZONE '. $db->qstr($time_zone) ) == FALSE ) {
-						Debug::text('ERROR: Setting TimeZone: '. $time_zone .' DB Type: '. $db->databaseType, __FILE__, __LINE__, __METHOD__, 10);
-						return FALSE;
+					if ( $db instanceOf ADOdbLoadBalancer ) {
+						$result = $db->setSessionVariable( 'TIME ZONE', $db->qstr($time_zone) );
+					} else {
+						$result = @$db->Execute('SET SESSION TIME ZONE '. $db->qstr($time_zone) );
 					}
 				} elseif ( strncmp($db->databaseType, 'mysql', 5) == 0 ) {
-					if ( @$db->Execute('SET SESSION time_zone='. $db->qstr($time_zone) ) == FALSE ) {
-						Debug::text('ERROR: Setting TimeZone: '. $time_zone .' DB Type: '. $db->databaseType, __FILE__, __LINE__, __METHOD__, 10);
-						return FALSE;
+					if ( $db instanceOf ADOdbLoadBalancer ) {
+						$result = $db->setSessionVariable( 'time_zone', '='.$db->qstr($time_zone) );
+					} else {
+						$result = @$db->Execute('SET SESSION time_zone='. $db->qstr($time_zone) );
 					}
+				}
+
+				if ( $result == FALSE ) {
+					Debug::text('ERROR: Setting TimeZone: '. $time_zone .' DB Type: '. $db->databaseType, __FILE__, __LINE__, __METHOD__, 10);
+					return FALSE;
 				}
 			}
 
@@ -2927,8 +2934,8 @@ class TTDate {
 				$column_prefix.'date_week' => self::getWeek( $epoch, $start_week_day ),
 				$column_prefix.'date_week_month' => date('Y-m-d-W', TTDate::getBeginWeekEpoch( $epoch, $start_week_day ) ), //Need to have day in here so sorting is done properly.
 				$column_prefix.'date_week_month_year' => date('Y-m-d-W', TTDate::getBeginWeekEpoch( $epoch, $start_week_day ) ), //Need to have day in here so sorting is done properly.
-				$column_prefix.'date_week_start' => date('Y-m-d', TTDate::getBeginWeekEpoch( $epoch ) ),
-				$column_prefix.'date_week_end' => date('Y-m-d', TTDate::getEndWeekEpoch( $epoch ) ),
+				$column_prefix.'date_week_start' => date('Y-m-d', TTDate::getBeginWeekEpoch( $epoch, $start_week_day ) ),
+				$column_prefix.'date_week_end' => date('Y-m-d', TTDate::getEndWeekEpoch( $epoch, $start_week_day ) ),
 				$column_prefix.'date_dom' => date('d', $epoch ),
 				$column_prefix.'date_dom_month' => date('m-d', $epoch ),
 				$column_prefix.'date_dom_month_year' => date('Y-m-d', $epoch ),

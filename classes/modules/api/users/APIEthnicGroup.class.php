@@ -92,7 +92,17 @@ class APIEthnicGroup extends APIFactory {
 		}
 		$data = $this->initializeFilterAndPager( $data, $disable_paging );
 
-		$data['filter_data']['permission_children_ids'] = $this->getPermissionObject()->getPermissionChildren( 'user', 'view' );
+		//Allow supervisor (subordinates only) to see all ethnic groups.
+		//$data['filter_data']['permission_children_ids'] = $this->getPermissionObject()->getPermissionChildren( 'user', 'view' );
+
+		//Allow getting users from other companies, so we can change admin contacts when using the master company.
+		if ( isset($data['filter_data']['company_id'])
+				AND $data['filter_data']['company_id'] > 0
+				AND ( $this->getPermissionObject()->Check('company', 'enabled') AND $this->getPermissionObject()->Check('company', 'view') ) ) {
+			$company_id = $data['filter_data']['company_id'];
+		} else {
+			$company_id = $this->getCurrentCompanyObject()->getId();
+		}
 
 		$eglf = TTnew( 'EthnicGroupListFactory' );
 		$eglf->getAPISearchByCompanyIdAndArrayCriteria( $this->getCurrentCompanyObject()->getId(), $data['filter_data'], $data['filter_items_per_page'], $data['filter_page'], NULL, $data['filter_sort'] );

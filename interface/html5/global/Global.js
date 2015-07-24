@@ -59,7 +59,8 @@ Global.sendErrorReport = function() {
 	var error_stack = arguments[4];
 
 	var login_user = LocalCacheData.getLoginUser();
-	if ( error_string.indexOf( "TypeError: 'null' is not an object" ) >= 0 ) {
+	if ( error_string.indexOf( "TypeError: 'null' is not an object" ) >= 0 ||
+		error_string.indexOf( "NS_ERROR_FAILURE" ) >= 0 ) {
 		return;
 	}
 
@@ -91,7 +92,7 @@ Global.sendErrorReport = function() {
 				var image_string = canvas.toDataURL().split( ',' )[1];
 				api_authentication.sendErrorReport( error, image_string, {
 					onResult: function( result ) {
-						if ( APIGlobal.pre_login_data.production === true && result.getResult() != APIGlobal.pre_login_data.application_build ) {
+						if ( APIGlobal.pre_login_data.production === true && result.getResult() !== APIGlobal.pre_login_data.application_build ) {
 							TAlertManager.showAlert( $.i18n._( 'Your web browser is caching incorrect data, please press the refresh button on your web browser or log out, clear your web browsers cache and try logging in again.' ) + '<br><br>' + $.i18n._( 'Local Version' ) + ':  ' + result.getResult() + '<br>' + $.i18n._( 'Remote Version' ) + ': ' + APIGlobal.pre_login_data.application_build, '', function() {
 								window.location.reload( true );
 							} );
@@ -110,7 +111,7 @@ Global.sendErrorReport = function() {
 			}
 		} );
 	}
-}
+};
 
 Global.initStaticStrings = function() {
 
@@ -145,11 +146,11 @@ Global.initStaticStrings = function() {
 Global.getUpgradeMessage = function() {
 	var message = $.i18n._( 'This functionality is only available in' ) +
 		' ' + LocalCacheData.getLoginData().application_name + ' ' + $.i18n._( 'Professional, Corporate, or Enterprise Editions.' ) +
-		' ' + $.i18n._( 'For more information please visit' ) + ' <a href="http://www.timetrex.com/r.php?id=810" target="_blank">www.timetrex.com</a>'
+		' ' + $.i18n._( 'For more information please visit' ) + ' <a href="http://www.timetrex.com/r.php?id=810" target="_blank">www.timetrex.com</a>';
 
 	Global.trackView( 'CommunityUpgrade' );
 	return message;
-}
+};
 
 Global.setupPing = function() {
 
@@ -270,62 +271,6 @@ Global.upCaseFirstLetter = function( str ) {
 	return str;
 };
 
-Global.convertDateFormatToDatePickerFormat = function( format ) {
-//		if ( format.indexOf( 'yyyy' ) >= 0 ) {
-//			format = format.replace( 'yyyy', 'yy' );
-//		} else {
-//			format = format.replace( 'yy', 'y' );
-//		}
-//
-//		if ( format.indexOf( 'mmmm' ) >= 0 ) {
-//			format = format.replace( 'mmmm', 'MM' );
-//		} else {
-//			format = format.replace( 'mmm', 'M' );
-//		}
-//
-//		if ( format.indexOf( 'dddd' ) >= 0 ) {
-//			format = format.replace( 'dddd', 'dddd' );
-//		} else {
-//			format = format.replace( 'ddd', 'dd' );
-//		}
-//
-//		format = format.replace( new RegExp( 'y', 'gm' ), 'Y' );
-//
-//		format = format.replace( new RegExp( 'm', 'gm' ), 'M' );
-//
-//		format = format.replace( new RegExp( 'd', 'gm' ), 'D' );
-
-	return format;
-};
-
-Global.strToDateTime = function( date_string ) {
-
-	//Why change PM to AM? comments this out see if we meet any date problems
-//	if ( date_string.indexOf( '12:' ) >= 0 && date_string.indexOf( 'PM' ) > 0 ) {
-//		date_string = date_string.replace( 'PM', 'AM' );
-//	}
-
-	//Error: TypeError: Global.strToDateTime(...) is null in https://ondemand3.timetrex.com/interface/html5/framework/jquery.min.js?v=8.0.0-20141117-153515 line 4862
-	if ( !date_string ) {
-		return null;
-	}
-
-	if ( LocalCacheData.loginUserPreference.time_format === 'G:i T' || LocalCacheData.loginUserPreference.time_format === 'g:i A T' ) {
-		var date_str_array = date_string.split( ' ' );
-		date_str_array.pop();
-		date_string = date_str_array.join( ' ' );
-	}
-
-	return Date.parse( date_string );
-};
-
-//Convert all kinds of date time to mm/dd/yyyy so Date.parse can parse it correct
-Global.getStandardDateTimeStr = function( date_str, time_str ) {
-	var result = Global.strToDate( date_str ).format( 'MM/DD/YYYY' ) + ' ' + time_str;
-
-	return result;
-};
-
 Global.strToDate = function( date_string, format ) {
 
 	//better to use Date.parse, let's see
@@ -333,11 +278,63 @@ Global.strToDate = function( date_string, format ) {
 		format = LocalCacheData.getLoginUserPreference().date_format;
 	}
 
-	format = Global.convertDateFormatToDatePickerFormat( format );
+	var date = moment( date_string, format )
+	date = date.toDate();
 
-	var date = moment( date_string, format ).toDate();
+	// Means this is not a correct date_string
+	if ( date.getTime() === 946656000000 ) {
+		return null;
+	}
 
 	return date;
+};
+
+Global.strToDateTime = function( date_string ) {
+	//Error: TypeError: Global.strToDateTime(...) is null in https://ondemand3.timetrex.com/interface/html5/framework/jquery.min.js?v=8.0.0-20141117-153515 line 4862
+	if ( !date_string ) {
+		return null;
+	}
+	var date_format = LocalCacheData.getLoginUserPreference().date_format;
+	var time_format = LocalCacheData.getLoginUserPreference().js_time_format[LocalCacheData.getLoginUserPreference().time_format];
+	var date = moment( date_string, date_format + ' ' + time_format ).toDate();
+	return date;
+
+	//return Date.parse( date_string );
+};
+
+//Convert all kinds of date time to mm/dd/yyyy so Date.parse can parse it correct
+Global.getStandardDateTimeStr = function( date_str, time_str ) {
+	//var result = Global.strToDate( date_str ).format( 'MM/DD/YYYY' ) + ' ' + time_str;
+
+	return date_str;
+};
+
+Global.convertTojQueryFormat = function( date_format ) {
+	//For moment date parser
+	var jquery_date_format = {
+		'd-M-y': 'dd-M-y',
+		'd-M-Y': 'dd-M-yy',
+		'dMY': 'ddMyy',
+		'd/m/Y': 'dd/mm/yy',
+		'd/m/y': 'dd/mm/y',
+		'd-m-y': 'dd-mm-y',
+		'd-m-Y': 'dd-mm-yy',
+		'm/d/y': 'mm/dd/y',
+		'm/d/Y': 'mm/dd/yy',
+		'm-d-y': 'mm-dd-y',
+		'm-d-Y': 'mm-dd-yy',
+		'Y-m-d': 'yy-mm-dd',
+		'M-d-y': 'M-dd-y',
+		'M-d-Y': 'M-dd-yy',
+		'l, F d Y': 'DD, MM dd yy',
+		'D, F d Y': 'D, MM dd yy',
+		'D, M d Y': 'D, M dd yy',
+		'D, d-M-Y': 'D, dd-M-yy',
+		'D, dMY': 'D, ddMyy'
+	};
+
+	return jquery_date_format[date_format];
+
 };
 
 Global.updateUserPreference = function( callBack, message ) {
@@ -369,48 +366,23 @@ Global.updateUserPreference = function( callBack, message ) {
 
 							LocalCacheData.loginUserPreference.time_zone_offset = hoursResultData;
 
-							user_preference_api.getOptions( 'jquery_date_format', {
+							user_preference_api.getOptions( 'moment_date_format', {
 								onResult: function( jsDateFormatRes ) {
 
 									var jsDateFormatResultData = jsDateFormatRes.getResult();
-
 									//For moment date parser
-									LocalCacheData.loginUserPreference.js_date_format = {
-										'D, F d Y': 'ddd, MMMM DD YYYY',
-										'D, M d Y': 'ddd, MMM DD YYYY',
-										'D, d-M-Y': 'ddd, DD-MMM-YYYY',
-										'D, dMY': 'ddd, DDMMMYYYY',
-										'M-d-Y': 'MMM-DD-YYYY',
-										'M-d-y': 'MMM-DD-YY',
-										'Y-m-d': 'YYYY-MM-DD',
-										'd-M-Y': 'DD-MMM-YYYY',
-										'd-M-y': 'DD-MMM-YY',
-										'd-m-Y': 'DD-MM-YYYY',
-										'd-m-y': 'DD-MM-YY',
-										'd/m/Y': 'DD/MM/YYYY',
-										'd/m/y': 'DD/MM/YY',
-										'dMY': 'DDMMMYYYY',
-										'l, F d Y': 'dddd, MMMM DD YYYY',
-										'm-d-Y': 'MM-DD-YYYY',
-										'm-d-y': 'MM-DD-YY',
-										'm/d/Y': 'MM/DD/YYYY',
-										'm/d/y': 'MM/DD/YY'
-									};
-
+									LocalCacheData.loginUserPreference.js_date_format = jsDateFormatResultData;
 									var date_format = LocalCacheData.loginUserPreference.date_format;
 
 									if ( !date_format ) {
 										date_format = 'DD-MMM-YY';
 									}
-
 									LocalCacheData.loginUserPreference.date_format = LocalCacheData.loginUserPreference.js_date_format[date_format];
+									////For date picker
+									//LocalCacheData.loginUserPreference.js_date_format_1 = jsDateFormatResultData;
+									LocalCacheData.loginUserPreference.date_format_1 = Global.convertTojQueryFormat( date_format );
 
-									//For date picker
-									LocalCacheData.loginUserPreference.js_date_format_1 = jsDateFormatResultData;
-
-									LocalCacheData.loginUserPreference.date_format_1 = LocalCacheData.loginUserPreference.js_date_format_1[date_format];
-
-									user_preference_api.getOptions( 'js_time_format', {
+									user_preference_api.getOptions( 'moment_time_format', {
 										onResult: function( jsTimeFormatRes ) {
 
 											var jsTimeFormatResultData = jsTimeFormatRes.getResult();
@@ -439,33 +411,24 @@ Global.updateUserPreference = function( callBack, message ) {
 	} );
 };
 
+/* jshint ignore:start */
 Global.secondToHHMMSS = function( sec_num, force_time_unit ) {
-
 	var add_minus = false;
-
 	var time;
-
 	if ( typeof sec_num === 'undefined' || sec_num === null || sec_num === false ) {
 		return null;
 	}
-
-//	sec_num = parseFloat( sec_num );
-
 	if ( sec_num < 0 ) {
-		sec_num = -sec_num;
+		sec_num = (-sec_num);
 		add_minus = true;
 	}
-
 	var time_unit = LocalCacheData.getLoginUserPreference().time_unit_format.toString();
-
 	if ( force_time_unit ) {
 		time_unit = force_time_unit;
 	}
-
-	var hours = sec_num / 3600;
-	var minutes = (sec_num - (hours * 3600)) / 60;
+	var hours = (sec_num / 3600);
+	var minutes = ((sec_num - (hours * 3600)) / 60);
 	var seconds = (sec_num - (hours * 3600) - (minutes * 60)).toFixed( 0 );
-
 	switch ( time_unit ) {
 		case '10':
 		case '12':
@@ -506,25 +469,37 @@ Global.secondToHHMMSS = function( sec_num, force_time_unit ) {
 			time = sec_num;
 			break;
 	}
-
-//	if ( include_ss ) {
-//
-//		if ( no_hour ) {
-//			time = minutes + ':' + seconds;
-//		} else {
-//			time = hours + ':' + minutes + ':' + seconds;
-//		}
-//
-//	} else {
-//		time = hours + ':' + minutes;
-//	}
-//
 	if ( add_minus ) {
 		time = '-' + time;
 	}
-
 	return time;
 };
+
+Global.removeTrailingZeros = function( value, minimum_decimals ) {
+	if ( !minimum_decimals ) {
+		minimum_decimals = 2;
+	}
+	if ( value ) {
+		value = parseFloat( value ); // first to remove the zero after the point.
+
+		var trimmed_value = value.toString();
+
+		if ( trimmed_value.indexOf( '.' ) > 0 ) {
+			// If after removed has the point, then reverse it.
+			var tmp_minimum_decimals = parseInt( trimmed_value.split( '' ).reverse().join( '' ) ).toString().length;
+			if ( tmp_minimum_decimals > minimum_decimals ) {
+				minimum_decimals = tmp_minimum_decimals;
+			}
+
+		}
+
+		return value.toFixed( minimum_decimals );
+	}
+
+	return value;
+};
+
+/* jshint ignore:end */
 
 Global.isCanvasSupported = function() {
 	var elem = document.createElement( 'canvas' );
@@ -987,15 +962,15 @@ Global.convertToNumberIfPossible = function( val ) {
 	var reg = new RegExp( '^[0-9]*$' );
 
 	if ( reg.test( val ) && val !== '00' ) {
-		val = parseFloat( val )
+		val = parseFloat( val );
 	}
 
-	if ( val == '-1' ) {
+	if ( val === '-1' || val === -1 ) {
 		val = -1;
 	}
 
 	return val;
-}
+};
 
 Global.buildRecordArray = function( array, first_item, orderType ) {
 	var finalArray = [];
@@ -1080,7 +1055,7 @@ Global.loadScriptAsync = function( path, onResult ) {
 		onResult();
 		return;
 	}
-	var realPath = path + '?v=' + APIGlobal.pre_login_data.application_build
+	var realPath = path + '?v=' + APIGlobal.pre_login_data.application_build;
 
 	if ( Global.url_offset ) {
 		realPath = Global.url_offset + realPath;
@@ -1149,7 +1124,7 @@ Global.loadLanguage = function( name ) {
 	}
 
 	return (successflag);
-}
+};
 
 Global.checkProperProductEdition = function( edition_id ) {
 
@@ -1162,14 +1137,14 @@ Global.checkProperProductEdition = function( edition_id ) {
 	}
 
 	return false;
-}
+};
 
 Global.setURLToBrowser = function( new_url ) {
 
 	if ( new_url !== window.location.href ) {
 		window.location = new_url;
 	}
-}
+};
 
 Global.loadScript = function( scriptPath ) {
 
@@ -1179,7 +1154,7 @@ Global.loadScript = function( scriptPath ) {
 
 	var successflag = false;
 
-	var realPath = scriptPath + '?v=' + APIGlobal.pre_login_data.application_build
+	var realPath = scriptPath + '?v=' + APIGlobal.pre_login_data.application_build;
 
 	if ( Global.url_offset ) {
 		realPath = Global.url_offset + realPath;
@@ -1224,7 +1199,7 @@ Global.getFuncName = function( _callee ) {
 		if ( _start !== -1 ) {
 			if ( /^function\s*\(.*\).*\r\n/.test( _text ) ) {
 				var _tempArr = _scriptArr[i].text.substr( 0, _start ).split( '\r\n' );
-				return _tempArr[_tempArr.length - 1].replace( /(var)|(\s*)/g, '' ).replace( /=/g, '' );
+				return _tempArr[(_tempArr.length - 1)].replace( /(var)|(\s*)/g, '' ).replace( /=/g, '' );
 			} else {
 				return _text.match( /^function\s*([^\(]+).*\r\n/ )[1];
 			}
@@ -1275,7 +1250,7 @@ Global.addCss = function( path ) {
 //JS think 0 is false, so use this to get 0 correctly.
 Global.isFalseOrNull = function( object ) {
 
-	if ( object === false || object === null || object == 0 ) {
+	if ( object === false || object === null || object === 0 || object === '0' ) {
 		return true;
 	} else {
 		return false;
@@ -1298,25 +1273,24 @@ Global.getIconPathByContextName = function( id ) {
 	switch ( id ) {
 		case ContextMenuIconName.add:
 			return Global.getRealImagePath( 'css/global/widgets/ribbon/icons/copy-35x35.png' );
-			break;
 	}
-}
+};
 
 Global.isEmpty = function( obj ) {
 
 	// null and undefined are "empty"
-	if ( obj == null ) return true;
+	if ( obj === null ) {return true;}
 
 	// Assume if it has a length property with a non-zero value
 	// that that property is correct.
-	if ( obj.length > 0 )    return false;
-	if ( obj.length === 0 )  return true;
+	if ( obj.length > 0 ) {return false;}
+	if ( obj.length === 0 ) {return true;}
 
 	// Otherwise, does it have any properties of its own?
 	// Note that this doesn't handle
 	// toString and valueOf enumeration bugs in IE < 9
 	for ( var key in obj ) {
-		if ( hasOwnProperty.call( obj, key ) ) return false;
+		if ( hasOwnProperty.call( obj, key ) ) {return false;}
 	}
 
 	return true;
@@ -2039,6 +2013,9 @@ Global.getViewPathByViewId = function( viewId ) {
 		case 'InstallWizard':
 			path = 'views/wizard/install/';
 			break;
+		case 'PayStubAccountWizard':
+			path = 'views/wizard/pay_stub_account/';
+			break;
 	}
 
 	return path;
@@ -2162,6 +2139,7 @@ Global.isArrayAndHasItems = function( object ) {
 
 };
 
+/* jshint ignore:start */
 Global.convertLayoutFilterToAPIFilter = function( layout ) {
 	var convert_filter_data = {};
 
@@ -2176,7 +2154,10 @@ Global.convertLayoutFilterToAPIFilter = function( layout ) {
 	}
 
 	$.each( filter_data, function( key, content ) {
-
+		// Cannot read property 'value' of undefined
+		if ( !content ) {
+			return;//continue;
+		}
 		if ( ( content.value instanceof Array && content.value.length > 0 ) || ( content.value instanceof Object ) ) {
 			var values = [];
 			var obj = content.value;
@@ -2187,7 +2168,7 @@ Global.convertLayoutFilterToAPIFilter = function( layout ) {
 
 					if ( Global.isSet( content.value[i].value ) ) {
 						values.push( content.value[i].value ); //Options,
-					} else if ( content.value[i].id || content.value[i].id == 0 ) {
+					} else if ( content.value[i].id || content.value[i].id === 0 || content.value[i].id === '0' ) {
 						values.push( content.value[i].id ); //Awesomebox
 					} else {
 						values.push( content.value[i] ); // default_filter_data_for_next_view
@@ -2201,7 +2182,7 @@ Global.convertLayoutFilterToAPIFilter = function( layout ) {
 				var final_value = '';
 				if ( Global.isSet( content.value.value ) ) {
 					final_value = content.value.value; //Options,
-				} else if ( content.value.id || content.value.id == 0 ) {
+				} else if ( content.value.id || content.value.id === 0 || content.value.id === '0' ) {
 					final_value = content.value.id; //Awesomebox
 				} else {
 					final_value = content.value; // default_filter_data_for_next_view
@@ -2238,6 +2219,7 @@ Global.convertLayoutFilterToAPIFilter = function( layout ) {
 	return convert_filter_data;
 
 };
+/* jshint ignore:end */
 
 //ASC
 Global.compare = function( a, b, orderKey, order_type ) {
@@ -2247,17 +2229,21 @@ Global.compare = function( a, b, orderKey, order_type ) {
 	}
 
 	if ( order_type === 'asc' ) {
-		if ( a[orderKey] > b[orderKey] ) {
-			return true;
-		} else {
-			return false;
+		if ( a[orderKey] < b[orderKey] ) {
+			return -1;
 		}
+		if ( a[orderKey] > b[orderKey] ) {
+			return 1;
+		}
+		return 0;
 	} else {
 		if ( a[orderKey] < b[orderKey] ) {
-			return true;
-		} else {
-			return false;
+			return 1;
 		}
+		if ( a[orderKey] > b[orderKey] ) {
+			return -1;
+		}
+		return 0;
 	}
 
 };
@@ -2542,7 +2528,6 @@ var dateFormat = function() {
 			return $0 in flags ? flags[$0] : $0.slice( 1, $0.length - 1 );
 		} );
 	};
-
 	/* jshint ignore:end */
 }();
 
@@ -2597,7 +2582,7 @@ RightClickMenuType.ABSENCE_GRID = '4';
 
 Global.htmlEncode = function( str ) {
 	var s = "";
-	if ( str.length == 0 ) return "";
+	if ( str.length === 0 ) {return "";}
 	s = str.replace( /&/g, "&gt;" );
 	s = s.replace( /</g, "&lt;" );
 	s = s.replace( />/g, "&gt;" );
@@ -2606,11 +2591,11 @@ Global.htmlEncode = function( str ) {
 	s = s.replace( /\"/g, "&quot;" );
 	s = s.replace( /\n/g, "<br>" );
 	return s;
-}
+};
 
 Global.htmlDecode = function( str ) {
 	var s = "";
-	if ( str.length == 0 ) return "";
+	if ( str.length === 0 ) {return "";}
 	s = str.replace( /&gt;/g, "&" );
 	s = s.replace( /&lt;/g, "<" );
 	s = s.replace( /&gt;/g, ">" );
@@ -2619,7 +2604,7 @@ Global.htmlDecode = function( str ) {
 	s = s.replace( /&quot;/g, "\"" );
 	s = s.replace( /<br>/g, "\n" );
 	return s;
-}
+};
 
 //Sort by module
 
@@ -2730,20 +2715,22 @@ $.fn.visible = function() {
 	} );
 };
 
+/* jshint ignore:start */
 if ( APIGlobal.pre_login_data.analytics_enabled === true ) {
 	(function( i, s, o, g, r, a, m ) {
 		i['GoogleAnalyticsObject'] = r;
 		i[r] = i[r] || function() {
-			(i[r].q = i[r].q || []).push( arguments )
+			(i[r].q = i[r].q || []).push( arguments );
 		}, i[r].l = 1 * new Date();
 		a = s.createElement( o ),
 			m = s.getElementsByTagName( o )[0];
 		a.async = 1;
 		a.src = g;
-		m.parentNode.insertBefore( a, m )
+		m.parentNode.insertBefore( a, m );
 	})( window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga' );
 	ga( 'create', 'UA-333702-3', 'auto' );
 }
+/* jshint ignore:end */
 
 Global.trackView = function( name, action ) {
 	if ( APIGlobal.pre_login_data.analytics_enabled === true ) {
@@ -2781,19 +2768,19 @@ Global.setAnalyticDimensions = function( user_name, company_name ) {
 		ga( 'set', 'dimension4', APIGlobal.pre_login_data.registration_key );
 		ga( 'set', 'dimension5', APIGlobal.pre_login_data.primary_company_name );
 
-		if ( user_name != 'undefined' && user_name != null ) {
+		if ( user_name !== 'undefined' && user_name !== null ) {
 			if ( APIGlobal.pre_login_data.production !== true ) {
 				Global.log( 'Analytics User: ' + user_name );
 			}
 			ga( 'set', 'dimension6', user_name );
 		}
 
-		if ( company_name != 'undefined' && company_name != null ) {
+		if ( company_name !== 'undefined' && company_name !== null ) {
 			if ( APIGlobal.pre_login_data.production !== true ) {
 				Global.log( 'Analytics Company: ' + company_name );
 			}
 			ga( 'set', 'dimension7', company_name );
-		}			//code
+		}
 	}
 };
 

@@ -156,8 +156,6 @@ AccrualBalanceViewController = BaseViewController.extend( {
 	},
 
 	getFilterColumnsFromDisplayColumns: function() {
-		var display_columns = this.grid.getGridParam( 'colModel' );
-
 		var column_filter = {};
 		column_filter.is_owner = true;
 		column_filter.id = true;
@@ -167,6 +165,12 @@ AccrualBalanceViewController = BaseViewController.extend( {
 		column_filter.last_name = true;
 		column_filter.user_id = true;
 		column_filter.accrual_policy_account_id = true;
+
+		// Error: Unable to get property 'getGridParam' of undefined or null reference
+		var display_columns = [];
+		if ( this.grid ) {
+			display_columns = this.grid.getGridParam( 'colModel' );
+		}
 
 		if ( display_columns ) {
 			var len = display_columns.length;

@@ -1004,7 +1004,6 @@ class GovernmentForms_CA_ROE extends GovernmentForms_CA {
 
 				// Box2
 				if ( $this->serial != '' ) {
-
 					$xml->Roe[$e]->addChild('B2', substr( $this->serial, 0, 9)); //maxLength 9  minOccurs="0"
 				}
 
@@ -1017,7 +1016,7 @@ class GovernmentForms_CA_ROE extends GovernmentForms_CA {
 				// Box6
 				$xml->Roe[$e]->addChild('B6', $pay_period_type_options[$this->pay_period_type_id]); //maxLength 1
 				// Box8
-				$xml->Roe[$e]->addChild('B8', substr($this->sin, 0, 9)); //maxLength 9
+				$xml->Roe[$e]->addChild('B8', ( $this->sin != '' ) ? $this->sin : '000000000' ); //maxLength 9
 				// Box9
 				$xml->Roe[$e]->addChild('B9');
 				$xml->Roe[$e]->B9->addChild('FN', $this->first_name); //maxLength 20
@@ -1025,7 +1024,7 @@ class GovernmentForms_CA_ROE extends GovernmentForms_CA {
 					$xml->Roe[$e]->B9->addChild('MN', substr( $this->middle_name, 0, 4));//maxLength 4  minOccurs="0"
 				}
 				$xml->Roe[$e]->B9->addChild('LN', $this->last_name);    //maxLength 28
-				$xml->Roe[$e]->B9->addChild('A1', substr( $this->employee_address1 .' '. $this->employee_address2, 0, 35 ) );//maxLength 35
+				$xml->Roe[$e]->B9->addChild('A1', substr( Misc::stripHTMLSpecialChars( $this->employee_address1 ) .' '. Misc::stripHTMLSpecialChars( $this->employee_address2 ), 0, 35 ) );//maxLength 35
 				if ( $this->employee_city != '' ) {
 					$xml->Roe[$e]->B9->addChild('A2', $this->employee_city);//maxLength 35  minOccurs="0"
 				}
@@ -1041,7 +1040,7 @@ class GovernmentForms_CA_ROE extends GovernmentForms_CA {
 				$xml->Roe[$e]->addChild('B12', date('dmY', $this->pay_period_end_date)); //maxLength 8
 				// Box13
 				if ( $this->title != '' ) {
-					$xml->Roe[$e]->addChild('B13', $this->title); //maxLength 40  minOccurs="0"
+					$xml->Roe[$e]->addChild('B13', Misc::stripHTMLSpecialChars( $this->title ) ); //maxLength 40  minOccurs="0"
 				}
 				// Box14
 				if ( $this->recall_code != '' ) {

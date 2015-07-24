@@ -245,17 +245,22 @@ PayrollExportReportViewController = ReportBaseViewController.extend( {
 					case 'adp':
 						$this.api.getOptions( 'adp_hour_column_options', {
 							onResult: function( result ) {
-
 								$this.buildAdditionalInputBox( type );
 								$this.buildGrid( type, result.getResult() );
-
+							}
+						} );
+						break;
+					case 'accero':
+						$this.api.getOptions( 'accero_hour_column_options', {
+							onResult: function( result ) {
+								$this.buildAdditionalInputBox( type );
+								$this.buildGrid( type, result.getResult() );
 							}
 						} );
 						break;
 					case 'va_munis':
 						$this.api.getOptions( 'export_columns', true, {
 							onResult: function( result ) {
-
 								var result_data = result.getResult();
 
 								if ( !result_data.hasOwnProperty( '0' ) ) {
@@ -264,7 +269,6 @@ PayrollExportReportViewController = ReportBaseViewController.extend( {
 
 								$this.buildAdditionalInputBox( type );
 								$this.buildGrid( type, result_data );
-
 							}
 						} );
 						break;
@@ -299,7 +303,7 @@ PayrollExportReportViewController = ReportBaseViewController.extend( {
 		var column_info = {
 			name: 'column_id',
 			index: 'column_id',
-			label: 'Hours',
+			label: $.i18n._('Hours'),
 			width: 100,
 			sortable: false,
 			title: false
@@ -310,7 +314,6 @@ PayrollExportReportViewController = ReportBaseViewController.extend( {
 
 		switch ( type ) {
 			case 'adp':
-
 				columnOptions = Global.buildRecordArray( columnOptions.adp_hour_column_options );
 
 				for ( var i = 0; i < columnOptions.length; i++ ) {
@@ -326,7 +329,7 @@ PayrollExportReportViewController = ReportBaseViewController.extend( {
 				column_info = {
 					name: 'hour_column',
 					index: 'hour_column',
-					label: 'ADP Hours',
+					label: $.i18n._('ADP Hours'),
 					width: 100,
 					sortable: false,
 					formatter: 'select',
@@ -338,8 +341,36 @@ PayrollExportReportViewController = ReportBaseViewController.extend( {
 				column_info_array.push( column_info );
 
 				hour_code_label = 'ADP Hours Code';
-
 				break;
+			case 'accero':
+				columnOptions = Global.buildRecordArray( columnOptions.accero_hour_column_options );
+
+				for ( var i = 0; i < columnOptions.length; i++ ) {
+
+					if ( i !== columnOptions.length - 1 ) {
+						column_options_string += columnOptions[i].fullValue + ':' + columnOptions[i].label + ';';
+					} else {
+						column_options_string += columnOptions[i].fullValue + ':' + columnOptions[i].label;
+					}
+
+				}
+
+				column_info = {
+					name: 'hour_column',
+					index: 'hour_column',
+					label: $.i18n._('Hour Type'),
+					width: 100,
+					sortable: false,
+					formatter: 'select',
+					editable: true,
+					title: false,
+					edittype: 'select',
+					editoptions: {value: column_options_string}
+				};
+				column_info_array.push( column_info );
+
+				hour_code_label = 'HED Override #'; //Hours Code
+				break;			
 			case 'paychex_preview_advanced_job':
 			case 'paychex_preview':
 				hour_code_label = 'Paychex Hours Code';
@@ -380,7 +411,7 @@ PayrollExportReportViewController = ReportBaseViewController.extend( {
 				column_info = {
 					name: 'hour_column',
 					index: 'hour_column',
-					label: 'Columns',
+					label: $.i18n._('Columns'),
 					width: 100,
 					sortable: false,
 					formatter: 'select',
@@ -525,8 +556,8 @@ PayrollExportReportViewController = ReportBaseViewController.extend( {
 
 				switch ( type ) {
 					case 'adp':
+					case 'accero':
 					case 'va_munis':
-
 						if ( !hour_column ) {
 							hour_column = '0';
 						}
@@ -640,7 +671,6 @@ PayrollExportReportViewController = ReportBaseViewController.extend( {
 
 		switch ( type ) {
 			case 'adp':
-
 				//Company code
 				var code = 'company_code';
 				var form_item_input = Global.loadWidgetByName( FormItemType.COMBO_BOX );
@@ -758,6 +788,44 @@ PayrollExportReportViewController = ReportBaseViewController.extend( {
 				$this.export_setup_ui_dic[code2] = $this.edit_view_form_item_dic[code2];
 				delete $this.edit_view_form_item_dic[code2];
 				break;
+			case 'accero':
+				// Temp Department
+				var code2 = 'temp_dept';
+				var form_item_input2 = Global.loadWidgetByName( FormItemType.COMBO_BOX );
+				form_item_input2.TComboBox( {field: code2} );
+
+				h_box = $( "<div class='h-box'></div>" );
+
+				var text_box2 = Global.loadWidgetByName( FormItemType.TEXT_INPUT );
+				text_box2.css( 'margin-left', '10px' );
+				text_box2.TTextInput( {field: code2 + '_text'} );
+
+				h_box.append( form_item_input2 );
+				h_box.append( text_box2 );
+				this.addEditFieldToColumn( $.i18n._( 'Department Override Code' ), [form_item_input2, text_box2], tab3_column1, '', h_box, true );
+
+				form_item_input2.bind( 'formItemChange', function( e, target ) {
+					if ( target.getValue() === 0 ) {
+						text_box2.css( 'display', 'inline' );
+						text_box2.setValue( $this.export_setup_data[code2] );
+					} else {
+						text_box2.css( 'display', 'none' );
+					}
+
+				} );
+
+				$this.api.getOptions( 'accero_temp_dept_options', {
+					onResult: function( result ) {
+						var result_data = result.getResult();
+						form_item_input2.setSourceData( Global.buildRecordArray( result_data ) );
+						form_item_input2.setValue( $this.export_setup_data[code2] );
+						form_item_input2.trigger( 'formItemChange', [form_item_input2, true] );
+					}
+				} );
+
+				$this.export_setup_ui_dic[code2] = $this.edit_view_form_item_dic[code2];
+				delete $this.edit_view_form_item_dic[code2];
+				break;			
 			case 'va_munis':
 				//Department
 				code = 'department';
@@ -1138,7 +1206,7 @@ PayrollExportReportViewController = ReportBaseViewController.extend( {
 			columns[item.column_id_key] = {};
 			columns[item.column_id_key].hour_code = item.hour_code;
 
-			if ( type === 'adp' || type === 'va_munis' ) {
+			if ( type === 'adp' || type === 'accero' || type === 'va_munis' ) {
 				columns[item.column_id_key].hour_column = item.hour_column;
 			}
 
@@ -1171,6 +1239,14 @@ PayrollExportReportViewController = ReportBaseViewController.extend( {
 						other.batch_id = this.edit_view_ui_dic.batch_id.getValue();
 					}
 
+					if ( !this.edit_view_ui_dic.temp_dept.getValue() ) {
+						other.temp_dept = this.edit_view_ui_dic.temp_dept_text.getValue();
+					} else {
+						other.temp_dept = this.edit_view_ui_dic.temp_dept.getValue();
+					}
+
+					break;
+				case 'accero':
 					if ( !this.edit_view_ui_dic.temp_dept.getValue() ) {
 						other.temp_dept = this.edit_view_ui_dic.temp_dept_text.getValue();
 					} else {
@@ -1228,7 +1304,6 @@ PayrollExportReportViewController = ReportBaseViewController.extend( {
 
 			switch ( other.export_type ) {
 				case 'adp':
-
 					if ( !this.edit_view_ui_dic.company_code.getValue() ) {
 						other[other.export_type].company_code = 0;
 						other[other.export_type].company_code_value = this.edit_view_ui_dic.company_code_text.getValue();
@@ -1251,6 +1326,15 @@ PayrollExportReportViewController = ReportBaseViewController.extend( {
 					}
 
 					break;
+				case 'accero':
+					if ( !this.edit_view_ui_dic.temp_dept.getValue() ) {
+						other[other.export_type].temp_dept = 0;
+						other[other.export_type].temp_dept_value = this.edit_view_ui_dic.temp_dept_text.getValue();
+					} else {
+						other[other.export_type].temp_dept = this.edit_view_ui_dic.temp_dept.getValue();
+					}
+
+					break;				
 				case 'paychex_preview':
 					other[other.export_type].client_number = this.edit_view_ui_dic.client_number.getValue();
 					break;

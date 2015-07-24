@@ -17,6 +17,7 @@ UserDateTotalViewController = BaseViewController.extend( {
 		this.context_menu_name = $.i18n._( 'Accumulated Time' );
 		this.navigation_label = $.i18n._( 'Accumulated Time' ) + ':';
 		this.api = new (APIFactory.getAPIClass( 'APIUserDateTotal' ))();
+		$( this.el ).find( '.warning-message' ).text( $.i18n._( 'WARNING: Manually modifying Accumulated Time records may prevent policies from being calculated properly and should only be done as a last resort when instructed to do so by a support representative.' ) )
 
 		this.initPermission();
 		this.render();
@@ -34,6 +35,14 @@ UserDateTotalViewController = BaseViewController.extend( {
 
 		this.setSelectRibbonMenuIfNecessary();
 
+	},
+
+	setGridSize: function() {
+		if ( (!this.grid || !this.grid.is( ':visible' )) ) {
+			return;
+		}
+		this.grid.setGridWidth( $( this.el ).parent().width() - 2 );
+		this.grid.setGridHeight( $( this.el ).parent().parent().parent().height() - 100 );
 	},
 
 	setGridCellBackGround: function() {
@@ -224,6 +233,22 @@ UserDateTotalViewController = BaseViewController.extend( {
 		var c_value = target.getValue();
 		this.current_edit_record[key] = c_value;
 
+		switch ( key ) {
+			case 'object_type_id':
+				this.onTypeChange( true );
+				break;
+			case 'regular_policy_id':
+			case 'absence_policy_id':
+			case 'overtime_policy_id':
+			case 'premium_policy_id':
+			case 'break_policy_id':
+			case 'meal_policy_id':
+				this.current_edit_record.src_object_id = c_value;
+				delete this.current_edit_record[key];
+				this.onSrcObjectChange( key );
+				break;
+		}
+
 		if ( key !== 'override' ) {
 			this.edit_view_ui_dic.override.setValue( true );
 			this.current_edit_record.override = true;
@@ -247,9 +272,11 @@ UserDateTotalViewController = BaseViewController.extend( {
 		if ( $this.api ) {
 			$this.api['get' + $this.api.key_name + 'DefaultData'](
 				this.parent_edit_record.user_id,
-				this.parent_edit_record.date_stamp, {onResult: function( result ) {
-					$this.onAddResult( result );
-				}} );
+				this.parent_edit_record.date_stamp, {
+					onResult: function( result ) {
+						$this.onAddResult( result );
+					}
+				} );
 		}
 
 	},
@@ -497,26 +524,26 @@ UserDateTotalViewController = BaseViewController.extend( {
 			if ( !this.current_edit_record.hasOwnProperty( key ) ) {
 				continue;
 			}
-
 			var widget = this.edit_view_ui_dic[key];
-
 			switch ( key ) {
 				case 'user_id':
 					var current_widget = this.edit_view_ui_dic['first_last_name'];
-					new (APIFactory.getAPIClass( 'APIUser' ))().getUser( {filter_data: {id: this.current_edit_record[key]}}, {onResult: function( result ) {
+					new (APIFactory.getAPIClass( 'APIUser' ))().getUser( {filter_data: {id: this.current_edit_record[key]}}, {
+						onResult: function( result ) {
 
-						if ( result.isValid() ) {
-							var user_data = result.getResult()[0];
+							if ( result.isValid() ) {
+								var user_data = result.getResult()[0];
+							}
+
+							//Error: Unable to get property 'first_name' of undefined or null reference in https://ondemand2001.timetrex.com/interface/html5/ line 511
+							if ( user_data && user_data.first_name ) {
+								current_widget.setValue( user_data.first_name + ' ' + user_data.last_name );
+							} else {
+								current_widget.setValue( '' );
+							}
+
 						}
-
-						//Error: Unable to get property 'first_name' of undefined or null reference in https://ondemand2001.timetrex.com/interface/html5/ line 511 
-						if ( user_data && user_data.first_name ) {
-							current_widget.setValue( user_data.first_name + ' ' + user_data.last_name );
-						} else {
-							current_widget.setValue( '' );
-						}
-
-					}} );
+					} );
 					break;
 				case 'date_stamp':
 					widget.setEnabled( false );
@@ -537,6 +564,66 @@ UserDateTotalViewController = BaseViewController.extend( {
 
 		this.collectUIDataToCurrentEditRecord();
 		this.setEditViewDataDone();
+
+	},
+
+	setEditViewDataDone: function() {
+		var $this = this;
+		this._super( 'setEditViewDataDone' );
+		this.onTypeChange();
+	},
+
+	onTypeChange: function( reset ) {
+		this.edit_view_form_item_dic['regular_policy_id'].css( 'display', 'none' );
+		this.edit_view_form_item_dic['absence_policy_id'].css( 'display', 'none' );
+		this.edit_view_form_item_dic['overtime_policy_id'].css( 'display', 'none' );
+		this.edit_view_form_item_dic['premium_policy_id'].css( 'display', 'none' );
+		this.edit_view_form_item_dic['meal_policy_id'].css( 'display', 'none' );
+		this.edit_view_form_item_dic['break_policy_id'].css( 'display', 'none' );
+		var key = '';
+		if ( this.current_edit_record['object_type_id'] === 20 ) {
+			key = 'regular_policy_id';
+		} else if ( this.current_edit_record['object_type_id'] === 25 || this.current_edit_record['object_type_id'] === 50 ) {
+			key = 'absence_policy_id';
+		} else if ( this.current_edit_record['object_type_id'] === 30 ) {
+			key = 'overtime_policy_id';
+		} else if ( this.current_edit_record['object_type_id'] === 40 ) {
+			key = 'premium_policy_id';
+		} else if ( this.current_edit_record['object_type_id'] === 100 || this.current_edit_record['object_type_id'] === 101 ) {
+			key = 'meal_policy_id';
+		} else if ( this.current_edit_record['object_type_id'] === 110 || this.current_edit_record['object_type_id'] === 111 ) {
+			key = 'break_policy_id';
+		}
+		if ( key ) {
+			this.edit_view_form_item_dic[key].css( 'display', 'block' );
+			if ( reset ) {
+				this.edit_view_ui_dic[key].setValue( '' );
+				this.edit_view_ui_dic['pay_code_id'].setValue( '' );
+				this.current_edit_record.src_object_id = false;
+				this.current_edit_record.pay_code_id = false;
+				this.edit_view_ui_dic['pay_code_id'].setEnabled( true );
+			} else if ( this.current_edit_record.src_object_id ) {
+				this.edit_view_ui_dic[key].setValue( this.current_edit_record.src_object_id );
+				this.edit_view_ui_dic['pay_code_id'].setEnabled( false );
+			}
+		} else {
+			this.edit_view_ui_dic['pay_code_id'].setEnabled( true );
+			this.current_edit_record.src_object_id = false;
+		}
+		this.editFieldResize();
+	},
+
+	onSrcObjectChange: function( key ) {
+		var full_value = this.edit_view_ui_dic[key].getValue( true );
+		if ( full_value && full_value.pay_code_id ) {
+			this.edit_view_ui_dic['pay_code_id'].setEnabled( false );
+			this.edit_view_ui_dic['pay_code_id'].setValue( full_value.pay_code_id );
+			this.current_edit_record.pay_code_id = full_value.pay_code_id;
+		} else {
+			this.edit_view_ui_dic['pay_code_id'].setEnabled( true );
+			this.edit_view_ui_dic['pay_code_id'].setValue( '' );
+			this.current_edit_record.pay_code_id = false;
+		}
 
 	},
 
@@ -624,6 +711,84 @@ UserDateTotalViewController = BaseViewController.extend( {
 		form_item_input.setSourceData( Global.addFirstItemToArray( this.getProperObjectType() ) );
 		this.addEditFieldToColumn( $.i18n._( 'Type' ), form_item_input, tab_user_date_total_column1 );
 
+		//Regular Policy
+		form_item_input = Global.loadWidgetByName( FormItemType.AWESOME_BOX );
+		form_item_input.AComboBox( {
+			api_class: (APIFactory.getAPIClass( 'APIRegularTimePolicy' )),
+			allow_multiple_selection: false,
+			layout_name: ALayoutIDs.REGULAR_TIME_POLICY,
+			show_search_inputs: true,
+			set_empty: true,
+			field: 'regular_policy_id'
+		} );
+		this.addEditFieldToColumn( $.i18n._( 'Policy' ), form_item_input, tab_user_date_total_column1, null, null, true );
+		this.edit_view_form_item_dic['regular_policy_id'].hide();
+
+		//Absence Policy
+		form_item_input = Global.loadWidgetByName( FormItemType.AWESOME_BOX );
+		form_item_input.AComboBox( {
+			api_class: (APIFactory.getAPIClass( 'APIAbsencePolicy' )),
+			allow_multiple_selection: false,
+			layout_name: ALayoutIDs.ABSENCES_POLICY,
+			show_search_inputs: true,
+			set_empty: true,
+			field: 'absence_policy_id'
+		} );
+		this.addEditFieldToColumn( $.i18n._( 'Policy' ), form_item_input, tab_user_date_total_column1, null, null, true );
+		this.edit_view_form_item_dic['absence_policy_id'].hide();
+
+		//Overtime Policy
+		form_item_input = Global.loadWidgetByName( FormItemType.AWESOME_BOX );
+		form_item_input.AComboBox( {
+			api_class: (APIFactory.getAPIClass( 'APIOvertimePolicy' )),
+			allow_multiple_selection: false,
+			layout_name: ALayoutIDs.OVER_TIME_POLICY,
+			show_search_inputs: true,
+			set_empty: true,
+			field: 'overtime_policy_id'
+		} );
+		this.addEditFieldToColumn( $.i18n._( 'Policy' ), form_item_input, tab_user_date_total_column1, null, null, true );
+		this.edit_view_form_item_dic['overtime_policy_id'].hide();
+
+		//Premium Policy
+		form_item_input = Global.loadWidgetByName( FormItemType.AWESOME_BOX );
+		form_item_input.AComboBox( {
+			api_class: (APIFactory.getAPIClass( 'APIPremiumPolicy' )),
+			allow_multiple_selection: false,
+			layout_name: ALayoutIDs.PREMIUM_POLICY,
+			show_search_inputs: true,
+			set_empty: true,
+			field: 'premium_policy_id'
+		} );
+		this.addEditFieldToColumn( $.i18n._( 'Policy' ), form_item_input, tab_user_date_total_column1, null, null, true );
+		this.edit_view_form_item_dic['premium_policy_id'].hide();
+
+		//Meal Policy
+		form_item_input = Global.loadWidgetByName( FormItemType.AWESOME_BOX );
+		form_item_input.AComboBox( {
+			api_class: (APIFactory.getAPIClass( 'APIMealPolicy' )),
+			allow_multiple_selection: false,
+			layout_name: ALayoutIDs.MEAL_POLICY,
+			show_search_inputs: true,
+			set_empty: true,
+			field: 'meal_policy_id'
+		} );
+		this.addEditFieldToColumn( $.i18n._( 'Policy' ), form_item_input, tab_user_date_total_column1, null, null, true );
+		this.edit_view_form_item_dic['meal_policy_id'].hide();
+
+		//Break Policy
+		form_item_input = Global.loadWidgetByName( FormItemType.AWESOME_BOX );
+		form_item_input.AComboBox( {
+			api_class: (APIFactory.getAPIClass( 'APIBreakPolicy' )),
+			allow_multiple_selection: false,
+			layout_name: ALayoutIDs.BREAK_POLICY,
+			show_search_inputs: true,
+			set_empty: true,
+			field: 'break_policy_id'
+		} );
+		this.addEditFieldToColumn( $.i18n._( 'Policy' ), form_item_input, tab_user_date_total_column1, null, null, true );
+		this.edit_view_form_item_dic['break_policy_id'].hide();
+
 		//Pay Code
 		form_item_input = Global.loadWidgetByName( FormItemType.AWESOME_BOX );
 		form_item_input.AComboBox( {
@@ -632,7 +797,8 @@ UserDateTotalViewController = BaseViewController.extend( {
 			layout_name: ALayoutIDs.PAY_CODE,
 			show_search_inputs: true,
 			set_empty: true,
-			field: 'pay_code_id'} );
+			field: 'pay_code_id'
+		} );
 		this.addEditFieldToColumn( $.i18n._( 'Pay Code' ), form_item_input, tab_user_date_total_column1 );
 
 		//Default Branch
@@ -644,7 +810,8 @@ UserDateTotalViewController = BaseViewController.extend( {
 			layout_name: ALayoutIDs.BRANCH,
 			show_search_inputs: true,
 			set_empty: true,
-			field: 'branch_id'} );
+			field: 'branch_id'
+		} );
 		this.addEditFieldToColumn( $.i18n._( 'Branch' ), form_item_input, tab_user_date_total_column1, '', null, true );
 
 		if ( !this.show_branch_ui ) {
@@ -660,7 +827,8 @@ UserDateTotalViewController = BaseViewController.extend( {
 			layout_name: ALayoutIDs.DEPARTMENT,
 			show_search_inputs: true,
 			set_empty: true,
-			field: 'department_id'} );
+			field: 'department_id'
+		} );
 		this.addEditFieldToColumn( $.i18n._( 'Department' ), form_item_input, tab_user_date_total_column1, '', null, true );
 
 		if ( !this.show_department_ui ) {
@@ -682,7 +850,8 @@ UserDateTotalViewController = BaseViewController.extend( {
 
 					if ( val ) job_coder.setValue( val.manual_id );
 				}),
-				field: 'job_id'} );
+				field: 'job_id'
+			} );
 
 			widgetContainer = $( "<div class='widget-h-box'></div>" );
 
@@ -711,7 +880,8 @@ UserDateTotalViewController = BaseViewController.extend( {
 
 					if ( val ) job_item_coder.setValue( val.manual_id );
 				}),
-				field: 'job_item_id'} );
+				field: 'job_item_id'
+			} );
 
 			widgetContainer = $( "<div class='widget-h-box'></div>" );
 
@@ -771,7 +941,7 @@ UserDateTotalViewController = BaseViewController.extend( {
 
 		//Note
 		form_item_input = Global.loadWidgetByName( FormItemType.TEXT_AREA );
-		form_item_input.TTextArea( {field: 'note', width: '100%' } );
+		form_item_input.TTextArea( {field: 'note', width: '100%'} );
 		this.addEditFieldToColumn( $.i18n._( 'Note' ), form_item_input, tab_user_date_total_column1, '', null, true, true );
 		form_item_input.parent().width( '45%' );
 
@@ -793,15 +963,13 @@ UserDateTotalViewController = BaseViewController.extend( {
 
 	}
 
-
-
 } );
 
 UserDateTotalViewController.loadView = function( container ) {
 
 	Global.loadViewSource( 'UserDateTotal', 'UserDateTotalView.html', function( result ) {
 
-		var args = { };
+		var args = {};
 		var template = _.template( result, args );
 
 		if ( Global.isSet( container ) ) {
@@ -818,7 +986,7 @@ UserDateTotalViewController.loadSubView = function( container, beforeViewLoadedF
 
 	Global.loadViewSource( 'UserDateTotal', 'SubUserDateTotalView.html', function( result ) {
 
-		var args = { };
+		var args = {};
 		var template = _.template( result, args );
 
 		if ( Global.isSet( beforeViewLoadedFun ) ) {

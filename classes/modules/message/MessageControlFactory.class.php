@@ -534,8 +534,9 @@ class MessageControlFactory extends Factory {
 	}
 
 	function getEmailMessageAddresses() {
-		$user_ids = $this->getToUserId();
-		if ( isset($user_ids) AND is_array($user_ids) ) {
+		//Remove the From User from any recipicient list so we don't send emails back to ourselves.
+		$user_ids = array_diff( $this->getToUserId(), array( $this->getFromUserId() ) );
+		if ( isset($user_ids) AND is_array($user_ids) AND count($user_ids) > 0 ) {
 			//Get user preferences and determine if they accept email notifications.
 			Debug::Arr($user_ids, 'Recipient User Ids: ', __FILE__, __LINE__, __METHOD__, 10);
 
@@ -623,7 +624,7 @@ class MessageControlFactory extends Factory {
 		$email_body .= ( $replace_arr[4] != '' ) ? TTi18n::gettext('Group').': #from_employee_group#'."\n" : NULL;
 		$email_body .= ( $replace_arr[5] != '' ) ? TTi18n::gettext('Title').': #from_employee_title#'."\n" : NULL;
 
-		$email_body .= TTi18n::gettext('Link:').' <a href="'. Misc::getURLProtocol() .'://'. Misc::getHostName().Environment::getDefaultInterfaceBaseURL().'">'.APPLICATION_NAME.' '. TTi18n::gettext('Login') .'</a>';
+		$email_body .= TTi18n::gettext('Link').': <a href="'. Misc::getURLProtocol() .'://'. Misc::getHostName().Environment::getDefaultInterfaceBaseURL().'">'.APPLICATION_NAME.' '. TTi18n::gettext('Login') .'</a>';
 
 		$email_body .= ( $replace_arr[6] != '' ) ? "\n\n\n".TTi18n::gettext('Company').': #company_name#'."\n" : NULL; //Always put at the end
 
@@ -692,7 +693,12 @@ class MessageControlFactory extends Factory {
 					$msf->setUser( $this->getFromUserId() );
 					Debug::Text('Parent ID: '. $this->getParent(), __FILE__, __LINE__, __METHOD__, 10);
 
-					$msf->setParent( $this->getParent() );
+					//Only specify parent if the object type is message.
+					if ( $this->getObjectType() == 5 ) {
+						$msf->setParent( $this->getParent() );
+					} else {
+						$msf->setParent( 0 );
+					}
 					$msf->setMessageControl( $this->getId() );
 					$msf->setCreatedBy( $this->getCreatedBy() );
 					$msf->setCreatedDate( $this->getCreatedDate() );

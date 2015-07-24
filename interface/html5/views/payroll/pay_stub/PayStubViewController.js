@@ -31,6 +31,7 @@ PayStubViewController = BaseViewController.extend( {
 		this.pay_stub_entry_api = new (APIFactory.getAPIClass( 'APIPayStubEntry' ))();
 		this.user_group_api = new (APIFactory.getAPIClass( 'APIUserGroup' ))();
 		this.company_api = new (APIFactory.getAPIClass( 'APICompany' ))();
+		this.pay_period_api = new (APIFactory.getAPIClass( 'APIPayPeriod' ))();
 
 		this.invisible_context_menu_dic[ContextMenuIconName.copy] = true; //Hide some context menus
 		this.invisible_context_menu_dic[ContextMenuIconName.save_and_new] = true; //Hide some context menus
@@ -278,6 +279,15 @@ PayStubViewController = BaseViewController.extend( {
 			permission: null
 		} );
 
+		var edit_pay_period = new RibbonSubMenu( {
+			label: $.i18n._( 'Edit Pay<br>Period' ),
+			id: ContextMenuIconName.edit_pay_period,
+			group: navigation_group,
+			icon: Icons.pay_period,
+			permission_result: true,
+			permission: null
+		} );
+
 		var employee_pay_stubs = new RibbonSubMenu( {
 			label: $.i18n._( 'Employee Pay<br>Stubs' ),
 			id: ContextMenuIconName.employee_pay_stubs,
@@ -350,9 +360,9 @@ PayStubViewController = BaseViewController.extend( {
 		direct_deposit_result = Global.buildRecordArray( direct_deposit_result );
 
 		for ( i = 0; i < direct_deposit_result.length; i++ ) {
-			item = direct_deposit_result[i];
-			btn = new RibbonSubMenuNavItem( {label: item.label,
-				id: item.value,
+			var direct_deposit_item = direct_deposit_result[i];
+			var direct_deposit_btn = new RibbonSubMenuNavItem( {label: direct_deposit_item.label,
+				id: direct_deposit_item.value,
 				nav: direct_deposit
 			} );
 		}
@@ -506,6 +516,9 @@ PayStubViewController = BaseViewController.extend( {
 				case ContextMenuIconName.edit_employee:
 					this.setDefaultMenuEditEmployeeIcon( context_btn, grid_selected_length, 'user' );
 					break;
+				case ContextMenuIconName.edit_pay_period:
+					this.setDefaultMenuEditPayPeriodIcon( context_btn, grid_selected_length );
+					break;
 				case ContextMenuIconName.employee_pay_stubs:
 				case ContextMenuIconName.employer_pay_stubs:
 				case ContextMenuIconName.print_checks:
@@ -519,6 +532,17 @@ PayStubViewController = BaseViewController.extend( {
 		}
 
 		this.setContextMenuGroupVisibility();
+	},
+
+	setDefaultMenuEditPayPeriodIcon: function( context_btn, grid_selected_length, pId ) {
+		if ( !this.editPermissionValidate( 'pay_period_schedule' ) ) {
+			context_btn.addClass( 'invisible-image' );
+		}
+		if ( grid_selected_length === 1 ) {
+			context_btn.removeClass( 'disable-image' );
+		} else {
+			context_btn.addClass( 'disable-image' );
+		}
 	},
 
 	setDefaultMenuEditEmployeeIcon: function( context_btn, grid_selected_length ) {
@@ -625,6 +649,9 @@ PayStubViewController = BaseViewController.extend( {
 					break;
 				case ContextMenuIconName.edit_employee:
 					this.setEditMenuViewIcon( context_btn, 'user' );
+					break;
+				case ContextMenuIconName.edit_pay_period:
+					this.setEditMenuViewIcon( context_btn, 'pay_period_schedule' );
 					break;
 				case ContextMenuIconName.view:
 				case ContextMenuIconName.employer_pay_stubs:
@@ -733,7 +760,6 @@ PayStubViewController = BaseViewController.extend( {
 
 	setCurrentEditRecordData: function() {
 		this.include_entries = true;
-
 		//Set current edit record data to all widgets
 		for ( var key in this.current_edit_record ) {
 			var widget = this.edit_view_ui_dic[key];
@@ -743,11 +769,8 @@ PayStubViewController = BaseViewController.extend( {
 						this.eSetProvince( this.current_edit_record[key] );
 						widget.setValue( this.current_edit_record[key] );
 						break;
-					case 'full_name':
-						widget.setValue( this.current_edit_record['first_name'] + ' ' + this.current_edit_record['last_name'] );
-						break;
 					case 'status_id':
-						if ( this.current_edit_record[key] == 40 ) {
+						if ( this.current_edit_record[key] === 40 || this.current_edit_record[key] === 100 ) {
 							this.include_entries = false;
 						}
 						widget.setValue( this.current_edit_record[key] );
@@ -767,8 +790,14 @@ PayStubViewController = BaseViewController.extend( {
 
 	setEditViewDataDone: function() {
 		this._super( 'setEditViewDataDone' );
-		if ( this.is_mass_editing ) {
+
+		if ( this.is_add ) {
+			this.edit_view_ui_dic.user_id.setEnabled( true );
 		} else {
+			this.edit_view_ui_dic.user_id.setEnabled( false );
+		}
+
+		if ( !this.is_mass_editing ) {
 			this.initInsideEditorData();
 		}
 	},
@@ -792,14 +821,14 @@ PayStubViewController = BaseViewController.extend( {
 		} else {
 
 			args.filter_data.pay_stub_id = this.current_edit_record.id ? this.current_edit_record.id : this.copied_record_id;
-			this.copied_record_id = '';
+
 			$this.pay_stub_entry_api['get' + $this.pay_stub_entry_api.key_name]( args, {onResult: function( res ) {
 				if ( !$this.edit_view ) {
 					return;
 				}
 				var data = res.getResult();
 				$this.editor.setValue( data );
-
+				$this.copied_record_id = '';
 			}} );
 
 		}
@@ -807,11 +836,11 @@ PayStubViewController = BaseViewController.extend( {
 	},
 
 	insideEditorSetValue: function( val ) {
+
 		var length = _.size( val );
 		var pay_stub_status_id = this.parent_controller['current_edit_record']['status_id'];
 		var is_add = false;
-
-		if ( !this.parent_controller['current_edit_record']['id'] ) {
+		if ( !this.parent_controller['current_edit_record']['id'] && !this.parent_controller.copied_record_id  ) {
 			is_add = true;
 		}
 		this.removeAllRows( true );
@@ -821,34 +850,41 @@ PayStubViewController = BaseViewController.extend( {
 		if ( length > 0 ) {
 			var render = this.getRender(); //get render, should be a table
 			for ( var key in val ) {
+				if ( !val.hasOwnProperty( key ) ) {
+					continue;
+				}
 				var args = null, item = val[key];
 				var headerRow = Global.loadWidget( 'views/payroll/pay_stub/PayStubEntryViewInsideEditorThreeColumnHeader.html' );
-				if ( key == '10' ) {
+				if ( key === '10' ) {
 					headerRow = Global.loadWidget( 'views/payroll/pay_stub/PayStubEntryViewInsideEditorFiveColumnHeader.html' );
 					args = {
 						col1: $.i18n._( 'Earnings' ),
-						col2: $.i18n._( 'Rate' ),
-						col3: $.i18n._( 'Hrs/Units' ),
-						col4: $.i18n._( 'Amount' ),
-						col5: $.i18n._( 'YTD Amount' )
+						col2: $.i18n._( 'Note' ),
+						col3: $.i18n._( 'Rate' ),
+						col4: $.i18n._( 'Hrs/Units' ),
+						col5: $.i18n._( 'Amount' ),
+						col6: $.i18n._( 'YTD Amount' )
 					};
-				} else if ( key == '20' ) {
+				} else if ( key === '20' ) {
 					args = {
 						col1: $.i18n._( 'Deductions' ),
-						col2: $.i18n._( 'Amount' ),
-						col3: $.i18n._( 'YTD Amount' )
+						col2: $.i18n._( 'Note' ),
+						col3: $.i18n._( 'Amount' ),
+						col4: $.i18n._( 'YTD Amount' )
 					};
-				} else if ( key == '30' ) {
+				} else if ( key === '30' ) {
 					args = {
 						col1: $.i18n._( 'Employer Contributions' ),
-						col2: $.i18n._( 'Amount' ),
-						col3: $.i18n._( 'YTD Amount' )
+						col2: $.i18n._( 'Note' ),
+						col3: $.i18n._( 'Amount' ),
+						col4: $.i18n._( 'YTD Amount' )
 					};
-				} else if ( key == '50' ) {
+				} else if ( key === '50' ) {
 					args = {
 						col1: $.i18n._( 'Accrual' ),
-						col2: $.i18n._( 'Amount' ),
-						col3: $.i18n._( 'Balance' )
+						col2: $.i18n._( 'Note' ),
+						col3: $.i18n._( 'Amount' ),
+						col4: $.i18n._( 'Balance' )
 					};
 				}
 
@@ -863,21 +899,55 @@ PayStubViewController = BaseViewController.extend( {
 						}
 					}
 
-					$( render ).append( '<tr><td colspan="7"><br></td></tr>' );
+					$( render ).append( '<tr><td colspan="8"><br></td></tr>' );
 					this.rows_widgets_array.push( true );
+				}
 
+				if ( key === '20' ) {
+					var misc;
+					args = {
+						col1: $.i18n._( 'Miscellaneous' ),
+						col2: $.i18n._( 'Note' ),
+						col3: $.i18n._( 'Amount' ),
+						col4: $.i18n._( 'YTD Amount' )
+					};
 					// add net pay total line after total deducation.
-					if ( key == '20' && Global.isSet(val['40']) ) {
-
+					if ( Global.isSet(val['40']) ) {
 						var netPay = val['40'];
-						for ( var i = 0; i < netPay.length; i++ ) {
-							if ( Global.isSet( netPay[i] ) ) {
-								var row = netPay[i];
-								this.addRow( row );
+						for ( var j = 0; j < netPay.length; j++ ) {
+							if ( Global.isSet( netPay[j] ) ) {
+								var netPay_row = netPay[j];
+								this.addRow( netPay_row );
 							}
 						}
 
-						$( render ).append( '<tr><td colspan="7"><br></td></tr>' );
+						$( render ).append( '<tr><td colspan="8"><br></td></tr>' );
+						this.rows_widgets_array.push( true );
+					}
+					// Add miscellaneous section.
+					var misc_show = false;
+					if ( Global.isSet( val['80'] ) ) {
+						misc = val['80'];
+						misc_show = true;
+					} else {
+						misc = [{tmp_type: 80}];
+						if ( pay_stub_status_id === 25 ) {
+							misc_show = true;
+						}
+					}
+					// show the miscellaneous section
+					if ( misc_show ) {
+						$( render ).append( _.template( headerRow, args ) );
+						this.rows_widgets_array.push( true );
+
+						for ( var x = 0; x < misc.length; x++ ) {
+							if ( Global.isSet( misc[x] ) ) {
+								var misc_row = misc[x];
+								this.addRow( misc_row );
+							}
+						}
+
+						$( render ).append( '<tr><td colspan="8"><br></td></tr>' );
 						this.rows_widgets_array.push( true );
 					}
 
@@ -887,7 +957,8 @@ PayStubViewController = BaseViewController.extend( {
 
 		}
 		// set the cover
-		if ( length > 0 && !is_add && pay_stub_status_id == 25 ) {
+		debugger;
+		if ( length > 0 && !is_add && pay_stub_status_id === 25 && this.show_cover ) {
 
 			this.cover = Global.loadWidgetByName( WidgetNamesDic.NO_RESULT_BOX );
 			this.cover.NoResultBox( {
@@ -898,547 +969,445 @@ PayStubViewController = BaseViewController.extend( {
 
 			this.cover.css( {width: this.width(), height: this.height()} );
 
-			this.parent().append( this.cover )
+			this.parent().append( this.cover );
 
 		}
 
 	},
 
 	insideEditorAddRow: function( data, index ) {
-
 		var $this = this;
-		var pay_stub_status_id = this.parent_controller['current_edit_record']['status_id'];
-		var pay_stub_amendment_id = 0, user_expense_id = 0;
-		var is_add = false;
-
-		if ( !this.parent_controller['current_edit_record']['id'] ) {
-			is_add = true;
-		}
+//		var pay_stub_status_id = this.parent_controller['current_edit_record']['status_id'];
+//		var pay_stub_amendment_id = 0, user_expense_id = 0;
+//		var is_add = false;
+//
+//		if ( !this.parent_controller['current_edit_record']['id'] ) {
+//			is_add = true;
+//		}
 
 		if ( !data ) {
 			$this.addRow( {}, index );
 		} else {
-			if ( typeof index != 'undefined' ) {
+			if ( typeof index !== 'undefined' ) {
 				data['tmp_type'] = data['tmp_type'] ? data['tmp_type'] : this.rows_widgets_array[index].ytd_amount.attr( 'tmp_type' );
 			}
 
-			if ( !isNaN( parseFloat( data['pay_stub_amendment_id'] ) ) && parseFloat( data['pay_stub_amendment_id'] ) > 0 ) {
-				pay_stub_amendment_id = data['pay_stub_amendment_id']
-			}
+//			if ( !isNaN( parseFloat( data['pay_stub_amendment_id'] ) ) && parseFloat( data['pay_stub_amendment_id'] ) > 0 ) {
+//				pay_stub_amendment_id = data['pay_stub_amendment_id'];
+//			}
+//
+//			if ( !isNaN( parseFloat( data['user_expense_id'] ) ) && parseFloat( data['user_expense_id'] ) > 0 ) {
+//				user_expense_id = data['user_expense_id'];
+//			}
 
-			if ( !isNaN( parseFloat( data['user_expense_id'] ) ) && parseFloat( data['user_expense_id'] ) > 0 ) {
-				user_expense_id = data['user_expense_id'];
-			}
-			var render = this.getRender(); //get render, should be a table
-			var widgets = {}; //Save each row's widgets
-			var row; //Get Row render
+			function renderColumns( data, type, index ) {
 
-			var args = { filter_data: {} };
+				var render = $this.getRender(); //get render, should be a table
+				var widgets = {}; //Save each row's widgets
+				var row; //Get Row render
+				var widgetContainer = $( "<div class='widget-h-box'></div>" );
+				var right_label;
+				var args = { filter_data: {} };
+				var pay_stub_amendment_id = 0, user_expense_id = 0;
+				var pay_stub_status_id = $this.parent_controller['current_edit_record']['status_id'];
 
-			// Pay Stub Account
-			var form_item_name_input = Global.loadWidgetByName( FormItemType.AWESOME_BOX );
-			form_item_name_input.AComboBox( {
-				api_class: (APIFactory.getAPIClass( 'APIPayStubEntryAccount' )),
-				width: 132,
-				allow_multiple_selection: false,
-				layout_name: ALayoutIDs.PAY_STUB_ACCOUNT,
-				show_search_inputs: true,
-				set_empty: true,
-				field: 'pay_stub_entry_name_id'
-			} );
+				var is_add = false;
 
-			var form_item_name_text = Global.loadWidgetByName( FormItemType.TEXT );
-			form_item_name_text.TText( {field: 'name'} );
-			form_item_name_text.setValue( data.name ? ( data['type_id'] != 40 ? "  " + data.name : data.name  ) : '' );
+				if ( !$this.parent_controller['current_edit_record']['id'] && !$this.parent_controller.copied_record_id ) {
+					is_add = true;
+				}
 
-			var form_item_rate_input = Global.loadWidgetByName( FormItemType.TEXT_INPUT );
-			form_item_rate_input.TTextInput( {field: 'rate', width: 60, hasKeyEvent: true} );
-			form_item_rate_input.setValue( data.rate );
-			form_item_rate_input.attr( 'editable', true );
-			form_item_rate_input.unbind( 'formItemKeyUp' ).bind( 'formItemKeyUp', function( e, target ) {
-				$this.onFormItemKeyUp( target );
-			} );
+				if ( !isNaN( parseFloat( data['pay_stub_amendment_id'] ) ) && parseFloat( data['pay_stub_amendment_id'] ) > 0 ) {
+					pay_stub_amendment_id = data['pay_stub_amendment_id'];
+				}
+				if ( !isNaN( parseFloat( data['user_expense_id'] ) ) && parseFloat( data['user_expense_id'] ) > 0 ) {
+					user_expense_id = data['user_expense_id'];
+				}
 
-			form_item_rate_input.unbind( 'formItemKeyDown' ).bind( 'formItemKeyDown', function( e, target ) {
-				$this.onFormItemKeyDown( target );
-			} );
+				if ( $this.parent_controller.copied_record_id ) {
+					pay_stub_amendment_id = 0;
+					user_expense_id = 0;
+				}
 
-			form_item_rate_input.unbind( 'formItemChange' ).bind( 'formItemChange', function( e, target ) {
-				$this.onFormItemChange( target );
-			} );
+				// if the pay_stub_amendment_id and user_expense_id all >0 how to display the right label?
+				if ( pay_stub_amendment_id > 0 ) {
+					right_label = $( "<span class='widget-right-label'> (" + $.i18n._( 'Amendment' ) + ")</span>" );
+				} else if ( user_expense_id > 0 ) {
+					right_label = $( "<span class='widget-right-label'> (" + $.i18n._( 'Expense' ) + ")</span>" );
+				}
 
-			var form_item_rate_text = Global.loadWidgetByName( FormItemType.TEXT );
-			form_item_rate_text.TText( {field: 'rate'} );
-			form_item_rate_text.setValue( data.rate );
-
-			var form_item_units_input = Global.loadWidgetByName( FormItemType.TEXT_INPUT );
-			form_item_units_input.TTextInput( {field: 'units', width: 60, hasKeyEvent: true} );
-			form_item_units_input.setValue( data.units );
-			form_item_units_input.attr( 'editable', true );
-			form_item_units_input.unbind( 'formItemKeyUp' ).bind( 'formItemKeyUp', function( e, target ) {
-				$this.onFormItemKeyUp( target );
-			} );
-
-			form_item_units_input.unbind( 'formItemKeyDown' ).bind( 'formItemKeyDown', function( e, target ) {
-				$this.onFormItemKeyDown( target );
-			} );
-			form_item_units_input.unbind( 'formItemChange' ).bind( 'formItemChange', function( e, target ) {
-				$this.onFormItemChange( target );
-			} );
-
-			var form_item_units_text = Global.loadWidgetByName( FormItemType.TEXT );
-			form_item_units_text.TText( {field: 'units'} );
-			form_item_units_text.setValue( data.units );
-
-			var form_item_amount_input = Global.loadWidgetByName( FormItemType.TEXT_INPUT );
-			form_item_amount_input.TTextInput( {field: 'amount', width: 60} );
-			form_item_amount_input.setValue( data.amount );
-			form_item_amount_input.attr( 'editable', true );
-			form_item_amount_input.unbind( 'formItemChange' ).bind( 'formItemChange', function( e, target ) {
-				$this.onFormItemChange( target );
-			} );
-
-			var form_item_amount_text = Global.loadWidgetByName( FormItemType.TEXT );
-			form_item_amount_text.TText( {field: 'amount'} );
-			form_item_amount_text.setValue( data.amount );
-
-//			var form_item_ytd_amount_input = Global.loadWidgetByName( FormItemType.TEXT_INPUT );
-//			form_item_ytd_amount_input.TTextInput( {field: 'ytd_amount', width: 60} );
-//			form_item_ytd_amount_input.setValue( data.ytd_amount ? data.ytd_amount : '0.0000' );
-//			form_item_ytd_amount_input.attr( 'editable', true );
-//			form_item_ytd_amount_input.attr({
-//				'pay_stub_entry_id': (data.id && this.parent_controller.current_edit_record.id) ? data.id : '',
-//				'tmp_type': data.tmp_type,
-//				'type_id': data['type_id'],
-//				'pay_stub_amendment_id': data['pay_stub_amendment_id'] ? data['pay_stub_amendment_id'] : '',
-//				'user_expense_id': data['user_expense_id'] ? data['user_expense_id'] : ''
-//			});
-
-			var form_item_ytd_amount_text = Global.loadWidgetByName( FormItemType.TEXT );
-			form_item_ytd_amount_text.TText( {field: 'ytd_amount'} );
-			form_item_ytd_amount_text.setValue( data.ytd_amount );
-			form_item_ytd_amount_text.attr( {
-				'pay_stub_entry_id': (data.id && this.parent_controller.current_edit_record.id) ? data.id : '',
-				'tmp_type': data.tmp_type,
-				'type_id': data['type_id'],
-				'original_amount': data['amount'] ? data['amount'] : '0.00',
-				'original_ytd_amount': data['ytd_amount'] ? data['ytd_amount'] : '0.00',
-				'pay_stub_entry_name_id': data['pay_stub_entry_name_id'] ? data['pay_stub_entry_name_id'] : null
-			} );
-
-			if ( pay_stub_amendment_id > 0 ) {
-				form_item_ytd_amount_text.attr( 'pay_stub_amendment_id', pay_stub_amendment_id );
-			}
-
-			if ( user_expense_id > 0 ) {
-				form_item_ytd_amount_text.attr( 'user_expense_id', user_expense_id );
-			}
-
-			if ( parseInt( data['ytd_amount'] ) > 0 ) {
-
-			} else if ( pay_stub_status_id == 40 ) {
-				form_item_ytd_amount_text.text( '-' );
-			}
-
-			if ( parseInt( data.rate ) > 0 ) {
-				form_item_amount_input.setReadOnly( true );
-			} else if ( pay_stub_status_id == 40 ) {
-				form_item_rate_text.text( '-' );
-			}
-
-			if (  parseInt( data.units ) > 0 ) {
-				form_item_amount_input.setReadOnly( true );
-			} else if ( pay_stub_status_id == 40 ) {
-				form_item_units_text.text( '-' );
-			}
-
-			if ( data['tmp_type'] == '10' ) {
-				row = $( Global.loadWidget( 'views/payroll/pay_stub/PayStubEntryViewInsideEditorFiveColumnRow.html' ) );
-				// name
-				if ( Global.isSet( index ) || is_add ) {
-
-					if (  data['type_id'] == 40  ) {
-						form_item_name_text.css( 'font-weight', 'bold' );
-						widgets[form_item_name_text.getField()] = form_item_name_text;
-						row.children().eq( 0 ).append( form_item_name_text );
-
-					} else {
-						args['filter_data']['type_id'] = [10];
-						form_item_name_input.setDefaultArgs( args );
-						widgets[form_item_name_input.getField()] = form_item_name_input;
-						row.children().eq( 0 ).append( form_item_name_input );
-					}
-
+				if ( type === 10 ) {
+					row = $( Global.loadWidget( 'views/payroll/pay_stub/PayStubEntryViewInsideEditorFiveColumnRow.html' ) );
 				} else {
-					if ( data['type_id'] == 40 ) {
+					row = $( Global.loadWidget( 'views/payroll/pay_stub/PayStubEntryViewInsideEditorThreeColumnRow.html' ) );
+				}
+
+				// Pay Stub Account
+				var form_item_name_input = Global.loadWidgetByName( FormItemType.AWESOME_BOX );
+				form_item_name_input.AComboBox( {
+					api_class: (APIFactory.getAPIClass( 'APIPayStubEntryAccount' )),
+					width: 132,
+					allow_multiple_selection: false,
+					layout_name: ALayoutIDs.PAY_STUB_ACCOUNT,
+					show_search_inputs: true,
+					set_empty: true,
+					field: 'pay_stub_entry_name_id'
+				} );
+				var form_item_name_text = Global.loadWidgetByName( FormItemType.TEXT );
+				form_item_name_text.TText( {field: 'name'} );
+				form_item_name_text.setValue( data.name ? ( ( data['type_id'] !== "40" || data['type_id'] !== 40) ? "  " + data.name : data.name  ) : '' );
+
+				// Note(description)
+				var form_item_note_input = Global.loadWidgetByName( FormItemType.TEXT_INPUT );
+				form_item_note_input.TTextInput( {field: 'description', width: 300} );
+				form_item_note_input.setValue( data.description );
+				form_item_note_input.attr( 'editable', true );
+
+				var form_item_note_text = Global.loadWidgetByName( FormItemType.TEXT );
+				form_item_note_text.TText( {field: 'description'} );
+				form_item_note_text.setValue( data.description );
+
+				// Rate
+				var form_item_rate_input = Global.loadWidgetByName( FormItemType.TEXT_INPUT );
+				form_item_rate_input.TTextInput( {field: 'rate', width: 60, hasKeyEvent: true} );
+				form_item_rate_input.setValue( Global.removeTrailingZeros(data.rate) );
+				form_item_rate_input.attr( 'editable', true );
+				form_item_rate_input.unbind( 'formItemKeyUp' ).bind( 'formItemKeyUp', function( e, target ) {
+					$this.onFormItemKeyUp( target );
+				} );
+
+				form_item_rate_input.unbind( 'formItemKeyDown' ).bind( 'formItemKeyDown', function( e, target ) {
+					$this.onFormItemKeyDown( target );
+				} );
+
+				form_item_rate_input.unbind( 'formItemChange' ).bind( 'formItemChange', function( e, target ) {
+					$this.onFormItemChange( target );
+				} );
+
+				var form_item_rate_text = Global.loadWidgetByName( FormItemType.TEXT );
+				form_item_rate_text.TText( {field: 'rate'} );
+				form_item_rate_text.setValue( Global.removeTrailingZeros(data.rate) );
+
+
+				// Hrs/Units
+				var form_item_units_input = Global.loadWidgetByName( FormItemType.TEXT_INPUT );
+				form_item_units_input.TTextInput( {field: 'units', width: 60, hasKeyEvent: true} );
+				form_item_units_input.setValue( Global.removeTrailingZeros(data.units) );
+				form_item_units_input.attr( 'editable', true );
+				form_item_units_input.unbind( 'formItemKeyUp' ).bind( 'formItemKeyUp', function( e, target ) {
+					$this.onFormItemKeyUp( target );
+				} );
+
+				form_item_units_input.unbind( 'formItemKeyDown' ).bind( 'formItemKeyDown', function( e, target ) {
+					$this.onFormItemKeyDown( target );
+				} );
+				form_item_units_input.unbind( 'formItemChange' ).bind( 'formItemChange', function( e, target ) {
+					$this.onFormItemChange( target );
+				} );
+
+				var form_item_units_text = Global.loadWidgetByName( FormItemType.TEXT );
+				form_item_units_text.TText( {field: 'units'} );
+				form_item_units_text.setValue( Global.removeTrailingZeros(data.units) );
+
+
+				// Amount
+				var form_item_amount_input = Global.loadWidgetByName( FormItemType.TEXT_INPUT );
+				form_item_amount_input.TTextInput( {field: 'amount', width: 60} );
+				form_item_amount_input.setValue( Global.removeTrailingZeros(data.amount) );
+				form_item_amount_input.attr( 'editable', true );
+				form_item_amount_input.unbind( 'formItemChange' ).bind( 'formItemChange', function( e, target ) {
+					$this.onFormItemChange( target );
+				} );
+
+				var form_item_amount_text = Global.loadWidgetByName( FormItemType.TEXT );
+				form_item_amount_text.TText( {field: 'amount'} );
+				form_item_amount_text.setValue( Global.removeTrailingZeros(data.amount) );
+
+				// YTD Amount
+				var form_item_ytd_amount_text = Global.loadWidgetByName( FormItemType.TEXT );
+				form_item_ytd_amount_text.TText( {field: 'ytd_amount'} );
+				form_item_ytd_amount_text.setValue( Global.removeTrailingZeros(data.ytd_amount) );
+				form_item_ytd_amount_text.attr( {
+					'pay_stub_entry_id': (data.id && $this.parent_controller.current_edit_record.id) ? data.id : '',
+					'tmp_type': data.tmp_type,
+					'type_id': data['type_id'],
+					'original_amount': data['amount'] ? data['amount'] : '0.00',
+					'original_ytd_amount': data['ytd_amount'] ? data['ytd_amount'] : '0.00',
+					'pay_stub_entry_name_id': data['pay_stub_entry_name_id'] ? data['pay_stub_entry_name_id'] : null
+				} );
+
+//				if ( !$this.parent_controller.copied_record_id ) {
+					form_item_ytd_amount_text.attr( 'pay_stub_amendment_id', pay_stub_amendment_id );
+					form_item_ytd_amount_text.attr( 'user_expense_id', user_expense_id );
+//				}
+
+				if ( parseInt( data['ytd_amount'] ) > 0 ) {
+
+				} else if ( pay_stub_status_id === 40 || pay_stub_status_id === 100 ) {
+					form_item_ytd_amount_text.text( '-' );
+				}
+
+				if ( parseInt( data.rate ) > 0 && !$this.parent_controller.copied_record_id ) {
+					form_item_amount_input.setReadOnly( true );
+				} else if ( pay_stub_status_id === 40 || pay_stub_status_id === 100 ) {
+					form_item_rate_text.text( '-' );
+				}
+
+				if (  parseInt( data.units ) > 0 && !$this.parent_controller.copied_record_id ) {
+					form_item_amount_input.setReadOnly( true );
+				} else if ( pay_stub_status_id === 40 || pay_stub_status_id === 100 ) {
+					form_item_units_text.text( '-' );
+				}
+
+				// name
+				if ( type === '40' ) {
+					if ( data['type_id'] === '40' || data['type_id'] === 40 ) {
 						form_item_name_text.css( 'font-weight', 'bold' );
 					}
 					widgets[form_item_name_text.getField()] = form_item_name_text;
-					row.children().eq( 0 ).append( form_item_name_text );
-				}
+					widgetContainer.append( form_item_name_text );
+					widgetContainer.append( right_label );
+					row.children().eq( 0 ).append( widgetContainer );
 
-				// rate
-				if ( data['type_id'] == 10 ) {
-					if ( pay_stub_status_id == 25 ) {
-						if ( pay_stub_amendment_id > 0 || user_expense_id > 0 ) {
-							form_item_rate_input.setReadOnly( true );
-						}
-						widgets[form_item_rate_input.getField()] = form_item_rate_input;
-						row.children().eq( 1 ).append( form_item_rate_input );
-
-					} else {
-						widgets[form_item_rate_text.getField()] = form_item_rate_text;
-						row.children().eq( 1 ).append( form_item_rate_text );
-					}
 				} else {
-					if ( Global.isSet( index ) || is_add ) {
-						if ( data['type_id'] == 40 ) {
+					if ( Global.isSet( index ) || is_add || _.size( data ) === 1 ) {
+
+						if (  data['type_id'] === '40' || data['type_id'] === 40 ) {
+							form_item_name_text.css( 'font-weight', 'bold' );
+							widgets[form_item_name_text.getField()] = form_item_name_text;
+							widgetContainer.append( form_item_name_text );
+							widgetContainer.append( right_label );
+							row.children().eq( 0 ).append( widgetContainer );
 
 						} else {
-							widgets[form_item_rate_input.getField()] = form_item_rate_input;
-							row.children().eq( 1 ).append( form_item_rate_input );
+							args['filter_data']['type_id'] = [type];
+							form_item_name_input.setDefaultArgs( args );
+							widgets[form_item_name_input.getField()] = form_item_name_input;
+							widgetContainer.append( form_item_name_input );
+							widgetContainer.append( right_label );
+							row.children().eq( 0 ).append( widgetContainer );
+						}
+
+					} else {
+						if ( data['type_id'] === '40' || data['type_id'] === 40 ) {
+							form_item_name_text.css( 'font-weight', 'bold' );
+						}
+						widgets[form_item_name_text.getField()] = form_item_name_text;
+						widgetContainer.append( form_item_name_text );
+						widgetContainer.append( right_label );
+						row.children().eq( 0 ).append( widgetContainer );
+					}
+				}
+
+
+				// Note
+				if ( ( data['type_id'] === type.toString() || data['type_id'] === type) && type !== 40 ) {
+					if ( pay_stub_status_id === 25 ) {
+						if ( (pay_stub_amendment_id > 0 || user_expense_id > 0) && data.description  ) {
+							form_item_note_input.setReadOnly( true );
+						}
+						widgets[form_item_note_input.getField()] = form_item_note_input;
+						row.children().eq( 1 ).append( form_item_note_input );
+
+					} else {
+						widgets[form_item_note_text.getField()] = form_item_note_text;
+						row.children().eq( 1 ).append( form_item_note_text );
+					}
+				} else {
+					if ( Global.isSet( index ) || is_add || _.size( data) === 1 ) {
+//						if ( (data['type_id'] === '40' || data['type_id'] === 40) && ( type === 20 || type === 30 || type === 50 || type === 80 ) ) {
+//							widgets[form_item_note_text.getField()] = form_item_note_text;
+//							row.children().eq( 1 ).append( form_item_note_text );
+//						} else if ( type !== 40 ) {
+//							widgets[form_item_note_input.getField()] = form_item_note_input;
+//							row.children().eq( 1 ).append( form_item_note_input );
+//						}
+						if ( (data['type_id'] === '40' || data['type_id'] === 40) ) {
+
+						} else {
+							widgets[form_item_note_input.getField()] = form_item_note_input;
+							row.children().eq( 1 ).append( form_item_note_input );
+						}
+
+					} else if ( type === 20 || type === 30 || type === 50 || type === 80 ) {
+						widgets[form_item_note_text.getField()] = form_item_note_text;
+						row.children().eq( 1 ).append( form_item_note_text );
+					}
+				}
+
+				// amount
+				if ( ( data['type_id'] === type.toString() || data['type_id'] === type ) && type !== 40 ) {
+					if ( pay_stub_status_id === 25 ) {
+						debugger;
+						if ( pay_stub_amendment_id > 0 || user_expense_id > 0 ) {
+							form_item_amount_input.setReadOnly( true );
+						}
+						widgets[form_item_amount_input.getField()] = form_item_amount_input;
+						if ( type === 10 ) {
+							row.children().eq( 4 ).append( form_item_amount_input );
+						} else {
+							row.children().eq( 2 ).append( form_item_amount_input );
+						}
+					} else {
+						widgets[form_item_amount_text.getField()] = form_item_amount_text;
+						if ( type === 10 ) {
+							row.children().eq( 4 ).append( form_item_amount_text );
+						} else {
+							row.children().eq( 2 ).append( form_item_amount_text );
+						}
+
+					}
+				} else {
+					if ( (Global.isSet( index ) || is_add || _.size( data) === 1 ) && type !== 40 ) {
+
+						if ( data['type_id'] === '40' || data['type_id'] === 40 ) {
+							form_item_amount_text.css( 'font-weight', 'bold' );
+							widgets[form_item_amount_text.getField()] = form_item_amount_text;
+							if ( type === 10 ) {
+								row.children().eq( 4 ).append( form_item_amount_text );
+							} else {
+								row.children().eq( 2 ).append( form_item_amount_text );
+							}
+						} else {
+							widgets[form_item_amount_input.getField()] = form_item_amount_input;
+							if ( type === 10 ) {
+								row.children().eq( 4 ).append( form_item_amount_input );
+							} else {
+								row.children().eq( 2 ).append( form_item_amount_input );
+							}
+						}
+
+					} else {
+						if ( (data['type_id'] === '40' || data['type_id'] === 40) && type === 30 ) {
+							form_item_amount_text.css( 'font-weight', 'bold' );
+						} else {
+							form_item_amount_text.css( 'font-weight', 'bold' );
+						}
+						widgets[form_item_amount_text.getField()] = form_item_amount_text;
+						if ( type === 10 ) {
+							row.children().eq( 4 ).append( form_item_amount_text );
+						} else {
+							row.children().eq( 2 ).append( form_item_amount_text );
 						}
 					}
 				}
 
-				// units
-				if ( data['type_id'] == 10 ) {
-					if ( pay_stub_status_id == 25 ) {
-						if ( pay_stub_amendment_id > 0 || user_expense_id > 0 ) {
-							form_item_units_input.setReadOnly( true );
-						}
-						widgets[form_item_units_input.getField()] = form_item_units_input;
-						row.children().eq( 2 ).append( form_item_units_input );
-					} else {
-						widgets[form_item_units_text.getField()] = form_item_units_text;
-						row.children().eq( 2 ).append( form_item_units_text );
-					}
+				// Ytd amount
+				if ( data['type_id'] === '40' || data['type_id'] === 40 ) {
+					form_item_ytd_amount_text.css( 'font-weight', 'bold' );
+				}
+				if ( ( Global.isSet( index ) || is_add || _.size( data) === 1 ) && type !== 40 ) {
+					form_item_ytd_amount_text.text( '-' );
+				}
+				widgets[form_item_ytd_amount_text.getField()] = form_item_ytd_amount_text;
+				if ( type === 10 ) {
+					row.children().eq( 5 ).append( form_item_ytd_amount_text );
 				} else {
-					if ( Global.isSet( index ) || is_add ) {
+					row.children().eq( 3 ).append( form_item_ytd_amount_text );
+				}
 
-						if ( data['type_id'] == 40 ) {
+				if ( type === 10 ) {
+
+					// rate
+					if ( data['type_id'] === '10' || data['type_id'] === 10 ) {
+						if ( pay_stub_status_id === 25 ) {
+							if ( pay_stub_amendment_id > 0 || user_expense_id > 0 ) {
+								form_item_rate_input.setReadOnly( true );
+							}
+							widgets[form_item_rate_input.getField()] = form_item_rate_input;
+							row.children().eq( 2 ).append( form_item_rate_input );
+
+						} else {
+							widgets[form_item_rate_text.getField()] = form_item_rate_text;
+							row.children().eq( 2 ).append( form_item_rate_text );
+						}
+					} else {
+						if ( Global.isSet( index ) || is_add ) {
+							if ( data['type_id'] === '40' || data['type_id'] === 40 ) {
+
+							} else {
+								widgets[form_item_rate_input.getField()] = form_item_rate_input;
+								row.children().eq( 2 ).append( form_item_rate_input );
+							}
+						}
+					}
+
+					// units
+					if ( data['type_id'] === '10' || data['type_id'] === 10 ) {
+						if ( pay_stub_status_id === 25 ) {
+							if ( pay_stub_amendment_id > 0 || user_expense_id > 0 ) {
+								form_item_units_input.setReadOnly( true );
+							}
+							widgets[form_item_units_input.getField()] = form_item_units_input;
+							row.children().eq( 3 ).append( form_item_units_input );
+						} else {
+							widgets[form_item_units_text.getField()] = form_item_units_text;
+							row.children().eq( 3 ).append( form_item_units_text );
+						}
+					} else {
+						if ( Global.isSet( index ) || is_add ) {
+
+							if ( data['type_id'] === '40' || data['type_id'] === 40 ) {
+								form_item_units_text.css( 'font-weight', 'bold' );
+								widgets[form_item_units_text.getField()] = form_item_units_text;
+								row.children().eq( 3 ).append( form_item_units_text );
+							} else {
+								widgets[form_item_units_input.getField()] = form_item_units_input;
+								row.children().eq( 3 ).append( form_item_units_input );
+							}
+						} else {
 							form_item_units_text.css( 'font-weight', 'bold' );
 							widgets[form_item_units_text.getField()] = form_item_units_text;
-							row.children().eq( 2 ).append( form_item_units_text );
-						} else {
-							widgets[form_item_units_input.getField()] = form_item_units_input;
-							row.children().eq( 2 ).append( form_item_units_input );
+							row.children().eq( 3 ).append( form_item_units_text );
 						}
-					} else {
-						form_item_units_text.css( 'font-weight', 'bold' );
-						widgets[form_item_units_text.getField()] = form_item_units_text;
-						row.children().eq( 2 ).append( form_item_units_text );
 					}
+
 				}
 
-				// amount
-				if ( data['type_id'] == 10 ) {
-					if ( pay_stub_status_id == 25 ) {
-						if ( pay_stub_amendment_id > 0 || user_expense_id > 0 ) {
-							form_item_amount_input.setReadOnly( true );
-						}
-						widgets[form_item_amount_input.getField()] = form_item_amount_input;
-						row.children().eq( 3 ).append( form_item_amount_input );
-					} else {
-						widgets[form_item_amount_text.getField()] = form_item_amount_text;
-						row.children().eq( 3 ).append( form_item_amount_text );
+				//Build row widgets
 
-					}
-				} else {
-					if ( Global.isSet( index ) || is_add ) {
-
-						if ( data['type_id'] == 40 ) {
-							form_item_amount_text.css( 'font-weight', 'bold' );
-							widgets[form_item_amount_text.getField()] = form_item_amount_text;
-							row.children().eq( 3 ).append( form_item_amount_text );
-						} else {
-							widgets[form_item_amount_input.getField()] = form_item_amount_input;
-							row.children().eq( 3 ).append( form_item_amount_input );
-						}
-
-					} else {
-						form_item_amount_text.css( 'font-weight', 'bold' );
-						widgets[form_item_amount_text.getField()] = form_item_amount_text;
-						row.children().eq( 3 ).append( form_item_amount_text );
-					}
+				if ( pay_stub_amendment_id > 0 || user_expense_id > 0 ) {
+					row.children().last().find( '.minus-icon ' ).hide();
 				}
 
-				// Ytd amount
-				if ( data['type_id'] == 40 ) {
-					form_item_ytd_amount_text.css( 'font-weight', 'bold' );
-				}
-				if ( Global.isSet( index ) || is_add ) {
-					form_item_ytd_amount_text.text( '-' );
-				}
-				widgets[form_item_ytd_amount_text.getField()] = form_item_ytd_amount_text;
-				row.children().eq( 4 ).append( form_item_ytd_amount_text );
+				if ( data['type_id'] === '40' || data['type_id'] === 40 ) {
 
-			} else if ( data['tmp_type'] == 20 ) {
-
-				row = $( Global.loadWidget( 'views/payroll/pay_stub/PayStubEntryViewInsideEditorThreeColumnRow.html' ) );
-				// name
-
-				if ( Global.isSet( index ) || is_add ) {
-
-
-					if ( data['type_id'] == 40 ) {
-						form_item_name_text.css( 'font-weight', 'bold' );
-						widgets[form_item_name_text.getField()] = form_item_name_text;
-						row.children().eq( 0 ).append( form_item_name_text );
+					if ( type === 40 ) {
+						widgets['net_pay_row'] = true;
 					} else {
-						args['filter_data']['type_id'] = [20];
-						form_item_name_input.setDefaultArgs( args );
-						widgets[form_item_name_input.getField()] = form_item_name_input;
-						row.children().eq( 0 ).append( form_item_name_input );
+						widgets['total_row'] = true;
 					}
+					row.children().last().empty();
+				}
+
+				if ( typeof index !== 'undefined' ) {
+					row.insertAfter( $( render ).find( 'tr' ).eq( index ) );
+					$this.rows_widgets_array.splice( (index + 1 ), 0, widgets );
 
 				} else {
-					if ( data['type_id'] == 40 ) {
-						form_item_name_text.css( 'font-weight', 'bold' );
-					}
-					widgets[form_item_name_text.getField()] = form_item_name_text;
-					row.children().eq( 0 ).append( form_item_name_text );
-
+					$( render ).append( row );
+					$this.rows_widgets_array.push( widgets );
 				}
 
-				// amount
-				if ( data['type_id'] == 20 ) {
-					if ( pay_stub_status_id == 25 ) {
-						if ( pay_stub_amendment_id > 0 || user_expense_id > 0 ) {
-							form_item_amount_input.setReadOnly( true );
-						}
-
-						widgets[form_item_amount_input.getField()] = form_item_amount_input;
-						row.children().eq( 1 ).append( form_item_amount_input );
-					} else {
-						widgets[form_item_amount_text.getField()] = form_item_amount_text;
-						row.children().eq( 1 ).append( form_item_amount_text );
-					}
+				if ( pay_stub_status_id === 25 ) {
+					$this.addIconsEvent( row ); //Bind event to add and minus icon
 				} else {
-					if ( Global.isSet( index ) || is_add ) {
-
-
-						if ( data['type_id'] == 40 ) {
-							form_item_amount_text.css( 'font-weight', 'bold' );
-							widgets[form_item_amount_text.getField()] = form_item_amount_text;
-							row.children().eq( 1 ).append( form_item_amount_text );
-						} else {
-							widgets[form_item_amount_input.getField()] = form_item_amount_input;
-							row.children().eq( 1 ).append( form_item_amount_input );
-						}
- 					} else {
-						form_item_amount_text.css( 'font-weight', 'bold' );
-						widgets[form_item_amount_text.getField()] = form_item_amount_text;
-						row.children().eq( 1 ).append( form_item_amount_text );
-					}
+					row.children().last().empty();
 				}
-
-				// Ytd amount
-				if ( data['type_id'] == 40 ) {
-					form_item_ytd_amount_text.css( 'font-weight', 'bold' );
-				}
-				if ( Global.isSet( index ) || is_add ) {
-					form_item_ytd_amount_text.text( '-' );
-				}
-				widgets[form_item_ytd_amount_text.getField()] = form_item_ytd_amount_text;
-				row.children().eq( 2 ).append( form_item_ytd_amount_text );
-
-			} else if ( data['tmp_type'] == 30 ) {
-
-				row = $( Global.loadWidget( 'views/payroll/pay_stub/PayStubEntryViewInsideEditorThreeColumnRow.html' ) );
-				// name
-
-				if ( Global.isSet( index ) || is_add ) {
-
-
-					if ( data['type_id'] == 40 ) {
-						form_item_name_text.css( 'font-weight', 'bold' );
-						widgets[form_item_name_text.getField()] = form_item_name_text;
-						row.children().eq( 0 ).append( form_item_name_text );
-					} else {
-						args['filter_data']['type_id'] = [30];
-						form_item_name_input.setDefaultArgs( args );
-						widgets[form_item_name_input.getField()] = form_item_name_input;
-						row.children().eq( 0 ).append( form_item_name_input );
-					}
-
-				} else {
-					if ( data['type_id'] == 40 ) {
-						form_item_name_text.css( 'font-weight', 'bold' );
-					}
-					widgets[form_item_name_text.getField()] = form_item_name_text;
-					row.children().eq( 0 ).append( form_item_name_text );
-
-				}
-
-				// amount
-				if ( data['type_id'] == 30 ) {
-					if ( pay_stub_status_id == 25 ) {
-						if ( pay_stub_amendment_id > 0 || user_expense_id > 0 ) {
-
-							form_item_amount_input.setReadOnly( true )
-						}
-						widgets[form_item_amount_input.getField()] = form_item_amount_input;
-						row.children().eq( 1 ).append( form_item_amount_input );
-					} else {
-						widgets[form_item_amount_text.getField()] = form_item_amount_text;
-						row.children().eq( 1 ).append( form_item_amount_text );
-					}
-				} else {
-					if ( Global.isSet( index ) || is_add ) {
-
-
-						if ( data['type_id'] == 40 ) {
-							form_item_amount_text.css( 'font-weight', 'bold' );
-							widgets[form_item_amount_text.getField()] = form_item_amount_text;
-							row.children().eq( 1 ).append( form_item_amount_text );
-						} else {
-							widgets[form_item_amount_input.getField()] = form_item_amount_input;
-							row.children().eq( 1 ).append( form_item_amount_input );
-						}
-
-					} else {
-						if ( data['type_id'] == 40 ) {
-							form_item_amount_text.css( 'font-weight', 'bold' );
-						}
-						widgets[form_item_amount_text.getField()] = form_item_amount_text;
-						row.children().eq( 1 ).append( form_item_amount_text );
-					}
-				}
-
-				// Ytd amount
-				if ( data['type_id'] == 40 ) {
-					form_item_ytd_amount_text.css( 'font-weight', 'bold' );
-				}
-				if ( Global.isSet( index ) || is_add ) {
-					form_item_ytd_amount_text.text( '-' );
-				}
-				widgets[form_item_ytd_amount_text.getField()] = form_item_ytd_amount_text;
-				row.children().eq( 2 ).append( form_item_ytd_amount_text );
-
-			} else if ( data['tmp_type'] == 40 ) {
-
-				row = $( Global.loadWidget( 'views/payroll/pay_stub/PayStubEntryViewInsideEditorThreeColumnRow.html' ) );
-//				row.removeClass('tblDataWhite').addClass( 'tblHeader' );
-				// name
-				if ( data['type_id'] == 40 ) {
-					form_item_name_text.css( 'font-weight', 'bold' );
-				}
-				widgets[form_item_name_text.getField()] = form_item_name_text;
-				row.children().eq( 0 ).append( form_item_name_text );
-
-				// amount
-				form_item_amount_text.css( 'font-weight', 'bold' );
-				widgets[form_item_amount_text.getField()] = form_item_amount_text;
-				row.children().eq( 1 ).append( form_item_amount_text );
-
-				// Ytd amount
-				if ( data['type_id'] == 40 ) {
-					form_item_ytd_amount_text.css( 'font-weight', 'bold' );
-				}
-
-				widgets[form_item_ytd_amount_text.getField()] = form_item_ytd_amount_text;
-				row.children().eq( 2 ).append( form_item_ytd_amount_text );
-
-			} else if ( data['tmp_type'] == 50 ) {
-
-				row = $( Global.loadWidget( 'views/payroll/pay_stub/PayStubEntryViewInsideEditorThreeColumnRow.html' ) );
-				// name
-
-				if ( Global.isSet( index ) || is_add ) {
-
-
-					if ( data['type_id'] == 40 ) {
-						form_item_name_text.css( 'font-weight', 'bold' );
-						widgets[form_item_name_text.getField()] = form_item_name_text;
-						row.children().eq( 0 ).append( form_item_name_text );
-					} else {
-						args['filter_data']['type_id'] = [50];
-						form_item_name_input.setDefaultArgs( args );
-						widgets[form_item_name_input.getField()] = form_item_name_input;
-						row.children().eq( 0 ).append( form_item_name_input );
-					}
-
-				} else {
-					if ( data['type_id'] == 40 ) {
-						form_item_name_text.css( 'font-weight', 'bold' );
-					}
-					widgets[form_item_name_text.getField()] = form_item_name_text;
-					row.children().eq( 0 ).append( form_item_name_text );
-				}
-
-				// amount
-				if ( data['type_id'] == 50 ) {
-					if ( pay_stub_status_id == 25 ) {
-						if ( pay_stub_amendment_id > 0 || user_expense_id > 0 ) {
-							form_item_amount_input.setReadOnly( true );
-						}
-						widgets[form_item_amount_input.getField()] = form_item_amount_input;
-						row.children().eq( 1 ).append( form_item_amount_input );
-					} else {
-						widgets[form_item_amount_text.getField()] = form_item_amount_text;
-						row.children().eq( 1 ).append( form_item_amount_text );
-					}
-				} else {
-					if ( Global.isSet( index ) || is_add ) {
-
-
-						if ( data['type_id'] == 40 ) {
-							form_item_amount_text.css( 'font-weight', 'bold' );
-							widgets[form_item_amount_text.getField()] = form_item_amount_text;
-							row.children().eq( 1 ).append( form_item_amount_text );
-						} else {
-							widgets[form_item_amount_input.getField()] = form_item_amount_input;
-							row.children().eq( 1 ).append( form_item_amount_input );
-						}
-
-					} else {
-						form_item_amount_text.css( 'font-weight', 'bold' );
-						widgets[form_item_amount_text.getField()] = form_item_amount_text;
-						row.children().eq( 1 ).append( form_item_amount_text );
-					}
-				}
-
-				// Ytd amount
-				if ( data['type_id'] == 40 ) {
-					form_item_ytd_amount_text.css( 'font-weight', 'bold' );
-				}
-				if ( Global.isSet( index ) || is_add ) {
-					form_item_ytd_amount_text.text( '-' );
-				}
-				widgets[form_item_ytd_amount_text.getField()] = form_item_ytd_amount_text;
-				row.children().eq( 2 ).append( form_item_ytd_amount_text );
 
 			}
-			//Build row widgets
-
-			if ( pay_stub_amendment_id > 0 || user_expense_id > 0 ) {
-				row.children().last().find( '.minus-icon ' ).hide();
-			}
-
-			if ( data['type_id'] == 40 ) {
-
-				if ( data['tmp_type'] == 40 ) {
-					widgets['net_pay_row'] = true;
-				} else {
-					widgets['total_row'] = true;
-				}
-				row.children().last().empty();
-			}
-
-			if ( typeof index != 'undefined' ) {
-				row.insertAfter( $( render ).find( 'tr' ).eq( index ) );
-				this.rows_widgets_array.splice( (index + 1 ), 0, widgets );
-
-			} else {
-				$( render ).append( row );
-				this.rows_widgets_array.push( widgets );
-			}
-
-			if ( pay_stub_status_id == 25 ) {
-				this.addIconsEvent( row ); //Bind event to add and minus icon
-			} else {
-				row.children().last().empty();
+			if ( data['tmp_type'] === 10 || data['tmp_type'] === '10' ) {
+				renderColumns( data, 10, index );
+			} else if ( data['tmp_type'] === 20 || data['tmp_type'] === '20' ) {
+				renderColumns( data, 20, index );
+			} else if ( data['tmp_type'] === 30 || data['tmp_type'] === '30' ) {
+				renderColumns( data, 30, index );
+			} else if ( data['tmp_type'] === 40 || data['tmp_type'] === '40' ) {
+				renderColumns( data, 40, index );
+			} else if ( data['tmp_type'] === 50 || data['tmp_type'] === '50' ) {
+				renderColumns( data, 50, index );
+			} else if ( data['tmp_type'] === 80 || data['tmp_type'] === '80' ) {
+				renderColumns( data, 80, index );
 			}
 
 		}
@@ -1532,7 +1501,102 @@ PayStubViewController = BaseViewController.extend( {
 //			$this.setErrorMenu();
 //		}
 //	},
+	onCopyAsNewClick: function() {
+		var $this = this;
+		var reload_entries = false;
+		this.is_add = true;
 
+		LocalCacheData.current_doing_context_action = 'copy_as_new';
+		if ( Global.isSet( this.edit_view ) ) {
+//			for ( var i = 0; i < this.editor.rows_widgets_array.length; i++ ) {
+//				if ( this.editor.rows_widgets_array[i] === true ) {
+//					continue;
+//				}
+//				this.editor.rows_widgets_array[i].ytd_amount.attr( 'pay_stub_entry_id', '' );
+//				this.editor.rows_widgets_array[i].ytd_amount.removeAttr( 'pay_stub_amendment_id' );
+//				this.editor.rows_widgets_array[i].ytd_amount.removeAttr( 'user_expense_id' );
+//			}
+			this.copied_record_id = this.current_edit_record.id;
+			this.current_edit_record.id = '';
+
+			this.edit_view_ui_dic.user_id.setEnabled( true );
+			if ( this.current_edit_record.status_id !== 25 ) {
+				this.current_edit_record.status_id = 25;
+				this.edit_view_ui_dic.status_id.setValue( 25 );
+//				this.editor.show_cover = false;
+//				this.include_entries = true;
+//				reload_entries = true;
+			}
+			this.editor.show_cover = false;
+//			this.editor.removeCover();
+
+			var navigation_div = this.edit_view.find( '.navigation-div' );
+			navigation_div.css( 'display', 'none' );
+			this.setEditMenu();
+			this.setTabStatus();
+
+			// reset the entries data.
+//			if ( reload_entries ) {
+				this.editor.removeAllRows( true );
+				this.initInsideEditorData();
+//			}
+
+			ProgressBar.closeOverlay();
+
+		} else {
+
+			var filter = {};
+			var grid_selected_id_array = this.getGridSelectIdArray();
+			var grid_selected_length = grid_selected_id_array.length;
+			var selectedId;
+
+			if ( grid_selected_length > 0 ) {
+				selectedId = grid_selected_id_array[0];
+
+				filter.filter_data = {};
+				filter.filter_data.id = [selectedId];
+
+				this.api['get' + this.api.key_name]( filter, {
+					onResult: function( result ) {
+						$this.onCopyAsNewResult( result );
+
+					}
+				} );
+			} else {
+				TAlertManager.showAlert( $.i18n._( 'No selected record' ) );
+			}
+
+
+		}
+
+	},
+
+	onCopyAsNewResult: function( result ) {
+		var $this = this;
+		var result_data = result.getResult();
+
+		if ( !result_data ) {
+			TAlertManager.showAlert( $.i18n._( 'Record does not exist' ) );
+			$this.onCancelClick();
+			return;
+		}
+
+		$this.openEditView(); // Put it here is to avoid if the selected one is not existed in data or have deleted by other pragram. in this case, the edit view should not be opend.
+
+		result_data = result_data[0];
+		this.copied_record_id = result_data.id;
+		result_data.id = '';
+		if ( $this.sub_view_mode && $this.parent_key ) {
+			result_data[$this.parent_key] = $this.parent_value;
+		}
+		if ( result_data.status_id !== 25 ) {
+			result_data.status_id = 25; // If its status is not open then set it to open status.
+		}
+
+		$this.current_edit_record = result_data;
+		$this.editor.show_cover = false;
+		$this.initEditView();
+	},
 
 	onSaveAndContinue: function() {
 		var $this = this;
@@ -1553,30 +1617,47 @@ PayStubViewController = BaseViewController.extend( {
 		}} );
 	},
 
-//	onSaveAndContinueResult: function( result ) {
-//		var $this = this;
-//		if ( result.isValid() ) {
-//			var result_data = result.getResult();
-//			if ( result_data === true ) {
-//				$this.refresh_id = $this.current_edit_record.id;
-//
-//			} else if ( result_data > 0 ) { // as new
-//				$this.refresh_id = result_data
-//			}
-//
-//			$this.saveInsideEditorData( function() {
-//				$this.search( false );
-//				$this.onEditClick( $this.refresh_id, true );
-//
-//				$this.onSaveAndContinueDone( result );
-//
-//			} );
-//
-//		} else {
-//			$this.setErrorTips( result );
-//			$this.setErrorMenu();
-//		}
-//	},
+	onSaveAndContinueResult: function( result ) {
+		var $this = this;
+		if ( result.isValid() ) {
+			var result_data = result.getResult();
+			if ( result_data === true ) {
+				$this.refresh_id = $this.current_edit_record.id;
+
+			} else if ( result_data > 0 ) {
+				$this.refresh_id = result_data;
+
+			}
+			$this.search( false );
+			$this.editor.show_cover = false;
+			$this.onEditClick( $this.refresh_id, true );
+
+			$this.onSaveAndContinueDone( result );
+		} else {
+			$this.setErrorTips( result );
+			$this.setErrorMenu();
+		}
+	},
+
+	onSaveAndNextResult: function( result ) {
+		var $this = this;
+		if ( result.isValid() ) {
+			var result_data = result.getResult();
+			if ( result_data === true ) {
+				$this.refresh_id = $this.current_edit_record.id;
+			} else if ( result_data > 0 ) {
+				$this.refresh_id = result_data;
+			}
+			$this.editor.show_cover = true;
+			$this.onRightArrowClick();
+			$this.search( false );
+			$this.onSaveAndNextDone( result );
+
+		} else {
+			$this.setErrorTips( result );
+			$this.setErrorMenu();
+		}
+	},
 
 	saveInsideEditorData: function( callBack ) {
 		var $this = this;
@@ -1589,7 +1670,7 @@ PayStubViewController = BaseViewController.extend( {
 			if ( remove_ids.length > 0 ) {
 				this.pay_stub_entry_api.deletePayStubEntry( remove_ids, {onResult: function( res ) {
 					$this.editor.delete_ids = [];
-				}} )
+				}} );
 			}
 
 //			this.pay_stub_entry_api.setPayStubEntry( data, {onResult: function( res ) {
@@ -1647,21 +1728,20 @@ PayStubViewController = BaseViewController.extend( {
 				data['type'] = row['ytd_amount'].attr( 'type_id' );
 			}
 
-			if ( Global.isSet( row['rate'] )
-				&& row['rate'].attr( 'editable' ) ) {
+			if ( Global.isSet( row['rate'] ) && row['rate'].attr( 'editable' ) ) {
 				data['rate'] = row['rate'].getValue();
 			}
-			if ( Global.isSet( row['units'] )
-				&& row['units'].attr( 'editable' ) ) {
+			if ( Global.isSet( row['units'] ) && row['units'].attr( 'editable' ) ) {
 				data['units'] = row['units'].getValue();
 			}
-			if ( Global.isSet( row['amount'] )
-				&& row['amount'].attr( 'editable' ) ) {
+			if ( Global.isSet( row['amount'] ) && row['amount'].attr( 'editable' ) ) {
 				data['amount'] = row['amount'].getValue();
 			}
-			if ( Global.isSet( row['ytd_amount'] )
-				&& row['ytd_amount'].attr( 'editable' ) ) {
+			if ( Global.isSet( row['ytd_amount'] ) && row['ytd_amount'].attr( 'editable' ) ) {
 				data['ytd_amount'] = row['ytd_amount'].getValue();
+			}
+			if ( Global.isSet( row['description'] ) && row['description'].attr( 'editable' ) ) {
+				data['description'] = row['description'].getValue();
 			}
 
 			if ( Global.isSet( row['pay_stub_entry_name_id'] ) ) {
@@ -1670,13 +1750,10 @@ PayStubViewController = BaseViewController.extend( {
 				data['pay_stub_entry_name_id'] = row['ytd_amount'].attr( 'pay_stub_entry_name_id' );
 			}
 
-			if ( Global.isSet( row['pay_stub_amendment_id'] ) ) {
-				data['pay_stub_amendment_id'] = row['ytd_amount'].attr( 'pay_stub_amendment_id' );
-			}
 
-			if ( Global.isSet( row['user_expense_id'] ) ) {
-				data['user_expense_id'] = row['ytd_amount'].attr( 'user_expense_id' );
-			}
+			// return back to the server with the same data get from API.
+			data['pay_stub_amendment_id'] = row['ytd_amount'].attr( 'pay_stub_amendment_id' );
+			data['user_expense_id'] = row['ytd_amount'].attr( 'user_expense_id' );
 
 			data['pay_stub_id'] = current_edit_item_id;
 			result.push( data );
@@ -1686,7 +1763,6 @@ PayStubViewController = BaseViewController.extend( {
 	},
 
 	getFilterColumnsFromDisplayColumns: function() {
-		var display_columns = this.grid.getGridParam( 'colModel' );
 
 		var column_filter = {};
 		column_filter.is_owner = true;
@@ -1699,6 +1775,12 @@ PayStubViewController = BaseViewController.extend( {
 		column_filter.start_date = true;
 		column_filter.end_date = true;
 		column_filter.pay_period_id = true;
+
+		// Error: Unable to get property 'getGridParam' of undefined or null reference
+		var display_columns = [];
+		if ( this.grid ) {
+			display_columns = this.grid.getGridParam( 'colModel' );
+		}
 
 		if ( display_columns ) {
 			var len = display_columns.length;
@@ -1713,16 +1795,16 @@ PayStubViewController = BaseViewController.extend( {
 	},
 
 	onFormItemChange: function( target, doNotValidate ) {
-
+		var $this = this;
 		this.setIsChanged( target );
 		this.setMassEditingFieldsWhenFormChange( target );
-
 		var key = target.getField();
 		var c_value = target.getValue();
 
+		this.current_edit_record[key] = c_value;
 		switch ( key ) {
 			case 'status_id':
-				if ( c_value == 40 ) {
+				if ( c_value === 40 || c_value === 100 ) {
 					this.include_entries = false;
 				}
 				break;
@@ -1730,10 +1812,36 @@ PayStubViewController = BaseViewController.extend( {
 				var widget = this.edit_view_ui_dic['province'];
 				widget.setValue( null );
 				break;
+			case 'pay_period_id':
+				var filter = {};
+				filter.filter_data = {};
+				filter.filter_data.id = c_value;
+				this.pay_period_api['get' + this.pay_period_api.key_name]( filter, {onResult: function( res ) {
+					if ( res.isValid() ) {
+						var result = res.getResult()[0];
+						var start_date = Global.strToDate( result.start_date ).format();
+						var end_date = Global.strToDate( result.end_date ).format();
+						var transaction_date = Global.strToDate( result.transaction_date ).format();
+
+						$this.current_edit_record['start_date'] = start_date;
+						$this.current_edit_record['end_date'] = end_date;
+						$this.current_edit_record['transaction_date'] = transaction_date;
+
+						$this.edit_view_ui_dic['start_date'].setValue( start_date );
+						$this.edit_view_ui_dic['end_date'].setValue( end_date );
+						$this.edit_view_ui_dic['transaction_date'].setValue( transaction_date );
+
+						if ( !doNotValidate ) {
+							$this.validate();
+						}
+
+					}
+				}} );
+				break;
 		}
 
-		this.current_edit_record[key] = c_value;
-		if ( key === 'country' ) {
+
+		if ( key === 'country' || key === 'pay_period_id' ) {
 			return;
 		}
 
@@ -1893,24 +2001,16 @@ PayStubViewController = BaseViewController.extend( {
 		this.edit_view_tabs[0].push( tab_pay_stub_column1 );
 
 		// Employee
-		if ( this.is_add ) {
-			form_item_input = Global.loadWidgetByName( FormItemType.AWESOME_BOX );
-
-			form_item_input.AComboBox( {
-				api_class: (APIFactory.getAPIClass( 'APIUser' )),
-				allow_multiple_selection: false,
-				layout_name: ALayoutIDs.USER,
-				show_search_inputs: true,
-				set_empty: false,
-				field: 'user_id'
-			} );
-			this.addEditFieldToColumn( $.i18n._( 'Employee' ), form_item_input, tab_pay_stub_column1 );
-		} else if ( !Global.isSet( this.is_mass_editing ) || Global.isFalseOrNull( this.is_mass_editing ) ) {
-
-			form_item_input = Global.loadWidgetByName( FormItemType.TEXT );
-			form_item_input.TText( {field: 'full_name'} );
-			this.addEditFieldToColumn( $.i18n._( 'Employee' ), form_item_input, tab_pay_stub_column1, '' );
-		}
+		form_item_input = Global.loadWidgetByName( FormItemType.AWESOME_BOX );
+		form_item_input.AComboBox( {
+			api_class: (APIFactory.getAPIClass( 'APIUser' )),
+			allow_multiple_selection: false,
+			layout_name: ALayoutIDs.USER,
+			show_search_inputs: true,
+			set_empty: false,
+			field: 'user_id'
+		} );
+		this.addEditFieldToColumn( $.i18n._( 'Employee' ), form_item_input, tab_pay_stub_column1 );
 
 		// Status
 		form_item_input = Global.loadWidgetByName( FormItemType.COMBO_BOX );
@@ -1926,10 +2026,23 @@ PayStubViewController = BaseViewController.extend( {
 			allow_multiple_selection: false,
 			layout_name: ALayoutIDs.CURRENCY,
 			show_search_inputs: true,
-			set_empty: false,
+			set_empty: true,
 			field: 'currency_id'
 		} );
 		this.addEditFieldToColumn( $.i18n._( 'Currency' ), form_item_input, tab_pay_stub_column1 );
+
+		// Pay Period
+		form_item_input = Global.loadWidgetByName( FormItemType.AWESOME_BOX );
+
+		form_item_input.AComboBox( {
+			api_class: (APIFactory.getAPIClass( 'APIPayPeriod' )),
+			allow_multiple_selection: false,
+			layout_name: ALayoutIDs.PAY_PERIOD,
+			show_search_inputs: true,
+			set_empty: true,
+			field: 'pay_period_id'
+		} );
+		this.addEditFieldToColumn( $.i18n._( 'Pay Period' ), form_item_input, tab_pay_stub_column2 );
 
 		// Pay Start Date
 		form_item_input = Global.loadWidgetByName( FormItemType.DATE_PICKER );
@@ -1969,6 +2082,7 @@ PayStubViewController = BaseViewController.extend( {
 
 		} );
 
+		this.editor.show_cover = true;
 		this.editor.removeCover = this.removeInsideEditorCover;
 		this.editor.onEditClick = this.removeInsideEditorCover;
 		this.editor.onFormItemKeyUp = function( target ) {
@@ -2013,10 +2127,11 @@ PayStubViewController = BaseViewController.extend( {
 			var c_value = parseFloat( target.getValue() ? target.getValue() : 0 ); // new value
 			var index = target.parent().parent().index();
 
-			if ( key == 'amount' ) {
+			if ( key === 'amount' ) {
 				var original_ytd_amount = parseFloat( this.rows_widgets_array[index]['ytd_amount'].attr( 'original_ytd_amount' ) );
 				var original_amount = parseFloat( this.rows_widgets_array[index]['ytd_amount'].attr( 'original_amount' ) );
-				var new_ytd_amount = (original_ytd_amount - original_amount + c_value).toFixed( 4 );
+//				var new_ytd_amount = (original_ytd_amount - original_amount + c_value).toFixed( 4 );
+				var new_ytd_amount = Global.removeTrailingZeros( (original_ytd_amount - original_amount + c_value) );
 				this.rows_widgets_array[index]['ytd_amount'].setValue( new_ytd_amount > 0 ? new_ytd_amount : '-' );
 				this.rows_widgets_array[index]['ytd_amount'].attr( 'original_ytd_amount', new_ytd_amount );
 				this.rows_widgets_array[index]['ytd_amount'].attr( 'original_amount', c_value );
@@ -2047,10 +2162,10 @@ PayStubViewController = BaseViewController.extend( {
 
 				if ( row['total_row'] === true ) {
 					if ( Global.isSet( row['units'] ) ) {
-						row['units'].setValue( total_units.toFixed( 4 ) );
+						row['units'].setValue( Global.removeTrailingZeros( total_units) );
 					}
-					row['amount'].setValue( total_amount.toFixed( 4 ) );
-					row['ytd_amount'].setValue( total_ytd_amount.toFixed( 4 ) );
+					row['amount'].setValue( Global.removeTrailingZeros( total_amount) );
+					row['ytd_amount'].setValue( Global.removeTrailingZeros( total_ytd_amount) );
 
 					if ( net_pay_amount > 0 ) {
 						net_pay_amount = net_pay_amount - total_amount;
@@ -2068,8 +2183,8 @@ PayStubViewController = BaseViewController.extend( {
 				}
 
 				if ( row['net_pay_row'] === true ) {
-					row['amount'].setValue( net_pay_amount.toFixed( 4 ) );
-					row['ytd_amount'].setValue( net_pay_ytd_amount.toFixed( 4 ) );
+					row['amount'].setValue( Global.removeTrailingZeros( net_pay_amount) );
+					row['ytd_amount'].setValue( Global.removeTrailingZeros( net_pay_ytd_amount) );
 					continue;
 				}
 
@@ -2278,6 +2393,7 @@ PayStubViewController = BaseViewController.extend( {
 			case ContextMenuIconName.employee_pay_stubs:
 			case ContextMenuIconName.employer_pay_stubs:
 			case ContextMenuIconName.generate_pay_stub:
+			case ContextMenuIconName.edit_pay_period:
 				this.onNavigationClick( id );
 				break;
 
@@ -2367,6 +2483,11 @@ PayStubViewController = BaseViewController.extend( {
 			case ContextMenuIconName.edit_employee:
 				if ( user_ids.length > 0 ) {
 					IndexViewController.openEditView( this, 'Employee', user_ids[0] );
+				}
+				break;
+			case ContextMenuIconName.edit_pay_period:
+				if ( pay_period_ids.length > 0 ) {
+					IndexViewController.openEditView( this, 'PayPeriods', pay_period_ids[0] )
 				}
 				break;
 			case ContextMenuIconName.timesheet:

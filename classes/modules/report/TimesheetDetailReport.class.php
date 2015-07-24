@@ -1092,7 +1092,7 @@ class TimesheetDetailReport extends Report {
 	}
 
 	//PreProcess data such as calculating additional columns from raw data etc...
-	function _preProcess( $format ) {
+	function _preProcess( $format = NULL ) {
 		$this->getProgressBarObject()->start( $this->getAMFMessageID(), count($this->tmp_data['user_date_total']), NULL, TTi18n::getText('Pre-Processing Data...') );
 
 		$columns = $this->getColumnDataConfig();

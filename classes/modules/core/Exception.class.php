@@ -112,7 +112,14 @@ class DBError extends Exception {
 				echo json_encode( $obj->returnHandler( FALSE, 'EXCEPTION', $description ) );
 				exit;
 			} else {
-				Redirect::Page( URLBuilder::getURL( array('exception' => $code ), Environment::getBaseURL().'DownForMaintenance.php') );
+				global $config_vars;
+				if ( DEPLOYMENT_ON_DEMAND == FALSE
+						AND isset($config_vars['other']['installer_enabled']) AND $config_vars['other']['installer_enabled'] == 1
+						AND in_array( strtolower($code), array('dberror', 'dbinitialize') ) ) {
+					Redirect::Page( URLBuilder::getURL( array(), Environment::getBaseURL().'html5/index.php?installer=1&disable_db=1&external_installer=0#!m=Install&a=license&external_installer=0') );
+				} else {
+					Redirect::Page( URLBuilder::getURL( array('exception' => $code ), Environment::getBaseURL().'DownForMaintenance.php') );
+				}
 				exit;
 			}
 		}

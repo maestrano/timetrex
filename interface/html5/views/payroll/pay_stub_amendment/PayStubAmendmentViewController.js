@@ -47,7 +47,6 @@ PayStubAmendmentViewController = BaseViewController.extend( {
 	},
 
 	getFilterColumnsFromDisplayColumns: function() {
-		var display_columns = this.grid.getGridParam( 'colModel' );
 
 		var column_filter = {};
 		column_filter.is_owner = true;
@@ -59,6 +58,11 @@ PayStubAmendmentViewController = BaseViewController.extend( {
 		column_filter.last_name = true;
 		column_filter.effective_date = true;
 
+		// Error: Unable to get property 'getGridParam' of undefined or null reference
+		var display_columns = [];
+		if ( this.grid ) {
+			display_columns = this.grid.getGridParam( 'colModel' );
+		}
 		if ( display_columns ) {
 			var len = display_columns.length;
 
@@ -1397,10 +1401,10 @@ PayStubAmendmentViewController = BaseViewController.extend( {
 		form_item_input.TDatePicker( {field: 'effective_date'} );
 		this.addEditFieldToColumn( $.i18n._( 'Effective Date' ), form_item_input, tab_pay_stub_amendment_column1 );
 
-		// Year to Date (YTD) Adjustment
-		form_item_input = Global.loadWidgetByName( FormItemType.CHECKBOX );
-		form_item_input.TCheckbox( {field: 'ytd_adjustment'} );
-		this.addEditFieldToColumn( $.i18n._( 'Year to Date (YTD) Adjustment' ), form_item_input, tab_pay_stub_amendment_column1, '' );
+		// Year to Date (YTD) Adjustment -- DISABLED
+		//form_item_input = Global.loadWidgetByName( FormItemType.CHECKBOX );
+		//form_item_input.TCheckbox( {field: 'ytd_adjustment'} );
+		//this.addEditFieldToColumn( $.i18n._( 'Year to Date (YTD) Adjustment' ), form_item_input, tab_pay_stub_amendment_column1, '' );
 
 	},
 

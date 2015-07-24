@@ -322,6 +322,7 @@ class PermissionListFactory extends PermissionFactory implements IteratorAggrega
 					'company_id' => $company_id,
 					'created_date' => $date,
 					'updated_date' => $date,
+					'deleted_date' => $date,
 					);
 
 		$pcf = new PermissionControlFactory();
@@ -334,13 +335,12 @@ class PermissionListFactory extends PermissionFactory implements IteratorAggrega
 					where
 							b.company_id = ?
 						AND
-							( a.created_date >=	 ? OR a.updated_date >= ? )
-					LIMIT 1
+							( a.created_date >=	 ? OR a.updated_date >= ? OR ( a.deleted = 1 AND a.deleted_date >= ? ) )
 					';
 		$query .= $this->getWhereSQL( $where );
 		$query .= $this->getSortSQL( $order );
 
-		$this->ExecuteSQL( $query, $ph );
+		$this->rs = $this->db->SelectLimit($query, 1, -1, $ph);
 		if ( $this->getRecordCount() > 0 ) {
 			Debug::text('Rows have been modified: '. $this->getRecordCount(), __FILE__, __LINE__, __METHOD__, 10);
 

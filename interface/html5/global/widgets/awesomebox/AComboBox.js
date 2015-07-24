@@ -234,7 +234,6 @@
 
 				if ( check_box ) {
 					check_box.hide();
-					$this.addClass( 'a-combobox-label-hide' );
 				}
 
 				if ( $this.shouldInitColumns() ) { //Sort Selector in search panel
@@ -247,7 +246,6 @@
 
 				if ( check_box ) {
 					check_box.show();
-					$this.removeClass( 'a-combobox-label-hide' );
 				}
 
 				if ( $this.shouldInitColumns() ) { //Sort Selector in search panel
@@ -264,7 +262,7 @@
 
 		this.isChecked = function() {
 			if ( check_box ) {
-				if ( check_box.attr( 'checked' ) ) {
+				if ( check_box.attr( 'checked' ) || check_box[0].checked === true ) {
 					return true;
 				}
 			}
@@ -647,6 +645,7 @@
 			column_filter.manual_id = true;
 			column_filter.default_item_id = true;
 			column_filter.accrual_policy_id = true;
+			column_filter.pay_code_id = true;
 
 			if ( api && api.className === 'APIUser' ) {
 				column_filter.pay_period_schedule_id = true;
@@ -1018,12 +1017,9 @@
 							} );
 						}
 
-						if ( !navigation_mode && !set_default_args_manually ) {
-
-							default_args = {};
-							default_args.filter_data = data.filter_data;
-							default_args.filter_sort = data.filter_sort;
-						}
+						args_from_saved_layout = {};
+						args_from_saved_layout.filter_data = data.filter_data;
+						args_from_saved_layout.filter_sort = data.filter_sort;
 
 					} else {
 						display_columns = data.display_columns;
@@ -1122,12 +1118,6 @@
 										total_header_width = width;
 									} );
 								}
-
-//							if ( !navigation_mode && !set_default_args_manually ) {
-//								default_args = {};
-//								default_args.filter_data = data.filter_data;
-//								default_args.filter_sort = data.filter_sort;
-//							}
 
 								args_from_saved_layout = {};
 								args_from_saved_layout.filter_data = data.filter_data;
@@ -1245,7 +1235,7 @@
 
 		};
 
-		this.onClose = function() {
+		this.onClose = function( e, target ) {
 
 			if ( allow_multiple_selection ) {
 
@@ -1270,11 +1260,13 @@
 
 			LocalCacheData.openAwesomeBox = null;
 
-			if ( check_box ) {
-				check_box.attr( 'checked', 'true' )
-			}
+			if ( a_dropdown.isChanged() ) {
+				if ( check_box ) {
+					check_box.attr( 'checked', 'true' )
+				}
 
-			$this.trigger( 'formItemChange', [$this] );
+				$this.trigger( 'formItemChange', [$this] );
+			}
 
 			dontOpen = true;
 			dontOpenTimer = setTimeout( function() {
@@ -2234,6 +2226,10 @@
 
 							column_editor = Global.loadWidget( 'global/widgets/column_editor/ColumnEditor.html' );
 							column_editor = $( column_editor );
+							column_editor.find( '#save_btn' ).text( $.i18n._( 'Save and Close' ) );
+							column_editor.find( '#close_btn' ).text( $.i18n._( 'Close' ) );
+							column_editor.find( '.rows-per-page' ).text( $.i18n._( 'Rows Per Page' ) + ':' );
+							column_editor.find( '.choose-layout' ).text( $.i18n._( 'Choose Layout' ) + ':' );
 
 							column_editor = column_editor.ColumnEditor( {parent_awesome_box: $this} );
 

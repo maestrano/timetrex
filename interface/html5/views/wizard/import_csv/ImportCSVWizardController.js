@@ -442,31 +442,31 @@ ImportCSVWizardController = BaseWizardController.extend( {
 		switch ( gridId ) {
 			case 'import_data':
 
-				var column_info = {name: 'map_column_name', index: 'map_column_name', label: 'File Column', width: 100, sortable: false, title: false,
+				var column_info = {name: 'map_column_name', index: 'map_column_name', label: $.i18n._('File Column'), width: 100, sortable: false, title: false,
 					formatter: function( cell_value, related_data, row ) {
 						return $this.onTextInputRender( cell_value, related_data, row );
 					}};
 				column_info_array.push( column_info );
 
-				column_info = {name: 'field', index: 'field', label: 'Field', width: 100, sortable: false, title: false,
+				column_info = {name: 'field', index: 'field', label: $.i18n._('Field'), width: 100, sortable: false, title: false,
 					formatter: function( cell_value, related_data, row ) {
 						return $this.onFieldRender( cell_value, related_data, row );
 					}};
 				column_info_array.push( column_info );
 
-				column_info = {name: 'default_value', index: 'default_value', label: 'Default Value', width: 100, sortable: false, title: false,
+				column_info = {name: 'default_value', index: 'default_value', label: $.i18n._('Default Value'), width: 100, sortable: false, title: false,
 					formatter: function( cell_value, related_data, row ) {
 						return $this.onTextInputRender( cell_value, related_data, row );
 					}};
 				column_info_array.push( column_info );
 
-				column_info = {name: 'parse_hint', index: 'parse_hint', label: 'Parse Hint', width: 100, sortable: false, title: false,
+				column_info = {name: 'parse_hint', index: 'parse_hint', label: $.i18n._('Parse Hint'), width: 100, sortable: false, title: false,
 					formatter: function( cell_value, related_data, row ) {
 						return $this.onParseHintRender( cell_value, related_data, row );
 					}};
 				column_info_array.push( column_info );
 
-				column_info = {name: 'row_1', index: 'row_1', label: 'Sample Row', width: 100, sortable: false, title: false};
+				column_info = {name: 'row_1', index: 'row_1', label: $.i18n._('Sample Row'), width: 100, sortable: false, title: false};
 				column_info_array.push( column_info );
 
 				break;

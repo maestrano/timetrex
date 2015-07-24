@@ -1705,3 +1705,14 @@ progress::-moz-progress-bar {
     height: 30px;
     border: 1px solid #aaaaaa;
 }
+
+.UserDateTotalView{
+    text-align: center;
+}
+
+.UserDateTotalView .warning-message{
+    background: yellow;
+    padding: 5px;
+    display: block;
+    font-weight: bold;
+}

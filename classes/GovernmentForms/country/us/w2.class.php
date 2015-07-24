@@ -41,7 +41,7 @@ include_once( 'US.class.php' );
  * @package GovernmentForms
  */
 class GovernmentForms_US_W2 extends GovernmentForms_US {    
-    public $xml_schema = '1040/IndividualIncomeTax/Common/IRSW2/IRSW2.xsd';
+	public $xml_schema = '1040/IndividualIncomeTax/Common/IRSW2/IRSW2.xsd';
 	public $pdf_template = 'w2.pdf';
 
 	public $template_offsets = array( 0, 0 );
@@ -108,7 +108,7 @@ class GovernmentForms_US_W2 extends GovernmentForms_US {
 										'l4' => 'preCalcL4',
 										'l6' => 'preCalcL6',
 										'l3' => 'preCalcL3',
-						  );
+						);
 
 		if ( isset($variable_function_map[$name]) ) {
 			return $variable_function_map[$name];
@@ -121,7 +121,7 @@ class GovernmentForms_US_W2 extends GovernmentForms_US {
 		$variable_function_map = array(
 										'year' => 'isNumeric',
 										'ein' => array( 'stripNonNumeric', 'isNumeric'),
-						  );
+						);
 
 		if ( isset($variable_function_map[$name]) ) {
 			return $variable_function_map[$name];
@@ -691,7 +691,7 @@ class GovernmentForms_US_W2 extends GovernmentForms_US {
 																		'halign' => 'R',
 																		),
 											),
-							  );
+							);
 
 		if ( isset($template_schema[$name]) ) {
 			return $name;
@@ -843,7 +843,7 @@ class GovernmentForms_US_W2 extends GovernmentForms_US {
 	function _compileRA() {
 		$line[] = 'RA'; //RA Record
 		$line[] = $this->padRecord( $this->stripNonNumeric( $this->ein ), 9, 'N'); //EIN
-		$line[] = $this->padRecord( $this->efile_user_id, 8, 'AN'); //User ID
+		$line[] = $this->padRecord( $this->stripNonAlphaNumeric( $this->efile_user_id ), 8, 'AN'); //User ID
 		$line[] = $this->padRecord( '', 4, 'AN'); //Software Vendor code
 		$line[] = $this->padRecord( '', 5, 'AN'); //Blank
 		$line[] = '0'; //Resub
@@ -861,7 +861,7 @@ class GovernmentForms_US_W2 extends GovernmentForms_US {
 		$line[] = $this->padRecord( '', 15, 'AN'); //Foreign Postal Code
 		$line[] = $this->padRecord( '', 2, 'AN'); //Company Country, fill with blanks if its the US
 		$line[] = $this->padRecord( $this->stripNonAlphaNumeric( $this->trade_name ), 57, 'AN'); //Submitter organization.
-		$line[] = $this->padRecord( $this->stripNonAlphaNumeric( $this->company_address2 ), 22, 'AN'); //Submitter Location Address
+		$line[] = $this->padRecord( $this->stripNonAlphaNumeric( ( $this->company_address2 != '' ) ? $this->company_address2 : $this->company_address1 ), 22, 'AN'); //Submitter Location Address
 		$line[] = $this->padRecord( $this->stripNonAlphaNumeric( $this->company_address1 ), 22, 'AN'); //Submitter Delivery Address
 		$line[] = $this->padRecord( $this->stripNonAlphaNumeric( $this->company_city ), 22, 'AN'); //Submitter City
 		$line[] = $this->padRecord( $this->stripNonAlphaNumeric( $this->company_state ), 2, 'AN'); //Submitter State
@@ -872,8 +872,8 @@ class GovernmentForms_US_W2 extends GovernmentForms_US {
 		$line[] = $this->padRecord( '', 15, 'AN'); //Submitter Foreign Postal Code
 		$line[] = $this->padRecord( '', 2, 'AN'); //Submitter Country, fill with blanks if its the US
 		$line[] = $this->padRecord( $this->stripNonAlphaNumeric( $this->contact_name ), 27, 'AN'); //Contact Name
-		$line[] = $this->padRecord( $this->contact_phone, 15, 'AN'); //Contact Phone
-		$line[] = $this->padRecord( $this->contact_phone_ext, 5, 'AN'); //Contact Phone Ext
+		$line[] = $this->padRecord( $this->stripNonNumeric( $this->contact_phone ), 15, 'AN'); //Contact Phone
+		$line[] = $this->padRecord( $this->stripNonNumeric( $this->contact_phone_ext ), 5, 'AN'); //Contact Phone Ext
 		$line[] = $this->padRecord( '', 3, 'AN'); //Blank
 		$line[] = $this->padRecord( $this->contact_email, 40, 'AN'); //Contact Email
 		$line[] = $this->padRecord( '', 3, 'AN'); //Blank
@@ -1049,7 +1049,7 @@ class GovernmentForms_US_W2 extends GovernmentForms_US {
 				break;
 			default: //Federal
 				//Withholding Number for State format is the State ID number.
-				$line[] = $this->padRecord( $this->stripNonNumeric( $this->$l15_state_id ), 5, 'AN'); //Tax Entity Code				
+				$line[] = $this->padRecord( '', 5, 'AN'); //Tax Entity Code (Leave Blank)
 				$line[] = $this->padRecord( $this->stripNonNumeric( $this->ssn ), 9, 'N'); //SSN
 				$line[] = $this->padRecord( $this->stripNonAlphaNumeric( $this->first_name ), 15, 'AN'); //First Name
 				$line[] = $this->padRecord( $this->stripNonAlphaNumeric( $this->middle_name ), 15, 'AN'); //Middle Name
@@ -1075,7 +1075,7 @@ class GovernmentForms_US_W2 extends GovernmentForms_US {
 				$line[] = $this->padRecord( '', 8, 'AN'); //Date first employed
 				$line[] = $this->padRecord( '', 8, 'AN'); //Date of separation
 				$line[] = $this->padRecord( '', 5, 'AN'); //Blank
-				$line[] = $this->padRecord( '', 20, 'AN'); //State Employer Account Number
+				$line[] = $this->padRecord( $this->stripNonNumeric( $this->$l15_state_id ), 20, 'N'); //State Employer Account Number
 				$line[] = $this->padRecord( '', 6, 'AN'); //Blank
 				
 				//Income Tax Reporting
@@ -1094,7 +1094,6 @@ class GovernmentForms_US_W2 extends GovernmentForms_US {
 				break;			
 		}
 		
-
 		$retval = implode( ( $this->debug == TRUE ) ? ',' : '', $line);
 		Debug::Text('RS Record:'. $retval, __FILE__, __LINE__, __METHOD__, 10);
 
@@ -1138,6 +1137,28 @@ class GovernmentForms_US_W2 extends GovernmentForms_US {
 		return $retval;
 	}
 
+	function _compileRV( $total, $id ) {
+		$l15_state = 'l15'.$id.'_state';
+		if ( !isset($this->$l15_state) ) {
+			return FALSE;
+		}
+
+		Debug::Arr($total, 'zzzRV Record:', __FILE__, __LINE__, __METHOD__, 10);
+
+		if ( $total->total > 0 ) {
+			$line[] = 'RV'; //RT Record
+			$line[] = $this->padRecord( $total->total, 7, 'N'); //Total RW records.
+			$line[] = $this->padRecord( $this->removeDecimal( $total->state_taxable_wages ), 15, 'N'); //State Wages, Tips and Other Compensation
+			$line[] = $this->padRecord( $this->removeDecimal( $total->state_income_tax ), 15, 'N'); //State Income Tax
+			$line[] = $this->padRecord( '', 473, 'AN'); //Blank
+
+			$retval = implode( ( $this->debug == TRUE ) ? ',' : '', $line);
+			Debug::Text('RV Record:'. $retval, __FILE__, __LINE__, __METHOD__, 10);
+		}
+
+		return $retval;
+	}
+
 	function _compileRF( $total_records ) {
 		$line[] = 'RF'; //RF Record
 		$line[] = $this->padRecord( '', 5, 'AN'); //Blank
@@ -1166,23 +1187,30 @@ class GovernmentForms_US_W2 extends GovernmentForms_US {
 		 Download: AccuWage from the bottom of this website for testing: http://www.socialsecurity.gov/employer/accuwage/index.html
 		 */
 
-        $records = $this->getRecords();
+		$records = $this->getRecords();
 
-        //Debug::Arr($records, 'Output EFILE Records: ',__FILE__, __LINE__, __METHOD__, 10);
+		//Debug::Arr($records, 'Output EFILE Records: ',__FILE__, __LINE__, __METHOD__, 10);
 
-        if ( is_array($records) AND count($records) > 0 ) {
+		if ( is_array($records) AND count($records) > 0 ) {
 			$retval = $this->padLine( $this->_compileRA() );
 			$retval .= $this->padLine( $this->_compileRE() );
 
 			$total = Misc::preSetArrayValues( new stdClass(), array('total','l1','l2','l3','l4','l5','l6','l7','l10','l12d','l12e','l12f','l12g','l12h','l12w','l12aa','l12bb','l12dd'), 0 );
 
-			$i=0;
+			$i = 0;
 			foreach( $records as $w2_data ) {
 				$this->arrayToObject( $w2_data ); //Convert record array to object
 
 				$retval .= $this->padLine( $this->_compileRW() );
-                foreach( range('a', 'z') as $z ) {
+				foreach( range('a', 'z') as $z ) {
+					if ( !isset($state_total[$z]) ) {
+						$state_total[$z] = Misc::preSetArrayValues( new stdClass(), array( 'total', 'state_taxable_wages', 'state_income_tax' ), 0 );
+					}
 					$retval .= $this->padLine( $this->_compileRS( $z ) );
+					
+					$state_total[$z]->total += 1;
+					$state_total[$z]->state_taxable_wages += $this->{'l16'.$z};
+					$state_total[$z]->state_income_tax += $this->{'l17'.$z};
 				}
 
 				$total->total += 1;
@@ -1208,6 +1236,9 @@ class GovernmentForms_US_W2 extends GovernmentForms_US {
 			}
 
 			$retval .= $this->padLine( $this->_compileRT( $total ) );
+			foreach( range('a', 'z') as $z ) {
+				$retval .= $this->padLine( $this->_compileRV( $state_total[$z], $z ) ); //State Total Record
+			}
 			$retval .= $this->padLine( $this->_compileRF( $total->total ) );
 		}
 
@@ -1221,32 +1252,32 @@ class GovernmentForms_US_W2 extends GovernmentForms_US {
 	function _outputPDF() {
 		//Initialize PDF with template.
 		$pdf = $this->getPDFObject();
-        
+
 		if ( $this->getShowBackground() == TRUE ) {
 			$pdf->setSourceFile( $this->getTemplateDirectory() . DIRECTORY_SEPARATOR . $this->pdf_template );
 
-			for ( $tp=1; $tp <= 11; $tp++ ) {
+			for ( $tp = 1; $tp <= 11; $tp++ ) {
 				$this->template_index[$tp] = $pdf->ImportPage($tp);
 			}
 		}
 
-		if ( $this->year == ''  ) {
+		if ( $this->year == '' ) {
 			$this->year = $this->getYear();
 		}
 
 		if ( $this->getType() == 'government') {
 			$employees_per_page = 2;
-			$n=2; //Don't loop the same employee.
+			$n = 2; //Don't loop the same employee.
 			$form_template_pages = array(2,3,10); //Template pages to use.
 		} else {
 			$employees_per_page = 1;
-			$n=1; //Loop the same employee twice.
+			$n = 1; //Loop the same employee twice.
 			$form_template_pages = array(4,6,8); //Template pages to use.
 		}
 
 		//Get location map, start looping over each variable and drawing
 		$records = $this->getRecords();
-       
+
 		if ( is_array($records) AND count($records) > 0 ) {
 
 			$template_schema = $this->getTemplateSchema();
@@ -1257,18 +1288,18 @@ class GovernmentForms_US_W2 extends GovernmentForms_US {
 
 				if ( $this->getShowBackground() == TRUE AND $this->getType() == 'government' AND count($records) > 1 ) {
 					$template_schema[0]['combine_templates'] = array(
-																	array( 'template_page' => $form_template_page, 'x'=> 0, 'y' => 0),
-																	array( 'template_page' => $form_template_page, 'x'=> 0, 'y' => 400) //Place two templates on the same page.
+																	array( 'template_page' => $form_template_page, 'x' => 0, 'y' => 0),
+																	array( 'template_page' => $form_template_page, 'x' => 0, 'y' => 400) //Place two templates on the same page.
 																);
 				}
 
-				$e=0;
+				$e = 0;
 				foreach( $records as $employee_data ) {
 					//Debug::Arr($employee_data, 'Employee Data: ', __FILE__, __LINE__, __METHOD__,10);
-					$employee_data['control_number'] = $e+1;
+					$employee_data['control_number'] = ( $e + 1 );
 					$this->arrayToObject( $employee_data ); //Convert record array to object
 
-					for( $i=0; $i < $n; $i++ ) {
+					for( $i = 0; $i < $n; $i++ ) {
 						$this->page_offsets = array(0,0);
 
 						if ( ( $employees_per_page == 1 AND $i > 0 )
@@ -1298,267 +1329,262 @@ class GovernmentForms_US_W2 extends GovernmentForms_US {
 
 		return TRUE;
 	}
-    
-    
-    function _outputXML() {
-        
-        if ( is_object( $this->getXMLObject() ) ) {
+
+
+	function _outputXML() {
+
+		if ( is_object( $this->getXMLObject() ) ) {
 			$xml = $this->getXMLObject();
 		} else {
 			return FALSE; //No XML object to append too. Needs return1040 form first.
 		}
-        
-        $records = $this->getRecords();
-        
-        Debug::Arr($records, 'Output XML Records: ', __FILE__, __LINE__, __METHOD__, 10);
-        
-        if ( is_array($records) AND count($records) > 0 ) {
-            
-            $e = 0;
+
+		$records = $this->getRecords();
+
+		Debug::Arr($records, 'Output XML Records: ', __FILE__, __LINE__, __METHOD__, 10);
+
+		if ( is_array($records) AND count($records) > 0 ) {
+
+			$e = 0;
 			foreach( $records as $w2_data ) {
-			     
-             
-			    $w2_data['control_number'] = $e+1; 
+
+
+				$w2_data['control_number'] = ( $e + 1 );
 				$this->arrayToObject( $w2_data ); //Convert record array to object    
-                
-                $xml->ReturnData->addChild('IRSW2');
-                
-                $xml->ReturnData->IRSW2[$e]->addAttribute('documentId', $this->control_number); // Must be unique within the return   
-                
-                //Corrected W2 Indicator
-                $xml->ReturnData->IRSW2[$e]->addChild('CorrectedW2Ind', 'X');
-                
-                //Employee SSN
-                if ( empty( $this->ssn ) == FALSE ) {
-                    $xml->ReturnData->IRSW2[$e]->addChild('EmployeeSSN', $this->stripNonNumeric( $this->ssn ) );
-                }               
- 
-                //Employer EIN
-                $xml->ReturnData->IRSW2[$e]->addChild('EmployerEIN', $this->stripNonNumeric( $this->ein ) );
-                
-                
-                $xml->ReturnData->IRSW2[$e]->addChild('EmployerNameControl', substr( strtoupper( $this->trade_name ), 0, 1 ) );
-                
-                //Employer name
-                $xml->ReturnData->IRSW2[$e]->addChild('EmployerName');
-                
-                $xml->ReturnData->IRSW2[$e]->EmployerName->addChild('BusinessNameLine1', $this->trade_name );                
-                //$xml->EmployerName->addChild('BusinessNameLine2', '' );
-               
-                //Employer US address
-                $xml->ReturnData->IRSW2[$e]->addChild('EmployerUSAddress');
-                $xml->ReturnData->IRSW2[$e]->EmployerUSAddress->addChild('AddressLine1', $this->stripNonAlphaNumeric( $this->company_address1 ));
-                $xml->ReturnData->IRSW2[$e]->EmployerUSAddress->addChild('City', $this->company_city );
-                $xml->ReturnData->IRSW2[$e]->EmployerUSAddress->addChild('State', $this->company_state );
-                $xml->ReturnData->IRSW2[$e]->EmployerUSAddress->addChild('ZIPCode', $this->company_zip_code );
-                
-                //Employer foreign address
-                /*
-                $xml->ReturnData->IRSW2[$e]->addChild('EmployerForeignAddress');
-                $xml->ReturnData->IRSW2[$e]->EmployerForeignAddress->addChild('AddressLine1', );
-                $xml->ReturnData->IRSW2[$e]->EmployerForeignAddress->addChild('AddressLine2', );
-                $xml->ReturnData->IRSW2[$e]->EmployerForeignAddress->addChild('City', );
-                $xml->ReturnData->IRSW2[$e]->EmployerForeignAddress->addChild('ProvinceOrState', );
-                $xml->ReturnData->IRSW2[$e]->EmployerForeignAddress->addChild('Country', );
-                $xml->ReturnData->IRSW2[$e]->EmployerForeignAddress->addChild('PostalCode', );        
-                */
-                //Control number
-                $xml->ReturnData->IRSW2[$e]->addChild('ControlNumber', $this->control_number );
-                
-                //Employee name
-                $xml->ReturnData->IRSW2[$e]->addChild('EmployeeName', $this->first_name.' '.$this->last_name  );
-                
-                //EmployeeUS address
-                $xml->ReturnData->IRSW2[$e]->addChild('EmployeeUSAddress');
-                $xml->ReturnData->IRSW2[$e]->EmployeeUSAddress->addChild('AddressLine1', $this->stripNonAlphaNumeric($this->address1 ));
-                $xml->ReturnData->IRSW2[$e]->EmployeeUSAddress->addChild('AddressLine2', $this->stripNonAlphaNumeric($this->address2) );
-                $xml->ReturnData->IRSW2[$e]->EmployeeUSAddress->addChild('City', $this->city );
-                $xml->ReturnData->IRSW2[$e]->EmployeeUSAddress->addChild('State', $this->state  );                
-                $xml->ReturnData->IRSW2[$e]->EmployeeUSAddress->addChild('ZIPCode', $this->zip_code );
-                
-                //Employee foreign address                
-                /*
-                $xml->ReturnData->IRSW2[$e]->addChild('EmployeeForeignAddress');
-                $xml->ReturnData->IRSW2[$e]->EmployeeForeignAddress->addChild('AddressLine1', );
-                $xml->ReturnData->IRSW2[$e]->EmployeeForeignAddress->addChild('AddressLine2', );
-                $xml->ReturnData->IRSW2[$e]->EmployeeForeignAddress->addChild('City', );
-                $xml->ReturnData->IRSW2[$e]->EmployeeForeignAddress->addChild('ProvinceOrState', );
-                $xml->ReturnData->IRSW2[$e]->EmployeeForeignAddress->addChild('Country', );
-                $xml->ReturnData->IRSW2[$e]->EmployeeForeignAddress->addChild('PostalCode', ); 
-                */
-                //Wages amount
-                if ( $this->isNumeric( $this->l1 ) AND $this->l1 >= 0 ) {
-                    $xml->ReturnData->IRSW2[$e]->addChild('WagesAmt', $this->getBeforeDecimal( $this->l1 ) );
-                }
-                
-                //Withholding amount
-                if ( $this->isNumeric($this->l2) ) {
-                    $xml->ReturnData->IRSW2[$e]->addChild('WithholdingAmt', $this->getBeforeDecimal($this->l2) );
-                } 
-                
-                //Social Security wages amount
-                if ( $this->isNumeric($this->l3) ) {
-                    $xml->ReturnData->IRSW2[$e]->addChild('SocialSecurityWagesAmt', $this->getBeforeDecimal($this->l3) );
-                } 
-                
-                //Social Security tax amount
-                if ( $this->isNumeric($this->l4) ) {
-                    $xml->ReturnData->IRSW2[$e]->addChild('SocialSecurityTaxAmt', $this->getBeforeDecimal($this->l4) );
-                }
-                
-                //Medicare wages and tips amount
-                if ( $this->isNumeric($this->l5) ) {
-                    $xml->ReturnData->IRSW2[$e]->addChild('MedicareWagesAndTipsAmt', $this->getBeforeDecimal($this->l5)  );
-                }                
-                //Medicare tax withheld amount
-                if ( $this->isNumeric($this->l6) ) {
-                    $xml->ReturnData->IRSW2[$e]->addChild('MedicareTaxWithheldAmt', $this->getBeforeDecimal($this->l6)  );
-                }               
-                
-                //Social security tips amount
-                if ($this->isNumeric($this->l7 )){
-                    $xml->ReturnData->IRSW2[$e]->addChild('SocialSecurityTipsAmt', $this->getBeforeDecimal($this->l7 ));
-                }              
-                
-                //Allocated tips amount
-                if ( $this->isNumeric($this->l8) ) {
-                    $xml->ReturnData->IRSW2[$e]->addChild('AllocatedTipsAmt', $this->getBeforeDecimal($this->l8) );
-                }               
-                
-                //Dependent care benefits amount
-                if ( $this->isNumeric($this->l10) ) {
-                    $xml->ReturnData->IRSW2[$e]->addChild('DependentCareBenefitsAmt', $this->getBeforeDecimal($this->l10)  );
-                }
-                
-                //Nonqualified plans amount
-                if ( $this->isNumeric($this->l11) ) {
-                    $xml->ReturnData->IRSW2[$e]->addChild('NonqualifiedPlansAmt', $this->getBeforeDecimal($this->l11) );       
-                }   
-                
-                $x = 0;
-                foreach( range('a', 'd') as $z ) {
-                    $code_col = 'l12'.$z.'_code';
-                    $amount_col = 'l12'.$z;
-                    if ( empty( $this->$code_col ) == FALSE OR empty( $this->$amount_col ) == FALSE ) {
-                        $xml->ReturnData->IRSW2[$e]->addChild('EmployersUseGrp');
-                    }
-                    //Employer&apos;s Use Code
-                    if ( empty( $this->$code_col ) == FALSE ) {
-                        $xml->ReturnData->IRSW2[$e]->EmployersUseGrp[$x]->addChild('EmployersUseCd', (string)$this->$code_col );   
-                    }
-                    //Employer&apos;s Use Amount
-                    if ( empty( $this->$amount_col ) == FALSE AND $this->isNumeric($this->$amount_col) ) {
-                        $xml->ReturnData->IRSW2[$e]->EmployersUseGrp[$x]->addChild('EmployersUseAmt', $this->getBeforeDecimal($this->$amount_col) );
-                    }
-                                        
-                    $x++;
-                }
-                
-                //Statutory Employee Ind
-                if ( empty($this->l13a) == FALSE ) {
-                    $xml->ReturnData->IRSW2[$e]->addChild('StatutoryEmployeeInd', 'X'  );
-                }
-                //Retirement Plan Ind
-                if ( empty($this->l13b) == FALSE ) {
-                    $xml->ReturnData->IRSW2[$e]->addChild('RetirementPlanInd', 'X'  );
-                }
-                //Third-Party Sick Pay Ind
-                if ( empty($this->l13c) == FALSE) {
-                    $xml->ReturnData->IRSW2[$e]->addChild('ThirdPartySickPayInd', 'X');
-                }
-                
-                
-                //Other Deducts/Benefits Cd  
-                $x = 0;
-                foreach( range('a', 'd') as $z ) {
-                    $des_col = 'l14'.$z.'_name';
-                    $amount_col = 'l14'.$z;
-                    if ( empty( $this->$des_col ) == FALSE AND empty( $this->$amount_col ) == FALSE  ) {
-                        $xml->ReturnData->IRSW2[$e]->addChild('OtherDeductsBenefits');    
-                        $xml->ReturnData->IRSW2[$e]->OtherDeductsBenefits[$x]->addChild('Description', $this->$des_col );
-                        $xml->ReturnData->IRSW2[$e]->OtherDeductsBenefits[$x]->addChild('Amount', (int)$this->$amount_col );
-                    }
-                    
-                    $x++;                    
-                }
-                
-                
-                //W2 State Local Tax Group                
-                $x = 0;
-                foreach( range('a', 'z') as $z ) {
-                    
-                    $l15_state = 'l15'.$z.'_state';
-                    $l15_state_id = 'l15'.$z.'_state_id';
-                    $l16 = 'l16'.$z;
-                    $l17 = 'l17'.$z;
-                    $l18 = 'l18'.$z;
-                    $l19 = 'l19'.$z;
-                    $l20 = 'l20'.$z;
-                    
-                    if (	empty($this->$l15_state) == FALSE
-                            OR empty($this->$l15_state_id) == FALSE
-                            OR empty($this->$l16) == FALSE
-                            OR empty($this->$l17) == FALSE
-                            OR empty($this->$l18) == FALSE
-                            OR empty($this->$l19) == FALSE
-                            OR empty($this->$l20) == FALSE ) {
-                                
-                                        $xml->ReturnData->IRSW2[$e]->addChild('W2StateLocalTaxGrp');                                
-                                        $xml->ReturnData->IRSW2[$e]->W2StateLocalTaxGrp[$x]->addChild('W2StateTaxGrp');
-                                
-                                
-                    } 
-                    if ( empty($this->$l15_state) == FALSE ) {
-                        //State Abbreviation Code
-                        $xml->ReturnData->IRSW2[$e]->W2StateLocalTaxGrp[$x]->W2StateTaxGrp->addChild('StateAbbreviationCd', $this->$l15_state );
-                    }     
-                    if ( empty($this->$l15_state_id) == FALSE ) {
-                        //Employer&apos;s State ID Number
-                        $xml->ReturnData->IRSW2[$e]->W2StateLocalTaxGrp[$x]->W2StateTaxGrp->addChild('EmployersStateIdNumber', $this->$l15_state_id ); 
-                    }  
-                    if ( empty($this->$l16) == FALSE AND $this->isNumeric($this->$l16) ) {
-                        //State Wages Amount
-                        $xml->ReturnData->IRSW2[$e]->W2StateLocalTaxGrp[$x]->W2StateTaxGrp->addChild('StateWagesAmt', $this->getBeforeDecimal($this->$l16) );
-                    }   
-                    if ( empty( $this->$l17 ) == FALSE AND $this->isNumeric($this->$l17) ) {
-                        //State Income Tax Amount
-                        $xml->ReturnData->IRSW2[$e]->W2StateLocalTaxGrp[$x]->W2StateTaxGrp->addChild('StateIncomeTaxAmt', $this->getBeforeDecimal($this->$l17) );
-                    }
-                    
-                    if ( empty($this->$l18) == FALSE OR empty($this->$l19) == FALSE OR empty($this->$l20) == FALSE ) {
-                        
-                        $xml->ReturnData->IRSW2[$e]->W2StateLocalTaxGrp[$x]->W2StateTaxGrp->addChild('W2LocalTaxGrp');
-                    }  
-                    
-                    if ( empty($this->$l18) == FALSE AND $this->isNumeric($this->$l18) ) {
-                        //Local Wages/Tips Amount
-                        $xml->ReturnData->IRSW2[$e]->W2StateLocalTaxGrp[$x]->W2StateTaxGrp->W2LocalTaxGrp->addChild('LocalWagesAndTipsAmt', $this->getBeforeDecimal($this->$l18) );
-                    }          
-                    if ( empty($this->$l19) == FALSE AND $this->isNumeric($this->$l19) ) {
-                        //Local Income Tax Amount
-                        $xml->ReturnData->IRSW2[$e]->W2StateLocalTaxGrp[$x]->W2StateTaxGrp->W2LocalTaxGrp->addChild('LocalIncomeTaxAmt', $this->getBeforeDecimal($this->$l19) );
-                    }
-                    if ( empty($this->$l20) == FALSE AND $this->isNumeric($this->$l20) ) {
-                        //Name of Locality
-                        $xml->ReturnData->IRSW2[$e]->W2StateLocalTaxGrp[$x]->W2StateTaxGrp->W2LocalTaxGrp->addChild('NameOfLocality', $this->getBeforeDecimal($this->$l20) );
-                    }
-                    
-                    $x++;
-                }
-                
-                
-                //Standard or Non Standard Code
-                $xml->ReturnData->IRSW2[$e]->addChild('StandardOrNonStandardCd', 'S' );      
-                
-                $e++;
-			}                        
-        }
-        
+
+				$xml->ReturnData->addChild('IRSW2');
+
+				$xml->ReturnData->IRSW2[$e]->addAttribute('documentId', $this->control_number); // Must be unique within the return
+
+				//Corrected W2 Indicator
+				$xml->ReturnData->IRSW2[$e]->addChild('CorrectedW2Ind', 'X');
+
+				//Employee SSN
+				if ( empty( $this->ssn ) == FALSE ) {
+					$xml->ReturnData->IRSW2[$e]->addChild('EmployeeSSN', $this->stripNonNumeric( $this->ssn ) );
+				}
+
+				//Employer EIN
+				$xml->ReturnData->IRSW2[$e]->addChild('EmployerEIN', $this->stripNonNumeric( $this->ein ) );
+
+
+				$xml->ReturnData->IRSW2[$e]->addChild('EmployerNameControl', substr( strtoupper( $this->trade_name ), 0, 1 ) );
+
+				//Employer name
+				$xml->ReturnData->IRSW2[$e]->addChild('EmployerName');
+
+				$xml->ReturnData->IRSW2[$e]->EmployerName->addChild('BusinessNameLine1', $this->trade_name );
+				//$xml->EmployerName->addChild('BusinessNameLine2', '' );
+
+				//Employer US address
+				$xml->ReturnData->IRSW2[$e]->addChild('EmployerUSAddress');
+				$xml->ReturnData->IRSW2[$e]->EmployerUSAddress->addChild('AddressLine1', $this->stripNonAlphaNumeric( $this->company_address1 ));
+				$xml->ReturnData->IRSW2[$e]->EmployerUSAddress->addChild('City', $this->company_city );
+				$xml->ReturnData->IRSW2[$e]->EmployerUSAddress->addChild('State', $this->company_state );
+				$xml->ReturnData->IRSW2[$e]->EmployerUSAddress->addChild('ZIPCode', $this->company_zip_code );
+
+				//Employer foreign address
+				/*
+				$xml->ReturnData->IRSW2[$e]->addChild('EmployerForeignAddress');
+				$xml->ReturnData->IRSW2[$e]->EmployerForeignAddress->addChild('AddressLine1', );
+				$xml->ReturnData->IRSW2[$e]->EmployerForeignAddress->addChild('AddressLine2', );
+				$xml->ReturnData->IRSW2[$e]->EmployerForeignAddress->addChild('City', );
+				$xml->ReturnData->IRSW2[$e]->EmployerForeignAddress->addChild('ProvinceOrState', );
+				$xml->ReturnData->IRSW2[$e]->EmployerForeignAddress->addChild('Country', );
+				$xml->ReturnData->IRSW2[$e]->EmployerForeignAddress->addChild('PostalCode', );
+				*/
+				//Control number
+				$xml->ReturnData->IRSW2[$e]->addChild('ControlNumber', $this->control_number );
+
+				//Employee name
+				$xml->ReturnData->IRSW2[$e]->addChild('EmployeeName', $this->first_name.' '.$this->last_name );
+
+				//EmployeeUS address
+				$xml->ReturnData->IRSW2[$e]->addChild('EmployeeUSAddress');
+				$xml->ReturnData->IRSW2[$e]->EmployeeUSAddress->addChild('AddressLine1', $this->stripNonAlphaNumeric($this->address1 ));
+				$xml->ReturnData->IRSW2[$e]->EmployeeUSAddress->addChild('AddressLine2', $this->stripNonAlphaNumeric($this->address2) );
+				$xml->ReturnData->IRSW2[$e]->EmployeeUSAddress->addChild('City', $this->city );
+				$xml->ReturnData->IRSW2[$e]->EmployeeUSAddress->addChild('State', $this->state );
+				$xml->ReturnData->IRSW2[$e]->EmployeeUSAddress->addChild('ZIPCode', $this->zip_code );
+
+				//Employee foreign address
+				/*
+				$xml->ReturnData->IRSW2[$e]->addChild('EmployeeForeignAddress');
+				$xml->ReturnData->IRSW2[$e]->EmployeeForeignAddress->addChild('AddressLine1', );
+				$xml->ReturnData->IRSW2[$e]->EmployeeForeignAddress->addChild('AddressLine2', );
+				$xml->ReturnData->IRSW2[$e]->EmployeeForeignAddress->addChild('City', );
+				$xml->ReturnData->IRSW2[$e]->EmployeeForeignAddress->addChild('ProvinceOrState', );
+				$xml->ReturnData->IRSW2[$e]->EmployeeForeignAddress->addChild('Country', );
+				$xml->ReturnData->IRSW2[$e]->EmployeeForeignAddress->addChild('PostalCode', );
+				*/
+				//Wages amount
+				if ( $this->isNumeric( $this->l1 ) AND $this->l1 >= 0 ) {
+					$xml->ReturnData->IRSW2[$e]->addChild('WagesAmt', $this->getBeforeDecimal( $this->l1 ) );
+				}
+
+				//Withholding amount
+				if ( $this->isNumeric($this->l2) ) {
+					$xml->ReturnData->IRSW2[$e]->addChild('WithholdingAmt', $this->getBeforeDecimal($this->l2) );
+				}
+
+				//Social Security wages amount
+				if ( $this->isNumeric($this->l3) ) {
+					$xml->ReturnData->IRSW2[$e]->addChild('SocialSecurityWagesAmt', $this->getBeforeDecimal($this->l3) );
+				}
+
+				//Social Security tax amount
+				if ( $this->isNumeric($this->l4) ) {
+					$xml->ReturnData->IRSW2[$e]->addChild('SocialSecurityTaxAmt', $this->getBeforeDecimal($this->l4) );
+				}
+
+				//Medicare wages and tips amount
+				if ( $this->isNumeric($this->l5) ) {
+					$xml->ReturnData->IRSW2[$e]->addChild('MedicareWagesAndTipsAmt', $this->getBeforeDecimal($this->l5) );
+				}
+				//Medicare tax withheld amount
+				if ( $this->isNumeric($this->l6) ) {
+					$xml->ReturnData->IRSW2[$e]->addChild('MedicareTaxWithheldAmt', $this->getBeforeDecimal($this->l6) );
+				}
+
+				//Social security tips amount
+				if ($this->isNumeric($this->l7 )){
+					$xml->ReturnData->IRSW2[$e]->addChild('SocialSecurityTipsAmt', $this->getBeforeDecimal($this->l7 ));
+				}
+
+				//Allocated tips amount
+				if ( $this->isNumeric($this->l8) ) {
+					$xml->ReturnData->IRSW2[$e]->addChild('AllocatedTipsAmt', $this->getBeforeDecimal($this->l8) );
+				}
+
+				//Dependent care benefits amount
+				if ( $this->isNumeric($this->l10) ) {
+					$xml->ReturnData->IRSW2[$e]->addChild('DependentCareBenefitsAmt', $this->getBeforeDecimal($this->l10) );
+				}
+
+				//Nonqualified plans amount
+				if ( $this->isNumeric($this->l11) ) {
+					$xml->ReturnData->IRSW2[$e]->addChild('NonqualifiedPlansAmt', $this->getBeforeDecimal($this->l11) );
+				}
+
+				$x = 0;
+				foreach( range('a', 'd') as $z ) {
+					$code_col = 'l12'.$z.'_code';
+					$amount_col = 'l12'.$z;
+					if ( empty( $this->$code_col ) == FALSE OR empty( $this->$amount_col ) == FALSE ) {
+						$xml->ReturnData->IRSW2[$e]->addChild('EmployersUseGrp');
+					}
+					//Employer&apos;s Use Code
+					if ( empty( $this->$code_col ) == FALSE ) {
+						$xml->ReturnData->IRSW2[$e]->EmployersUseGrp[$x]->addChild('EmployersUseCd', (string)$this->$code_col );
+					}
+					//Employer&apos;s Use Amount
+					if ( empty( $this->$amount_col ) == FALSE AND $this->isNumeric($this->$amount_col) ) {
+						$xml->ReturnData->IRSW2[$e]->EmployersUseGrp[$x]->addChild('EmployersUseAmt', $this->getBeforeDecimal($this->$amount_col) );
+					}
+
+					$x++;
+				}
+
+				//Statutory Employee Ind
+				if ( empty($this->l13a) == FALSE ) {
+					$xml->ReturnData->IRSW2[$e]->addChild('StatutoryEmployeeInd', 'X' );
+				}
+				//Retirement Plan Ind
+				if ( empty($this->l13b) == FALSE ) {
+					$xml->ReturnData->IRSW2[$e]->addChild('RetirementPlanInd', 'X' );
+				}
+				//Third-Party Sick Pay Ind
+				if ( empty($this->l13c) == FALSE) {
+					$xml->ReturnData->IRSW2[$e]->addChild('ThirdPartySickPayInd', 'X');
+				}
+
+
+				//Other Deducts/Benefits Cd
+				$x = 0;
+				foreach( range('a', 'd') as $z ) {
+					$des_col = 'l14'.$z.'_name';
+					$amount_col = 'l14'.$z;
+					if ( empty( $this->$des_col ) == FALSE AND empty( $this->$amount_col ) == FALSE  ) {
+						$xml->ReturnData->IRSW2[$e]->addChild('OtherDeductsBenefits');
+						$xml->ReturnData->IRSW2[$e]->OtherDeductsBenefits[$x]->addChild('Description', $this->$des_col );
+						$xml->ReturnData->IRSW2[$e]->OtherDeductsBenefits[$x]->addChild('Amount', (int)$this->$amount_col );
+					}
+
+					$x++;
+				}
+
+
+				//W2 State Local Tax Group
+				$x = 0;
+				foreach( range('a', 'z') as $z ) {
+
+					$l15_state = 'l15'.$z.'_state';
+					$l15_state_id = 'l15'.$z.'_state_id';
+					$l16 = 'l16'.$z;
+					$l17 = 'l17'.$z;
+					$l18 = 'l18'.$z;
+					$l19 = 'l19'.$z;
+					$l20 = 'l20'.$z;
+
+					if (	empty($this->$l15_state) == FALSE
+							OR empty($this->$l15_state_id) == FALSE
+							OR empty($this->$l16) == FALSE
+							OR empty($this->$l17) == FALSE
+							OR empty($this->$l18) == FALSE
+							OR empty($this->$l19) == FALSE
+							OR empty($this->$l20) == FALSE ) {
+
+										$xml->ReturnData->IRSW2[$e]->addChild('W2StateLocalTaxGrp');
+										$xml->ReturnData->IRSW2[$e]->W2StateLocalTaxGrp[$x]->addChild('W2StateTaxGrp');
+
+
+					}
+					if ( empty($this->$l15_state) == FALSE ) {
+						//State Abbreviation Code
+						$xml->ReturnData->IRSW2[$e]->W2StateLocalTaxGrp[$x]->W2StateTaxGrp->addChild('StateAbbreviationCd', $this->$l15_state );
+					}
+					if ( empty($this->$l15_state_id) == FALSE ) {
+						//Employer&apos;s State ID Number
+						$xml->ReturnData->IRSW2[$e]->W2StateLocalTaxGrp[$x]->W2StateTaxGrp->addChild('EmployersStateIdNumber', $this->$l15_state_id );
+					}
+					if ( empty($this->$l16) == FALSE AND $this->isNumeric($this->$l16) ) {
+						//State Wages Amount
+						$xml->ReturnData->IRSW2[$e]->W2StateLocalTaxGrp[$x]->W2StateTaxGrp->addChild('StateWagesAmt', $this->getBeforeDecimal($this->$l16) );
+					}
+					if ( empty( $this->$l17 ) == FALSE AND $this->isNumeric($this->$l17) ) {
+						//State Income Tax Amount
+						$xml->ReturnData->IRSW2[$e]->W2StateLocalTaxGrp[$x]->W2StateTaxGrp->addChild('StateIncomeTaxAmt', $this->getBeforeDecimal($this->$l17) );
+					}
+
+					if ( empty($this->$l18) == FALSE OR empty($this->$l19) == FALSE OR empty($this->$l20) == FALSE ) {
+
+						$xml->ReturnData->IRSW2[$e]->W2StateLocalTaxGrp[$x]->W2StateTaxGrp->addChild('W2LocalTaxGrp');
+					}
+
+					if ( empty($this->$l18) == FALSE AND $this->isNumeric($this->$l18) ) {
+						//Local Wages/Tips Amount
+						$xml->ReturnData->IRSW2[$e]->W2StateLocalTaxGrp[$x]->W2StateTaxGrp->W2LocalTaxGrp->addChild('LocalWagesAndTipsAmt', $this->getBeforeDecimal($this->$l18) );
+					}
+					if ( empty($this->$l19) == FALSE AND $this->isNumeric($this->$l19) ) {
+						//Local Income Tax Amount
+						$xml->ReturnData->IRSW2[$e]->W2StateLocalTaxGrp[$x]->W2StateTaxGrp->W2LocalTaxGrp->addChild('LocalIncomeTaxAmt', $this->getBeforeDecimal($this->$l19) );
+					}
+					if ( empty($this->$l20) == FALSE AND $this->isNumeric($this->$l20) ) {
+						//Name of Locality
+						$xml->ReturnData->IRSW2[$e]->W2StateLocalTaxGrp[$x]->W2StateTaxGrp->W2LocalTaxGrp->addChild('NameOfLocality', $this->getBeforeDecimal($this->$l20) );
+					}
+
+					$x++;
+				}
+
+				//Standard or Non Standard Code
+				$xml->ReturnData->IRSW2[$e]->addChild('StandardOrNonStandardCd', 'S' );
+
+				$e++;
+			}
+		}
+
 		return TRUE;
 	}
-    
-    
-    
-    
 }
 ?>

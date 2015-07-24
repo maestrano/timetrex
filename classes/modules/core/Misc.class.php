@@ -1124,14 +1124,14 @@ class Misc {
 		return $arr;
 	}
 	
-	static function getMimeType( $file_name, $buffer = FALSE, $keep_charset = FALSE ) {
+	static function getMimeType( $file_name, $buffer = FALSE, $keep_charset = FALSE, $unknown_type = 'application/octet-stream' ) {
 		if ( function_exists('finfo_buffer') ) { //finfo extension in PHP v5.3+
 			if ( $buffer == FALSE AND file_exists( $file_name ) ) {
 				//Its a filename passed in.
 				$finfo = finfo_open(FILEINFO_MIME_TYPE); // return mime type ala mimetype extension
 				$retval = finfo_file($finfo, $file_name );
 				finfo_close($finfo);
-			} elseif ( $buffer = TRUE AND $file_name != '' ) {
+			} elseif ( $buffer == TRUE AND $file_name != '' ) {
 				//Its a string buffer;
 				$finfo = new finfo( FILEINFO_MIME );
 				$retval = $finfo->buffer( $file_name );
@@ -1148,22 +1148,27 @@ class Misc {
 				return $retval;
 			}
 		} else {
-			//Attempt to detect mime type manually when finfo extension is not installed (windows)
+			//Attempt to detect mime type with PEAR MIME class.
 			if ( $buffer == FALSE AND file_exists( $file_name ) ) {
-				$extension = strtolower( pathinfo($file_name, PATHINFO_EXTENSION) );
-				switch( $extension ) {
-					case 'jpg':
-						$retval = 'image/jpeg';
-						break;
-					case 'png':
-						$retval = 'image/png';
-						break;
-					case 'gif':
-						$retval = 'image/gif';
-						break;
-					default:
-						$retval = FALSE;
-						break;
+				require_once( Environment::getBasePath() .'/classes/pear/MIME/Type.php');
+				$retval = MIME_Type::autoDetect( $file_name );
+				if ( is_object($retval) ) { //MimeType failed.
+					//Attempt to detect mime type manually when finfo extension and PEAR Mime Type is not installed (windows)
+					$extension = strtolower( pathinfo($file_name, PATHINFO_EXTENSION) );
+					switch( $extension ) {
+						case 'jpg':
+							$retval = 'image/jpeg';
+							break;
+						case 'png':
+							$retval = 'image/png';
+							break;
+						case 'gif':
+							$retval = 'image/gif';
+							break;
+						default:
+							$retval = $unknown_type;
+							break;
+					}
 				}
 
 				return $retval;
@@ -1229,20 +1234,22 @@ class Misc {
 
 		$i = 1;
 		while ( ($data = fgetcsv($handle, $len, $delim) ) !== FALSE) {
-			if ( $head AND isset($header) ) {
-				foreach ($header as $key => $heading) {
-					$row[trim($heading)] = ( isset($data[$key]) ) ? $data[$key] : '';
+			if ( $data !== array( NULL ) ) { // ignore blank lines
+				if ( $head AND isset($header) ) {
+					foreach ($header as $key => $heading) {
+						$row[trim($heading)] = ( isset($data[$key]) ) ? $data[$key] : '';
+					}
+					$return[] = $row;
+				} else {
+					$return[] = $data;
 				}
-				$return[] = $row;
-			} else {
-				$return[] = $data;
-			}
 
-			if ( $max_lines !== NULL AND $max_lines != '' AND $i == $max_lines ) {
-				break;
-			}
+				if ( $max_lines !== NULL AND $max_lines != '' AND $i == $max_lines ) {
+					break;
+				}
 
-			$i++;
+				$i++;
+			}
 		}
 
 		fclose($handle);
@@ -1457,13 +1464,13 @@ class Misc {
 					Debug::Text( 'Web Server Hostname: '. $host_name .' does not match .ini specified hostname: '. $config_vars['other']['hostname'] .' Redirect: '. $redirect_url, __FILE__, __LINE__, __METHOD__, 10);
 
 					$rl = TTNew('RateLimit');
-					$rl->setID( 'authentication_'.$_SERVER['REMOTE_ADDR'] );
+					$rl->setID( 'authentication_'. Misc::getRemoteIPAddress() );
 					$rl->setAllowedCalls( 5 );
 					$rl->setTimeFrame( 60 ); //1 minute
 
 					sleep(1); //Help prevent fast redirect loops.
 					if ( $rl->check() == FALSE ) {
-						Debug::Text('ERROR: Excessive redirects... sending to down for maintenance page to stop the loop: '. $_SERVER['REMOTE_ADDR'] .' for up to 1 minutes...', __FILE__, __LINE__, __METHOD__, 10);
+						Debug::Text('ERROR: Excessive redirects... sending to down for maintenance page to stop the loop: '. Misc::getRemoteIPAddress() .' for up to 1 minutes...', __FILE__, __LINE__, __METHOD__, 10);
 						Redirect::Page( URLBuilder::getURL( array('exception' => 'domain_redirect_loop' ), Environment::getBaseURL().'DownForMaintenance.php') );
 					} else {
 						Redirect::Page( URLBuilder::getURL( NULL, $redirect_url ) );
@@ -1576,6 +1583,28 @@ class Misc {
 		}
 
 		return $server_domain;
+	}
+
+	static function parseDatabaseHostString( $database_host_string ) {
+		$retarr = array();
+
+		$db_hosts = explode(',', $database_host_string );
+		if ( is_array($db_hosts) ) {
+			$i = 0;
+			foreach( $db_hosts as $db_host ) {
+				$db_host_split = explode( '#', $db_host );
+
+				$db_host = $db_host_split[0];
+				$weight = ( isset($db_host_split[1]) ) ? $db_host_split[1] : 1;
+
+				$retarr[] = array( $db_host, ( $i == 0 ) ? 'master' : 'slave', $weight );
+
+				$i++;
+			}
+		}
+
+		//Debug::Arr( $retarr,  'Parsed Database Connections: ', __FILE__, __LINE__, __METHOD__, 1);
+		return $retarr;
 	}
 
 	static function isOpenPort( $address, $port = 80, $timeout = 3 ) {
@@ -1880,11 +1909,11 @@ class Misc {
 				}
 
 				Debug::Text(' Memory Info: Free: '. $mem_free .'b Cached: '. $mem_cached .'b', __FILE__, __LINE__, __METHOD__, 10);
-				return ( $mem_free + $mem_cached );
+				return ( $mem_free + ( $mem_cached * ( 3 / 4 ) ) ); //Only allow up to 3/4 of cached memory to be used.
 			}
 		}
 
-		return 999999999; //If not linux, return large number, this is in KB.
+		return 2147483647; //If not linux, return large number, this is in Bytes.
 	}
 	
 	static function getSystemLoad() {
@@ -2261,7 +2290,7 @@ class Misc {
 		//					'key1' => 0.505,
 		//					'key2' => 0.495,
 		//);
-		if ( is_array($percent_arr) ) {
+		if ( is_array($percent_arr) AND count($percent_arr) > 0 ) {
 			$total = 0;
 			foreach( $percent_arr as $key => $distribution_percent ) {
 				$distribution_amount = bcmul( $amount, $distribution_percent, $precision );
@@ -2329,8 +2358,30 @@ class Misc {
 		return TRUE;
 	}
 
+	static function getRemoteIPAddress() {
+		global $config_vars;
+
+		if ( isset($config_vars['other']['proxy_ip_address_header_name']) AND $config_vars['other']['proxy_ip_address_header_name'] != '' ) {
+			$header_name = $config_vars['other']['proxy_ip_address_header_name'];
+		}
+
+		if ( isset($header_name) AND isset($_SERVER[$header_name]) AND $_SERVER[$header_name] != ''  ) {
+			//Debug::text('Remote IP: '. $_SERVER['REMOTE_ADDR'] .' Behind Proxy IP: '. $_SERVER[$header_name], __FILE__, __LINE__, __METHOD__, 10);
+			return $_SERVER[$header_name];
+		} elseif( isset($_SERVER['REMOTE_ADDR']) ) {
+			//Debug::text('Remote IP: '. $_SERVER['REMOTE_ADDR'], __FILE__, __LINE__, __METHOD__, 10);
+			return $_SERVER['REMOTE_ADDR'];
+		}
+
+		return FALSE;
+	}
+
 	static function isSSL( $ignore_force_ssl = FALSE ) {
 		global $config_vars;
+
+		if ( isset($config_vars['other']['proxy_protocol_header_name']) AND $config_vars['other']['proxy_protocol_header_name'] != '' ) {
+			$header_name = $config_vars['other']['proxy_protocol_header_name']; //'HTTP_X_FORWARDED_PROTO'; //X-Forwarded-Proto;
+		}
 		
 		//ignore_force_ssl is used for things like cookies where we need to determine if SSL is *currently* in use, vs. if we want it to be used or not.
 		if ( $ignore_force_ssl == FALSE AND isset($config_vars['other']['force_ssl']) AND ( $config_vars['other']['force_ssl'] == TRUE ) ) {
@@ -2339,7 +2390,7 @@ class Misc {
 					( isset($_SERVER['HTTPS']) AND ( strtolower($_SERVER['HTTPS']) == 'on' OR $_SERVER['HTTPS'] == '1' ) )
 					OR
 					//Handle load balancer/proxy forwarding with SSL offloading.
-					( isset($_SERVER['X-Forwarded-Proto']) AND strtolower($_SERVER['X-Forwarded-Proto']) == 'https'  )
+					( isset($header_name) AND isset($_SERVER[$header_name]) AND strtolower($_SERVER[$header_name]) == 'https'  )
 				) {
 			return TRUE;
 		} elseif ( isset($_SERVER['SERVER_PORT']) AND ( $_SERVER['SERVER_PORT'] == '443' ) ) {
@@ -2396,7 +2447,7 @@ class Misc {
 	}
 
 	//Returns TRUE/FALSE if the identifier is within the staged rollout period. 
-	function getStagedRollout( $identifier, $original_release_date, $max_rollout_days = 10, $force = FALSE ) {
+	static function getStagedRollout( $identifier, $original_release_date, $max_rollout_days = 10, $force = FALSE ) {
 		//Divide the max_rollout_days into 5 brackets.
 		//In the first 20% of the rollout period, update 1% of the customers.
 		//In the next 20% of the rollout period, update 25% of the customers.
@@ -2494,6 +2545,23 @@ class Misc {
 		}
 		
 		return implode("\n", $retarr );
+	}
+
+	static function getUniqueID() {
+		global $config_vars;
+		if ( isset($config_vars['other']['salt']) AND $config_vars['other']['salt'] != '' ) {
+			$salt = $config_vars['other']['salt'];
+		} else {
+			$salt = uniqid( dechex( mt_rand() ), TRUE );
+		}
+
+		if ( function_exists('mcrypt_create_iv') ) {
+			$retval = $salt . bin2hex( mcrypt_create_iv( 128, MCRYPT_DEV_URANDOM ) ); //Use URANDOM as it wont block if there isn't enough entropy.
+		} else {
+			$retval = uniqid( $salt . dechex( mt_rand() ), TRUE );
+		}
+	
+		return $retval;
 	}
 }
 ?>

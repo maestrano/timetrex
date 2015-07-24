@@ -362,12 +362,24 @@ class SetupPresets extends Factory {
 														'credit_account' => 2230,
 													)
 												);
+
 					$this->createPayStubAccount(
 													array(
 														'company_id' => $this->getCompany(),
 														'status_id' => 10,
 														'type_id' => 10,
 														'name' => 'Vacation',
+														'ps_order' => 181,
+														'debit_account' => 5410,
+														'credit_account' => '',
+													)
+												);
+					$this->createPayStubAccount(
+													array(
+														'company_id' => $this->getCompany(),
+														'status_id' => 10,
+														'type_id' => 10,
+														'name' => 'Paid Time Off (PTO)',
 														'ps_order' => 181,
 														'debit_account' => 5410,
 														'credit_account' => '',
@@ -404,6 +416,8 @@ class SetupPresets extends Factory {
 														'type_id' => 10,
 														'name' => 'Vacation',
 														'ps_order' => 181,
+														'debit_account' => 5410,
+														'credit_account' => '',
 													)
 												);
 					break;
@@ -5630,7 +5644,7 @@ class SetupPresets extends Factory {
 														'name' => strtoupper($country) .' - Holiday',
 														'type_id' => 180, //Holiday
 														'trigger_time' => 0, //0hrs
-														'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + Meal + Break' ),
+														'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time' ), //Don't include Meak/Break time as its already included in Regular Time by default.
 														'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'OverTime (1.5x)' ) ),
 													)
 												);
@@ -5643,7 +5657,7 @@ class SetupPresets extends Factory {
 														'name' => strtoupper($country) .' - Daily >8hrs',
 														'type_id' => 10, //Daily
 														'trigger_time' => (8 * 3600), //8hrs
-														'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + Meal + Break' ),
+														'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time' ),
 														'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'OverTime (1.5x)' ) ),
 													)
 												);
@@ -5653,7 +5667,7 @@ class SetupPresets extends Factory {
 														'name' => strtoupper($country) .' - Weekly >40hrs',
 														'type_id' => 20, //Weekly
 														'trigger_time' => ( 40 * 3600 ), //40hrs
-														'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + Meal + Break' ),
+														'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time' ),
 														'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'OverTime (1.5x)' ) ),
 													)
 												);
@@ -5663,7 +5677,7 @@ class SetupPresets extends Factory {
 														'name' => strtoupper($country) .' - Holiday',
 														'type_id' => 180, //Holiday
 														'trigger_time' => 0, //0hrs
-														'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + Meal + Break' ),
+														'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time' ),
 														'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'OverTime (1.5x)' ) ),
 													)
 												);
@@ -5681,7 +5695,7 @@ class SetupPresets extends Factory {
 													'name' => strtoupper($province) .' - Daily >8hrs',
 													'type_id' => 10, //Daily
 													'trigger_time' => ( 8 * 3600 ), //8hrs
-													'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + Meal + Break' ),
+													'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time' ),
 													'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'OverTime (1.5x)' ) ),
 												)
 											);
@@ -5693,7 +5707,7 @@ class SetupPresets extends Factory {
 													'name' => strtoupper($province) .' - Daily >12hrs',
 													'type_id' => 10, //Daily
 													'trigger_time' => ( 12 * 3600 ), //8hrs
-													'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + Meal + Break' ),
+													'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time' ),
 													'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'OverTime (2.0x)' ) ),
 												)
 											);
@@ -5706,7 +5720,7 @@ class SetupPresets extends Factory {
 													'name' => strtoupper($province) .' - Weekly >40hrs',
 													'type_id' => 20, //Weekly
 													'trigger_time' => ( 40 * 3600 ), //40hrs
-													'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + Meal + Break' ),
+													'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time' ),
 													'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'OverTime (1.5x)' ) ),
 												)
 											);
@@ -5718,7 +5732,7 @@ class SetupPresets extends Factory {
 													'name' => strtoupper($province) .' - Weekly >44hrs',
 													'type_id' => 20, //Weekly
 													'trigger_time' => ( 44 * 3600 ), //44hrs
-													'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + Meal + Break' ),
+													'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time' ),
 													'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'OverTime (1.5x)' ) ),
 												)
 											);
@@ -5730,7 +5744,7 @@ class SetupPresets extends Factory {
 													'name' => strtoupper($province) .' - Weekly >48hrs',
 													'type_id' => 20, //Weekly
 													'trigger_time' => ( 48 * 3600 ), //48hrs
-													'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + Meal + Break' ),
+													'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time' ),
 													'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'OverTime (1.5x)' ) ),
 												)
 											);
@@ -5747,7 +5761,7 @@ class SetupPresets extends Factory {
 													'name' => strtoupper($province) .' - Daily >8hrs',
 													'type_id' => 10, //Daily
 													'trigger_time' => ( 8 * 3600 ), //8hrs
-													'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + Meal + Break' ),
+													'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time' ),
 													'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'OverTime (1.5x)' ) ),
 												)
 											);
@@ -5760,7 +5774,7 @@ class SetupPresets extends Factory {
 													'name' => strtoupper($province) .' - Daily >12hrs',
 													'type_id' => 10, //Daily
 													'trigger_time' => ( 12 * 3600 ), //12hrs
-													'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + Meal + Break' ),
+													'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time' ),
 													'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'OverTime (2.0x)' ) ),
 												)
 											);
@@ -5773,7 +5787,7 @@ class SetupPresets extends Factory {
 													'name' => strtoupper($province) .' - 7th Consecutive Day',
 													'type_id' => 155, //Daily
 													'trigger_time' => ( 0 * 3600 ), //0hrs
-													'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + Meal + Break' ),
+													'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT' ),
 													'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'OverTime (1.5x)' ) ),
 												)
 											);
@@ -5786,7 +5800,7 @@ class SetupPresets extends Factory {
 													'name' => strtoupper($province) .' - 7th Consecutive Day >8hrs',
 													'type_id' => 155, //Daily
 													'trigger_time' => ( 8 * 3600 ), //0hrs
-													'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + Meal + Break' ),
+													'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT' ),
 													'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'OverTime (2.0x)' ) ),
 												)
 											);
@@ -5800,7 +5814,7 @@ class SetupPresets extends Factory {
 													'name' => strtoupper($province) .' - Weekly >48hrs',
 													'type_id' => 20, //Weekly
 													'trigger_time' => ( 48 * 3600 ), //40hrs
-													'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + Meal + Break' ),
+													'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time' ),
 													'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'OverTime (1.5x)' ) ),
 												)
 											);
@@ -5811,7 +5825,7 @@ class SetupPresets extends Factory {
 													'name' => strtoupper($province) .' - Weekly >46hrs',
 													'type_id' => 20, //Weekly
 													'trigger_time' => ( 46 * 3600 ), //40hrs
-													'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + Meal + Break' ),
+													'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time' ),
 													'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'OverTime (1.5x)' ) ),
 												)
 											);
@@ -5823,7 +5837,7 @@ class SetupPresets extends Factory {
 													'name' => strtoupper($province) .' - Weekly >40hrs',
 													'type_id' => 20, //Weekly
 													'trigger_time' => ( 40 * 3600 ), //40hrs
-													'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + Meal + Break' ),
+													'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time' ),
 													'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'OverTime (1.5x)' ) ),
 												)
 											);
@@ -6160,24 +6174,37 @@ class SetupPresets extends Factory {
 
 			switch ($country) {
 				case 'ca':
+					$this->createAccrualPolicyAccount(
+												array(
+													'company_id' => $this->getCompany(),
+													'name' => 'Vacation',
+													'enable_pay_stub_balance_display' => TRUE,
+												)
+											);
+
+					$this->createAccrualPolicyAccount(
+												array(
+													'company_id' => $this->getCompany(),
+													'name' => 'Sick',
+													'enable_pay_stub_balance_display' => TRUE,
+												)
+											);
+
 					break;
 				case 'us':
 					//Vacation
-					$accrual_policy_account_id = $this->createAccrualPolicyAccount(
+					$this->createAccrualPolicyAccount(
 												array(
 													'company_id' => $this->getCompany(),
 													'name' => 'Paid Time Off (PTO)',
 													'enable_pay_stub_balance_display' => TRUE,
 												)
 											);
-					if ( $accrual_policy_account_id == FALSE ) {
-						$accrual_policy_account_id = $this->getAccrualPolicyAccountByCompanyIDAndName( 'Paid Time Off (PTO)' );
-					}
 
 					$accrual_policy_id = $this->createAccrualPolicy(
 												array(
 													'company_id' => $this->getCompany(),
-													'accrual_policy_account_id' => $accrual_policy_account_id,
+													'accrual_policy_account_id' => $this->getAccrualPolicyAccountByCompanyIDAndName( 'Paid Time Off (PTO)' ),
 													'name' => 'Paid Time Off (PTO)',
 													'type_id' => 20, //Calendar
 													'apply_frequency_id' => 10, //Each pay period.
@@ -6208,26 +6235,20 @@ class SetupPresets extends Factory {
 													)
 												);
 					}
-					unset($accrual_policy_account_id, $accrual_policy_id);
-					
-					break;
-				default:
+
 					//Vacation
-					$accrual_policy_account_id = $this->createAccrualPolicyAccount(
+					$this->createAccrualPolicyAccount(
 												array(
 													'company_id' => $this->getCompany(),
 													'name' => 'Vacation',
 													'enable_pay_stub_balance_display' => TRUE,
 												)
 											);
-					if ( $accrual_policy_account_id == FALSE ) {
-						$accrual_policy_account_id = $this->getAccrualPolicyAccountByCompanyIDAndName( 'Vacation' );
-					}
 
 					$accrual_policy_id = $this->createAccrualPolicy(
 												array(
 													'company_id' => $this->getCompany(),
-													'accrual_policy_account_id' => $accrual_policy_account_id,
+													'accrual_policy_account_id' => $this->getAccrualPolicyAccountByCompanyIDAndName( 'Vacation' ),
 													'name' => 'Vacation',
 													'type_id' => 20, //Calendar
 													'apply_frequency_id' => 10, //Each pay period.
@@ -6261,21 +6282,109 @@ class SetupPresets extends Factory {
 					unset($accrual_policy_account_id, $accrual_policy_id);
 
 					//Sick
-					$accrual_policy_account_id = $this->createAccrualPolicyAccount(
+					$this->createAccrualPolicyAccount(
 												array(
 													'company_id' => $this->getCompany(),
 													'name' => 'Sick',
 													'enable_pay_stub_balance_display' => TRUE,
 												)
 											);
-					if ( $accrual_policy_account_id == FALSE ) {
-						$accrual_policy_account_id = $this->getAccrualPolicyAccountByCompanyIDAndName( 'Sick' );
-					}
 
 					$accrual_policy_id = $this->createAccrualPolicy(
 												array(
 													'company_id' => $this->getCompany(),
-													'accrual_policy_account_id' => $accrual_policy_account_id,
+													'accrual_policy_account_id' => $this->getAccrualPolicyAccountByCompanyIDAndName( 'Sick' ),
+													'name' => 'Sick',
+													'type_id' => 20, //Calendar
+													'apply_frequency_id' => 10, //Each pay period.
+													'milestone_rollover_hire_date' => TRUE,
+													'minimum_employed_days' => 0,
+												)
+											);
+					if ( $accrual_policy_id > 0 ) {
+						$this->createAccrualPolicyMilestone(
+													array(
+														'accrual_policy_id' => $accrual_policy_id,
+														'length_of_service' => 0,
+														'length_of_service_unit_id' => 40, //Years
+														'accrual_rate' => ( 0 * 3600 ),
+														'maximum_time' => ( 0 * 3600 ),
+														'rollover_time' => ( 9999 * 3600 ),
+													)
+												);
+						$this->createAccrualPolicyMilestone(
+													array(
+														'accrual_policy_id' => $accrual_policy_id,
+														'length_of_service' => 5,
+														'length_of_service_unit_id' => 40, //Years
+														'accrual_rate' => ( 0 * 3600 ),
+														'maximum_time' => ( 0 * 3600 ),
+														'rollover_time' => ( 9999 * 3600 ),
+													)
+												);
+					}
+					unset($accrual_policy_account_id, $accrual_policy_id);
+					
+					break;
+				default:
+					//Vacation
+					$this->createAccrualPolicyAccount(
+												array(
+													'company_id' => $this->getCompany(),
+													'name' => 'Vacation',
+													'enable_pay_stub_balance_display' => TRUE,
+												)
+											);
+
+					$accrual_policy_id = $this->createAccrualPolicy(
+												array(
+													'company_id' => $this->getCompany(),
+													'accrual_policy_account_id' => $this->getAccrualPolicyAccountByCompanyIDAndName( 'Vacation' ),
+													'name' => 'Vacation',
+													'type_id' => 20, //Calendar
+													'apply_frequency_id' => 10, //Each pay period.
+													'milestone_rollover_hire_date' => TRUE,
+													'minimum_employed_days' => 0,
+												)
+											);
+
+					if ( $accrual_policy_id > 0 ) {
+						$this->createAccrualPolicyMilestone(
+													array(
+														'accrual_policy_id' => $accrual_policy_id,
+														'length_of_service' => 0,
+														'length_of_service_unit_id' => 40, //Years
+														'accrual_rate' => ( 0 * 3600 ),
+														'maximum_time' => ( 0 * 3600 ),
+														'rollover_time' => ( 9999 * 3600 ),
+													)
+												);
+						$this->createAccrualPolicyMilestone(
+													array(
+														'accrual_policy_id' => $accrual_policy_id,
+														'length_of_service' => 5,
+														'length_of_service_unit_id' => 40, //Years
+														'accrual_rate' => ( 0 * 3600 ),
+														'maximum_time' => ( 0 * 3600 ),
+														'rollover_time' => ( 9999 * 3600 ),
+													)
+												);
+					}
+					unset($accrual_policy_account_id, $accrual_policy_id);
+
+					//Sick
+					$this->createAccrualPolicyAccount(
+												array(
+													'company_id' => $this->getCompany(),
+													'name' => 'Sick',
+													'enable_pay_stub_balance_display' => TRUE,
+												)
+											);
+
+					$accrual_policy_id = $this->createAccrualPolicy(
+												array(
+													'company_id' => $this->getCompany(),
+													'accrual_policy_account_id' => $this->getAccrualPolicyAccountByCompanyIDAndName( 'Sick' ),
 													'name' => 'Sick',
 													'type_id' => 20, //Calendar
 													'apply_frequency_id' => 10, //Each pay period.
@@ -6315,21 +6424,10 @@ class SetupPresets extends Factory {
 		if ( $country == 'ca' AND $province != '' ) {
 			Debug::text('Province: '. $province, __FILE__, __LINE__, __METHOD__, 10);
 
-			$accrual_policy_account_id = $this->createAccrualPolicyAccount(
-										array(
-											'company_id' => $this->getCompany(),
-											'name' => 'Vacation',
-											'enable_pay_stub_balance_display' => TRUE,
-										)
-									);
-			if ( $accrual_policy_account_id == FALSE ) {
-				$accrual_policy_account_id = $this->getAccrualPolicyAccountByCompanyIDAndName( 'Vacation' );
-			}
-
 			$accrual_policy_id = $this->createAccrualPolicy(
 										array(
 											'company_id' => $this->getCompany(),
-											'accrual_policy_account_id' => $accrual_policy_account_id,
+											'accrual_policy_account_id' => $this->getAccrualPolicyAccountByCompanyIDAndName( 'Vacation' ),
 											'name' => strtoupper($province) .' - Vacation',
 											'type_id' => 20, //Calendar
 											'apply_frequency_id' => 10, //Each pay period.
@@ -6461,23 +6559,10 @@ class SetupPresets extends Factory {
 			}
 			unset($accrual_policy_account_id);
 
-
-			//Sick
-			$accrual_policy_account_id = $this->createAccrualPolicyAccount(
-										array(
-											'company_id' => $this->getCompany(),
-											'name' => 'Sick',
-											'enable_pay_stub_balance_display' => TRUE,
-										)
-									);
-			if ( $accrual_policy_account_id == FALSE ) {
-				$accrual_policy_account_id = $this->getAccrualPolicyAccountByCompanyIDAndName( 'Sick' );
-			}
-
 			$accrual_policy_id = $this->createAccrualPolicy(
 										array(
 											'company_id' => $this->getCompany(),
-											'accrual_policy_account_id' => $accrual_policy_account_id,
+											'accrual_policy_account_id' => $this->getAccrualPolicyAccountByCompanyIDAndName( 'Sick' ),
 											'name' => 'Sick',
 											'type_id' => 20, //Calendar
 											'apply_frequency_id' => 10, //Each pay period.
@@ -6546,6 +6631,37 @@ class SetupPresets extends Factory {
 	function AbsencePolicy( $country = NULL, $province = NULL, $district = NULL, $industry = NULL ) {
 		Debug::text('Country: '. $country, __FILE__, __LINE__, __METHOD__, 10);
 		if ( $country != '' AND $province == '' ) {
+
+			$this->createAbsencePolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Jury Duty',
+											'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'Jury Duty' ) ),
+										)
+									);
+			$this->createAbsencePolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Bereavement',
+											'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'Bereavement' ) ),
+										)
+									);
+
+			$this->createAbsencePolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Statutory Holiday',
+											'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'Statutory Holiday' ) )
+										)
+									);
+			$this->createAbsencePolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Time Bank (Withdrawal)',
+											'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'Time Bank (Withdrawal)' ) )
+										)
+									);
+
 			$this->createAbsencePolicy(
 										array(
 											'company_id' => $this->getCompany(),
@@ -6577,36 +6693,15 @@ class SetupPresets extends Factory {
 										)
 									);
 
-			$this->createAbsencePolicy(
-										array(
-											'company_id' => $this->getCompany(),
-											'name' => 'Jury Duty',
-											'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'Jury Duty' ) ),
-										)
-									);
-			$this->createAbsencePolicy(
-										array(
-											'company_id' => $this->getCompany(),
-											'name' => 'Bereavement',
-											'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'Bereavement' ) ),
-										)
-									);
-
-			$this->createAbsencePolicy(
-										array(
-											'company_id' => $this->getCompany(),
-											'name' => 'Statutory Holiday',
-											'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'Statutory Holiday' ) )
-										)
-									);
-			$this->createAbsencePolicy(
-										array(
-											'company_id' => $this->getCompany(),
-											'name' => 'Time Bank (Withdrawal)',
-											'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'Time Bank' ) )
-										)
-									);
-
+			if ( $country == 'us' ) {
+				$this->createAbsencePolicy(
+											array(
+												'company_id' => $this->getCompany(),
+												'name' => 'Paid Time Off (PTO)',
+												'pay_code_id' => current( $this->getPayCodeByCompanyIDAndName( 'Paid Time Off (PTO)' ) )
+											)
+										);
+			} 
 		}
 		
 		return TRUE;
@@ -6694,7 +6789,7 @@ class SetupPresets extends Factory {
 										array(
 											'company_id' => $this->getCompany(),
 											'name' => 'Premium 1',
-											'pay_type_id' => 20, //Premium Only
+											'pay_type_id' => 50, //Premium Only
 											'rate' => 0.50,
 											'wage_group_id' => 0,
 											'accrual_rate' => 0.00,
@@ -6705,11 +6800,33 @@ class SetupPresets extends Factory {
 										array(
 											'company_id' => $this->getCompany(),
 											'name' => 'Premium 2',
-											'pay_type_id' => 20, //Premium Only
+											'pay_type_id' => 50, //Premium Only
 											'rate' => 0.75,
 											'wage_group_id' => 0,
 											'accrual_rate' => 0.00,
 											'accrual_policy_id' => 0,
+										)
+									);
+			$this->createPayFormulaPolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Time Bank (Deposit)',
+											'pay_type_id' => 10, //Pay Multiplied By Factor
+											'rate' => 0.00,
+											'wage_group_id' => 0,
+											'accrual_rate' => 1.00, //Increase accrual when this is used.
+											'accrual_policy_account_id' => $this->getAccrualPolicyAccountByCompanyIDAndName( 'Time Bank' ),
+										)
+									);
+			$this->createPayFormulaPolicy(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Time Bank (Withdrawal)',
+											'pay_type_id' => 10, //Pay Multiplied By Factor
+											'rate' => 1.00,
+											'wage_group_id' => 0,
+											'accrual_rate' => -1.00, //Reduce accrual when this is used
+											'accrual_policy_account_id' => $this->getAccrualPolicyAccountByCompanyIDAndName( 'Time Bank' ),
 										)
 									);
 
@@ -6720,22 +6837,10 @@ class SetupPresets extends Factory {
 											'pay_type_id' => 10, //Pay Multiplied By Factor
 											'rate' => 1.00,
 											'wage_group_id' => 0,
-											'accrual_rate' => 1.00,
+											'accrual_rate' => -1.00, //Reduce accrual when this is used
 											'accrual_policy_account_id' => $this->getAccrualPolicyAccountByCompanyIDAndName( 'Sick' ),
 										)
 									);
-			$this->createPayFormulaPolicy(
-										array(
-											'company_id' => $this->getCompany(),
-											'name' => 'Time Bank',
-											'pay_type_id' => 10, //Pay Multiplied By Factor
-											'rate' => 0.00,
-											'wage_group_id' => 0,
-											'accrual_rate' => 1.00,
-											'accrual_policy_account_id' => $this->getAccrualPolicyAccountByCompanyIDAndName( 'Time Bank' ),
-										)
-									);
-
 			$this->createPayFormulaPolicy(
 										array(
 											'company_id' => $this->getCompany(),
@@ -6743,11 +6848,24 @@ class SetupPresets extends Factory {
 											'pay_type_id' => 10, //Pay Multiplied By Factor
 											'rate' => 1.00,
 											'wage_group_id' => 0,
-											'accrual_rate' => 1.00,
+											'accrual_rate' => -1.00, //Reduce accrual when this is used
 											'accrual_policy_account_id' => $this->getAccrualPolicyAccountByCompanyIDAndName( 'Vacation' ),
 										)
 									);
 
+			if ( $country == 'us' ) {
+				$this->createPayFormulaPolicy(
+											array(
+												'company_id' => $this->getCompany(),
+												'name' => 'Paid Time Off (PTO)',
+												'pay_type_id' => 10, //Pay Multiplied By Factor
+												'rate' => 1.00,
+												'wage_group_id' => 0,
+												'accrual_rate' => -1.00, //Reduce accrual when this is used
+												'accrual_policy_account_id' => $this->getAccrualPolicyAccountByCompanyIDAndName( 'Paid Time Off (PTO)' ),
+											)
+										);
+			}
 		}
 		
 		return TRUE;
@@ -6876,34 +6994,24 @@ class SetupPresets extends Factory {
 			$this->createPayCode(
 										array(
 											'company_id' => $this->getCompany(),
-											'name' => 'Sick',
-											'code' => 'SICK',
-											'type_id' => 10, //PAID
-											'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Sick' ),
-											'pay_formula_policy_id' => $this->getPayFormulaPolicyByCompanyIDAndName( 'Sick' ),
-										)
-									);
-			$this->createPayCode(
-										array(
-											'company_id' => $this->getCompany(),
-											'name' => 'Sick (UNPAID)',
-											'code' => 'USICK',
-											'type_id' => 20, //UnPAID
-											'pay_stub_entry_account_id' => 0,
-											'pay_formula_policy_id' => $this->getPayFormulaPolicyByCompanyIDAndName( 'None ($0)' ),
-										)
-									);
-
-			$this->createPayCode(
-										array(
-											'company_id' => $this->getCompany(),
-											'name' => 'Time Bank',
+											'name' => 'Time Bank (Deposit)',
 											'code' => 'BANK',
 											'type_id' => 20, //UNPAID
 											'pay_stub_entry_account_id' => 0,
-											'pay_formula_policy_id' => $this->getPayFormulaPolicyByCompanyIDAndName( 'Time Bank' ),
+											'pay_formula_policy_id' => $this->getPayFormulaPolicyByCompanyIDAndName( 'Time Bank (Deposit)' ),
 										)
 									);
+			$this->createPayCode(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Time Bank (Withdrawal)',
+											'code' => 'BANK',
+											'type_id' => 10, //PAID
+											'pay_stub_entry_account_id' => 0,
+											'pay_formula_policy_id' => $this->getPayFormulaPolicyByCompanyIDAndName( 'Time Bank (Withdrawal)' ),
+										)
+									);
+
 			$this->createPayCode(
 										array(
 											'company_id' => $this->getCompany(),
@@ -6912,17 +7020,6 @@ class SetupPresets extends Factory {
 											'type_id' => 10, //PAID
 											'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Statutory Holiday' ),
 											'pay_formula_policy_id' => $this->getPayFormulaPolicyByCompanyIDAndName( 'Regular' ),
-										)
-									);
-
-			$this->createPayCode(
-										array(
-											'company_id' => $this->getCompany(),
-											'name' => 'Vacation (UNPAID)',
-											'code' => 'UVAC',
-											'type_id' => 20, //UnPAID
-											'pay_stub_entry_account_id' => 0,
-											'pay_formula_policy_id' => $this->getPayFormulaPolicyByCompanyIDAndName( 'None ($0)' ),
 										)
 									);
 
@@ -6948,7 +7045,61 @@ class SetupPresets extends Factory {
 										)
 									);
 
-			if ( $country == 'ca' ) {
+			$this->createPayCode(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Sick',
+											'code' => 'SICK',
+											'type_id' => 10, //PAID
+											'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Sick' ),
+											'pay_formula_policy_id' => $this->getPayFormulaPolicyByCompanyIDAndName( 'Sick' ),
+										)
+									);
+			$this->createPayCode(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Sick (UNPAID)',
+											'code' => 'USICK',
+											'type_id' => 20, //UnPAID
+											'pay_stub_entry_account_id' => 0,
+											'pay_formula_policy_id' => $this->getPayFormulaPolicyByCompanyIDAndName( 'None ($0)' ),
+										)
+									);
+
+			$this->createPayCode(
+										array(
+											'company_id' => $this->getCompany(),
+											'name' => 'Vacation (UNPAID)',
+											'code' => 'UVAC',
+											'type_id' => 20, //UnPAID
+											'pay_stub_entry_account_id' => 0,
+											'pay_formula_policy_id' => $this->getPayFormulaPolicyByCompanyIDAndName( 'None ($0)' ),
+										)
+									);
+
+			if ( $country == 'us' ) {
+				$this->createPayCode(
+											array(
+												'company_id' => $this->getCompany(),
+												'name' => 'Vacation',
+												'code' => 'VAC',
+												'type_id' => 10, //PAID
+												'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Vacation' ),
+												'pay_formula_policy_id' => $this->getPayFormulaPolicyByCompanyIDAndName( 'Vacation' ),
+											)
+										);
+
+				$this->createPayCode(
+											array(
+												'company_id' => $this->getCompany(),
+												'name' => 'Paid Time Off (PTO)',
+												'code' => 'PTO',
+												'type_id' => 10, //PAID
+												'pay_stub_entry_account_id' => $this->getPayStubEntryAccountByCompanyIDAndTypeAndFuzzyName( 10, 'Paid Time Off (PTO)' ),
+												'pay_formula_policy_id' => $this->getPayFormulaPolicyByCompanyIDAndName( 'Paid Time Off (PTO)' ),
+											)
+										);
+			} elseif ( $country == 'ca' ) {
 				$this->createPayCode(
 											array(
 												'company_id' => $this->getCompany(),
@@ -7018,7 +7169,7 @@ class SetupPresets extends Factory {
 											'company_id' => $this->getCompany(),
 											'name' => 'Regular Time',
 											'pay_code' => array_merge(
-																	$this->getPayCodeByCompanyIDAndName( 'Regular Time' )
+																	(array)$this->getPayCodeByCompanyIDAndName( 'Regular Time' )
 																	),
 										)
 									);
@@ -7027,8 +7178,8 @@ class SetupPresets extends Factory {
 											'company_id' => $this->getCompany(),
 											'name' => 'Regular Time + Meal',
 											'pay_code' => array_merge(
-																	$this->getPayCodeByCompanyIDAndName( 'Regular Time' ),
-																	$this->getPayCodeByCompanyIDAndName( 'Lunch Time' )
+																	(array)$this->getPayCodeByCompanyIDAndName( 'Regular Time' ),
+																	(array)$this->getPayCodeByCompanyIDAndName( 'Lunch Time' )
 																	),
 										)
 									);
@@ -7037,8 +7188,8 @@ class SetupPresets extends Factory {
 											'company_id' => $this->getCompany(),
 											'name' => 'Regular Time + Break',
 											'pay_code' => array_merge(
-																	$this->getPayCodeByCompanyIDAndName( 'Regular Time' ),
-																	$this->getPayCodeByCompanyIDAndName( 'Break Time' )
+																	(array)$this->getPayCodeByCompanyIDAndName( 'Regular Time' ),
+																	(array)$this->getPayCodeByCompanyIDAndName( 'Break Time' )
 																	),
 										)
 									);
@@ -7047,9 +7198,9 @@ class SetupPresets extends Factory {
 											'company_id' => $this->getCompany(),
 											'name' => 'Regular Time + Meal + Break',
 											'pay_code' => array_merge(
-																	$this->getPayCodeByCompanyIDAndName( 'Regular Time' ),
-																	$this->getPayCodeByCompanyIDAndName( 'Lunch Time' ),
-																	$this->getPayCodeByCompanyIDAndName( 'Break Time' )
+																	(array)$this->getPayCodeByCompanyIDAndName( 'Regular Time' ),
+																	(array)$this->getPayCodeByCompanyIDAndName( 'Lunch Time' ),
+																	(array)$this->getPayCodeByCompanyIDAndName( 'Break Time' )
 																	),
 										)
 									);
@@ -7059,9 +7210,9 @@ class SetupPresets extends Factory {
 											'company_id' => $this->getCompany(),
 											'name' => 'Regular Time + OT',
 											'pay_code' => array_merge(
-																	$this->getPayCodeByCompanyIDAndName( 'Regular Time' ),
-																	$this->getPayCodeByCompanyIDAndName( 'OverTime (1.5x)' ),
-																	$this->getPayCodeByCompanyIDAndName( 'OverTime (2.0x)' )
+																	(array)$this->getPayCodeByCompanyIDAndName( 'Regular Time' ),
+																	(array)$this->getPayCodeByCompanyIDAndName( 'OverTime (1.5x)' ),
+																	(array)$this->getPayCodeByCompanyIDAndName( 'OverTime (2.0x)' )
 																	),
 										)
 									);
@@ -7070,9 +7221,10 @@ class SetupPresets extends Factory {
 											'company_id' => $this->getCompany(),
 											'name' => 'Regular Time + Paid Absence',
 											'pay_code' => array_merge(
-																	$this->getPayCodeByCompanyIDAndName( 'Regular Time' ),
-																	$this->getPayCodeByCompanyIDAndName( '"Sick"' ),
-																	$this->getPayCodeByCompanyIDAndName( '%Vacation' )
+																	(array)$this->getPayCodeByCompanyIDAndName( 'Regular Time' ),
+																	(array)$this->getPayCodeByCompanyIDAndName( '"Sick"' ),
+																	(array)$this->getPayCodeByCompanyIDAndName( '%Vacation' ),
+																	(array)$this->getPayCodeByCompanyIDAndName( 'Paid Time Off (PTO)' )
 																	),
 										)
 									);
@@ -7081,11 +7233,12 @@ class SetupPresets extends Factory {
 											'company_id' => $this->getCompany(),
 											'name' => 'Regular Time + Paid Absence + Meal + Break',
 											'pay_code' => array_merge(
-																	$this->getPayCodeByCompanyIDAndName( 'Regular Time' ),
-																	$this->getPayCodeByCompanyIDAndName( 'Lunch Time' ),
-																	$this->getPayCodeByCompanyIDAndName( 'Break Time' ),
-																	$this->getPayCodeByCompanyIDAndName( '"Sick"' ),
-																	$this->getPayCodeByCompanyIDAndName( '%Vacation' )
+																	(array)$this->getPayCodeByCompanyIDAndName( 'Regular Time' ),
+																	(array)$this->getPayCodeByCompanyIDAndName( 'Lunch Time' ),
+																	(array)$this->getPayCodeByCompanyIDAndName( 'Break Time' ),
+																	(array)$this->getPayCodeByCompanyIDAndName( '"Sick"' ),
+																	(array)$this->getPayCodeByCompanyIDAndName( '%Vacation' ),
+																	(array)$this->getPayCodeByCompanyIDAndName( 'Paid Time Off (PTO)' )
 																	),
 										)
 									);
@@ -7097,10 +7250,10 @@ class SetupPresets extends Factory {
 											'company_id' => $this->getCompany(),
 											'name' => 'Regular Time + OT + Meal',
 											'pay_code' => array_merge(
-																	$this->getPayCodeByCompanyIDAndName( 'Regular Time' ),
-																	$this->getPayCodeByCompanyIDAndName( 'OverTime (1.5x)' ),
-																	$this->getPayCodeByCompanyIDAndName( 'OverTime (2.0x)' ),
-																	$this->getPayCodeByCompanyIDAndName( 'Lunch Time' )
+																	(array)$this->getPayCodeByCompanyIDAndName( 'Regular Time' ),
+																	(array)$this->getPayCodeByCompanyIDAndName( 'OverTime (1.5x)' ),
+																	(array)$this->getPayCodeByCompanyIDAndName( 'OverTime (2.0x)' ),
+																	(array)$this->getPayCodeByCompanyIDAndName( 'Lunch Time' )
 																	),
 										)
 									);
@@ -7109,10 +7262,10 @@ class SetupPresets extends Factory {
 											'company_id' => $this->getCompany(),
 											'name' => 'Regular Time + OT + Break',
 											'pay_code' => array_merge(
-																	$this->getPayCodeByCompanyIDAndName( 'Regular Time' ),
-																	$this->getPayCodeByCompanyIDAndName( 'OverTime (1.5x)' ),
-																	$this->getPayCodeByCompanyIDAndName( 'OverTime (2.0x)' ),
-																	$this->getPayCodeByCompanyIDAndName( 'Break Time' )
+																	(array)$this->getPayCodeByCompanyIDAndName( 'Regular Time' ),
+																	(array)$this->getPayCodeByCompanyIDAndName( 'OverTime (1.5x)' ),
+																	(array)$this->getPayCodeByCompanyIDAndName( 'OverTime (2.0x)' ),
+																	(array)$this->getPayCodeByCompanyIDAndName( 'Break Time' )
 																	),
 										)
 									);
@@ -7121,11 +7274,11 @@ class SetupPresets extends Factory {
 											'company_id' => $this->getCompany(),
 											'name' => 'Regular Time + OT + Meal + Break',
 											'pay_code' => array_merge(
-																	$this->getPayCodeByCompanyIDAndName( 'Regular Time' ),
-																	$this->getPayCodeByCompanyIDAndName( 'OverTime (1.5x)' ),
-																	$this->getPayCodeByCompanyIDAndName( 'OverTime (2.0x)' ),
-																	$this->getPayCodeByCompanyIDAndName( 'Lunch Time' ),
-																	$this->getPayCodeByCompanyIDAndName( 'Break Time' )
+																	(array)$this->getPayCodeByCompanyIDAndName( 'Regular Time' ),
+																	(array)$this->getPayCodeByCompanyIDAndName( 'OverTime (1.5x)' ),
+																	(array)$this->getPayCodeByCompanyIDAndName( 'OverTime (2.0x)' ),
+																	(array)$this->getPayCodeByCompanyIDAndName( 'Lunch Time' ),
+																	(array)$this->getPayCodeByCompanyIDAndName( 'Break Time' )
 																	),
 										)
 									);
@@ -7134,11 +7287,12 @@ class SetupPresets extends Factory {
 											'company_id' => $this->getCompany(),
 											'name' => 'Regular Time + OT + Paid Absence',
 											'pay_code' => array_merge(
-																	$this->getPayCodeByCompanyIDAndName( 'Regular Time' ),
-																	$this->getPayCodeByCompanyIDAndName( 'OverTime (1.5x)' ),
-																	$this->getPayCodeByCompanyIDAndName( 'OverTime (2.0x)' ),
-																	$this->getPayCodeByCompanyIDAndName( '"Sick"' ),
-																	$this->getPayCodeByCompanyIDAndName( '%Vacation' )
+																	(array)$this->getPayCodeByCompanyIDAndName( 'Regular Time' ),
+																	(array)$this->getPayCodeByCompanyIDAndName( 'OverTime (1.5x)' ),
+																	(array)$this->getPayCodeByCompanyIDAndName( 'OverTime (2.0x)' ),
+																	(array)$this->getPayCodeByCompanyIDAndName( '"Sick"' ),
+																	(array)$this->getPayCodeByCompanyIDAndName( '%Vacation' ),
+																	(array)$this->getPayCodeByCompanyIDAndName( 'Paid Time Off (PTO)' )
 																	),
 										)
 									);
@@ -7147,13 +7301,14 @@ class SetupPresets extends Factory {
 											'company_id' => $this->getCompany(),
 											'name' => 'Regular Time + OT + Paid Absence + Meal + Break',
 											'pay_code' => array_merge(
-																	$this->getPayCodeByCompanyIDAndName( 'Regular Time' ),
-																	$this->getPayCodeByCompanyIDAndName( 'Lunch Time' ),
-																	$this->getPayCodeByCompanyIDAndName( 'Break Time' ),
-																	$this->getPayCodeByCompanyIDAndName( 'OverTime (1.5x)' ),
-																	$this->getPayCodeByCompanyIDAndName( 'OverTime (2.0x)' ),
-																	$this->getPayCodeByCompanyIDAndName( '"Sick"' ),
-																	$this->getPayCodeByCompanyIDAndName( '%Vacation' )
+																	(array)$this->getPayCodeByCompanyIDAndName( 'Regular Time' ),
+																	(array)$this->getPayCodeByCompanyIDAndName( 'Lunch Time' ),
+																	(array)$this->getPayCodeByCompanyIDAndName( 'Break Time' ),
+																	(array)$this->getPayCodeByCompanyIDAndName( 'OverTime (1.5x)' ),
+																	(array)$this->getPayCodeByCompanyIDAndName( 'OverTime (2.0x)' ),
+																	(array)$this->getPayCodeByCompanyIDAndName( '"Sick"' ),
+																	(array)$this->getPayCodeByCompanyIDAndName( '%Vacation' ),
+																	(array)$this->getPayCodeByCompanyIDAndName( 'Paid Time Off (PTO)' )
 																	),
 										)
 									);
@@ -7335,7 +7490,7 @@ class SetupPresets extends Factory {
 										//'absence_policy_id' => $this->getAbsencePolicyByCompanyIDAndTypeAndName( 10, strtoupper($province) .' - Statutory Holiday' ),
 										'absence_policy_id' => $this->getAbsencePolicyByCompanyIDAndTypeAndName( 'Statutory Holiday' ),
 										'recurring_holiday_id' => (array)$this->getRecurringHolidayByCompanyIDAndName( $country.'%' ),
-										'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Meal + Break' ),
+										'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT' ),
 										'eligible_contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT' ),
 									)
 								);
@@ -7387,8 +7542,8 @@ class SetupPresets extends Factory {
 																		(array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($province).'%' )
 																		),
 
-									'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Paid Absence + Meal + Break' ),
-									'eligible_contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT' ),
+									'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Paid Absence' ),
+									'eligible_contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Paid Absence' ),
 								)
 							);
 			}
@@ -7433,8 +7588,8 @@ class SetupPresets extends Factory {
 																		(array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($province).'%' )
 																		),
 
-									'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Paid Absence + Meal + Break' ),
-									'eligible_contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT' ),
+									'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Paid Absence' ),
+									'eligible_contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Paid Absence' ),
 								)
 							);
 			}
@@ -7479,8 +7634,8 @@ class SetupPresets extends Factory {
 																		(array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($province).'%' )
 																		),
 
-									'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Paid Absence + Meal + Break' ),
-									'eligible_contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT' ),
+									'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Paid Absence' ),
+									'eligible_contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Paid Absence' ),
 								)
 							);
 			}
@@ -7526,8 +7681,8 @@ class SetupPresets extends Factory {
 																		(array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($province).'%' )
 																		),
 
-									'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Paid Absence + Meal + Break' ),
-									'eligible_contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT' ),
+									'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Paid Absence' ),
+									'eligible_contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Paid Absence' ),
 								)
 							);
 			}
@@ -7574,8 +7729,8 @@ class SetupPresets extends Factory {
 																		(array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($province).'%' )
 																		),
 
-									'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Paid Absence + Meal + Break' ),
-									'eligible_contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT' ),
+									'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Paid Absence' ),
+									'eligible_contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Paid Absence' ),
 								)
 							);
 			}
@@ -7621,8 +7776,8 @@ class SetupPresets extends Factory {
 																		(array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($province).'%' )
 																		),
 
-									'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Paid Absence + Meal + Break' ),
-									'eligible_contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT' ),
+									'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Paid Absence' ),
+									'eligible_contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Paid Absence' ),
 								)
 							);
 			}
@@ -7668,8 +7823,8 @@ class SetupPresets extends Factory {
 																		(array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($province).'%' )
 																		),
 
-									'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Paid Absence + Meal + Break' ),
-									'eligible_contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT' ),
+									'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Paid Absence' ),
+									'eligible_contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Paid Absence' ),
 								)
 							);
 			}
@@ -7716,8 +7871,8 @@ class SetupPresets extends Factory {
 																		(array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($province).'%' )
 																		),
 
-									'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Paid Absence + Meal + Break' ),
-									'eligible_contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT' ),
+									'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Paid Absence' ),
+									'eligible_contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Paid Absence' ),
 								)
 							);
 			}
@@ -7763,8 +7918,8 @@ class SetupPresets extends Factory {
 																		(array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($province).'%' )
 																		),
 
-									'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Paid Absence + Meal + Break' ),
-									'eligible_contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT' ),
+									'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Paid Absence' ),
+									'eligible_contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Paid Absence' ),
 								)
 							);
 			}
@@ -7810,8 +7965,8 @@ class SetupPresets extends Factory {
 																		//(array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($province).'%' )
 																		),
 
-									'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Paid Absence + Meal + Break' ),
-									'eligible_contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT' ),
+									'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Paid Absence' ),
+									'eligible_contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Paid Absence' ),
 								)
 							);
 			}
@@ -7857,7 +8012,7 @@ class SetupPresets extends Factory {
 																		(array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($province).'%' )
 																		),
 
-									'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Meal + Break' ),
+									'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT' ),
 									'eligible_contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT' ),
 								)
 							);
@@ -7904,7 +8059,7 @@ class SetupPresets extends Factory {
 																		(array)$this->getRecurringHolidayByCompanyIDAndName( strtoupper($province).'%' )
 																		),
 
-									'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT + Meal + Break' ),
+									'contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT' ),
 									'eligible_contributing_shift_policy_id' => $this->getContributingShiftPolicyByCompanyIDAndName( 'Regular Time + OT' ),
 								)
 							);

@@ -760,8 +760,15 @@ class PunchSummaryReport extends Report {
 		$plf = TTnew( 'PunchListFactory' );
 		$punch_type_options = $plf->getOptions('type');
 
-		$plf->getPunchSummaryReportByCompanyIdAndArrayCriteria( $this->getUserObject()->getCompany(), $filter_data );
-		Debug::Text(' Total Rows: '. $plf->getRecordCount(), __FILE__, __LINE__, __METHOD__, 10);
+		//Assume 6K memory per row, then triple it for pre/post processing.
+		if ( DEPLOYMENT_ON_DEMAND == TRUE ) {
+			$memory_based_row_limit = ceil( $this->maximum_memory_limit / ( 1024 * 11 ) );
+		} else {
+			$memory_based_row_limit = NULL;
+		}
+
+		$plf->getPunchSummaryReportByCompanyIdAndArrayCriteria( $this->getUserObject()->getCompany(), $filter_data, $memory_based_row_limit );
+		Debug::Text(' Total Rows: '. $plf->getRecordCount() .' Memory Row Limit: '. $memory_based_row_limit .' Memory Limit: '. $this->maximum_memory_limit, __FILE__, __LINE__, __METHOD__, 10);
 		$this->getProgressBarObject()->start( $this->getAMFMessageID(), $plf->getRecordCount(), NULL, TTi18n::getText('Retrieving Data...') );
 		if ( $plf->getRecordCount() > 0 ) {
 			foreach ( $plf as $key => $p_obj ) {
@@ -895,6 +902,7 @@ class PunchSummaryReport extends Report {
 			}
 		}
 		//Debug::Arr($this->tmp_data['punch'], 'Punch Raw Data: ', __FILE__, __LINE__, __METHOD__, 10);
+		
 
 		//Get user data for joining.
 		$ulf = TTnew( 'UserListFactory' );

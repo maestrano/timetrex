@@ -17,6 +17,7 @@ InstallWizardController = BaseWizardController.extend( {
 		this.script_name = 'wizard_install';
 		this.wizard_id = 'InstallWizard';
 		this.api = new (APIFactory.getAPIClass( 'APIInstall' ))();
+		ServiceCaller.extra_url = '&disable_db=1';
 		if ( _.size( LocalCacheData.all_url_args ) > 0  ) {
 			var url_args = LocalCacheData.all_url_args;
 			this.current_step = url_args.a;
@@ -97,6 +98,7 @@ InstallWizardController = BaseWizardController.extend( {
 				}} );
 				break;
 			case 'databaseSchema':
+				ServiceCaller.extra_url = false;
 				this.api.getDatabaseSchema( {onResult: function( res ) {
 					if ( res.isValid() ) {
 						$this.stepsDataDic[$this.current_step] = res.getResult();
@@ -303,6 +305,22 @@ InstallWizardController = BaseWizardController.extend( {
 					license_html = license_html + $.i18n._('For help, please visit') + ' <a href="http://www.timetrex.com">www.timetrex.com</a> ';
 					license.append( license_html );
 
+					var ribbon_button_box = this.getRibbonButtonBox();
+
+					var ribbon_btn = $( '<li><button class="ribbon-sub-menu-icon" id="re-check">' + $.i18n._('Re-Check') + '</button></li>' );
+					ribbon_btn.unbind( 'click' ).bind( 'click', function() {
+						ProgressBar.showOverlay();
+						$this.api.getLicense( {onResult: function( res ){
+							$this.stepsDataDic[$this.current_step] = res.getResult();
+							$this._initCurrentStep();
+						}} );
+
+					} );
+
+					ribbon_button_box.children().eq( 0 ).append( ribbon_btn );
+
+					this.content_div.find('.content-handle-btn' ).html( ribbon_button_box );
+
 				}
 
 				// set size;
@@ -428,6 +446,10 @@ InstallWizardController = BaseWizardController.extend( {
 					form_item_input.TText( {field: 'magic_quotes'} );
 					this.addEditFieldToColumn( $.i18n._( 'Magic Quotes GPC Turned Off' ), form_item_input, requirements_column2, '', null, true, true );
 
+					form_item_input = Global.loadWidgetByName( FormItemType.TEXT );
+					form_item_input.TText( {field: 'disk_space'} );
+					this.addEditFieldToColumn( $.i18n._( 'Disk Space' ), form_item_input, requirements_column2, '', null, true, true );
+
 					// other requirements
 					form_item_input = Global.loadWidgetByName( FormItemType.TEXT );
 					form_item_input.TText( {field: 'memory_limit'} );
@@ -476,9 +498,11 @@ InstallWizardController = BaseWizardController.extend( {
 					this.addEditFieldToColumn( $.i18n._( 'File Permissions' ), form_item_input, requirements_column2, '', null, true, true );
 
 					form_item_input = Global.loadWidgetByName( FormItemType.TEXT );
-					form_item_input.TText( {field: 'file_check'} );
+					form_item_input.TText( {field: 'file_checksums'} );
 					this.addEditFieldToColumn( $.i18n._( 'File CheckSums' ), form_item_input, requirements_column2, '', null, true, true );
 				}
+
+				// forth column
 
 				var requirements_column4 = requirements.find( '.forth-column' );
 				requirements_column4.empty();
@@ -499,6 +523,7 @@ InstallWizardController = BaseWizardController.extend( {
 					requirements_column4.addClass('dataError');
 				}
 
+				// fifth column
 				var requirements_column5 = requirements.find( '.fifth-column' );
 				requirements_column5.empty();
 
@@ -520,9 +545,14 @@ InstallWizardController = BaseWizardController.extend( {
 				columns_html = columns_html + $.i18n._('Detailed') + '&nbsp;';
 				columns_html = columns_html + '<a href="phpinfo.php" target="_blank">' + $.i18n._('PHP Information') + '</a>';
 
-				requirements_column5.html( columns_html );
+				if ( stepData.check_all_requirements == 0 ) {
+
+				} else {
+					requirements_column5.html( columns_html );
+				}
 
 				var ribbon_button_box = this.getRibbonButtonBox();
+
 //				ribbon_button_box.css( 'width', '96%' );
 				var ribbon_btn = $( '<li><button class="ribbon-sub-menu-icon" id="re-check">' + $.i18n._('Re-Check') + '</button></li>' );
 				ribbon_btn.unbind( 'click' ).bind( 'click', function() {
@@ -727,8 +757,12 @@ InstallWizardController = BaseWizardController.extend( {
 				this.addEditFieldToColumn( $.i18n._( 'Cache Directory' ), form_item_input, systemSettings_column1 );
 				systemSettings.find( '.first-column' ).css('border', '1px solid #C7C7C7');
 
+				systemSettings.find('.edit-view-form-item-input-div' ).css('width', '700');
+				systemSettings.find('.edit-view-form-item-label-div' ).css( {width: systemSettings_column1.width() - 900, 'min-width': 120} );
+
 				this.content_div.find('.systemSettings' ).css( {height: this.content_div.height() - step_title.height() - 15} );
 				$( window ).resize( function() {
+					systemSettings.find('.edit-view-form-item-label-div' ).css( {width: systemSettings_column1.width() - 900, 'min-width': 120} );
 					$this.content_div.find('.systemSettings' ).css( {height: $this.content_div.height() - step_title.height() - 15} );
 				} );
 
@@ -1150,7 +1184,7 @@ InstallWizardController = BaseWizardController.extend( {
 				}
 
 				$data = $.extend( {}, $data, this.stepsDataDic[$this.current_step] );
-				this.api.setUser( $data, {onResult: function( res ) {
+				this.api.setUser( $data, this.external_installer, {onResult: function( res ) {
 					if ( res.isValid() ) {
 						var next_page = res.getResult().next_page;
 						$this.current_step = next_page;
@@ -1352,6 +1386,14 @@ InstallWizardController = BaseWizardController.extend( {
 								widget.addClass( 'dataError' );
 							}
 							break;
+						case 'disk_space':
+							if ( stepData[key] == 0 ) {
+								widget.html( $.i18n._('OK')   );
+							}  else if ( stepData[key] == 1 ) {
+								widget.html( $.i18n._('Not enough disk space available, please free up disk space and try again.')   );
+								widget.addClass( 'dataError' );
+							}
+							break;
 						case 'memory_limit':
 							if ( stepData[key].check_php_memory_limit == 0 ) {
 								var str = $.i18n._('OK');
@@ -1456,7 +1498,7 @@ InstallWizardController = BaseWizardController.extend( {
 								widget.addClass( 'dataError' );
 							}
 							break;
-						case 'file_check':
+						case 'file_checksums':
 							if ( stepData[key] == 0 ) {
 								widget.html( $.i18n._('OK')   );
 							} else {

@@ -149,7 +149,7 @@ class OverTimePolicyFactory extends Factory {
 										404 => 101, //After 6-Days/Week Worked
 										405 => 100, //After 7-Days/Week Worked
 
-										180 => 10, //Holiday
+										180 => 190, //Holiday - This must come after all Daily types, as this usually applies >0hrs and Daily >8 hrs should still apply too.
 										200 => 100, //Over Schedule (Daily) / No Schedule
 										210 => 210, //Over Schedule (Weekly) / No Schedule
 									);

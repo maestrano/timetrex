@@ -133,7 +133,7 @@ class GovernmentForms_CA_T4 extends GovernmentForms_CA {
 										'ei_exempt' => 'preCalcEIExempt',
 										'cpp_exempt' => 'preCalcCPPExempt',
 										'ppip_exempt' => 'preCalcPPIPExempt',
-						  );
+						);
 
 		if ( isset($variable_function_map[$name]) ) {
 			return $variable_function_map[$name];
@@ -146,7 +146,7 @@ class GovernmentForms_CA_T4 extends GovernmentForms_CA {
 		$variable_function_map = array(
 										'year' => 'isNumeric',
 										//'ein' => array( 'stripNonNumeric', 'isNumeric'),
-						  );
+						);
 
 		if ( isset($variable_function_map[$name]) ) {
 			return $variable_function_map[$name];
@@ -463,7 +463,7 @@ class GovernmentForms_CA_T4 extends GovernmentForms_CA {
 																	),
 											),
 								'l24' => array(
-												'function' =>  array( 'drawSplitDecimalFloat' ),
+												'function' => array( 'drawSplitDecimalFloat' ),
 												'coordinates' => array(
 																	array(
 																		'x' => 483,
@@ -736,7 +736,7 @@ class GovernmentForms_CA_T4 extends GovernmentForms_CA {
 																		),
 																	),
 											),
-							  );
+							);
 
 		if ( isset($template_schema[$name]) ) {
 			return $name;
@@ -833,7 +833,7 @@ class GovernmentForms_CA_T4 extends GovernmentForms_CA {
 		$records = $this->getRecords();
 		if ( is_array($records) AND count($records) > 0 ) {
 
-			$e=0;
+			$e = 0;
 			foreach( $records as $employee_data ) {
 				//Debug::Arr($employee_data, 'Employee Data: ', __FILE__, __LINE__, __METHOD__,10);
 				$this->arrayToObject( $employee_data ); //Convert record array to object
@@ -853,7 +853,7 @@ class GovernmentForms_CA_T4 extends GovernmentForms_CA {
 				$xml->Return->T4->T4Slip[$e]->EMPE_ADDR->addChild('cntry_cd', 'CAN' );
 				if ( $this->postal_code != '' ) { $xml->Return->T4->T4Slip[$e]->EMPE_ADDR->addChild('pstl_cd', $this->postal_code ); }
 
-				$xml->Return->T4->T4Slip[$e]->addChild('sin', $this->sin ); //Required
+				$xml->Return->T4->T4Slip[$e]->addChild('sin', ( $this->sin != '' ) ? $this->sin : '000000000' ); //Required
 				if ( $this->employee_number != '' ) {  $xml->Return->T4->T4Slip[$e]->addChild('empe_nbr', substr( $this->employee_number, 0, 20) ); }
 				$xml->Return->T4->T4Slip[$e]->addChild('bn', str_replace(' ', '', $this->payroll_account_number ) ); //Payroll Account Number. Remove any spaces from the number.
 				if ( isset($this->l50) AND $this->l50 != '' ) { $xml->Return->T4->T4Slip[$e]->addChild('rpp_dpsp_rgst_nbr', substr( $this->l50, 0, 7) ); }
@@ -885,7 +885,7 @@ class GovernmentForms_CA_T4 extends GovernmentForms_CA {
 				if ( isset($this->l56) AND is_numeric($this->l56) ) { $xml->Return->T4->T4Slip[$e]->T4_AMT->addChild('prov_insu_ern_amt', $this->MoneyFormat( (float)$this->l56, FALSE ) ); }
 
 				$xml->Return->T4->T4Slip[$e]->addChild('OTH_INFO'); //Other Income Fields
-				for( $i=0; $i <= 6; $i++ ) {
+				for( $i = 0; $i <= 6; $i++ ) {
 					if ( isset($this->{'other_box_'.$i.'_code'}) AND isset($other_box_code_map[$this->{'other_box_'.$i.'_code'}]) ) {
 						$xml->Return->T4->T4Slip[$e]->OTH_INFO->addChild($other_box_code_map[$this->{'other_box_'.$i.'_code'}], $this->MoneyFormat( (float)$this->{'other_box_'.$i}, FALSE ) );
 					}
@@ -916,10 +916,10 @@ class GovernmentForms_CA_T4 extends GovernmentForms_CA {
 
 		if ( $this->getType() == 'government') {
 			$employees_per_page = 2;
-			$n=1; //Don't loop the same employee.
+			$n = 1; //Don't loop the same employee.
 		} else {
 			$employees_per_page = 1;
-			$n=2; //Loop the same employee twice.
+			$n = 2; //Loop the same employee twice.
 		}
 
 		//Get location map, start looping over each variable and drawing
@@ -928,14 +928,14 @@ class GovernmentForms_CA_T4 extends GovernmentForms_CA {
 
 			$template_schema = $this->getTemplateSchema();
 
-			$e=0;
+			$e = 0;
 			foreach( $records as $employee_data ) {
 				//Debug::Arr($employee_data, 'Employee Data: ', __FILE__, __LINE__, __METHOD__,10);
 				$this->arrayToObject( $employee_data ); //Convert record array to object
 
 				$template_page = NULL;
 
-				for( $i=0; $i < $n; $i++ ) {
+				for( $i = 0; $i < $n; $i++ ) {
 					$this->page_offsets = array(0,0);
 
 					if ( ( $employees_per_page == 1 AND $i > 0 )

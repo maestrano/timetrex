@@ -110,7 +110,10 @@ class HierarchyControlFactory extends Factory {
 	}
 
 	function getCompany() {
-		return (int)$this->data['company_id'];
+		if ( isset($this->data['company_id']) ) {
+			return (int)$this->data['company_id'];
+		}
+		return FALSE;
 	}
 	function setCompany($id) {
 		$id = trim($id);
@@ -151,7 +154,11 @@ class HierarchyControlFactory extends Factory {
 		return FALSE;
 	}
 	function getName() {
-		return $this->data['name'];
+		if ( isset($this->data['name']) ) {
+			return $this->data['name'];
+		}
+
+		return FALSE;
 	}
 	function setName($name) {
 		$name = trim($name);
@@ -175,7 +182,11 @@ class HierarchyControlFactory extends Factory {
 	}
 
 	function getDescription() {
-		return $this->data['description'];
+		if ( isset($this->data['description']) ) {
+			return $this->data['description'];
+		}
+
+		return FALSE;
 	}
 	function setDescription($description) {
 		$description = trim($description);
@@ -334,7 +345,8 @@ class HierarchyControlFactory extends Factory {
 
 						if ($this->Validator->isTrue(		'user',
 															$huf->Validator->isValid(),
-															TTi18n::gettext('Selected subordinate is invalid or already assigned to another hierarchy with the same objects ').' ('. $obj->getFullName() .')' )) {
+															TTi18n::gettext('Selected subordinate is invalid or already assigned to another hierarchy with the same objects').' ('. $obj->getFullName() .')' )
+							) {
 							$huf->save();
 						}
 					}
@@ -359,6 +371,12 @@ class HierarchyControlFactory extends Factory {
 	}
 
 	function Validate() {
+		if ( $this->getName() == FALSE AND $this->Validator->hasError('name') == FALSE ) {
+			$this->Validator->isTrue(		'name',
+											FALSE,
+											TTi18n::gettext('Name is not specified'));
+		}
+
 		//When the user changes just the hierarchy objects, we need to loop through ALL users and confirm no conflicting hierarchies exist.
 		//Only do this for existing hierarchies and ones that are already valid up to this point.
 		if ( !$this->isNew() AND $this->Validator->isValid() == TRUE ) {
@@ -374,12 +392,11 @@ class HierarchyControlFactory extends Factory {
 						$ulf->getById( $user_id );
 						if ( $ulf->getRecordCount() > 0 ) {
 							$obj = $ulf->getCurrent();
-							TTi18n::gettext('Selected subordinate is invalid or already assigned to another hierarchy with the same objects ').' ('. $obj->getFullName() .')';
 							$this->Validator->isTrue(		'user',
 															$huf->isUniqueUser( $user_id, $this->getID() ),
-															TTi18n::gettext('Selected subordinate is invalid or already assigned to another hierarchy with the same objects ').' ('. $obj->getFullName() .')' );
+															TTi18n::gettext('Selected subordinate is invalid or already assigned to another hierarchy with the same objects').' ('. $obj->getFullName() .')' );
 						} else {
-							TTi18n::gettext('Selected subordinate is invalid or already assigned to another hierarchy with the same object. User ID: '. $user_id);
+							TTi18n::gettext('Selected subordinate is invalid or already assigned to another hierarchy with the same object. User ID: %1', array( $user_id ) );
 						}
 					}
 				}

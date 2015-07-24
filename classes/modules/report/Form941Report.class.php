@@ -647,7 +647,7 @@ class Form941Report extends Report {
 						//Debug::Text('User ID: '. $user_id .' DateStamp: '. $date_stamp .' YTD Medicare Additional Wages: '. $this->tmp_data['ytd_pay_stub_entry'][$user_id]['medicare_wages'] .' This Pay Stub: '. $this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['medicare_additional_wages'], __FILE__, __LINE__, __METHOD__, 10);
 
 						$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['sick_wages']				= ( isset($form_data['sick_wages']) ) ? Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['sick_wages']['include_pay_stub_entry_account'], $form_data['sick_wages']['exclude_pay_stub_entry_account'] ) : 0;
-						$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['eic']						= ( isset($form_data['eic']) ) ? Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['eic']['include_pay_stub_entry_account'], $form_data['eic']['exclude_pay_stub_entry_account'] ) : 0;
+						//$this->tmp_data['pay_stub_entry'][$user_id][$date_stamp]['eic']						= ( isset($form_data['eic']) ) ? Misc::calculateMultipleColumns( $data_b['psen_ids'], $form_data['eic']['include_pay_stub_entry_account'], $form_data['eic']['exclude_pay_stub_entry_account'] ) : 0;
 
 						//Separate data used for reporting, grouping, sorting, from data specific used for the Form.
 						if ( !isset($this->form_data['pay_period'][$quarter_month][$date_stamp]) ) {
@@ -774,7 +774,6 @@ class Form941Report extends Report {
 			$return941->State = ( isset($setup_data['province']) AND ( $setup_data['province'] != '' AND $setup_data['province'] != 0 ) ) ? $setup_data['province'] : $current_company->getProvince();
 			$return941->ZIPCode = ( isset($setup_data['postal_code']) AND $setup_data['postal_code'] != '' ) ? $setup_data['postal_code'] : $current_company->getPostalCode();
 
-
 			$this->getFormObject()->addForm( $return941 );
 		}
 
@@ -812,7 +811,7 @@ class Form941Report extends Report {
 			}
 			//Debug::Text('L11: '. $f941->l11 .' L6: '. $f941->calcL6() .' - '. $this->form_data['total']['l10'], __FILE__, __LINE__, __METHOD__, 10);
 
-			$f941->l15b = TRUE;
+			$f941->l13b = TRUE;
 
 			if ( isset($setup_data['deposit_schedule']) AND $setup_data['deposit_schedule'] == 10 ) {
 				if ( isset($this->form_data['quarter'][1]['l10']) ) {

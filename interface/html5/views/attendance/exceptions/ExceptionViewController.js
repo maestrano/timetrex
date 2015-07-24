@@ -386,7 +386,7 @@ ExceptionViewController = BaseViewController.extend( {
 		}
 
 		if ( filter.filter_data.show_pre_mature === true ) {
-			filter.filter_data.type_id = [30, 40, 50, 55, 60, 70, 5];
+			filter.filter_data.type_id = [5];
 		} else {
 			filter.filter_data.type_id = [30, 40, 50, 55, 60, 70];
 		}
@@ -643,8 +643,6 @@ ExceptionViewController = BaseViewController.extend( {
 	},
 
 	getFilterColumnsFromDisplayColumns: function() {
-		var display_columns = this.grid.getGridParam( 'colModel' );
-
 		var column_filter = {};
 		column_filter.is_owner = true;
 		column_filter.id = true;
@@ -657,6 +655,12 @@ ExceptionViewController = BaseViewController.extend( {
 		column_filter.user_id = true;
 		column_filter.pay_period_id = true;
 		column_filter.pay_period_schedule_id = true;
+
+		// Error: Unable to get property 'getGridParam' of undefined or null reference
+		var display_columns = [];
+		if ( this.grid ) {
+			display_columns = this.grid.getGridParam( 'colModel' );
+		}
 
 		if ( display_columns ) {
 			var len = display_columns.length;

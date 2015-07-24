@@ -1454,14 +1454,14 @@ class DemoData {
 				$pfpf->setPayType( 10 ); //Pay Multiplied By Factor
 				$pfpf->setRate( 1.0 );
 				$pfpf->setAccrualPolicyAccount( $accrual_policy_account_id );
-				$pfpf->setAccrualRate( 1.0 );
+				$pfpf->setAccrualRate( -1.0 );
 				break;
 			case 130:
 				$pfpf->setName( 'Sick Time' );
 				$pfpf->setPayType( 10 ); //Pay Multiplied By Factor
 				$pfpf->setRate( 1.0 );
 				$pfpf->setAccrualPolicyAccount( $accrual_policy_account_id );
-				$pfpf->setAccrualRate( 1.0 );
+				$pfpf->setAccrualRate( -1.0 );
 				break;
 			case 200:
 				$pfpf->setName( 'OverTime (1.5x)' );
@@ -6320,6 +6320,29 @@ class DemoData {
 		}
 
 		$udtf->FailTransaction();
+
+		return FALSE;
+	}
+
+	function deleteAbsence( $id ) {
+		$udtlf = TTnew( 'UserDateTotalListFactory' );
+		$udtlf->getById( $id );
+		if ( $udtlf->getRecordCount() > 0 ) {
+			Debug::Text('Deleting UDT ID: '. $id, __FILE__, __LINE__, __METHOD__, 10);
+			foreach($udtlf as $udt_obj) {
+				$udt_obj->setDeleted(TRUE);
+				$udt_obj->setEnableTimeSheetVerificationCheck(TRUE); //Unverify timesheet if its already verified.
+				$udt_obj->setEnableCalcSystemTotalTime( TRUE );
+				$udt_obj->setEnableCalcWeeklySystemTotalTime( TRUE );
+				$udt_obj->setEnableCalcException( TRUE );
+				if ( $udt_obj->isValid() ) {
+					$udt_obj->Save();
+				}
+			}
+			Debug::Text('Deleting UDT ID: '. $id .' Done...', __FILE__, __LINE__, __METHOD__, 10);
+
+			return TRUE;
+		}
 
 		return FALSE;
 	}

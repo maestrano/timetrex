@@ -235,7 +235,7 @@ class GovernmentForms_Base {
 	}
 
 	function stripNonAlphaNumeric($value) {
-		$retval = preg_replace('/[^A-Za-z0-9]\ /', '', $value); //Don't strip spaces
+		$retval = preg_replace('/[^A-Za-z0-9\ ]/', '', $value); //Don't strip spaces
 
 		return $retval;
 	}
@@ -571,7 +571,7 @@ class GovernmentForms_Base {
 
 				//Handle combining multiple template together with a X,Y offset.
 				foreach( $schema['combine_templates'] as $combine_template ) {
-					Debug::text('Combining Template Pages... Template: '. $combine_template['template_page'] .' Y: '. $combine_template['y'], __FILE__, __LINE__, __METHOD__, 10);
+					//Debug::text('Combining Template Pages... Template: '. $combine_template['template_page'] .' Y: '. $combine_template['y'], __FILE__, __LINE__, __METHOD__, 10);
 					$pdf->useTemplate( $this->template_index[$combine_template['template_page']], $combine_template['x']+$this->getTemplateOffsets('x'), $combine_template['y']+$this->getTemplateOffsets('y') );
 
 					$this->setPageOffsets( $combine_template['x'], $combine_template['y']);

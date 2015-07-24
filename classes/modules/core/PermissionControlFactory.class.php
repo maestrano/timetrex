@@ -134,20 +134,9 @@ class PermissionControlFactory extends Factory {
 	}
 
 	function getCompanyObject() {
-		if ( is_object($this->company_obj) ) {
-			return $this->company_obj;
-		} else {
-			$clf = TTnew( 'CompanyListFactory' );
-			$clf->getById( $this->getCompany() );
-			if ( $clf->getRecordCount() > 0 ) {
-				$this->company_obj = $clf->getCurrent();
-				return $this->company_obj;
-			}
-
-			return FALSE;
-		}
+		return $this->getGenericObject( 'CompanyListFactory', $this->getCompany(), 'company_obj' );
 	}
-
+	
 	function getCompany() {
 		if ( isset($this->data['company_id']) ) {
 			return (int)$this->data['company_id'];
@@ -403,10 +392,12 @@ class PermissionControlFactory extends Factory {
 			return TRUE;
 		}
 
-		global $profiler;
+		global $profiler, $config_vars;
 		$profiler->startTimer( 'setPermission' );
 
-		if ( defined('TIMETREX_API') AND TIMETREX_API == TRUE ) {
+		//Since implementing the HTML5 Install Wizard, which uses the API, we have to check to see if the installer is enabled, and if so skip this next block of code.
+		if ( defined('TIMETREX_API') AND TIMETREX_API == TRUE
+				AND ( isset($config_vars['other']['installer_enabled']) AND $config_vars['other']['installer_enabled'] == 0 ) ) {
 			//When creating a new permission group this causes it to be really slow as it creates a record for every permission that is set to DENY.
 			
 			//If we do the permission diff it messes up the HTML interface.
@@ -422,7 +413,6 @@ class PermissionControlFactory extends Factory {
 			//Debug::Text(' New Permissions: '. count($permission_arr), __FILE__, __LINE__, __METHOD__, 10);
 			//Debug::Arr($permission_arr, ' Final Permissions: '. count($permission_arr), __FILE__, __LINE__, __METHOD__, 10);
 		}
-
 		$pf = TTnew( 'PermissionFactory' );
 
 		//Don't Delete all previous permissions, do that in the Permission class.
@@ -440,7 +430,7 @@ class PermissionControlFactory extends Factory {
 							) {
 
 						if ( $value == 0 OR $value == 1 ) {
-							Debug::Text('	 Modifying/Adding Permission: '. $name .' - Value: '. $value, __FILE__, __LINE__, __METHOD__, 10);
+							Debug::Text('	 Modifying/Adding Section: '. $section .' Permission: '. $name .' - Value: '. $value, __FILE__, __LINE__, __METHOD__, 10);
 							$tmp_pf = TTnew( 'PermissionFactory' );
 							$tmp_pf->setCompany( $this->getCompanyObject()->getId() );
 							$tmp_pf->setPermissionControl( $this->getId() );
@@ -559,7 +549,7 @@ class PermissionControlFactory extends Factory {
 	}
 
 	function addLog( $log_action ) {
-		return TTLog::addEntry( $this->getId(), $log_action, TTi18n::getText('Permission Group: '). $this->getName(), NULL, $this->getTable(), $this );
+		return TTLog::addEntry( $this->getId(), $log_action, TTi18n::getText('Permission Group').': '. $this->getName(), NULL, $this->getTable(), $this );
 	}
 }
 ?>

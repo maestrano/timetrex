@@ -459,6 +459,7 @@ class Net_Curl
         $ret = true;
 
         // Basic stuff
+		$ret = curl_setopt($this->_ch, CURLOPT_SAFE_UPLOAD, false ); //Fixes change in PHP v5.6 that prevents @$file_name uploading.
         $ret = curl_setopt($this->_ch, CURLOPT_URL, $this->url);
         $ret = curl_setopt($this->_ch, CURLOPT_HEADER, $this->header);
 

@@ -1409,7 +1409,6 @@ TimeSheetViewController = BaseViewController.extend( {
 		var key = target.getField();
 		var c_value = target.getValue();
 		this.current_edit_record[key] = c_value;
-
 		switch ( key ) {
 			case 'job_id':
 				if ( ( LocalCacheData.getCurrentCompany().product_edition_id >= 20 ) ) {
@@ -1429,9 +1428,6 @@ TimeSheetViewController = BaseViewController.extend( {
 					this.onJobQuickSearch( key, c_value );
 				}
 				break;
-			case 'src_object_id':
-				this.onAvailableBalanceChange();
-				break;
 			case 'punch_dates':
 				this.setEditMenu();
 				break;
@@ -1440,15 +1436,8 @@ TimeSheetViewController = BaseViewController.extend( {
 
 		if ( this.absence_model ) {
 			if ( key === 'total_time' ) {
-
 				c_value = this.api_date.parseTimeUnit( c_value, {async: false} ).getResult();
 				this.current_edit_record[key] = c_value;
-				this.onAvailableBalanceChange();
-			} else if ( key === 'date_stamp' ||
-				key === 'punch_dates' ) {
-
-				this.onAvailableBalanceChange();
-
 			} else {
 				this.current_edit_record[key] = c_value;
 			}
@@ -1463,6 +1452,14 @@ TimeSheetViewController = BaseViewController.extend( {
 		}
 
 		if ( !doNotValidate ) {
+			if ( this.absence_model ) {
+				if ( key === 'total_time' ||
+					key === 'date_stamp' ||
+					key === 'punch_dates' ||
+					key === 'src_object_id' ) {
+					this.onAvailableBalanceChange();
+				}
+			}
 			this.validate();
 		}
 
@@ -1635,6 +1632,8 @@ TimeSheetViewController = BaseViewController.extend( {
 			/* jshint ignore:end */
 
 			$this.setEmployeeNavArrowsStatus();
+			$this.absence_model = false;
+			$this.setDefaultMenu();
 
 		} );
 
@@ -1976,7 +1975,7 @@ TimeSheetViewController = BaseViewController.extend( {
 		var column = {
 			name: 'pay_period',
 			index: 'pay_period',
-			label: 'Pay Period',
+			label: $.i18n._('Pay Period'),
 			width: 100,
 			sortable: false,
 			title: false
@@ -1986,7 +1985,7 @@ TimeSheetViewController = BaseViewController.extend( {
 		column = {
 			name: 'verification',
 			index: 'verification',
-			label: 'Window',
+			label: $.i18n._('Window'),
 			width: 100,
 			sortable: false,
 			title: false
@@ -2116,7 +2115,7 @@ TimeSheetViewController = BaseViewController.extend( {
 				if ( pay_period.id === pay_period_id ) {
 					var start_date = Global.strToDate( pay_period.start_date ).format();
 					var end_date = Global.strToDate( pay_period.end_date ).format();
-					this.pay_period_header = start_date + ' to ' + end_date;
+					this.pay_period_header = start_date + ' ' + $.i18n._( 'to' ) + ' ' + end_date;
 					break;
 				}
 			}
@@ -2173,7 +2172,7 @@ TimeSheetViewController = BaseViewController.extend( {
 		var column_1 = {
 			name: 'week',
 			index: 'week',
-			label: start_date_str + ' to ' + end_date_str,
+			label: start_date_str + ' '+ $.i18n._('to')+' ' + end_date_str,
 			width: 100,
 			sortable: false,
 			title: false,
@@ -3071,7 +3070,7 @@ TimeSheetViewController = BaseViewController.extend( {
 			var colspan = column_number;
 			var pay_period_th = new_th.clone();
 
-			pay_period_th.children( 0 ).text( start_date + ' to ' + end_date );
+			pay_period_th.children( 0 ).text( start_date + ' '+ $.i18n._('to')+' ' + end_date );
 			pay_period_th.attr( 'colspan', colspan );
 
 			/* jshint ignore:start */
@@ -3536,10 +3535,11 @@ TimeSheetViewController = BaseViewController.extend( {
 		if ( grid_id === 'timesheet_grid' ) {
 			cells_array = $this.select_cells_Array;
 			len = $this.select_cells_Array.length;
-
+			$this.absence_select_cells_Array = [];
 		} else if ( grid_id === 'absence_grid' ) {
 			cells_array = $this.absence_select_cells_Array;
 			len = $this.absence_select_cells_Array.length;
+			$this.select_cells_Array = [];
 		} else if ( grid_id === 'accumulated_grid' ) {
 			cells_array = $this.accumulated_time_cells_array;
 			len = $this.accumulated_time_cells_array.length;
@@ -3560,7 +3560,7 @@ TimeSheetViewController = BaseViewController.extend( {
 					var date = Global.strToDate( info.punch.punch_date ).format( 'MM-DD-YYYY' );
 					var date_time = date + ' ' + info.punch.punch_time;
 
-					info.punch.time_stamp_num = Date.parse( date_time ).getTime();
+					info.punch.time_stamp_num = Global.strToDateTime( date_time ).getTime();
 				} else {
 					info.punch.time_stamp_num = info.time_stamp_num; //Uer time_stamp_num from cell select setting, a date number
 				}
@@ -4254,7 +4254,7 @@ TimeSheetViewController = BaseViewController.extend( {
 		if ( Global.isSet( accumulated_time ) ) {
 			this.buildSubGridsData( accumulated_time, 'pay_period', this.accumulated_total_grid_source_map, this.accumulated_total_grid_source, 'accumulated_time' );
 		} else {
-			accumulated_time = {total: {label: 'Total Time', total_time: '0'}};
+			accumulated_time = {total: {label: $.i18n._( 'Total Time' ), total_time: '0'}};
 			this.buildSubGridsData( accumulated_time, 'pay_period', this.accumulated_total_grid_source_map, this.accumulated_total_grid_source, 'accumulated_time' );
 		}
 
@@ -4269,7 +4269,7 @@ TimeSheetViewController = BaseViewController.extend( {
 		//Build Accumulated Total Grid Pay_period column data end
 
 		var column_len = this.timesheet_columns.length;
-		accumulated_time = {total: {label: 'Total Time', total_time: '0'}};
+		accumulated_time = {total: {label: $.i18n._( 'Total Time' ), total_time: '0'}};
 		var date_string;
 		var date;
 		for ( var i = 1; i < column_len; i++ ) {
@@ -4581,7 +4581,7 @@ TimeSheetViewController = BaseViewController.extend( {
 
 		}
 
-		var verification_data = this.timesheet_verify_data.verification_window_dates.start + ' to ' + this.timesheet_verify_data.verification_window_dates.end
+		var verification_data = this.timesheet_verify_data.verification_window_dates.start + ' '+ $.i18n._('to')+' ' + this.timesheet_verify_data.verification_window_dates.end
 
 		var pay_period_data = this.pay_period_header;
 
@@ -4592,19 +4592,30 @@ TimeSheetViewController = BaseViewController.extend( {
 	buildPunchNoteGridSource: function() {
 		this.punch_note_grid_source = [];
 		var punch_array = this.full_timesheet_data.punch_data;
+		var absence_array = this.full_timesheet_data.user_date_total_data;
 		var len = punch_array.length;
+		var len1 = absence_array.length;
 		var last_control_id = '';
+		var date;
+		var date_string;
 		for ( var i = 0; i < len; i++ ) {
 			var punch = punch_array[i];
-			var date = Global.strToDate( punch.date_stamp );
-			var date_string = date.format();
-
+			date = Global.strToDate( punch.date_stamp );
+			date_string = date.format();
 			if ( punch.note && punch.punch_control_id !== last_control_id ) {
 				this.punch_note_account = this.punch_note_account + 1;
 				this.punch_note_grid_source.push( {note: date_string + ' @ ' + punch.punch_time + ': ' + punch.note} );
 				last_control_id = punch.punch_control_id;
 			}
-
+		}
+		for ( var x = 0; x < len1; x++ ) {
+			var absence = absence_array[x];
+			date = Global.strToDate( absence.date_stamp );
+			date_string = date.format();
+			if ( absence.note ) {
+				this.punch_note_account = this.punch_note_account + 1;
+				this.punch_note_grid_source.push( {note: date_string + ' @ ' + Global.secondToHHMMSS( absence.total_time ) + ': ' + absence.note} );
+			}
 		}
 	},
 
@@ -4618,16 +4629,16 @@ TimeSheetViewController = BaseViewController.extend( {
 		var row;
 
 		for ( var i = 0; i < len; i++ ) {
+
 			var absence = absence_array[i];
 
 			if ( absence.object_type_id !== 50 ) {
 				continue;
 			}
 			this.absence_original_source.push( absence );
-
 			var date = Global.strToDate( absence.date_stamp );
 			var date_string = date.format( this.full_format );
-			var key = absence.src_object_id + absence.branch_id + absence.department_id;
+			var key = absence.src_object_id + '-' + absence.pay_code_id;
 
 			if ( !map[key] ) {
 				row = {};
@@ -4636,7 +4647,6 @@ TimeSheetViewController = BaseViewController.extend( {
 				row.punch_info_id = absence.src_object_id;
 				row.user_id = absence.user_id;
 				row[date_string] = Global.secondToHHMMSS( absence.total_time );
-
 				row[date_string + '_data'] = absence;
 				this.absence_source.push( row );
 				map[key] = row
@@ -4652,7 +4662,7 @@ TimeSheetViewController = BaseViewController.extend( {
 
 					row[date_string + '_data'] = absence;
 					this.absence_source.push( row );
-					map[key] = row
+					map[key] = row;
 
 				} else {
 
@@ -6141,7 +6151,8 @@ TimeSheetViewController = BaseViewController.extend( {
 				}
 
 			}
-
+			// To use proper context menu for each punch or abseonce mode.
+			this.setDefaultMenu();
 			$this.openEditView();
 
 			if ( doing_save_and_new ) {
@@ -6223,9 +6234,9 @@ TimeSheetViewController = BaseViewController.extend( {
 			if ( doing_save_and_new ) {
 				date = this.current_edit_record.date_stamp;
 			}
-
+			// To use proper context menu for each punch or abseonce mode.
+			$this.setDefaultMenu();
 			$this.openEditView();
-
 			this.api_user_date_total['get' + this.api_user_date_total.key_name + 'DefaultData']( this.getSelectEmployee(),
 				date,
 				{
@@ -6252,6 +6263,16 @@ TimeSheetViewController = BaseViewController.extend( {
 
 		}
 
+	},
+
+	removeEditView: function() {
+		this._super( 'removeEditView' );
+		if ( this.absence_select_cells_Array.length > 0 ) {
+			this.absence_model = true;
+		} else {
+			this.absence_model = false;
+		}
+		this.setDefaultMenu();
 	},
 
 	isMassDate: function() {
@@ -6682,14 +6703,13 @@ TimeSheetViewController = BaseViewController.extend( {
 	},
 
 	onAvailableBalanceChange: function() {
-
-		this.edit_view_form_item_dic['available_balance'].css( 'display', 'none' );
 		if ( this.current_edit_record.hasOwnProperty( 'src_object_id' ) &&
 			this.current_edit_record.src_object_id && !this.is_mass_editing ) {
 			this.getAvailableBalance();
+		} else {
+			this.edit_view_form_item_dic['available_balance'].css( 'display', 'none' );
 		}
 		this.editFieldResize();
-
 	},
 
 	getAvailableBalance: function() {
@@ -6720,7 +6740,6 @@ TimeSheetViewController = BaseViewController.extend( {
 				}
 
 			}
-
 			this.api_absence_policy.getProjectedAbsencePolicyBalance(
 				this.current_edit_record.src_object_id,
 				this.getSelectEmployee(),
@@ -6735,33 +6754,27 @@ TimeSheetViewController = BaseViewController.extend( {
 
 			function getBalanceHandler( result ) {
 				result_data = result.getResult();
-
 				//Error: TypeError: this.edit_view_ui_dic.available_balance is undefined in https://ondemand1.timetrex.com/interface/html5/framework/jquery.min.js?v=8.0.0-20141117-091433 line 2 > eval line 6570
 				if ( !$this.edit_view_ui_dic || !$this.edit_view_ui_dic['available_balance'] ) {
 					return;
 				}
-
 				if ( !result_data ) {
 					$this.edit_view_form_item_dic['available_balance'].css( 'display', 'none' );
 					return;
 				}
-
 				$this.edit_view_form_item_dic['available_balance'].css( 'display', 'block' );
-
 				$this.absence_available_balance_dataList = {};
 				$this.absence_available_balance_dataList.available_balance = Global.secondToHHMMSS( result_data.available_balance );
 				$this.absence_available_balance_dataList.current_time = Global.secondToHHMMSS( result_data.current_time );
 				$this.absence_available_balance_dataList.projected_balance = Global.secondToHHMMSS( result_data.projected_balance );
 				$this.absence_available_balance_dataList.projected_remaining_balance = Global.secondToHHMMSS( result_data.projected_remaining_balance );
 				$this.absence_available_balance_dataList.remaining_balance = Global.secondToHHMMSS( result_data.remaining_balance );
-
 				$this.edit_view_ui_dic['available_balance'].setValue( $this.absence_available_balance_dataList.projected_remaining_balance );
-
 				$this.available_balance_info.qtip(
 					{
 						show: {
 							when: {event: 'click'},
-							delay: 0,
+							delay: 10,
 							effect: {type: 'fade', length: 0}
 						},
 
@@ -6781,7 +6794,6 @@ TimeSheetViewController = BaseViewController.extend( {
 						'<div style="width:100%; clear: both;"><span style="float:left;">Projected Balance by ' + last_date_stamp + ': </span><span style="float:right;">' + $this.absence_available_balance_dataList.projected_balance + '</span></div>' +
 						'<div style="width:100%; clear: both;"><span style="float:left;">Projected Remaining Balance:</span><span style="float:right;">' + $this.absence_available_balance_dataList.projected_remaining_balance + '</span></div>' +
 						'</div>'
-
 					} );
 			}
 

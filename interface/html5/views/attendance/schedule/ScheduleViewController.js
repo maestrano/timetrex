@@ -567,6 +567,11 @@ ScheduleViewController = BaseViewController.extend( {
 		filter.filter_data = {};
 		filter.filter_data.id = this.mass_edit_record_ids;
 
+		if( this.mass_edit_record_ids.length < 1){
+			onMassEditResult([]);
+			return;
+		}
+
 		this.api['getCommon' + this.api.key_name + 'Data']( filter, {
 			onResult: function( result ) {
 
@@ -575,31 +580,34 @@ ScheduleViewController = BaseViewController.extend( {
 				if ( !result_data ) {
 					result_data = [];
 				}
-
-				$this.api['getOptions']( 'unique_columns', {
-					onResult: function( result ) {
-						$this.unique_columns = result.getResult();
-						$this.api['getOptions']( 'linked_columns', {
-							onResult: function( result1 ) {
-
-								$this.linked_columns = result1.getResult();
-
-								if ( $this.sub_view_mode && $this.parent_key ) {
-									result_data[$this.parent_key] = $this.parent_value;
-								}
-
-								$this.current_edit_record = result_data;
-								$this.is_mass_editing = true;
-								$this.initEditView();
-
-							}
-						} );
-
-					}
-				} );
+				onMassEditResult(result_data);
 
 			}
 		} );
+
+		function onMassEditResult(result_data){
+			$this.api['getOptions']( 'unique_columns', {
+				onResult: function( result ) {
+					$this.unique_columns = result.getResult();
+					$this.api['getOptions']( 'linked_columns', {
+						onResult: function( result1 ) {
+
+							$this.linked_columns = result1.getResult();
+
+							if ( $this.sub_view_mode && $this.parent_key ) {
+								result_data[$this.parent_key] = $this.parent_value;
+							}
+
+							$this.current_edit_record = result_data;
+							$this.is_mass_editing = true;
+							$this.initEditView();
+
+						}
+					} );
+
+				}
+			} );
+		}
 
 	},
 
@@ -1396,6 +1404,7 @@ ScheduleViewController = BaseViewController.extend( {
 				event.stopPropagation(); // stops the browser from redirecting.
 			}
 
+			var target_empty_row = false;
 			var delete_old_items = false;
 
 			var new_shifts_array = [];
@@ -1439,7 +1448,9 @@ ScheduleViewController = BaseViewController.extend( {
 					first_selected_row_index = shift.row_index;
 					first_selected_cell_index = shift.cell_index;
 				} else {
-					row_index_offset = shift.row_index - first_selected_row_index;
+					if ( !target_empty_row ) {
+						row_index_offset = shift.row_index - first_selected_row_index;
+					}
 					cell_index_offset = shift.cell_index - first_selected_cell_index
 				}
 
@@ -1453,13 +1464,17 @@ ScheduleViewController = BaseViewController.extend( {
 				var target_data = $this.getDataByCellIndex( target_row_index, target_cell_index );
 				var target_row = $this.schedule_source[target_row_index];
 
+				if ( i === 0 && !target_row.user_id ) {
+					target_empty_row = true;
+				}
+
 				if ( target_row ) {
 
 					if ( target_row.type === ScheduleViewControllerRowType.DATE ) {
 						break;
 					}
 
-					if ( !target_data ) {
+					if ( !target_data || target_empty_row ) {
 						var date_stamp;
 
 						//Error: TypeError: colModel[target_cell_index] is undefined in https://ondemand2001.timetrex.com/interface/html5/framework/jquery.min.js?v=8.0.0-20141230-153210 line 2 > eval line 1443
@@ -2802,7 +2817,7 @@ ScheduleViewController = BaseViewController.extend( {
 			context_btn.addClass( 'invisible-image' );
 		}
 
-		if ( this.select_shifts_array.length > 0 && this.deleteOwnerOrChildPermissionValidate() ) {
+		if ( this.select_shifts_array.length > 0 && this.deleteOwnerOrChildPermissionValidate( pId ) ) {
 			context_btn.removeClass( 'disable-image' );
 		} else {
 			context_btn.addClass( 'disable-image' );
@@ -3033,7 +3048,7 @@ ScheduleViewController = BaseViewController.extend( {
 		layout_div.append( "<div class='clear-both-div'></div>" );
 
 		this.column_selector.setColumns( [
-			{name: 'label', index: 'label', label: 'Column Name', width: 100, sortable: false}
+			{name: 'label', index: 'label', label: $.i18n._('Column Name'), width: 100, sortable: false}
 		] );
 
 		//Save and update layout
@@ -3834,7 +3849,6 @@ ScheduleViewController = BaseViewController.extend( {
 				if ( $this.full_schedule_data === true || !$this.full_schedule_data || !$this.full_schedule_data.schedule_dates ) {
 					return;
 				}
-
 				$this.start_date = Global.strToDate( $this.full_schedule_data.schedule_dates.start_display_date );
 				$this.end_date = Global.strToDate( $this.full_schedule_data.schedule_dates.end_display_date );
 				$this.buildCalendars();
@@ -3850,10 +3864,10 @@ ScheduleViewController = BaseViewController.extend( {
 
 	},
 
-	getLastDateOfMonthTime: function() {
-		var last_date_row = this.month_date_row_array[this.month_date_row_array.length - 1];
+	getLastDateOfRow: function( row ) {
+		//var last_date_row = this.month_date_row_array[this.month_date_row_array.length - 1];
 
-		return last_date_row['6_time'];
+		return row['6_time'];
 
 	},
 
@@ -4521,20 +4535,17 @@ ScheduleViewController = BaseViewController.extend( {
 
 	buildMonthSource: function() {
 		var $this = this;
-
 		var date_row_index = 0;
 		var month_week_data_index = 0;
 		var date_row = this.month_date_row_array[date_row_index];
 		var start_day = this.start_date.getDay(); //start from first date row, not include column
-
 		var first_day_time = date_row[start_day + '_time'];
 		var month_week_data_array = [];
-
 		var has_date_array = this.has_date_array.slice();
-
 		for ( var j = 0; j < 5; j++ ) {
 			var current_week_array = [];
 			var len = has_date_array.length;
+			var is_last_row = false;
 			for ( var i = 0; i < len; i++ ) {
 
 				var shift = has_date_array[i];
@@ -4552,11 +4563,23 @@ ScheduleViewController = BaseViewController.extend( {
 				}
 			}
 
-			current_week_array = this.no_date_array.slice().concat( current_week_array )
+			if ( this.all_employee_btn.getValue() ) {
+				if ( j === 0 ) {
+					current_week_array = this.no_date_array.slice().concat( current_week_array );
+				} else {
+					// only first week empty users are comming from API, calculate all other weeks data
+					var no_date_array = this.buildMonthWeekNoDateArray( current_week_array );
+					current_week_array = no_date_array.slice().concat( current_week_array );
+				}
+			}
 
 			month_week_data_array[month_week_data_index] = current_week_array;
-
-			if ( date_row_index < 3 ) {
+			if ( date_row_index > 2 ) {
+				is_last_row = true;
+			} else if ( date_row_index === 2 && !this.month_date_row_array[3].hasOwnProperty( 0 ) ) {
+				is_last_row = true;
+			}
+			if ( !is_last_row ) {
 				date_row_index = date_row_index + 1;
 				month_week_data_index = month_week_data_index + 1;
 				date_row = this.month_date_row_array[date_row_index];
@@ -4565,7 +4588,7 @@ ScheduleViewController = BaseViewController.extend( {
 				month_week_data_index = month_week_data_index + 1;
 
 				//Don't use this.end_date because the end date may larger than the last day of this month. Use the last date in date row
-				var end_date_time = this.getLastDateOfMonthTime();
+				var end_date_time = this.getLastDateOfRow( this.month_date_row_array[date_row_index] );
 				var end_date = new Date( end_date_time );
 				first_day_time = new Date( end_date.setDate( end_date.getDate() + 1 ) ).getTime();
 			}
@@ -4575,17 +4598,13 @@ ScheduleViewController = BaseViewController.extend( {
 		buildMonthWeeklyData( 0, month_week_data_array[1] );
 		buildMonthWeeklyData( 1, month_week_data_array[2] );
 		buildMonthWeeklyData( 2, month_week_data_array[3] );
-
 		buildMonthWeeklyData( 3, month_week_data_array[4] );
-//		  buildEmptyRow( 3 );
 
 		function buildMonthWeeklyData( rowIndex, source_array ) {
-
 			if ( source_array.length < 1 ) {
 				buildEmptyRow( rowIndex );
 				return;
 			}
-
 			var map = {};
 			var len = source_array.length;
 			var push_to_last = false;
@@ -4717,18 +4736,29 @@ ScheduleViewController = BaseViewController.extend( {
 				}
 
 			}
-
+			if ( source_array.length > 0 ) {
+				buildEmptyRow( rowIndex, true );
+			}
 		}
 
-		function buildEmptyRow( date_row_index ) {
-
+		function buildEmptyRow( date_row_index, add_last ) {
+			if ( add_last ) {
+				date_row_index = date_row_index + 1;
+			}
 			if ( date_row_index === -1 ) {
 				var index = 0;
 			} else {
 				var date_row = $this.month_date_row_array[date_row_index];
-				index = $this.schedule_source.indexOf( date_row ) + 1;
+				if ( add_last ) {
+					if ( date_row ) {
+						index = $this.schedule_source.indexOf( date_row );
+					} else {
+						index = $this.schedule_source.length;
+					}
+				} else {
+					index = $this.schedule_source.indexOf( date_row ) + 1;
+				}
 			}
-
 			var row = $this.getEmptyWeeklyRow();
 			row.type = ScheduleViewControllerRowType.EMPTY;
 			$this.schedule_source.splice( index, 0, row );
@@ -4834,32 +4864,23 @@ ScheduleViewController = BaseViewController.extend( {
 	},
 
 	buildDailyHeaders: function() {
-
 		var $this = this;
 		var col_model = this.schedule_columns;
 		var label_column = col_model[this.select_layout.data.display_columns.length + 1];
-
 		var first_time = -1;
 		var last_time = -1;
-
 		var first_date_time = '';
 		var last_date_time = '';
-
 		var first_time_str = '';
 		var last_time_str = '';
-
 		var len = this.has_date_array.length;
-
 		if ( len === 0 ) {
-
 			var res = this.api.getScheduleDefaultData( {async: false} );
 			var data = res.getResult();
 			var selected_date_str = $this.getSelectDate();
 			first_date_time = selected_date_str + ' ' + data.start_time;
 			last_date_time = selected_date_str + ' ' + data.end_time;
-
 			doNext();
-
 			return;
 		}
 		for ( var i = 0; i < len; i++ ) {
@@ -4895,27 +4916,18 @@ ScheduleViewController = BaseViewController.extend( {
 			var current_date_time = new Date( Global.strToDateTime( first_date_time ).getTime() - 3600000 );
 			last_date_time = Global.strToDateTime( last_date_time );
 			var min = current_date_time.getMinutes() * 60000;
-
 			var time_span = $( "<span class='day_hour_span'></span>" );
-
 			if ( min > 0 ) {
 				current_date_time = new Date( current_date_time.getTime() - min );
 			}
-
 			$this.day_mode_start_date_time = current_date_time;
-
 			var time_offset = (last_date_time.getTime() - current_date_time.getTime()) / 3600000;
 			var header_container = $( "<div class='day_hour_div'></div>" );
-
 			var day_column = $( "<div class='day-column'></div>" );
-
 			var day = $this.start_date.format( $this.weekly_format );
-
 			day = $this.setHolidayHeader( day, true );
 			day_column.text( day );
-
 			var time_columns = $( "<div></div>" );
-
 			var time_string = '';
 			for ( var i = 0; i < time_offset; i++ ) {
 				var current_hour_text = time_span.clone();
@@ -4928,19 +4940,12 @@ ScheduleViewController = BaseViewController.extend( {
 				time_columns.append( current_hour_text );
 				current_date_time = new Date( current_date_time.getTime() + 3600000 );
 			}
-
 			header_container.append( day_column );
 			header_container.append( time_columns );
-
 			$this.buildTotalShiftDic( time_string );
-
 			label_column.label = header_container[0].outerHTML;
-			if ( Math.ceil( time_offset ) > time_offset ) {
-				label_column.width = $this.day_hour_width * Math.ceil( time_offset );
-			} else {
-				label_column.width = $this.day_hour_width * time_offset + 1
-			}
-
+			// Include padding.
+			label_column.width = $this.day_hour_width * time_offset + 10
 			$this.day_header_width = label_column.width;
 
 		}
@@ -5267,12 +5272,31 @@ ScheduleViewController = BaseViewController.extend( {
 
 	},
 
+	buildMonthWeekNoDateArray: function( current_week_array ) {
+		var has_date_user_map = {};
+		var result = [];
+
+		for ( var i = 0, ii = current_week_array.length; i < ii; i++ ) {
+			var item = Global.clone( current_week_array[i] );
+			has_date_user_map[item.user_id] = true;
+		}
+
+		for ( var key in this.all_user_map ) {
+			if ( !has_date_user_map[key] ) {
+				var item = Global.clone( this.all_user_map[key] );
+				item.date_stamp = false;
+				result.push( item );
+			}
+		}
+
+		return result;
+	},
+
 	buildNoDateArray: function() {
 		var records = [];
 		var sort_array = [];
 		var sort_item;
-		var schedule_data = this.full_schedule_data.schedule_data
-
+		var schedule_data = this.full_schedule_data.schedule_data;
 		for ( var date_key in schedule_data ) {
 			sort_item = {};
 			sort_item.value = schedule_data[date_key];
@@ -5281,13 +5305,11 @@ ScheduleViewController = BaseViewController.extend( {
 		}
 
 		var len = sort_array.length;
-
 		for ( var i = 0; i < len; i++ ) {
 			var date_item = sort_array[i];
 			for ( var item_key    in date_item.value ) {
 				var item = date_item.value[item_key];
 				item = this.replaceFalseToEmptyStringForSortFields( item );
-
 				if ( !item.date_stamp ) {
 					records.push( date_item.value[item_key] );
 				}
@@ -5300,9 +5322,10 @@ ScheduleViewController = BaseViewController.extend( {
 
 	buildHasDateArray: function() {
 		var records = [];
+		this.all_user_map = {};
 		var sort_array = [];
 		var sort_item;
-		var schedule_data = this.full_schedule_data.schedule_data
+		var schedule_data = this.full_schedule_data.schedule_data;
 
 		for ( var date_key in schedule_data ) {
 			sort_item = {};
@@ -5310,15 +5333,13 @@ ScheduleViewController = BaseViewController.extend( {
 			sort_item.sort_key = date_key;
 			sort_array.push( sort_item );
 		}
-
 		var len = sort_array.length;
-
 		for ( var i = 0; i < len; i++ ) {
 			var date_item = sort_array[i];
 			for ( var item_key    in date_item.value ) {
 				var item = date_item.value[item_key];
 				item = this.replaceFalseToEmptyStringForSortFields( item );
-
+				this.all_user_map[item.user_id] = Global.clone( item );
 				if ( item.date_stamp ) {
 					records.push( date_item.value[item_key] );
 				}
@@ -5536,7 +5557,7 @@ ScheduleViewController = BaseViewController.extend( {
 						content_div.css( 'padding-right', '15px' );
 					}
 
-				} else if ( Date.parse( col_model.index ) ) {
+				} else if ( Global.strToDate( col_model.index ) ) {
 
 					total_span = $( "<span class='schedule-time total'></span>" );
 					currency = LocalCacheData.getCurrentCurrencySymbol();
@@ -5707,7 +5728,7 @@ ScheduleViewController = BaseViewController.extend( {
 					time_span = $( "<span class='schedule-time total'></span>" );
 					time_span.text( cell_value );
 					content_div.prepend( time_span );
-				} else if ( Date.parse( col_model.index ) ) {
+				} else if ( Global.strToDate( col_model.index ) ) {
 
 					currency = LocalCacheData.getCurrentCurrencySymbol();
 					time_span = $( "<span class='schedule-time total'></span>" );
@@ -5820,7 +5841,7 @@ ScheduleViewController = BaseViewController.extend( {
 						content_div.css( 'padding-right', '15px' );
 					}
 
-				} else if ( Date.parse( col_model.index ) ) {
+				} else if ( Global.strToDate( col_model.index ) ) {
 
 					total_span = $( "<span class='schedule-time total'></span>" );
 					currency = LocalCacheData.getCurrentCurrencySymbol();
@@ -5947,8 +5968,23 @@ ScheduleViewController = BaseViewController.extend( {
 				}
 
 				this.select_all_shifts_array.sort( function( a, b ) {
+					if ( a.row_index < b.row_index ) {
+						return -1;
+					}
+					if ( a.row_index > b.row_index ) {
+						return 1;
+					}
 
-					return Global.compare( a, b, 'start_date_num' );
+					if ( a.row_index === b.row_index ) {
+						if ( a.cell_index < b.cell_index ) {
+							return -1;
+						}
+						if ( a.cell_index > b.cell_index ) {
+							return 1;
+						}
+					}
+
+					return 0;
 
 				} );
 			}
@@ -6036,7 +6072,7 @@ ScheduleViewController = BaseViewController.extend( {
 			date = Global.strToDate( data_field, this.full_format );
 		}
 
-		if ( date.getTime() < -1 ) {
+		if ( !date || date.getTime() < -1 ) {
 			date = new Date();
 		}
 
@@ -6050,7 +6086,7 @@ ScheduleViewController = BaseViewController.extend( {
 
 		if ( date ) {
 			var date_str = date.format();
-			var time_stamp_num = Date.parse( date_str ).getTime();
+			var time_stamp_num = Global.strToDate( date_str ).getTime();
 		} else {
 			date_str = '';
 			time_stamp_num = 0;
@@ -6146,7 +6182,7 @@ ScheduleViewController = BaseViewController.extend( {
 
 					if ( date && date.getTime() > 0 ) {
 						date_str = date.format();
-						time_stamp_num = Date.parse( date_str ).getTime();
+						time_stamp_num = Global.strToDate( date_str ).getTime();
 					} else {
 						date_str = '';
 						time_stamp_num = 0;
@@ -6314,7 +6350,7 @@ ScheduleViewController = BaseViewController.extend( {
 			fixed: false,
 			name: 'user_full_name',
 			index: 'user_full_name',
-			label: 'Employee',
+			label: $.i18n._('Employee'),
 			width: column_width,
 			sortable: false,
 			title: false,
@@ -6652,7 +6688,7 @@ ScheduleViewController = BaseViewController.extend( {
 			var shifts_column = {
 				name: 'shifts',
 				index: 'shifts',
-				label: 'Shifts',
+				label: $.i18n._('Shifts'),
 				width: 50,
 				sortable: false,
 				title: false,
@@ -6666,7 +6702,7 @@ ScheduleViewController = BaseViewController.extend( {
 			var absences_column = {
 				name: 'absences',
 				index: 'absences',
-				label: 'Absences',
+				label: $.i18n._('Absences'),
 				width: 70,
 				sortable: false,
 				title: false,
@@ -6680,7 +6716,7 @@ ScheduleViewController = BaseViewController.extend( {
 			var total_time = {
 				name: 'total_time',
 				index: 'total_time',
-				label: 'Total Time',
+				label: $.i18n._('Total Time'),
 				width: 70,
 				sortable: false,
 				title: false,
@@ -6694,7 +6730,7 @@ ScheduleViewController = BaseViewController.extend( {
 			var total_time_wage = {
 				name: 'total_time_wage',
 				index: 'total_time_wage',
-				label: 'Wages',
+				label: $.i18n._('Wages'),
 				width: 90,
 				sortable: false,
 				title: false,
@@ -7347,14 +7383,14 @@ ScheduleViewController = BaseViewController.extend( {
 				for ( var j = 0; j < column_keys_len; j++ ) {
 					var column_key = column_keys[j];
 					total_row = {type: ScheduleViewControllerRowType.TOTAL};
-					total_row[column_key.key] = 'Totals';
+					total_row[column_key.key] = $.i18n._( 'Totals' );
 					column_key.row = total_row;
 					column_key.value = row[column_key.key];
 
 				}
 
 				over_all_total_row = {type: ScheduleViewControllerRowType.TOTAL};
-				over_all_total_row.user_full_name = 'Overall Totals'
+				over_all_total_row.user_full_name = $.i18n._( 'Overall Totals' );
 			}
 
 			for ( var y = column_keys_len - 1; y >= 0; y-- ) {
@@ -7366,7 +7402,7 @@ ScheduleViewController = BaseViewController.extend( {
 					this.schedule_source.splice( i, 0, column_key.row );
 					i = i + 1;
 					total_row = {type: ScheduleViewControllerRowType.TOTAL};
-					total_row[column_key.key] = 'Totals';
+					total_row[column_key.key] = $.i18n._( 'Totals' );
 					column_key.row = total_row;
 					column_key.value = row[column_key.key];
 				}
@@ -7379,7 +7415,7 @@ ScheduleViewController = BaseViewController.extend( {
 			if ( row.type === ScheduleViewControllerRowType.DATE ) { //do not calculate date row
 				this.schedule_source.splice( i, 0, over_all_total_row );
 				over_all_total_row = {type: ScheduleViewControllerRowType.TOTAL};
-				over_all_total_row.user_full_name = 'Overall Totals';
+				over_all_total_row.user_full_name = $.i18n._( 'Overall Totals' );
 				i = i + 1;
 
 				continue;

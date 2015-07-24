@@ -1,9 +1,41 @@
 <?php
+/*********************************************************************************
+ * TimeTrex is a Payroll and Time Management program developed by
+ * TimeTrex Software Inc. Copyright (C) 2003 - 2014 TimeTrex Software Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Affero General Public License version 3 as published by
+ * the Free Software Foundation with the addition of the following permission
+ * added to Section 15 as permitted in Section 7(a): FOR ANY PART OF THE COVERED
+ * WORK IN WHICH THE COPYRIGHT IS OWNED BY TIMETREX, TIMETREX DISCLAIMS THE
+ * WARRANTY OF NON INFRINGEMENT OF THIRD PARTY RIGHTS.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU Affero General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses or write to the Free
+ * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301 USA.
+ *
+ * You can contact TimeTrex headquarters at Unit 22 - 2475 Dobbin Rd. Suite
+ * #292 Westbank, BC V4T 2E9, Canada or at email address info@timetrex.com.
+ *
+ * The interactive user interfaces in modified source and object code versions
+ * of this program must display Appropriate Legal Notices, as required under
+ * Section 5 of the GNU Affero General Public License version 3.
+ *
+ * In accordance with Section 7(b) of the GNU Affero General Public License
+ * version 3, these Appropriate Legal Notices must retain the display of the
+ * "Powered by TimeTrex" logo. If the display of the logo is not reasonably
+ * feasible for technical reasons, the Appropriate Legal Notices must display
+ * the words "Powered by TimeTrex".
+ ********************************************************************************/
+
 require_once('PHPUnit/Framework/TestCase.php');
 
-/**
- * @group SQL
- */
 class SQLTest extends PHPUnit_Framework_TestCase {
     public function setUp() {
 		global $dd;
@@ -38,6 +70,22 @@ class SQLTest extends PHPUnit_Framework_TestCase {
         return TRUE;
     }
 
+	function getListFactoryClassList( $equal_parts = 1 ) {
+		global $global_class_map;
+
+		$retarr = array();
+
+		//Get all ListFactory classes
+		foreach( $global_class_map as $class_name => $class_file_name ) {
+			if ( strpos( $class_name, 'ListFactory' ) !== FALSE ) {
+				$retarr[] = $class_name;
+			}
+		}
+
+		$chunk_size = ceil( ( count($retarr) / $equal_parts ) );
+		return array_chunk( $retarr, $chunk_size );
+	}
+	
 	function runSQLTestOnListFactory( $factory_name ) {
 		if ( class_exists( $factory_name ) ) {
 			$reflectionClass = new ReflectionClass( $factory_name );
@@ -317,141 +365,148 @@ class SQLTest extends PHPUnit_Framework_TestCase {
 		return FALSE;
 	}
 
-	function testSQL() {
-		global $TT_PRODUCT_EDITION, $global_class_map;
+	function runSQLTestOnEdition( $product_edition = TT_PRODUCT_ENTERPRISE, $class_list ) {
+		global $TT_PRODUCT_EDITION;
 
 		$original_product_edition = getTTProductEdition();
 
-		//Check all SQL queries in each product edition.
-		$product_editions = array( TT_PRODUCT_COMMUNITY, TT_PRODUCT_PROFESSIONAL, TT_PRODUCT_CORPORATE, TT_PRODUCT_ENTERPRISE );
+		$this->assertTrue( TRUE );
+		if ( $product_edition <= $original_product_edition ) {
+			$TT_PRODUCT_EDITION = $product_edition;
+			Debug::text('Checking against Edition: '. getTTProductEditionName(), __FILE__, __LINE__, __METHOD__,10);
 
-		foreach( $product_editions as $product_edition ) {
-			$this->assertTrue( TRUE );
-			if ( $product_edition <= $original_product_edition ) {
-				$TT_PRODUCT_EDITION = $product_edition;
-				Debug::text('Checking against Edition: '. getTTProductEditionName(), __FILE__, __LINE__, __METHOD__,10);
-
-				//Loop through all ListFactory classes testing SQL queries.
-				foreach( $global_class_map as $class_name => $class_file_name ) {
-					if ( strpos( $class_name, 'ListFactory' ) !== FALSE ) {
-						$this->runSQLTestOnListFactoryMethods( $class_name );
-						$this->runSQLTestOnListFactory( $class_name );
-					}
-				}
+			//Loop through all ListFactory classes testing SQL queries.
+			foreach( $class_list as $class_name ) {
+				$this->runSQLTestOnListFactoryMethods( $class_name );
+				$this->runSQLTestOnListFactory( $class_name );
 			}
 		}
 
 		return TRUE;
 	}
 
-/*
-	//Old function to test all ListFactory methods.
-	function runSQLTestOnListFactory( $factory_name ) {
-		if ( class_exists( $factory_name ) ) {
-			global $db;
-			$current_tables = $db->MetaTables();
-
-			$reflectionClass = new ReflectionClass( $factory_name );
-			$class_file_name = $reflectionClass->getFileName();
-
-			Debug::text('Checking Class: '. $factory_name .' File: '. $class_file_name, __FILE__, __LINE__, __METHOD__, 10);
-			foreach( $reflectionClass->getMethods() as $method ) {
-				$params = array();
-
-				$method_name = $method->name;
-				if ( strpos( $method->class, 'ListFactory' ) !== FALSE AND strpos( $method_name, 'API' ) === FALSE AND strpos( $method_name, 'Array' ) === FALSE ) {
-					Debug::text('  Checking Method: '. $method_name .' Class: '. $method->class, __FILE__, __LINE__, __METHOD__, 10);
-
-					$reflectionMethod = new ReflectionMethod( $method->class, $method_name );
-					$method_param_names = $reflectionMethod->getParameters();
-					//Debug::Arr( $method_param_names, '    Method Parameters: ', __FILE__, __LINE__, __METHOD__, 10);
-					if ( is_array($method_param_names) ) {
-						foreach( $method_param_names as $method_param_obj ) {
-							$method_param_name = $method_param_obj->name;
-							switch ( $method_param_name ) {
-								case 'limit':
-									$params[] = 1;
-									break;
-								case 'page':
-									$params[] = 1;
-									break;
-								case 'order':
-									$params[] = NULL;
-									break;
-								case 'where':
-									$params[] = NULL;
-									break;
-								default:
-									if ( strpos( $method_param_name, '_id' ) !== FALSE ) {
-										//ID column, send integer
-										$params[] = rand(1, 128);
-									} else {
-										$params[] = '1';
-									}
-									break;
-							}
-						}
-
-						//Debug::Arr( $params, '    Method Parameter Values: ', __FILE__, __LINE__, __METHOD__, 10);
-
-						$lf = TTNew( $factory_name );
-						if ( in_array( $lf->getTable(), $current_tables ) ) {
-							switch ( $method_name ) {
-								//Skip these methods
-								case 'getByPasswordResetKey': //ClientContactListFactory
-								case 'getStringByCompanyIDAndObjectTypeIDAndObjectID': //CompanyGenericTagMapListFactory
-								case 'getReportByTimePeriodAndUserIdAndCompanyIdAndStartDateAndEndDate': //ExceptionListFactory
-								case 'getDaysWorkedByTimePeriodAndUserIdAndCompanyIdAndStartDateAndEndDate': //UserDateListFactory
-								case 'getReportHoursByTimePeriodAndUserIdAndCompanyIdAndStartDateAndEndDate': //UserDateTotalListFactory
-								case 'getByHierarchyLevelMapAndStatusAndNotAuthorized': //PayPeriodTimeSheetVerifyListFactory
-								case 'getByHierarchyLevelMapAndTypeAndStatusAndNotAuthorized': //RequestListFactory
-									break;
-								default:
-									//Some SQL queries are for PostgreSQL only, so skip them when using MySQL.
-									if ( strncmp($db->databaseType, 'mysql', 5) == 0
-											AND (
-													in_array( $method_name, array( 'getByPhonePunchDataByCompanyIdAndStartDateAndEndDate', 'getByCompanyIDAndUserIdAndObjectTypeAndObject', 'getByCompanyIDAndObjectTypeAndObject' ) )
-													OR
-													( $factory_name == 'DocumentListFactory' AND in_array( $method_name, array( 'getByCompanyId', 'getByCompanyIdAndPrivate', 'getByCompanyIdAndObjectTypeAndObject', 'getByCompanyIdAndObjectTypeAndObjectAndPrivate' ) ) )
-												)
-										) {
-										continue;
-									}
-									$retarr = call_user_func_array( array( $lf, $method_name ), $params );
-
-									//Debug::Arr( $retarr, '    RetVal: ', __FILE__, __LINE__, __METHOD__, 10);
-									if ( is_object($retarr) ) {
-										$this->assertNotEquals( $retarr, FALSE );
-										$this->assertTrue( is_object($retarr), TRUE );
-									} elseif ( is_array($retarr) ) {
-										$this->assertTrue( !is_object($retarr), TRUE );
-										$this->assertTrue( is_array($retarr) );
-									} elseif ( $retarr === TRUE ) {
-										$this->assertTrue( $retarr );
-									} elseif ( $retarr === FALSE ) {
-										$this->assertFalse( $retarr );
-									} elseif ( is_numeric( $retarr ) ) {
-										$this->assertGreaterThanOrEqual( 0, (float)$retarr );
-									} elseif ( $retarr === NULL ) {
-										$this->assertNull( $retarr );
-									} else {
-										$this->assertNotEquals( $retarr, FALSE );
-									}
-									break;
-							}
-						} else {
-							Debug::Text('    ERROR: Table does not exist in database: '. $lf->getTable(), __FILE__, __LINE__, __METHOD__, 10);
-						}
-						unset($lf, $params );
-					}
-				}
-			}
-
-			unset($current_tables, $reflectionClass, $reflectionMethod);
-		}
-
-		return TRUE;
+	/**
+	 * @group SQL_CommunityA
+	 */
+	function testSQLCommunityA() {
+		$classes = $this->getListFactoryClassList( 4 );
+		$this->runSQLTestOnEdition( TT_PRODUCT_COMMUNITY, $classes[0] );
 	}
-*/
+	/**
+	 * @group SQL_CommunityB
+	 */
+	function testSQLCommunityB() {
+		$classes = $this->getListFactoryClassList( 4 );
+		$this->runSQLTestOnEdition( TT_PRODUCT_COMMUNITY, $classes[1] );
+	}
+	/**
+	 * @group SQL_CommunityC
+	 */
+	function testSQLCommunityC() {
+		$classes = $this->getListFactoryClassList( 4 );
+		$this->runSQLTestOnEdition( TT_PRODUCT_COMMUNITY, $classes[2] );
+	}
+	/**
+	 * @group SQL_CommunityD
+	 */
+	function testSQLCommunityD() {
+		$classes = $this->getListFactoryClassList( 4 );
+		$this->runSQLTestOnEdition( TT_PRODUCT_COMMUNITY, $classes[3] );
+	}
+
+
+
+	/**
+	 * @group SQL_ProfessionalA
+	 */
+	function testSQLProfessionalA() {
+		$classes = $this->getListFactoryClassList( 4 );
+		$this->runSQLTestOnEdition( TT_PRODUCT_PROFESSIONAL, $classes[0] );
+	}
+	/**
+	 * @group SQL_ProfessionalB
+	 */
+	function testSQLProfessionalB() {
+		$classes = $this->getListFactoryClassList( 4 );
+		$this->runSQLTestOnEdition( TT_PRODUCT_PROFESSIONAL, $classes[1] );
+	}
+	/**
+	 * @group SQL_ProfessionalC
+	 */
+	function testSQLProfessionalC() {
+		$classes = $this->getListFactoryClassList( 4 );
+		$this->runSQLTestOnEdition( TT_PRODUCT_PROFESSIONAL, $classes[2] );
+	}
+	/**
+	 * @group SQL_ProfessionalD
+	 */
+	function testSQLProfessionalD() {
+		$classes = $this->getListFactoryClassList( 4 );
+		$this->runSQLTestOnEdition( TT_PRODUCT_PROFESSIONAL, $classes[3] );
+	}
+
+
+
+
+	/**
+	 * @group SQL_CorporateA
+	 */
+	function testSQLCorporateA() {
+		$classes = $this->getListFactoryClassList( 4 );
+		$this->runSQLTestOnEdition( TT_PRODUCT_CORPORATE, $classes[0] );
+	}
+	/**
+	 * @group SQL_CorporateB
+	 */
+	function testSQLCorporateB() {
+		$classes = $this->getListFactoryClassList( 4 );
+		$this->runSQLTestOnEdition( TT_PRODUCT_CORPORATE, $classes[1] );
+	}
+	/**
+	 * @group SQL_CorporateC
+	 */
+	function testSQLCorporateC() {
+		$classes = $this->getListFactoryClassList( 4 );
+		$this->runSQLTestOnEdition( TT_PRODUCT_CORPORATE, $classes[2] );
+	}
+	/**
+	 * @group SQL_CorporateD
+	 */
+	function testSQLCorporateD() {
+		$classes = $this->getListFactoryClassList( 4 );
+		$this->runSQLTestOnEdition( TT_PRODUCT_CORPORATE, $classes[3] );
+	}
+
+
+
+
+	/**
+	 * @group SQL_EnterpriseA
+	 */
+	function testSQLEnterpriseA() {
+		$classes = $this->getListFactoryClassList( 4 );
+		$this->runSQLTestOnEdition( TT_PRODUCT_ENTERPRISE, $classes[0] );
+	}
+	/**
+	 * @group SQL_EnterpriseB
+	 */
+	function testSQLEnterpriseB() {
+		$classes = $this->getListFactoryClassList( 4 );
+		$this->runSQLTestOnEdition( TT_PRODUCT_ENTERPRISE, $classes[1] );
+	}
+	/**
+	 * @group SQL_EnterpriseC
+	 */
+	function testSQLEnterpriseC() {
+		$classes = $this->getListFactoryClassList( 4 );
+		$this->runSQLTestOnEdition( TT_PRODUCT_ENTERPRISE, $classes[2] );
+	}
+	/**
+	 * @group SQL_EnterpriseD
+	 */
+	function testSQLEnterpriseD() {
+		$classes = $this->getListFactoryClassList( 4 );
+		$this->runSQLTestOnEdition( TT_PRODUCT_ENTERPRISE, $classes[3] );
+	}
 
 }

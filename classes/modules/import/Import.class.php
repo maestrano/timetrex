@@ -344,7 +344,8 @@ class Import {
 		if ( $input == '' AND $default_value != '' ) {
 			$input = $default_value;
 		}
-
+		
+		$input = trim($input); //This can affect things like Country/Province matching.
 		if ( method_exists( $this, $full_function_name ) ) {
 			$retval = call_user_func( array( $this, $full_function_name ), $input, $default_value, $parse_hint, $map_data, $raw_row );
 			//Debug::Arr( $retval, 'Input: '. $input .' Parse Hint: '. $parse_hint .' Default Value: '. $default_value .' Retval: ', __FILE__, __LINE__, __METHOD__, 10);

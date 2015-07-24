@@ -177,7 +177,7 @@ class UserWageFactory extends Factory {
 		$ulf = TTnew( 'UserListFactory' );
 
 		if ( $id == 0
-				OR $this->Validator->isResultSetWithRows(	'user',
+				OR $this->Validator->isResultSetWithRows(	'user_id',
 															$ulf->getByID($id),
 															TTi18n::gettext('Invalid Employee')
 															) ) {
@@ -205,7 +205,7 @@ class UserWageFactory extends Factory {
 		if (
 				$id == 0
 				OR
-				$this->Validator->isResultSetWithRows(	'wage_group',
+				$this->Validator->isResultSetWithRows(	'wage_group_id',
 														$wglf->getByID($id),
 														TTi18n::gettext('Group is invalid')
 													) ) {
@@ -233,7 +233,7 @@ class UserWageFactory extends Factory {
 			$type = $key;
 		}
 
-		if ( $this->Validator->inArrayKey(	'type',
+		if ( $this->Validator->inArrayKey(	'type_id',
 											$type,
 											TTi18n::gettext('Incorrect Type'),
 											$this->getOptions('type')) ) {
@@ -746,7 +746,7 @@ class UserWageFactory extends Factory {
 
 	function Validate() {
 		if ( $this->validate_only == FALSE AND $this->getUser() == '' ) {
-			$this->Validator->isTRUE(	'user',
+			$this->Validator->isTRUE(	'user_id',
 										FALSE,
 										TTi18n::gettext('No employee specified') );
 		}
@@ -859,7 +859,7 @@ class UserWageFactory extends Factory {
 					}
 				}
 			}
-			$this->getPermissionColumns( $data, $this->getID(), $this->getCreatedBy(), $permission_children_ids, $include_columns );
+			$this->getPermissionColumns( $data, $this->getUser(), $this->getCreatedBy(), $permission_children_ids, $include_columns );
 			$this->getCreatedAndUpdatedColumns( $data, $include_columns );
 		}
 

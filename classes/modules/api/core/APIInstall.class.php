@@ -91,7 +91,7 @@ class APIInstall extends APIFactory {
 //				Redirect::Page( URLBuilder::getURL( array('external_installer' => $external_installer, 'action:next' => 'next' ), $_SERVER['SCRIPT_NAME']) );
 				return $this->returnHandler( array( 'action' => 'next' ) );
 			} else {
-				$install_obj ->setAMFMessageID( $this->getAMFMessageID() );
+				$install_obj->setAMFMessageID( $this->getAMFMessageID() );
 //				Return array with the text for each requirement check.
 				$retval['check_all_requirements'] = $check_all_requirements;
 				$retval['tt_product_edition'] = $install_obj->getTTProductEdition();
@@ -124,6 +124,7 @@ class APIInstall extends APIFactory {
 				$retval['pear'] = $install_obj->checkPEAR();
 				$retval['safe_mode'] = $install_obj->checkPHPSafeMode();
 				$retval['magic_quotes'] = $install_obj->checkPHPMagicQuotesGPC();
+				$retval['disk_space'] = $install_obj->checkDiskSpace();
 				$retval['memory_limit'] = array(
 					'check_php_memory_limit' => $install_obj->checkPHPMemoryLimit(),
 					'memory_limit' => $install_obj->getMemoryLimit()
@@ -163,7 +164,7 @@ class APIInstall extends APIFactory {
 					'cache_dir' => $install_obj->config_vars['cache']['dir']
 				);
 				$retval['file_permission'] = $install_obj->checkFilePermissions();
-				$retval['file_check'] = $install_obj->checkFileChecksums();
+				$retval['file_checksums'] = $install_obj->checkFileChecksums();
 
 				$extended_error_messages = $install_obj->getExtendedErrorMessage();
 
@@ -206,11 +207,15 @@ class APIInstall extends APIFactory {
 				}
 			}
 
+			//In case load balancing is used, parse out just the first host.
+			$host_arr = Misc::parseDatabaseHostString( $data['final_host'] );
+			$host = $host_arr[0][0];
+
 			$database_engine = TRUE;
 			//Test regular user
 			//This used to connect to the template1 database, but it seems newer versions of PostgreSQL
 			//default to disallow connect privs.
-			$test_connection = $install_obj->setNewDatabaseConnection($data['final_type'], $data['final_host'], $data['user'], $data['password'], $data['database_name']);
+			$test_connection = $install_obj->setNewDatabaseConnection($data['final_type'], $host, $data['user'], $data['password'], $data['database_name']);
 			if ( $test_connection == TRUE ) {
 				$database_exists = $install_obj->checkDatabaseExists($data['database_name']);
 			}
@@ -218,7 +223,7 @@ class APIInstall extends APIFactory {
 			//Test priv user.
 			if ( $data['priv_user'] != '' AND $data['priv_password'] != '' ) {
 				Debug::Text('Testing connection as priv user', __FILE__, __LINE__, __METHOD__, 10);
-				$test_priv_connection = $install_obj->setNewDatabaseConnection($data['final_type'], $data['final_host'], $data['priv_user'], $data['priv_password'], '');
+				$test_priv_connection = $install_obj->setNewDatabaseConnection($data['final_type'], $host, $data['priv_user'], $data['priv_password'], '');
 			} else {
 				$test_priv_connection = TRUE;
 			}
@@ -306,6 +311,10 @@ class APIInstall extends APIFactory {
 				}
 			}
 
+			//In case load balancing is used, parse out just the first host.
+			$host_arr = Misc::parseDatabaseHostString( $data['final_host'] );
+			$host = $host_arr[0][0];
+
 			$database_engine = TRUE;
 			Debug::Text('Next', __FILE__, __LINE__, __METHOD__, 10);
 
@@ -318,7 +327,7 @@ class APIInstall extends APIFactory {
 				$tmp_password = $data['password'];
 			}
 
-			$test_db_connection = $install_obj->setNewDatabaseConnection($data['final_type'], $data['final_host'], $tmp_user_name, $tmp_password, '');
+			$test_db_connection = $install_obj->setNewDatabaseConnection($data['final_type'], $host, $tmp_user_name, $tmp_password, '');
 			$install_obj->setDatabaseDriver( $data['final_type'] );
 
 			if ( $install_obj->checkDatabaseExists($data['database_name']) == FALSE ) {
@@ -327,10 +336,9 @@ class APIInstall extends APIFactory {
 			}
 
 			//Make sure InnoDB engine exists on MySQL
-
 			if ( $install_obj->getDatabaseType() != 'mysql' OR ( $install_obj->getDatabaseType() == 'mysql' AND $install_obj->checkDatabaseEngine() == TRUE ) ) {
 				//Check again to make sure database exists.
-				$db_connection = $install_obj->setNewDatabaseConnection($data['final_type'], $data['final_host'], $tmp_user_name, $tmp_password, $data['database_name']);
+				$db_connection = $install_obj->setNewDatabaseConnection($data['final_type'], $host, $tmp_user_name, $tmp_password, $data['database_name']);
 				if ( $install_obj->checkDatabaseExists($data['database_name']) == TRUE ) {
 					//Create SQL
 					Debug::Text('yDatabase does exist...', __FILE__, __LINE__, __METHOD__, 10);
@@ -385,8 +393,7 @@ class APIInstall extends APIFactory {
 		return $this->returnHandler( FALSE );
 	}
 
-
-	function  getDatabaseSchema() {
+	function getDatabaseSchema() {
 		global $db, $config_vars;
 		$install_obj = new Install();
 
@@ -424,17 +431,25 @@ class APIInstall extends APIFactory {
 		}
 
 		return $this->returnHandler( FALSE );
-
 	}
 
+	function setDatabaseSchema( $external_installer = 0 ) {
+		ignore_user_abort(TRUE);
+		ini_set( 'max_execution_time', 0 );
+		ini_set( 'memory_limit', '-1' ); //Just in case.
 
-	function  setDatabaseSchema( $external_installer = 0 ) {
+		//Always enable debug logging during upgrade.
+		Debug::setEnable(TRUE);
+		Debug::setBufferOutput(TRUE);
+		Debug::setEnableLog(TRUE);
+		Debug::setVerbosity(10);
+
 		global $db, $config_vars;
 		$install_obj = new Install();
 
-		if ($install_obj->isInstallMode() == TRUE  ) {
+		if ( $install_obj->isInstallMode() == TRUE ) {
 
-			$install_obj ->setAMFMessageID( $this->getAMFMessageID() );
+			$install_obj->setAMFMessageID( $this->getAMFMessageID() );
 
 			$database_engine = TRUE;
 			$install_obj->setDatabaseConnection( $db ); //Default connection
@@ -502,7 +517,6 @@ class APIInstall extends APIFactory {
 		return $this->returnHandler( FALSE );
 	}
 
-
 	function postUpgrade() {
 		global $cache;
 		$install_obj = new Install();
@@ -523,10 +537,8 @@ class APIInstall extends APIFactory {
 
 		}
 
-
 		return $this->returnHandler( FALSE );
 	}
-
 
 	function installDone( $upgrade ) {
 		global $authentication, $cache;
@@ -603,7 +615,6 @@ class APIInstall extends APIFactory {
 
 	}
 
-
 	function setSystemSettings( $data, $external_installer = 0 ) {
 		$install_obj = new Install();
 		if ( $install_obj->isInstallMode() == TRUE ) {
@@ -673,13 +684,10 @@ class APIInstall extends APIFactory {
 //			fclose($handle);
 
 			return $this->returnHandler( TRUE );
-
-
 		}
 
 		return $this->returnHandler( FALSE );
 	}
-
 
 	function getSystemSettings() {
 		global $config_vars;
@@ -701,7 +709,6 @@ class APIInstall extends APIFactory {
 
 		return $this->returnHandler( FALSE );
 	}
-
 
 	function getCompany() {
 		$install_obj = new Install();
@@ -729,12 +736,11 @@ class APIInstall extends APIFactory {
 		return $this->returnHandler( FALSE );
 	}
 
-
 	function setCompany( $company_data ) {
-
 		if ( !is_array( $company_data ) ) {
 			return $this->returnHandler( FALSE );
 		}
+
 		$install_obj = new Install();
 		if ( $install_obj->isInstallMode() == TRUE ) {
 			$cf = TTnew( 'CompanyFactory' );
@@ -951,13 +957,9 @@ class APIInstall extends APIFactory {
 			$retval['is_sudo_installed'] = $install_obj->isSUDOInstalled();
 
 			return $this->returnHandler( $retval );
-
 		}
 
 		return $this->returnHandler( FALSE );
 	}
-
-
-
 }
 ?>

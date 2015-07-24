@@ -183,6 +183,10 @@ var ServiceCaller = Backbone.Model.extend( {
 			url = url + '&MessageID=' + message_id;
 		}
 
+		if ( ServiceCaller.extra_url ) {
+			url = url + ServiceCaller.extra_url;
+		}
+
 		if ( !apiArgs ) {
 			apiArgs = {};
 
@@ -360,3 +364,5 @@ ServiceCaller.sessionID = '';
 ServiceCaller.cancelAllError = false;
 
 ServiceCaller.ozUrl = false;
+
+ServiceCaller.extra_url = false;

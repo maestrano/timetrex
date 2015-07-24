@@ -55,7 +55,7 @@
 
 		this.isChecked = function() {
 			if ( check_box ) {
-				if ( check_box.attr( 'checked' ) ) {
+				if ( check_box.attr( 'checked' ) || check_box[0].checked === true ) {
 					return true
 				}
 			}
@@ -317,43 +317,17 @@
 
 		var show = function() {
 			ranger_picker = $( Global.loadWidget( 'global/widgets/datepicker/TRangePicker.html' ) );
-
 			var tab_0_label = ranger_picker.find( 'a[ref=tab_range]' );
 			var tab_1_label = ranger_picker.find( 'a[ref=tab_date]' );
 			tab_0_label.text( $.i18n._( 'Range' ) );
 			tab_1_label.text( $.i18n._( 'Dates' ) );
-
 			range_start_picker = ranger_picker.find( '#tab_range_content_div' ).find( '.start-picker' );
 			range_end_picker = ranger_picker.find( '#tab_range_content_div' ).find( '.end-picker' );
-
 			var start_picker_label = ranger_picker.find( '#tab_range_content_div' ).find( '.start-picker-label' );
 			var end_picker_label = ranger_picker.find( '#tab_range_content_div' ).find( '.end-picker-label' );
-
 			start_picker_label.text( $.i18n._( 'Start' ) + ':' );
 			end_picker_label.text( $.i18n._( 'End' ) + ':' );
-
 			var format = LocalCacheData.getLoginUserPreference().date_format_1;
-
-			if ( format.indexOf( 'yyyy' ) >= 0 ) {
-				format = format.replace( 'yyyy', 'yy' );
-			} else {
-				format = format.replace( 'yy', 'y' );
-			}
-
-			if ( format.indexOf( 'dddd' ) >= 0 ) {
-				format = format.replace( 'dddd', 'DD' );
-			}
-
-			if ( format.indexOf( 'ddd' ) >= 0 ) {
-				format = format.replace( 'ddd', 'D' );
-			}
-
-			if ( format.indexOf( 'mmmm' ) >= 0 ) {
-				format = format.replace( 'mmmm', 'MM' );
-			} else {
-				format = format.replace( 'mmm', 'M' );
-			}
-
 			range_start_picker.datepicker( {showTime: false,
 				dateFormat: format,
 				showHour: false,

@@ -414,6 +414,7 @@ class BranchListFactory extends BranchFactory implements IteratorAggregate {
 					'company_id' => $company_id,
 					'created_date' => $date,
 					'updated_date' => $date,
+					'deleted_date' => $date,
 					);
 
 		//INCLUDE Deleted rows in this query.
@@ -423,7 +424,7 @@ class BranchListFactory extends BranchFactory implements IteratorAggregate {
 					where
 							company_id = ?
 						AND
-							( created_date >=  ? OR updated_date >= ? )
+							( created_date >=  ? OR updated_date >= ? OR ( deleted = 1 AND deleted_date >= ? ) )
 					LIMIT 1
 					';
 		$query .= $this->getWhereSQL( $where );

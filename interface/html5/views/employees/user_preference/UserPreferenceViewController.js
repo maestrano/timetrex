@@ -317,10 +317,6 @@ UserPreferenceViewController = BaseViewController.extend( {
 			this.onStatusChange();
 		}
 
-		if ( key === 'country' ) {
-			return;
-		}
-
 		if ( !doNotValidate ) {
 			this.validate();
 		}
@@ -458,17 +454,17 @@ UserPreferenceViewController = BaseViewController.extend( {
 
 		this.edit_view_tabs[1].push( tab_schedule_sync_column1 );
 
-		// schedule icalendar type
-		form_item_input = Global.loadWidgetByName( FormItemType.COMBO_BOX );
-		form_item_input.TComboBox( {field: 'schedule_icalendar_type_id' } );
-		form_item_input.setSourceData( Global.addFirstItemToArray( $this.schedule_icalendar_type_array ) );
-		this.addEditFieldToColumn( $.i18n._( 'Status' ), form_item_input, tab_schedule_sync_column1, 'first-last' );
-
-		// Calendar URL
-		form_item_input = Global.loadWidgetByName( FormItemType.TEXT );
-		form_item_input.TText( {field: 'calendar_url' } );
-		form_item_input.addClass( 'link' );
-		this.addEditFieldToColumn( $.i18n._( 'Calendar URL' ), form_item_input, tab_schedule_sync_column1, '', null, true );
+		//// schedule icalendar type
+		//form_item_input = Global.loadWidgetByName( FormItemType.COMBO_BOX );
+		//form_item_input.TComboBox( {field: 'schedule_icalendar_type_id' } );
+		//form_item_input.setSourceData( Global.addFirstItemToArray( $this.schedule_icalendar_type_array ) );
+		//this.addEditFieldToColumn( $.i18n._( 'Status' ), form_item_input, tab_schedule_sync_column1, 'first-last' );
+		//
+		//// Calendar URL
+		//form_item_input = Global.loadWidgetByName( FormItemType.TEXT );
+		//form_item_input.TText( {field: 'calendar_url' } );
+		//form_item_input.addClass( 'link' );
+		//this.addEditFieldToColumn( $.i18n._( 'Calendar URL' ), form_item_input, tab_schedule_sync_column1, '', null, true );
 
 		// Shifts Scheduled to Work
 		form_item_input = Global.loadWidgetByName( FormItemType.SEPARATED_BOX );
@@ -604,7 +600,7 @@ UserPreferenceViewController = BaseViewController.extend( {
 	onStatusChange: function() {
 
 		if ( this.current_edit_record.schedule_icalendar_type_id === 0 ) {
-			this.edit_view_form_item_dic['calendar_url'].css( 'display', 'none' );
+			//this.edit_view_form_item_dic['calendar_url'].css( 'display', 'none' );
 			this.edit_view_form_item_dic['schedule_icalendar_alarm1_working'].css( 'display', 'none' );
 			this.edit_view_form_item_dic['schedule_icalendar_alarm2_working'].css( 'display', 'none' );
 			this.edit_view_form_item_dic['schedule_icalendar_alarm1_absence'].css( 'display', 'none' );
@@ -616,8 +612,8 @@ UserPreferenceViewController = BaseViewController.extend( {
 			this.edit_view_form_item_dic['modified_shifts'].css( 'display', 'none' );
 
 		} else {
-			this.setCalendarURL();
-			this.edit_view_form_item_dic['calendar_url'].css( 'display', 'block' );
+			//this.setCalendarURL();
+			//this.edit_view_form_item_dic['calendar_url'].css( 'display', 'block' );
 			this.edit_view_form_item_dic['schedule_icalendar_alarm1_working'].css( 'display', 'block' );
 			this.edit_view_form_item_dic['schedule_icalendar_alarm2_working'].css( 'display', 'block' );
 			this.edit_view_form_item_dic['schedule_icalendar_alarm1_absence'].css( 'display', 'block' );
@@ -741,16 +737,12 @@ UserPreferenceViewController = BaseViewController.extend( {
 					}
 				}
 			}
-
 			if ( this.mass_edit_record_ids.length > 0 ) {
 				record.id = this.mass_edit_record_ids[0];
 			}
-
 		} else {
 			record = this.current_edit_record;
 		}
-		record.user_id = this.mass_edit_record_ids[0];
-
 		this.api['validate' + this.api.key_name]( record, {onResult: function( result ) {
 
 			$this.validateResult( result );

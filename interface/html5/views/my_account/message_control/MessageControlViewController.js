@@ -658,8 +658,6 @@ MessageControlViewController = BaseViewController.extend( {
 	},
 
 	getFilterColumnsFromDisplayColumns: function() {
-		var display_columns = this.grid.getGridParam( 'colModel' );
-
 		var column_filter = {};
 
 		column_filter.id = true;
@@ -670,6 +668,12 @@ MessageControlViewController = BaseViewController.extend( {
 		column_filter.status_id = true;
 		column_filter.from_user_id = true;
 		column_filter.to_user_id = true;
+
+		// Error: Unable to get property 'getGridParam' of undefined or null reference
+		var display_columns = [];
+		if ( this.grid ) {
+			display_columns = this.grid.getGridParam( 'colModel' );
+		}
 
 		if ( display_columns ) {
 			var len = display_columns.length;

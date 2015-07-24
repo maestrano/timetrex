@@ -186,15 +186,17 @@ EmployeeBankAccountViewController = BaseViewController.extend( {
 
 		this.initDropDownOption( 'ach_transaction_type' );
 
-		this.user_group_api.getUserGroup( '', false, false, {onResult: function( res ) {
-			res = res.getResult();
-			res = Global.buildTreeRecord( res );
-			$this.user_group_array = res;
-			if ( !$this.sub_view_mode && $this.basic_search_field_ui_dic['group_id'] ) {
-				$this.basic_search_field_ui_dic['group_id'].setSourceData( res );
-			}
+		this.user_group_api.getUserGroup( '', false, false, {
+			onResult: function( res ) {
+				res = res.getResult();
+				res = Global.buildTreeRecord( res );
+				$this.user_group_array = res;
+				if ( !$this.sub_view_mode && $this.basic_search_field_ui_dic['group_id'] ) {
+					$this.basic_search_field_ui_dic['group_id'].setSourceData( res );
+				}
 
-		}} );
+			}
+		} );
 
 	},
 
@@ -380,7 +382,8 @@ EmployeeBankAccountViewController = BaseViewController.extend( {
 				//api_class: (APIFactory.getAPIClass( 'APIUserGroup' )),
 				form_item_type: FormItemType.AWESOME_BOX
 			} ),
-			new SearchField( {label: $.i18n._( 'Default Branch' ),
+			new SearchField( {
+				label: $.i18n._( 'Default Branch' ),
 				in_column: 2,
 				field: 'default_branch_id',
 				layout_name: ALayoutIDs.BRANCH,
@@ -390,7 +393,8 @@ EmployeeBankAccountViewController = BaseViewController.extend( {
 				adv_search: false,
 				form_item_type: FormItemType.AWESOME_BOX
 			} ),
-			new SearchField( {label: $.i18n._( 'Default Department' ),
+			new SearchField( {
+				label: $.i18n._( 'Default Department' ),
 				field: 'default_department_id',
 				in_column: 2,
 				layout_name: ALayoutIDs.DEPARTMENT,
@@ -400,7 +404,6 @@ EmployeeBankAccountViewController = BaseViewController.extend( {
 				adv_search: false,
 				form_item_type: FormItemType.AWESOME_BOX
 			} )
-
 
 		];
 	},
@@ -520,29 +523,31 @@ EmployeeBankAccountViewController = BaseViewController.extend( {
 			filter.filter_data.id = [LocalCacheData.getLoginUser().id];
 		}
 
-		this.user_api['getUser']( filter, {onResult: function( result ) {
-			if ( !$this.edit_view ) {
-				return;
+		this.user_api['getUser']( filter, {
+			onResult: function( result ) {
+				if ( !$this.edit_view ) {
+					return;
+				}
+
+				var result_data = result.getResult();
+				result_data = result_data[0];
+
+				if ( result_data.country === 'CA' ) {
+					$this.edit_view_form_item_dic['institution1'].css( 'display', 'none' );
+					$this.edit_view_form_item_dic['institution2'].css( 'display', 'block' );
+					$this.edit_view_form_item_dic['transit'].find( '.edit-view-form-item-label' ).text( $.i18n._( 'Bank Transit' ) + ': ' );
+
+					$this.bank_account_img_dic.find( 'img' ).attr( 'src', ServiceCaller.rootURL + LocalCacheData.getLoginData().base_url + 'images/check_zoom_sm_canadian.jpg' );
+				} else if ( result_data.country === 'US' ) {
+					$this.edit_view_form_item_dic['institution1'].css( 'display', 'block' );
+					$this.edit_view_form_item_dic['institution2'].css( 'display', 'none' );
+					$this.edit_view_form_item_dic['transit'].find( '.edit-view-form-item-label' ).text( $.i18n._( 'Routing Number' ) + ': ' );
+
+					$this.bank_account_img_dic.find( 'img' ).attr( 'src', ServiceCaller.rootURL + LocalCacheData.getLoginData().base_url + 'images/check_zoom_sm_us.jpg' );
+				}
+
 			}
-
-			var result_data = result.getResult();
-			result_data = result_data[0];
-
-			if ( result_data.country === 'CA' ) {
-				$this.edit_view_form_item_dic['institution1'].css( 'display', 'none' );
-				$this.edit_view_form_item_dic['institution2'].css( 'display', 'block' );
-				$this.edit_view_form_item_dic['transit'].find( '.edit-view-form-item-label' ).text( $.i18n._( 'Bank Transit' ) + ': ' );
-
-				$this.bank_account_img_dic.find( 'img' ).attr( 'src', ServiceCaller.rootURL + LocalCacheData.getLoginData().base_url + 'images/check_zoom_sm_canadian.jpg' );
-			} else if ( result_data.country === 'US' ) {
-				$this.edit_view_form_item_dic['institution1'].css( 'display', 'block' );
-				$this.edit_view_form_item_dic['institution2'].css( 'display', 'none' );
-				$this.edit_view_form_item_dic['transit'].find( '.edit-view-form-item-label' ).text( $.i18n._( 'Routing Number' ) + ': ' );
-
-				$this.bank_account_img_dic.find( 'img' ).attr( 'src', ServiceCaller.rootURL + LocalCacheData.getLoginData().base_url + 'images/check_zoom_sm_us.jpg' );
-			}
-
-		}} );
+		} );
 	},
 
 	setEditMenuDeleteIcon: function( context_btn, pId ) {
@@ -550,7 +555,7 @@ EmployeeBankAccountViewController = BaseViewController.extend( {
 			context_btn.addClass( 'invisible-image' );
 		}
 
-		if ( ( !this.current_edit_record || !this.current_edit_record.id ) || !this.deleteOwnerOrChildPermissionValidate() ) {
+		if ( ( !this.current_edit_record || !this.current_edit_record.id ) || !this.deleteOwnerOrChildPermissionValidate( pId ) ) {
 			context_btn.addClass( 'disable-image' );
 		}
 	},
@@ -560,7 +565,7 @@ EmployeeBankAccountViewController = BaseViewController.extend( {
 			context_btn.addClass( 'invisible-image' );
 		}
 
-		if ( ( !this.current_edit_record || !this.current_edit_record.id ) || !this.deleteOwnerOrChildPermissionValidate() ) {
+		if ( ( !this.current_edit_record || !this.current_edit_record.id ) || !this.deleteOwnerOrChildPermissionValidate( pId ) ) {
 			context_btn.addClass( 'disable-image' );
 		}
 	},

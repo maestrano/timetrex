@@ -234,8 +234,6 @@ class Install {
 			if ( is_resource($db->_connectionID) OR is_object($db->_connectionID) ) {
 				$this->setDatabaseConnection( $db );
 
-				//$this->temp_db = $db;
-
 				return TRUE;
 			}
 		} catch (Exception $e) {
@@ -575,8 +573,12 @@ class Install {
 		$total_schema_versions = count($schema_versions);
 		if ( is_array($schema_versions) AND $total_schema_versions > 0 ) {
 			//$this->getDatabaseConnection()->StartTrans();
-			$this->getProgressBarObject()->start( $this->getAMFMessageID(), $total_schema_versions );
-
+			if ( $this->is_upgrade ) {
+				$msg = TTi18n::getText('Upgrading database');
+			} else {
+				$msg = TTi18n::getText('Initializing database');
+			}
+			$this->getProgressBarObject()->start( $this->getAMFMessageID(), $total_schema_versions, NULL, $msg );
 			$this->initializeSequences(); //Initialize sequences before we start the schema upgrade to hopefully avoid duplicate key errors.
 
 			$x = 0;
@@ -597,13 +599,7 @@ class Install {
 						$progress_bar->display();
 					}
 
-					if ( $this->is_upgrade ) {
-						$msg = TTi18n::getText('Upgrading database');
-					} else {
-						$msg = TTi18n::getText('Initializing database');
-					}
-
-					$this->getProgressBarObject()->set( $this->getAMFMessageID(), $x, $msg.' - '.( $x + 1 ).' '.TTi18n::getText('of').' '.$total_schema_versions );
+					$this->getProgressBarObject()->set( $this->getAMFMessageID(), $x );
 
 					if ( $create_schema_result === FALSE ) {
 						Debug::text('CreateSchema Failed! On Version: '. $schema_version, __FILE__, __LINE__, __METHOD__, 9);
@@ -620,6 +616,8 @@ class Install {
 				$x++;
 			}
 			$this->getProgressBarObject()->stop( $this->getAMFMessageID() );
+
+			$this->initializeSequences(); //Initialize sequences after we finish as well just in case new errors were created during upgrade...
 
 			//$this->getDatabaseConnection()->FailTrans();
 			//$this->getDatabaseConnection()->CompleteTrans();
@@ -758,7 +756,7 @@ class Install {
 		Debug::text('Comparing with Version: '. $php_version, __FILE__, __LINE__, __METHOD__, 9);
 
 		$min_version = '5.0.0';
-		$max_version = '5.5.99'; //Change install.php as well, as some versions break backwards compatibility, so we need early checks as well.
+		$max_version = '5.6.99'; //Change install.php as well, as some versions break backwards compatibility, so we need early checks as well.
 
 		$unsupported_versions = array('');
 
@@ -915,8 +913,8 @@ class Install {
 
 		$dirs[] = dirname( __FILE__) . DIRECTORY_SEPARATOR .'..'. DIRECTORY_SEPARATOR .'..'. DIRECTORY_SEPARATOR .'..'. DIRECTORY_SEPARATOR;
 
-		$this->getProgressBarObject()->start( $this->getAMFMessageID(), count($dirs), NULL, TTi18n::getText('Check File Permission...') );
-
+		$this->getProgressBarObject()->start( $this->getAMFMessageID(), 9000, NULL, TTi18n::getText('Check File Permission...') );
+		$i = 0;
 		foreach( $dirs as $k => $dir ) {
 			Debug::Text('Checking directory readable/writable: '. $dir, __FILE__, __LINE__, __METHOD__, 10);
 			if ( is_dir( $dir ) AND is_readable( $dir ) ) {
@@ -928,6 +926,10 @@ class Install {
 								OR strcmp( basename($file_name), '.htaccess' ) == 0 ) { //.htaccess files often aren't writable by the webserver.
 							continue;
 						}
+
+						$this->getProgressBarObject()->set( $this->getAMFMessageID(), $i );
+
+						$i++;
 
 						//Debug::Text('Checking readable/writable: '. $file_name, __FILE__, __LINE__, __METHOD__, 10);
 						if ( is_readable( $file_name ) == FALSE ) {
@@ -948,8 +950,9 @@ class Install {
 				}
 			}
 
-			$this->getProgressBarObject()->set( $this->getAMFMessageID(), $k );
 		}
+
+		$this->getProgressBarObject()->set( $this->getAMFMessageID(), 9000 );
 
 		$this->getProgressBarObject()->stop( $this->getAMFMessageID() );
 
@@ -1244,6 +1247,22 @@ class Install {
 			if ( is_executable( $this->getPHPCLI() ) ) {
 				return 0;
 			}
+		}
+
+		return 1;
+	}
+
+	function checkDiskSpace() {
+		$free_space = disk_free_space( dirname( __FILE__ ) );
+		$total_space = disk_total_space( dirname( __FILE__ ) );
+		$free_space_percent = ( ( $free_space / $total_space ) * 100 );
+
+		$min_free_space = 2000000000; //2GB in bytes.
+		$min_free_percent = 6; //6%, due to Linux often having a 5% buffer for root.
+
+		Debug::Text('Free Space: '. $free_space .' Free Percent: '. $free_space_percent, __FILE__, __LINE__, __METHOD__, 10);
+		if ( $free_space > $min_free_space AND $free_space_percent > $min_free_percent ) {
+			return 0;
 		}
 
 		return 1;
@@ -1646,6 +1665,9 @@ class Install {
 
 		//PEAR modules are bundled as of v1.2.0
 		if ( $post_install_requirements_only == FALSE ) {
+			if ( !is_array( $exclude_check ) OR ( is_array($exclude_check) AND in_array('disk_space', $exclude_check) == FALSE ) ) {
+				$retarr[$this->checkDiskSpace()]++;
+			}
 			if ( !is_array( $exclude_check ) OR ( is_array($exclude_check) AND in_array('base_url', $exclude_check) == FALSE ) ) {
 				$retarr[$this->checkBaseURL()]++;
 			}
@@ -1750,6 +1772,11 @@ class Install {
 		}
 
 		if ( $post_install_requirements_only == FALSE ) {
+			if ( is_array($exclude_check) AND in_array('disk_space', $exclude_check) == FALSE ) {
+				if ( $fail_all == TRUE OR $this->checkDiskSpace() != 0 ) {
+					$retarr[] = 'DiskSpace';
+				}
+			}
 			if ( is_array($exclude_check) AND in_array('base_url', $exclude_check) == FALSE ) {
 				if ( $fail_all == TRUE OR $this->checkBaseURL() != 0 ) {
 					$retarr[] = 'BaseURL';

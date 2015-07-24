@@ -252,6 +252,29 @@ class AccrualPolicyAccountFactory extends Factory {
 		return TRUE;
 	}
 
+	function getCurrentAccrualBalance( $user_id, $accrual_policy_account_id = NULL ) {
+		if ( $user_id == '' ) {
+			return FALSE;
+		}
+
+		if ( $accrual_policy_account_id == '' ) {
+			$accrual_policy_account_id = $this->getID();
+		}
+
+		//Check min/max times of accrual policy.
+		$ablf = TTnew( 'AccrualBalanceListFactory' );
+		$ablf->getByUserIdAndAccrualPolicyAccount( $user_id, $accrual_policy_account_id );
+		if ( $ablf->getRecordCount() > 0 ) {
+			$accrual_balance = $ablf->getCurrent()->getBalance();
+		} else {
+			$accrual_balance = 0;
+		}
+
+		Debug::Text('  Current Accrual Balance: '. $accrual_balance, __FILE__, __LINE__, __METHOD__, 10);
+
+		return $accrual_balance;
+	}
+
 	function setObjectFromArray( $data ) {
 		if ( is_array( $data ) ) {
 			$variable_function_map = $this->getVariableToFunctionMap();

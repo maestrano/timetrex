@@ -180,7 +180,11 @@ abstract class APIFactory {
 	//In cases where data can be displayed in just a list_view (dropdown boxes), ie: branch, department, job, task in In/Out punch view
 	//restrict the dropdown box to just a subset of columns, so not all data is shown.
 	function handlePermissionFilterColumns( $filter_columns, $allowed_columns ) {
-		$allowed_columns['id'] = TRUE; //Always allow ID column to be returned.
+		//Always allow these columns to be returned.
+		$allowed_columns['id'] = TRUE;
+		$allowed_columns['is_owner'] = TRUE;
+		$allowed_columns['is_child'] = TRUE;
+		
 		if ( is_array($filter_columns) ) {
 			$retarr = Misc::arrayIntersectByKey( $allowed_columns, $filter_columns );
 		} else {

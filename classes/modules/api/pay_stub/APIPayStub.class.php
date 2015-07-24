@@ -58,13 +58,31 @@ class APIPayStub extends APIFactory {
 
 		Debug::Text('Getting pay stub entry default data...', __FILE__, __LINE__, __METHOD__, 10);
 
+		//Get earliest OPEN pay period.
+		$pplf = TTNew('PayPeriodListFactory');
+		$pplf->getLastPayPeriodByCompanyIdAndPayPeriodScheduleIdAndDate(  $company_obj->getId(), NULL, time() );
+		if ( $pplf->getRecordCount() > 0 ) {
+			$pp_obj = $pplf->getCurrent();
+
+			$pay_period_id = $pp_obj->getId();
+			$start_date = TTDate::getDate('DATE', $pp_obj->getStartDate() );
+			$end_date = TTDate::getDate('DATE', $pp_obj->getEndDate() );
+			$transaction_date = TTDate::getDate('DATE', $pp_obj->getTransactionDate() );
+		} else {
+			$pay_period_id = 0;
+			$start_date = TTDate::getDate('DATE', time() );
+			$end_date = TTDate::getDate('DATE', time() );
+			$transaction_date = TTDate::getDate('DATE', time() );
+		}
+
 		$data = array(
 			'company_id' => $company_obj->getId(),
 			'user_id' => $user_obj->getId(),
 			'currency_id' => $user_obj->getCurrency(),
-			'start_date' => TTDate::getDate('DATE', time() ),
-			'end_date' => TTDate::getDate('DATE', time() ),
-			'transaction_date' => TTDate::getDate('DATE', time() ),
+			'pay_period_id' => $pay_period_id,
+			'start_date' => $start_date,
+			'end_date' => $end_date,
+			'transaction_date' => $transaction_date,
 		);
 
 		return $this->returnHandler( $data );
@@ -110,7 +128,11 @@ class APIPayStub extends APIFactory {
 
 				$this->getProgressBarObject()->stop( $this->getAMFMessageID() );
 
-				return Misc::APIFileDownload( 'pay_stub.pdf', 'application/pdf', $output );
+				if ( $output != '' ) {
+					return Misc::APIFileDownload( 'pay_stub.pdf', 'application/pdf', $output );
+				} else {
+					return $this->returnHandler( FALSE, 'VALIDATION', TTi18n::getText('ERROR: No data to export...') );
+				}
 			}
 		} elseif ( strpos( strtolower($format), 'cheque_' ) !== FALSE AND $this->getPermissionObject()->Check('pay_stub', 'view') == TRUE ) {
 			if ( $pslf->getRecordCount() > 0 ) {
@@ -122,7 +144,11 @@ class APIPayStub extends APIFactory {
 
 				$this->getProgressBarObject()->stop( $this->getAMFMessageID() );
 
-				return Misc::APIFileDownload( 'checks_'. str_replace(array('/', ',', ' '), '_', TTDate::getDate('DATE', time() ) ) .'.pdf', 'application/pdf', $output );
+				if ( $output != '' ) {
+					return Misc::APIFileDownload( 'checks_'. str_replace(array('/', ',', ' '), '_', TTDate::getDate('DATE', time() ) ) .'.pdf', 'application/pdf', $output );
+				} else {
+					return $this->returnHandler( FALSE, 'VALIDATION', TTi18n::getText('ERROR: No data to export...') );
+				}
 			}
 		} elseif ( strpos( strtolower($format), 'eft_' ) !== FALSE AND $this->getPermissionObject()->Check('pay_stub', 'view') == TRUE ) {
 			if ( $pslf->getRecordCount() > 0 ) {
@@ -134,22 +160,26 @@ class APIPayStub extends APIFactory {
 
 				$this->getProgressBarObject()->stop( $this->getAMFMessageID() );
 
-				//Include file creation number in the exported file name, so the user knows what it is without opening the file,
-				//and can generate multiple files if they need to match a specific number.
-				$ugdlf = TTnew( 'UserGenericDataListFactory' );
-				$ugdlf->getByCompanyIdAndScriptAndDefault( $this->getCurrentCompanyObject()->getId(), 'PayStubFactory', TRUE );
-				if ( $ugdlf->getRecordCount() > 0 ) {
-					$ugd_obj = $ugdlf->getCurrent();
-					$setup_data = $ugd_obj->getData();
-				}
+				if ( $output != '' ) {
+					//Include file creation number in the exported file name, so the user knows what it is without opening the file,
+					//and can generate multiple files if they need to match a specific number.
+					$ugdlf = TTnew( 'UserGenericDataListFactory' );
+					$ugdlf->getByCompanyIdAndScriptAndDefault( $this->getCurrentCompanyObject()->getId(), 'PayStubFactory', TRUE );
+					if ( $ugdlf->getRecordCount() > 0 ) {
+						$ugd_obj = $ugdlf->getCurrent();
+						$setup_data = $ugd_obj->getData();
+					}
 
-				if ( isset($setup_data) ) {
-					$file_creation_number = $setup_data['file_creation_number']++;
+					if ( isset($setup_data) ) {
+						$file_creation_number = $setup_data['file_creation_number']++;
+					} else {
+						$file_creation_number = 0;
+					}
+
+					return Misc::APIFileDownload( 'eft_'.$file_creation_number.'_'.date('Y_m_d').'.txt', 'application/pdf', $output );
 				} else {
-					$file_creation_number = 0;
+					return $this->returnHandler( FALSE, 'VALIDATION', TTi18n::getText('ERROR: No data to export...') );
 				}
-				
-				return Misc::APIFileDownload( 'eft_'.$file_creation_number.'_'.date('Y_m_d').'.txt', 'application/pdf', $output );
 			}
 		} else {
 			if ( $pslf->getRecordCount() > 0 ) {
@@ -260,27 +290,11 @@ class APIPayStub extends APIFactory {
 				$is_valid = $primary_validator->isValid();
 				if ( $is_valid == TRUE ) { //Check to see if all permission checks passed before trying to save data.
 					Debug::Text('Setting object data...', __FILE__, __LINE__, __METHOD__, 10);
-
-					if ( $lf->isNew() == TRUE
-							AND isset($row['user_id']) AND isset($row['start_date']) AND isset($row['end_date'])
-							AND ( !isset($row['pay_period_id']) OR $row['pay_period_id'] == 0 ) ) {
-						$pplf = TTNew('PayPeriodListFactory');
-						//$pplf->getByUserIdAndStartDateAndEndDate( $row['user_id'], TTDate::parseDateTime( $row['start_date'] ), TTDate::parseDateTime( $row['end_date'] ) );
-						$pplf->getByUserIdAndEndDate( $row['user_id'], TTDate::parseDateTime( $row['end_date'] ) );
-						if ( $pplf->getRecordCount() == 1 ) {
-							$row['pay_period_id'] = $pplf->getCurrent()->getId();
-							Debug::Text('  Determing PayPeriod ID: '. $row['pay_period_id'], __FILE__, __LINE__, __METHOD__, 10);
-						} else {
-							Debug::Text('  Unable to determe PayPeriod ID...: '. $pplf->getRecordCount(), __FILE__, __LINE__, __METHOD__, 10);
-						}
-					} else {
-						Debug::Text('  NOT Determing PayPeriod ID...', __FILE__, __LINE__, __METHOD__, 10);
-					}
-
+					
 					$lf->setObjectFromArray( $row );
 
 					if ( ( isset($row['entries']) AND is_array($row['entries']) AND count($row['entries']) > 0 ) ) {
-						Debug::Text(' Found modified entries!', __FILE__, __LINE__, __METHOD__,10);
+						Debug::Text(' Found modified entries!', __FILE__, __LINE__, __METHOD__, 10);
 
 						//Load previous pay stub
 						$lf->loadPreviousPayStub();
@@ -291,7 +305,8 @@ class APIPayStub extends APIFactory {
 						//When editing pay stubs we can't re-process linked accruals.
 						$lf->setEnableLinkedAccruals( FALSE );
 
-						foreach($row['entries'] as $pay_stub_entry ) {
+						$processed_entries = 0;
+						foreach( $row['entries'] as $pay_stub_entry ) {
 							if ( 	(
 										( isset($pay_stub_entry['id']) AND $pay_stub_entry['id'] > 0 )
 										OR
@@ -305,8 +320,9 @@ class APIPayStub extends APIFactory {
 									)
 									AND isset($pay_stub_entry['amount'])
 								) {
-								Debug::Text('Pay Stub Entry ID: '. $pay_stub_entry['id'] .' Amount: '. $pay_stub_entry['amount'], __FILE__, __LINE__, __METHOD__,10);
+								Debug::Text('Pay Stub Entry ID: '. $pay_stub_entry['id'] .' Amount: '. $pay_stub_entry['amount'] .' Pay Stub ID: '. $row['id'], __FILE__, __LINE__, __METHOD__, 10);
 
+								//Populate $pay_stub_entry_obj so we can find validation errors before postSave() is called.
 								if ( $pay_stub_entry['id'] > 0 ) {
 									$pself = TTnew( 'PayStubEntryListFactory' );
 									$pself->getById( $pay_stub_entry['id'] );
@@ -317,8 +333,23 @@ class APIPayStub extends APIFactory {
 
 								if ( !isset($pay_stub_entry_obj) ) {
 									$pay_stub_entry_obj = TTnew( 'PayStubEntryListFactory' );
-									$pay_stub_entry_obj->setPayStub( $pay_stub_entry['id'] );
+									//$pay_stub_entry_obj->setPayStub( $row['id'] ); //When creating a new pay stub, we don't have the ID, so this just causes an error anyways.
 									$pay_stub_entry_obj->setPayStubEntryNameId( $pay_stub_entry['pay_stub_entry_name_id'] );
+
+									if ( isset($pay_stub_entry['pay_stub_amendment_id']) AND $pay_stub_entry['pay_stub_amendment_id'] != '' ) {
+										$pay_stub_entry_obj->setPayStubAmendment( $pay_stub_entry['pay_stub_amendment_id'], $lf->getStartDate(), $lf->getEndDate() );
+									}
+
+									if ( isset($pay_stub_entry['rate']) AND $pay_stub_entry['rate'] != '' ) {
+										$pay_stub_entry_obj->setRate( $pay_stub_entry['rate'] );
+									}
+									if ( isset($pay_stub_entry['units']) AND $pay_stub_entry['units'] != '' ) {
+										$pay_stub_entry_obj->setUnits( $pay_stub_entry['units'] );
+									}
+
+									if ( isset($pay_stub_entry['amount']) AND $pay_stub_entry['amount'] != '' ) {
+										$pay_stub_entry_obj->setAmount( $pay_stub_entry['amount'] );
+									}
 								}
 
 								if ( !isset($pay_stub_entry['units']) OR $pay_stub_entry['units'] == '' ) {
@@ -344,22 +375,30 @@ class APIPayStub extends APIFactory {
 									if ( $psamlf->getRecordCount() > 0 ) {
 										$ytd_adjustment = $psamlf->getCurrent()->getYTDAdjustment();
 									}
-									Debug::Text(' Pay Stub Amendment Id: '. $pay_stub_entry['pay_stub_amendment_id'] .' YTD Adjusment: '. (int)$ytd_adjustment, __FILE__, __LINE__, __METHOD__,10);
+									Debug::Text(' Pay Stub Amendment Id: '. $pay_stub_entry['pay_stub_amendment_id'] .' YTD Adjusment: '. (int)$ytd_adjustment, __FILE__, __LINE__, __METHOD__, 10);
 								}
 
-								$lf->addEntry( $pay_stub_entry_obj->getPayStubEntryNameId(), $pay_stub_entry['amount'], $pay_stub_entry['units'], $pay_stub_entry['rate'], $pay_stub_entry['description'], $pay_stub_entry['pay_stub_amendment_id'], NULL, NULL, $ytd_adjustment );
+								if ( $pay_stub_entry_obj->isValid() == TRUE ) {
+									$lf->addEntry( $pay_stub_entry['pay_stub_entry_name_id'], $pay_stub_entry['amount'], $pay_stub_entry['units'], $pay_stub_entry['rate'], $pay_stub_entry['description'], $pay_stub_entry['pay_stub_amendment_id'], NULL, NULL, $ytd_adjustment );
+									$processed_entries++;
+								} else {
+									Debug::Text(' ERROR: Unable to save PayStubEntry... ', __FILE__, __LINE__, __METHOD__, 10);
+									$lf->Validator->isTrue( 'pay_stub_entry', FALSE, TTi18n::getText('%1 entry for amount: %2 is invalid', array($pay_stub_entry_obj->getPayStubEntryAccountObject()->getName(), Misc::MoneyFormat( $pay_stub_entry['amount']) ) ) );
+								}
 							} else {
-								Debug::Text(' Skipping Total Entry. ', __FILE__, __LINE__, __METHOD__,10);
+								Debug::Text(' Skipping Total Entry. ', __FILE__, __LINE__, __METHOD__, 10);
 							}
 							unset($pay_stub_entry_obj);
 						}
 						unset($pay_stub_entry_id, $pay_stub_entry);
 
-						$lf->setEnableCalcYTD( TRUE );
-						$lf->setEnableProcessEntries( TRUE );
-						$lf->processEntries();
+						if ( $processed_entries > 0 ) {
+							$lf->setEnableCalcYTD( TRUE );
+							$lf->setEnableProcessEntries( TRUE );
+							$lf->processEntries();
+						}
 					} else {
-						Debug::Text(' Skipping ALL Entries... ', __FILE__, __LINE__, __METHOD__,10);
+						Debug::Text(' Skipping ALL Entries... ', __FILE__, __LINE__, __METHOD__, 10);
 					}
 
 					if ( $validate_only == TRUE ) {
@@ -391,7 +430,6 @@ class APIPayStub extends APIFactory {
 				} elseif ( $validate_only == TRUE ) {
 					$lf->FailTransaction();
 				}
-
 
 				$lf->CommitTransaction();
 
@@ -547,12 +585,12 @@ class APIPayStub extends APIFactory {
 				if ( $pay_period_obj->isPreviousPayPeriodClosed() == TRUE ) {
 					//Grab all users for pay period
 					$ppsulf = TTnew( 'PayPeriodScheduleUserListFactory' );
-					if ( is_array($user_ids) AND count($user_ids) > 0 ) {
+					if ( is_array($user_ids) AND count($user_ids) > 0 AND !in_array( -1, $user_ids ) ) {
 						Debug::text('Generating pay stubs for specific users...', __FILE__, __LINE__, __METHOD__, 10);
-
 						TTLog::addEntry( $this->getCurrentCompanyObject()->getId(), 500, TTi18n::gettext('Calculating Company Pay Stubs for Pay Period').': '. $pay_period_id, $this->getCurrentUserObject()->getId(), 'pay_stub' ); //Notice
 						$ppsulf->getByCompanyIDAndPayPeriodScheduleIdAndUserID( $this->getCurrentCompanyObject()->getId(), $pay_period_obj->getPayPeriodSchedule(), $user_ids );
 					} else {
+						Debug::text('Generating pay stubs for all users...', __FILE__, __LINE__, __METHOD__, 10);
 						TTLog::addEntry( $this->getCurrentCompanyObject()->getId(), 500, TTi18n::gettext('Calculating Employee Pay Stub for Pay Period').': '. $pay_period_id, $this->getCurrentUserObject()->getId(), 'pay_stub' );
 						$ppsulf->getByCompanyIDAndPayPeriodScheduleId( $this->getCurrentCompanyObject()->getId(), $pay_period_obj->getPayPeriodSchedule() );
 					}
@@ -566,7 +604,7 @@ class APIPayStub extends APIFactory {
 						$pslf = TTnew( 'PayStubListFactory' );
 						$pslf->getByPayPeriodId( $pay_period_obj->getId() );
 						foreach ( $pslf as $pay_stub_obj ) {
-							if ( is_array($user_ids) AND count($user_ids) > 0 AND in_array( $pay_stub_obj->getUser(), $user_ids ) == FALSE ) {
+							if ( is_array($user_ids) AND count($user_ids) > 0 AND !in_array( -1, $user_ids ) AND in_array( $pay_stub_obj->getUser(), $user_ids ) == FALSE ) {
 								continue; //Only generating pay stubs for individual employees, skip ones not in the list.
 							}
 							Debug::text('Existing Pay Stub: '. $pay_stub_obj->getId(), __FILE__, __LINE__, __METHOD__, 10);

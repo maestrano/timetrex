@@ -206,7 +206,6 @@ class APISchedule extends APIFactory {
 						OR ( $this->getPermissionObject()->Check('wage', 'view_own') == TRUE AND $this->getPermissionObject()->isOwner( FALSE, $row['user_id'] ) == TRUE )
 						OR ( $this->getPermissionObject()->Check('wage', 'view_child') == TRUE AND $this->getPermissionObject()->isChild( $row['user_id'], $data['filter_data']['wage_permission_children_ids']) == TRUE )
 						) ) {
-					//} else {
 						$retarr[$date_stamp][$key]['hourly_rate'] = $retarr[$date_stamp][$key]['total_time_wage'] = 0;
 					}
 					$sf->getPermissionColumns( $retarr[$date_stamp][$key], $row['user_id'], $row['created_by_id'], $data['filter_data']['permission_children_ids'], $data['filter_columns'] );
@@ -267,9 +266,17 @@ class APISchedule extends APIFactory {
 			}
 			unset($pplf, $pay_period_ids);
 		}
-
+		
 		//Get Permission Hierarchy Children first, as this can be used for viewing, or editing.
 		$data['filter_data']['permission_children_ids'] = $this->getPermissionObject()->getPermissionChildren( 'schedule', 'view' );
+
+		//If we don't have permissions to view open shifts, exclude user_id = 0;
+		if ( $this->getPermissionObject()->Check('schedule', 'view_open') == FALSE ) {
+			$data['filter_data']['exclude_id'] = array(0);
+		} elseif ( count($data['filter_data']['permission_children_ids']) > 0 ) {
+			//If schedule, view_open is allowed but they are also only allowed to see their subordinates (which they have some of), add "open" employee as if they are a subordinate.
+			$data['filter_data']['permission_children_ids'][] = 0;
+		}
 
 		$blf = TTnew( 'ScheduleListFactory' );
 		if ( DEPLOYMENT_ON_DEMAND == TRUE ) { $blf->setQueryStatementTimeout( 60000 ); }
@@ -281,7 +288,7 @@ class APISchedule extends APIFactory {
 			$this->setPagerObject( $blf );
 
 			//Make sure if hourly_rates are ever exposed in ScheduleFactory that the proper permissions are checked here.
-			foreach( $blf as $b_obj ) {
+			foreach( $blf as $b_obj ) {				
 				$retarr[] = $b_obj->getObjectAsArray( $data['filter_columns'], $data['filter_data']['permission_children_ids'] );
 
 				$this->getProgressBarObject()->set( $this->getAMFMessageID(), $blf->getCurrentRow() );
@@ -302,6 +309,12 @@ class APISchedule extends APIFactory {
 	 * @return array
 	 */
 	function getCommonScheduleData( $data ) {
+		//Trying to Mass Edit only recurring schedule shifts (gray font) will cause an empty 'id' array to be passed and all schedules to be returned, causing things to really slow down.
+		//This can be removed after the HTML5 bug is fixed to avoid sending the bogus filter data. 01-Jul-15.
+		if ( isset($data['filter_data']['id']) AND is_array($data['filter_data']['id']) AND count($data['filter_data']['id']) == 0 ) {
+			return $this->returnHandler( TRUE ); //No records returned.
+		}
+		
 		return Misc::arrayIntersectByRow( $this->stripReturnHandler( $this->getSchedule( $data, TRUE ) ) );
 	}
 
@@ -386,6 +399,7 @@ class APISchedule extends APIFactory {
 										$this->getPermissionObject()->Check('schedule', 'edit')
 										OR ( isset($row['user_id']) AND $this->getPermissionObject()->Check('schedule', 'edit_own') AND $this->getPermissionObject()->isOwner( FALSE, $row['user_id'] ) === TRUE ) //We don't know the created_by of the user at this point, but only check if the user is assigned to the logged in person.
 										OR ( isset($row['user_id']) AND $this->getPermissionObject()->Check('schedule', 'edit_child') AND $this->getPermissionObject()->isChild( $row['user_id'], $permission_children_ids ) === TRUE )
+										OR ( isset($row['user_id']) AND $this->getPermissionObject()->Check('schedule', 'view_open') AND (int)$row['user_id'] == 0 )
 									)
 								)
 							) ) {

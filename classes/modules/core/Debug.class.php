@@ -133,7 +133,7 @@ class Debug {
 		if ( isset($config_vars['debug']['syslog_facility']) AND $config_vars['debug']['syslog_facility'] != '' ) {
 			$facility_arr = explode( ',', $config_vars['debug']['syslog_facility'] );
 			if ( is_array($facility_arr) AND isset( $facility_arr[(int)$log_type] ) ) {
-				return ( is_numeric( $facility_arr[(int)$log_type] ) ) ? $facility_arr[(int)$log_type] : constant( $facility_arr[(int)$log_type] );
+				return ( is_numeric( $facility_arr[(int)$log_type] ) ) ? $facility_arr[(int)$log_type] : constant( trim($facility_arr[(int)$log_type]) );
 			}
 		}
 
@@ -145,7 +145,7 @@ class Debug {
 		if ( isset($config_vars['debug']['syslog_priority']) AND $config_vars['debug']['syslog_priority'] != '' ) {
 			$priority_arr = explode( ',', $config_vars['debug']['syslog_priority'] );
 			if ( is_array($priority_arr) AND isset( $priority_arr[(int)$log_type] ) ) {
-				return ( is_numeric( $priority_arr[(int)$log_type] ) ) ? $priority_arr[(int)$log_type] : constant( $priority_arr[(int)$log_type] );
+				return ( is_numeric( $priority_arr[(int)$log_type] ) ) ? $priority_arr[(int)$log_type] : constant( trim($priority_arr[(int)$log_type]) );
 			}
 		}
 
@@ -378,7 +378,7 @@ class Debug {
 
 		if ( self::$php_errors > 0 ) {
 			self::Text('Detected PHP errors ('. self::$php_errors .'), emailing log...');
-			self::Text('---------------[ '. Date('d-M-Y G:i:s O') .' (PID: '.getmypid().') ]---------------');
+			self::Text('---------------[ '. @date('d-M-Y G:i:s O') .' ['. microtime(TRUE) .'] (PID: '.getmypid().') ]---------------');
 
 			self::emailLog();
 			if ( $error !== NULL ) { //Fatal error, write to log once more as this won't be called automatically.
@@ -412,7 +412,6 @@ class Debug {
 			$output = self::getOutput();
 
 			if (strlen($output) > 0) {
-				$server_domain = Misc::getHostName();
 				Misc::sendSystemMail( APPLICATION_NAME. ' - Error!', $output );
 			}
 		}
@@ -427,7 +426,7 @@ class Debug {
 
 			$eol = "\n";
 
-			$output = $eol.'---------------[ '. @date('d-M-Y G:i:s O') .' (PID: '.getmypid().') ]---------------'.$eol;
+			$output = $eol.'---------------[ '. @date('d-M-Y G:i:s O') .' ['. $_SERVER['REQUEST_TIME_FLOAT'] .'] (PID: '.getmypid().') ]---------------'.$eol;
 			if ( is_array( self::$debug_buffer ) ) {
 				foreach (self::$debug_buffer as $arr) {
 					if ( $arr[0] <= self::getVerbosity() ) {
@@ -435,7 +434,7 @@ class Debug {
 					}
 				}
 			}
-			$output .= '---------------[ '. @date('d-M-Y G:i:s O') .' (PID: '.getmypid().') ]---------------'.$eol;
+			$output .= '---------------[ '. @date('d-M-Y G:i:s O') .' ['. microtime(TRUE) .'] (PID: '.getmypid().') ]---------------'.$eol;
 
 			if ( isset($config_vars['debug']['enable_syslog']) AND $config_vars['debug']['enable_syslog'] == TRUE AND OPERATING_SYSTEM != 'WIN' ) {
 				//If using rsyslog, need to set:
@@ -514,7 +513,8 @@ class Debug {
 	static function handleBufferSize( $line = NULL, $method = NULL) {
 		//When buffer exceeds maximum size, write it to the log and clear it.
 		//This will affect displaying large buffers though, but otherwise we may run out of memory.
-		if ( self::$buffer_size >= self::$max_buffer_size ) {
+		//If we detect PHP errors, buffer up to 10x the maximum size to try and capture those errors.
+		if ( ( self::$php_errors == 0 AND self::$buffer_size >= self::$max_buffer_size ) OR ( self::$php_errors > 0 AND self::$buffer_size >= ( self::$max_buffer_size * 10 ) ) ) {
 			self::$debug_buffer[] = array(1, 'DEBUG [L'. $line .'] ['. self::getExecutionTime() .'ms]:'. "\t" .''. $method .'(): Maximum debug buffer size of: '. self::$max_buffer_size .' reached. Writing out buffer before continuing... Buffer ID: '. self::$buffer_id ."\n" );
 			self::writeToLog();
 			self::clearBuffer();

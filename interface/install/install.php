@@ -65,7 +65,7 @@ if ( version_compare( PHP_VERSION, 5, '<') == 1 ) {
 	echo "You are currenting using PHP v<b>". PHP_VERSION ."</b> TimeTrex requires PHP <b>v5</b> or greater!<br><br>\n";
 	$redir = FALSE;
 }
-if ( version_compare( PHP_VERSION, '5.5.99', '>') == 1 ) {
+if ( version_compare( PHP_VERSION, '5.6.99', '>') == 1 ) {
 	echo "You are currenting using PHP v<b>". PHP_VERSION ."</b> TimeTrex requires PHP <b>v5.5.x</b> or earlier!<br><br>\n";
 	$redir = FALSE;
 }
@@ -103,8 +103,8 @@ echo " 10...";
 if ( $redir == TRUE ) {
 	echo " PASSED!<br><br>\n";
 	echo "Please wait while we automatically redirect you to the <a href='License.php?external_installer=". $external_installer ."'>installer</a>.";
-	echo "<meta http-equiv='refresh' content='0;url=License.php?external_installer=". $external_installer ."'>";
-	//header("Location: License.php?external_installer=". $external_installer ."\n\n");
+	//echo "<meta http-equiv='refresh' content='0;url=License.php?external_installer=". $external_installer ."'>";
+	echo "<meta http-equiv='refresh' content='0;url=../html5/index.php?installer=1&disable_db=1&external_installer=". $external_installer ."#!m=Install&a=license&external_installer=". $external_installer ."'>";
 } else {
 	echo " FAILED!<br><br>\n";
 	echo "For installation support, please join our community <a href=\"http://forums.timetrex.com\" target=\"_blank\">forums</a> or

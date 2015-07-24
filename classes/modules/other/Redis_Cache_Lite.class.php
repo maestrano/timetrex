@@ -48,19 +48,45 @@ class Redis_Cache_Lite extends Cache_Lite {
 	}
 
 	function redisConnect( $key ) {
-		$this->_redisHostConn[$key] = new Redis();
-		//Try with 1 second timeout, we don't want redis to block requests if its down.
-		if ( $this->_redisHostConn[$key]->pconnect( $this->_redisHostHost[$key], NULL, 1 ) === TRUE ) {
-			if ( isset($this->_redisDB) AND $this->_redisDB != '' ) {
-				if ( $this->_redisHostConn[$key]->select( $this->_redisDB ) === FALSE ){
-					//return $this->raiseError('Cache_Lite : Unable to switch redis DB to: '. $this->_redisDB, -2);  //In order to catch these we need to include PEAR.php all the time.
-					return FALSE;
-				}
-				//else {
-				//	Debug::text('Switched REDIS DB to: '. $this->_redisDB, __FILE__, __LINE__, __METHOD__, 10);
-				//}
+		if ( isset($this->_redisHostConn[$key]) AND $this->_redisHostConn[$key] === FALSE ) {
+			Debug::Text( 'Previous error connecting to the Redis database, not attempting again during this request...', __FILE__, __LINE__, __METHOD__, 1);
+			return FALSE;
+		}
+
+		try {
+			global $config_vars;
+			if ( !isset($config_vars['database']['persistent_connections']) ) {
+				$config_vars['database']['persistent_connections'] = FALSE;
 			}
-			return $this->_redisHostConn[$key];
+
+			$this->_redisHostConn[$key] = new Redis();
+
+			//Try with 2 second timeout, we don't want redis to block requests if its down.
+			if ( $config_vars['database']['persistent_connections'] == TRUE ) {
+				$connection_retval = $this->_redisHostConn[$key]->pconnect( $this->_redisHostHost[$key], NULL, 2 );
+			} else {
+				$connection_retval = $this->_redisHostConn[$key]->connect( $this->_redisHostHost[$key], NULL, 2 );
+			}
+			
+			if ( $connection_retval === TRUE ) {
+				if ( isset($this->_redisDB) AND $this->_redisDB != '' ) {
+					if ( $this->_redisHostConn[$key]->select( $this->_redisDB ) === FALSE ) {
+						//return $this->raiseError('Cache_Lite : Unable to switch redis DB to: '. $this->_redisDB, -2);  //In order to catch these we need to include PEAR.php all the time.
+						return FALSE;
+					}
+					//else {
+					//	Debug::text('Switched REDIS DB to: '. $this->_redisDB, __FILE__, __LINE__, __METHOD__, 10);
+					//}
+				}
+				return $this->_redisHostConn[$key];
+			} else {
+				$this->_redisHostConn[$key] = FALSE; //Prevent further connections from timing out during this request...
+				Debug::Text( 'Error connecting to the Redis database! (a)', __FILE__, __LINE__, __METHOD__, 1);				
+			}
+		} catch (Exception $e) {
+			$this->_redisHostConn[$key] = FALSE; //Prevent further connections from timing out during this request...
+			Debug::Text( 'Error connecting to the Redis database! (b)', __FILE__, __LINE__, __METHOD__, 1);
+			//throw new DBError($e);
 		}
 
 		//return $this->raiseError('Cache_Lite : Unable to connect to redis host: '. $key, -2);  //In order to catch these we need to include PEAR.php all the time.

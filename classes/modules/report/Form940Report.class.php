@@ -814,11 +814,6 @@ class Form940Report extends Report {
 
 		$this->getFormObject()->addForm( $f940 );
 
-		if ( isset($f940sb) AND is_object( $f940sb ) ) {
-			$this->getFormObject()->addForm( $f940sb );
-		}
-
-
 		if ( $format == 'efile_xml' ) {
 			$output_format = 'XML';
 			$file_name = '940_efile_'.date('Y_m_d').'.xml';

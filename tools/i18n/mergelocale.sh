@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash 
 
 ##$License$##
 ##
@@ -20,16 +20,16 @@ if [ $lc == 'en_US' ] || [ $lc == 'yi_US' ] ; then
 	rm -f $lc/LC_MESSAGES/messages.po
 fi
 
-#Don't use fuzzy matching with msgmerge to avoid issues with non-translating strings or mixing up of strings.
-touch $lc/LC_MESSAGES/messages.po && \
-	msgmerge -N --no-wrap -s --update $lc/LC_MESSAGES/messages.po ./messages.pot && \
-	msgfmt -o $lc/LC_MESSAGES/messages.mo $lc/LC_MESSAGES/messages.po
-
 if [ $lc == 'yi_US' ] ; then
 	#This is a test locale, change all strings to something that stands out so we can find untranslated ones easily.
 	cat $lc/LC_MESSAGES/messages.po | sed -e '15,$s/msgstr ""/msgstr "Z"/g' > $lc/LC_MESSAGES/messages.po.tmp
 	mv $lc/LC_MESSAGES/messages.po.tmp $lc/LC_MESSAGES/messages.po
 fi
+
+#Don't use fuzzy matching with msgmerge to avoid issues with non-translating strings or mixing up of strings.
+touch $lc/LC_MESSAGES/messages.po && \
+	msgmerge -N --no-wrap -s --update $lc/LC_MESSAGES/messages.po ./messages.pot && \
+	msgfmt -c -o $lc/LC_MESSAGES/messages.mo $lc/LC_MESSAGES/messages.po
 
 #Convert to .JSON file
 php ../../tools/i18n/po2json.php -i $lc/LC_MESSAGES/messages.po -o $lc/LC_MESSAGES/messages.json -n i18n_dictionary

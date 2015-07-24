@@ -101,7 +101,11 @@ class APIPayStubEntry extends APIFactory {
 				),
 			),
 			50 => array(
-				array( 'tmp_type' => 50 ) ),
+				array( 'tmp_type' => 50 )
+				),
+			80 => array(
+				array( 'tmp_type' => 80 )
+				),
 		);
 
 		return $this->returnHandler( $data );
@@ -167,7 +171,7 @@ class APIPayStubEntry extends APIFactory {
 	}
 
 	/**
-	 * Set paystub_entry_account data for one or more paystub_entry_accountes.
+	 * Set paystub_entry_account data for one or more paystub_entry_accounts.
 	 * @param array $data paystub_entry_account data
 	 * @return array
 	 */
@@ -366,8 +370,10 @@ class APIPayStubEntry extends APIFactory {
 	 * @param array $data paystub_entry_account data
 	 * @return array
 	 */
-	/*
 	function deletePayStubEntry( $data ) {
+		//
+		//This is required by Edit Pay Stub view to delete individual Pay Stub entries.
+		//
 		if ( is_numeric($data) ) {
 			$data = array($data);
 		}
@@ -455,6 +461,5 @@ class APIPayStubEntry extends APIFactory {
 
 		return $this->returnHandler( FALSE );
 	}
-	*/
 }
 ?>

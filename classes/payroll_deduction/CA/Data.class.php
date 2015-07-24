@@ -471,6 +471,12 @@ class PayrollDeduction_CA_Data extends PayrollDeduction_Base {
 	*/
 	var $provincial_tax_reduction_options = array(
 							'BC' => array(
+									1435734000 => array( //2015 (Jul 1)
+														'income1' => 19673,
+														'income2' => 31567.74,
+														'amount' => 452,
+														'rate' => 0.038,
+														),
 									1420099200 => array( //2015
 														'income1' => 18327,
 														'income2' => 31202,

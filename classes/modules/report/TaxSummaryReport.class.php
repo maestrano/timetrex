@@ -494,9 +494,9 @@ class TaxSummaryReport extends Report {
 		$ulf->getSearchByCompanyIdAndArrayCriteria( $this->getUserObject()->getCompany(), $filter_data );
 		if ( $ulf->getRecordCount() > 0 ) {
 			//Get total gross pay stub account IDs
-			$cdf = TTnew( 'CompanyDeductionFactory' );
-			$cdf->setCompany( $this->getUserObject()->getCompany() );
-			$total_gross_psea_ids = $cdf->getExpandedPayStubEntryAccountIDs( $cdf->getPayStubEntryAccountLinkObject()->getTotalGross() );
+			//$cdf = TTnew( 'CompanyDeductionFactory' );
+			//$cdf->setCompany( $this->getUserObject()->getCompany() );
+			//$total_gross_psea_ids = $cdf->getExpandedPayStubEntryAccountIDs( $cdf->getPayStubEntryAccountLinkObject()->getTotalGross() ); //This is now $subject_wages_psea_ids below.
 
 			if ( isset( $filter_data['company_deduction_id'] ) == FALSE ) {
 				$filter_data['company_deduction_id'] = '';
@@ -512,13 +512,19 @@ class TaxSummaryReport extends Report {
 				$cdlf = TTnew( 'CompanyDeductionListFactory' );
 				$cdlf->getByCompanyIdAndId( $this->getUserObject()->getCompany(), $filter_data['company_deduction_id'] );
 				if ( $cdlf->getRecordCount() > 0 ) {
+						$subject_wages_psea_ids = array();
 						$taxable_wages_psea_ids = array();
 						$tax_withheld_psea_ids = array();
 						Debug::Text('Found Company Deductions...', __FILE__, __LINE__, __METHOD__, 10);
 						foreach( $cdlf as $cd_obj ) {
+							//Subject wages are wages subject to taxes. Previously this was considered to be Total Gross, but that wouldn't take things like Expense Reimbursements into account.
+							$subject_wages_psea_ids = array_merge( $subject_wages_psea_ids, (array)$cd_obj->getCombinedIncludeExcludePayStubEntryAccount( $cd_obj->getIncludePayStubEntryAccount(), $cd_obj->getExcludePayStubEntryAccount() ) );
+							
+							//Taxable wages are wages actually taxed after maximum limits and such are taken into account below.
 							$taxable_wages_psea_ids = array_merge( $taxable_wages_psea_ids, (array)$cd_obj->getCombinedIncludeExcludePayStubEntryAccount( $cd_obj->getIncludePayStubEntryAccount(), $cd_obj->getExcludePayStubEntryAccount() ) );
 							$tax_withheld_psea_ids[] = $cd_obj->getPayStubEntryAccount();
 						}
+						$subject_wages_psea_ids = array_unique( $subject_wages_psea_ids );
 						$taxable_wages_psea_ids = array_unique( $taxable_wages_psea_ids );
 						$tax_withheld_psea_ids = array_unique( $tax_withheld_psea_ids );
 				}
@@ -558,6 +564,7 @@ class TaxSummaryReport extends Report {
 						foreach( $cdlf as $cd_obj ) {
 							$company_deduction_id = $cd_obj->getId();
 
+							$subject_wages_psea_ids = (array)$cd_obj->getCombinedIncludeExcludePayStubEntryAccount( $cd_obj->getIncludePayStubEntryAccount(), $cd_obj->getExcludePayStubEntryAccount() );
 							$taxable_wages_psea_ids = (array)$cd_obj->getCombinedIncludeExcludePayStubEntryAccount( $cd_obj->getIncludePayStubEntryAccount(), $cd_obj->getExcludePayStubEntryAccount() );
 							$tax_withheld_psea_ids = array( $cd_obj->getPayStubEntryAccount() );
 
@@ -588,7 +595,7 @@ class TaxSummaryReport extends Report {
 									$this->tmp_data['pay_stub_entry'][$company_deduction_id][$date_stamp][$user_id]['PY'.$pay_stub_entry_name_id] = $pse_obj->getColumn('ytd_amount');
 								}
 
-								if ( isset($total_gross_psea_ids) AND is_array($total_gross_psea_ids) AND in_array($pay_stub_entry_name_id, $total_gross_psea_ids ) ) {
+								if ( isset($subject_wages_psea_ids) AND is_array($subject_wages_psea_ids) AND in_array($pay_stub_entry_name_id, $subject_wages_psea_ids ) ) {
 									if ( isset($this->tmp_data['pay_stub_entry'][$company_deduction_id][$date_stamp][$user_id]['subject_wages']) ) {
 										$this->tmp_data['pay_stub_entry'][$company_deduction_id][$date_stamp][$user_id]['subject_wages'] = bcadd( $this->tmp_data['pay_stub_entry'][$company_deduction_id][$date_stamp][$user_id]['subject_wages'], $pse_obj->getColumn('amount') );
 									} else {
@@ -714,7 +721,7 @@ class TaxSummaryReport extends Report {
 							$this->tmp_data['pay_stub_entry'][$company_deduction_id][$date_stamp][$user_id]['PY'.$pay_stub_entry_name_id] = $pse_obj->getColumn('ytd_amount');
 						}
 
-						if ( isset($total_gross_psea_ids) AND is_array($total_gross_psea_ids) AND in_array($pay_stub_entry_name_id, $total_gross_psea_ids ) ) {
+						if ( isset($subject_wages_psea_ids) AND is_array($subject_wages_psea_ids) AND in_array($pay_stub_entry_name_id, $subject_wages_psea_ids ) ) {
 							if ( isset($this->tmp_data['pay_stub_entry'][$company_deduction_id][$date_stamp][$user_id]['subject_wages']) ) {
 								$this->tmp_data['pay_stub_entry'][$company_deduction_id][$date_stamp][$user_id]['subject_wages'] = bcadd( $this->tmp_data['pay_stub_entry'][$company_deduction_id][$date_stamp][$user_id]['subject_wages'], $pse_obj->getColumn('amount') );
 							} else {

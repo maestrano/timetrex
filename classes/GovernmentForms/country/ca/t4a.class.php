@@ -664,7 +664,7 @@ class GovernmentForms_CA_T4A extends GovernmentForms_CA {
 				$xml->Return->T4A->T4ASlip[$e]->RCPNT_ADDR->addChild('cntry_cd', 'CAN' );
 				if ( $this->postal_code != '' ) { $xml->Return->T4A->T4ASlip[$e]->RCPNT_ADDR->addChild('pstl_cd', $this->postal_code ); }
 
-				$xml->Return->T4A->T4ASlip[$e]->addChild('sin', $this->sin ); //Required
+				$xml->Return->T4A->T4ASlip[$e]->addChild('sin', ( $this->sin != '' ) ? $this->sin : '000000000' ); //Required
 				if ( $this->employee_number != '' ) {  $xml->Return->T4A->T4ASlip[$e]->addChild('rcpnt_nbr', substr( $this->employee_number, 0, 20) ); }
 				$xml->Return->T4A->T4ASlip[$e]->addChild('rcpnt_bn', '000000000RP0000' ); //Individual only
 				$xml->Return->T4A->T4ASlip[$e]->addChild('bn', $this->payroll_account_number ); //Payroll Account Number

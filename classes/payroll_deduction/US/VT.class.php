@@ -41,6 +41,9 @@
 class PayrollDeduction_US_VT extends PayrollDeduction_US {
 
 	var $state_options = array(
+								1420099200 => array( //01-Jan-15
+													'allowance' => 4000
+													),
 								1388563200 => array( //01-Jan-14
 													'allowance' => 3950
 													),

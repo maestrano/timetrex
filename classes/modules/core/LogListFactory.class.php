@@ -294,7 +294,7 @@ class LogListFactory extends LogFactory implements IteratorAggregate {
 																a.user_id,
 																a.description,
 																array_to_string( regexp_matches(a.description, \'([0-9]{1,3})s$\',\'i\'),\'\')::int as seconds,
-																CASE WHEN a.description ILIKE \'%Destination: unknown%\' THEN \'local\' ELSE \'tollfree\' END as product
+																CASE WHEN ( a.description ILIKE \'%Destination: unknown%\' OR a.description ILIKE \'%Destination: 525490% Call%\' ) THEN \'local\' ELSE \'tollfree\' END as product
 														from system_log as a
 															LEFT JOIN users as b ON a.user_id = b.id
 														where a.table_name = \'punch\'
