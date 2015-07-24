@@ -3,4 +3,4 @@
 # - UAT:        repository: maestrano, branch: mno-develop
 # - Local:      repository: my_repository, branch: my_branch
 application_version: mno-develop
-application_repository: BrunoChauvet
+application_repository: maestrano
