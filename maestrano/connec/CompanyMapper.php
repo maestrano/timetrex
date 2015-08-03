@@ -45,8 +45,8 @@ class CompanyMapper extends BaseMapper {
     }
 
     // Company name
-    if($this->is_set($company_hash['name'])) { $company->setName($company_hash['name']); }
-    if($this->is_set($company_hash['employer_id'])) { $company->setBusinessNumber($company_hash['employer_id']); }
+    if(array_key_exists('name', $company_hash)) { $company->setName($company_hash['name']); }
+    if(array_key_exists('employer_id', $company_hash)) { $company->setBusinessNumber($company_hash['employer_id']); }
     
     // Map the industry type
     if(!is_null($company_hash['industry'])) {
@@ -55,14 +55,23 @@ class CompanyMapper extends BaseMapper {
       if($this->is_set($industry_id)) { $company->setIndustry($industry_id); }
     }
 
+    if(array_key_exists('address', $company_hash) && $this->is_set($company_hash['address'])) {
+      $address = null;
+      if(array_key_exists('shipping', $company_hash['address']) && $this->is_set($company_hash['address']['shipping'])) {
+        $address = $company_hash['address']['shipping'];
+      } else if(array_key_exists('billing', $company_hash['address']) && $this->is_set($company_hash['address']['billing'])) {
+        $address = $company_hash['address']['billing'];
+      }
+    }
+
     // Address
-    if(!is_null($company_hash['address']) && !is_null($company_hash['address']['billing'])) {
-      if($this->is_set($company_hash['address']['billing']['line1'])) { $company->setAddress1($company_hash['address']['billing']['line1']); }
-      if($this->is_set($company_hash['address']['billing']['line2'])) { $company->setAddress2($company_hash['address']['billing']['line2']); }
-      if($this->is_set($company_hash['address']['billing']['city'])) { $company->setCity($company_hash['address']['billing']['city']); }
-      if($this->is_set($company_hash['address']['billing']['postal_code'])) { $company->setPostalCode($company_hash['address']['billing']['postal_code']); }
-      if($this->is_set($company_hash['address']['billing']['country'])) { $company->setCountry($company_hash['address']['billing']['country']); }
-      if($this->is_set($company_hash['address']['billing']['region'])) { $company->setProvince($company_hash['address']['billing']['region']); }
+    if(!is_null($address)) {
+      if($this->is_set($address['line1'])) { $company->setAddress1($address['line1']); }
+      if($this->is_set($address['line2'])) { $company->setAddress2($address['line2']); }
+      if($this->is_set($address['city'])) { $company->setCity($address['city']); }
+      if($this->is_set($address['postal_code'])) { $company->setPostalCode($address['postal_code']); }
+      if($this->is_set($address['country'])) { $company->setCountry($address['country']); }
+      if($this->is_set($address['region'])) { $company->setProvince($address['region']); }
     }
 
     // Phone
@@ -118,12 +127,12 @@ class CompanyMapper extends BaseMapper {
     }
 
     // Address
-    if($company->getAddress1()) { $company_hash['address']['billing']['line1'] = $company->getAddress1(); }
-    if($company->getAddress2()) { $company_hash['address']['billing']['line2'] = $company->getAddress2(); }
-    if($company->getCity()) { $company_hash['address']['billing']['city'] = $company->getCity(); }
-    if($company->getPostalCode()) { $company_hash['address']['billing']['postal_code'] = $company->getPostalCode(); }
-    if($company->getCountry()) { $company_hash['address']['billing']['country'] = $company->getCountry(); }
-    if($company->getProvince()) { $company_hash['address']['billing']['region'] = $company->getProvince(); }
+    if($company->getAddress1()) { $company_hash['address']['shipping']['line1'] = $company->getAddress1(); }
+    if($company->getAddress2()) { $company_hash['address']['shipping']['line2'] = $company->getAddress2(); }
+    if($company->getCity()) { $company_hash['address']['shipping']['city'] = $company->getCity(); }
+    if($company->getPostalCode()) { $company_hash['address']['shipping']['postal_code'] = $company->getPostalCode(); }
+    if($company->getCountry()) { $company_hash['address']['shipping']['country'] = $company->getCountry(); }
+    if($company->getProvince()) { $company_hash['address']['shipping']['region'] = $company->getProvince(); }
 
     // Phone
     if($company->getWorkPhone()) { $company_hash['phone']['landline'] = $company->getWorkPhone(); }

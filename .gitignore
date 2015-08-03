@@ -1,4 +1,4 @@
 ./timetrex.ini.php
-./templates_c
-./maestrano.json
-./maestrano/var/*
+templates_c
+maestrano.json
+maestrano/var/*

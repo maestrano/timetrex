@@ -76,9 +76,13 @@
     dest: /etc/apache2/sites-available/timetrex.conf
     owner: root
     mode: 755
+  tags:
+    - configuration
 
 - name: TimeTrex | Enable Apache virtual host 
   file: src=/etc/apache2/sites-available/timetrex.conf dest=/etc/apache2/sites-enabled/timetrex.conf state=link
+  tags:
+    - configuration
 
 - name: Apache | Restart the Apache service
   service: 
@@ -146,5 +150,14 @@
   args:
     chdir: "{{ timetrex_root_path }}/maestrano/scripts"
   sudo_user: www-data
+  tags:
+    - configuration
+
+- name: TimeTrex | Cron job
+  cron:
+    name: TimeTrex job to run every minute
+    minute: "*/15"
+    hour: "*"
+    job: "php {{ timetrex_root_path }}/maint/cron.php"
   tags:
     - configuration
