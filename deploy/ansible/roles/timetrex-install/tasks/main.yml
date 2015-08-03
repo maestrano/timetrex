@@ -148,3 +148,10 @@
   sudo_user: www-data
   tags:
     - configuration
+
+- name: TimeTrex | Cron job
+  cron:
+    name: TimeTrex job to run every minute
+    minute: "*"
+    hour: "*"
+    job: "php {{ timetrex_root_path }}/maint/cron.php"
