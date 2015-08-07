@@ -91,7 +91,7 @@ verbosity = 10
 force_ssl = FALSE
 installer_enabled = FALSE
 primary_company_id = 1
-hostname = localhost
+hostname = {{ server_hostname }}
 deployment_on_demand = 1
 
 ; System Administrators Email address to send critical errors to if necessary. Set to FALSE to disable completely.

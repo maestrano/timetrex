@@ -95,6 +95,7 @@ force_ssl = FALSE
 installer_enabled = FALSE
 primary_company_id = 
 hostname = localhost
+deployment_on_demand = 1
 
 ; System Administrators Email address to send critical errors to if necessary. Set to FALSE to disable completely.
 ;system_admin_email = "sysadmin@mydomain.com"
@@ -105,5 +106,3 @@ default_interface = html5
 ;If you do it will cause all your passwords to become invalid,
 ;and you may lose access to some encrypted data.
 salt = 13a31fbd7a530b04d540af349aa22a25
-
-
