@@ -1,4 +1,4 @@
-FROM maestrano/docker-lamp:latest
+FROM maestrano/docker-lamp:stable
 MAINTAINER Maestrano <it@maestrano.com>
 
 RUN apt-get -y update && apt-get -y upgrade 
