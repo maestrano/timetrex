@@ -95,6 +95,8 @@
     dest: "{{ timetrex_root_path }}/timetrex.ini.php"
     owner: root
     mode: 755
+  tags:
+    - configuration
 
 - name: TimeTrex | Configuration file maestrano.json
   template: 
