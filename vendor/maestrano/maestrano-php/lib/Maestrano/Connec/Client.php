@@ -3,33 +3,55 @@
 /**
  * Maestrano Connec! HTTP Client.
  */
-class Maestrano_Connec_Client
+class Maestrano_Connec_Client extends Maestrano_Util_PresetObject
 {
   private $group_id;
-  private $base_url;
+  protected $_preset;
 
-  private $v2_path;
-  private $reports_path;
-  
   /**
    * Constructor
    * @param group_id The customer group id (defaults to Maestrano configuration)
    */
   public function __construct($group_id = null) {
-    if(!is_null($group_id)) {
-      $this->group_id = $group_id;
-    } else {
-      $this->group_id = Maestrano::param('api.group_id');
-    }
+    $this->group_id = $group_id;
+  }
 
-    $this->base_url = Maestrano::param('connec.host') . Maestrano::param('connec.base_path');
-    $this->v2_path = Maestrano::param('connec.v2_path');
-    $this->reports_path = Maestrano::param('connec.reports_path');
+  /**
+   * @param string $id The ID of the bill to instantiate.
+   * @param string|null $apiToken
+   *
+   * @return Maestrano_Billing_Bill
+   */
+  public static function newWithPreset($preset, $group_id = null)
+  {
+    $obj = new Maestrano_Connec_Client($group_id);
+    $obj->_preset = $preset;
+    return $obj;
+  }
+
+  public function getBaseUrl() {
+    return Maestrano::with($this->_preset)->param('connec.host') . Maestrano::with($this->_preset)->param('connec.base_path');
+  }
+
+  public function getV2Path() {
+    return Maestrano::with($this->_preset)->param('connec.v2_path');
+  }
+
+  public function getReportsPath() {
+    return Maestrano::with($this->_preset)->param('connec.v2_path');
+  }
+
+  public function getGroupId() {
+    if(!is_null($this->group_id)) {
+      return $this->group_id;
+    } else {
+      return Maestrano::with($this->_preset)->param('api.group_id');
+    }
   }
 
   /**
    * Perform a GET request to Connec!
-   * 
+   *
    * @param relativePath The relative path to the resource or resource collection
    * @param params Optional filtering parameters
    * @return associative array describing the response. E.g. ( 'code' => 200, 'body' => {...} )
@@ -37,7 +59,7 @@ class Maestrano_Connec_Client
   public function get($relativePath, $params = null) {
     return $this->_curlRequest(
       'GET',
-      $this->scopedUrl($this->v2_path, $relativePath),
+      $this->scopedUrl($this->getV2Path(), $relativePath),
       $this->defaultHeaders(),
       $params
     );
@@ -53,15 +75,15 @@ class Maestrano_Connec_Client
   public function getReport($relativePath, $params = null) {
     return $this->_curlRequest(
         'GET',
-        $this->scopedUrl($this->reports_path, $relativePath),
+        $this->scopedUrl($this->getReportsPath(), $relativePath),
         $this->defaultHeaders(),
         $params
     );
   }
-  
+
   /**
    * Perform a POST request to Connec!
-   * 
+   *
    * @param relativePath The relative path to the resource or resource collection
    * @param attributes Associative array of attributes
    * @return associative array describing the response. E.g. ( 'code' => 200, 'body' => {...} )
@@ -69,15 +91,15 @@ class Maestrano_Connec_Client
   public function post($relativePath, $attributes = null) {
     return $this->_curlRequest(
       'POST',
-      $this->scopedUrl($this->v2_path, $relativePath),
+      $this->scopedUrl($this->getV2Path(), $relativePath),
       $this->defaultHeaders(),
       $attributes
     );
   }
-  
+
   /**
    * Perform a PUT request to Connec!
-   * 
+   *
    * @param relativePath The relative path to the resource or resource collection
    * @param attributes Associative array of attributes
    * @return associative array describing the response. E.g. ( 'code' => 200, 'body' => {...} )
@@ -85,19 +107,19 @@ class Maestrano_Connec_Client
   public function put($relativePath, $attributes = null) {
     return $this->_curlRequest(
       'PUT',
-      $this->scopedUrl($this->v2_path, $relativePath),
+      $this->scopedUrl($this->getV2Path(), $relativePath),
       $this->defaultHeaders(),
       $attributes
     );
   }
-  
-  
+
+
   /**
    * @return array The default HTTP headers
    */
   private function defaultHeaders() {
     $apiToken = Maestrano::param('api.token');
-    
+
     return array(
       'Authorization: Basic ' . base64_encode($apiToken),
       'Accept: ' . 'application/vnd.api+json',
@@ -105,7 +127,7 @@ class Maestrano_Connec_Client
       'Connec-Country-Format: alpha2'
     );
   }
-  
+
   /**
    * @param relativePath the API resource path. E.g. '/organizations'
    * @return String the relative path prefixed with the group_id
@@ -113,8 +135,8 @@ class Maestrano_Connec_Client
   private function scopedPath($relativePath) {
     $clean_path = preg_replace('/^\/+/','',$relativePath);
     $clean_path = preg_replace('/\/+$/','',$clean_path);
-    
-    return "/" . $this->group_id . "/" . $clean_path;
+
+    return "/" . $this->getGroupId() . "/" . $clean_path;
   }
 
 
@@ -124,7 +146,7 @@ class Maestrano_Connec_Client
    * @return string the absolute url to the resource
    */
   private function scopedUrl($api, $relativePath) {
-    return $this->base_url . $api . $this->scopedPath($relativePath);
+    return $this->getBaseUrl() . $api . $this->scopedPath($relativePath);
   }
 
   /**
@@ -150,7 +172,7 @@ class Maestrano_Connec_Client
 
     return implode("&", $r);
   }
-  
+
   /**
    * @param string|mixed $value A string to UTF8-encode.
    *
@@ -165,7 +187,7 @@ class Maestrano_Connec_Client
       return $value;
     }
   }
-  
+
   private function _curlRequest($method, $absUrl, $headers, $params) {
     $curl = curl_init();
     $method = strtoupper($method);
@@ -179,11 +201,11 @@ class Maestrano_Connec_Client
     } else if ($method == 'POST') {
       $opts[CURLOPT_POST] = 1;
       $opts[CURLOPT_POSTFIELDS] = json_encode($params);
-    
+
     } else if ($method == 'PUT') {
       $opts[CURLOPT_CUSTOMREQUEST] = "PUT";
       $opts[CURLOPT_POSTFIELDS] = json_encode($params);
-    
+
     } else if ($method == 'DELETE') {
       $opts[CURLOPT_CUSTOMREQUEST] = 'DELETE';
       if (count($params) > 0) {
@@ -205,7 +227,7 @@ class Maestrano_Connec_Client
 
     curl_setopt_array($curl, $opts);
     $rbody = curl_exec($curl);
-    
+
     if (!defined('CURLE_SSL_CACERT_BADFILE')) {
       define('CURLE_SSL_CACERT_BADFILE', 77);  // constant not defined in PHP
     }
@@ -233,7 +255,7 @@ class Maestrano_Connec_Client
 
     $rcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
     curl_close($curl);
-    
+
     return array( 'body' => $rbody, 'code' => $rcode);
   }
 

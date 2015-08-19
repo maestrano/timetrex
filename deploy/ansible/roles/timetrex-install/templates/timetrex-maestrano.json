@@ -4,11 +4,13 @@
         "host": "http://{{ server_hostname }}"
     },
     "api": {
+        {% if hub_api_url is defined %}"host": "{{ hub_api_url }}",{% endif %}
         "id": "{{ api_key }}",
         "key": "{{ api_secret }}",
         "group_id": "{{ server_hostname }}"
     },
     "sso": {
+        {% if hub_idp_url is defined %}"idp": "{{ hub_idp_url }}",{% endif %}
         "enabled": {{ sso_enabled }},
         "slo_enabled": true,
         "init_path": "/maestrano/auth/saml/init.php",
@@ -16,6 +18,7 @@
         "creation_mode": "virtual"
     },
     "connec": {
+      {% if connec_api_url is defined %}"host": "{{ connec_api_url }}",{% endif %}
       "enabled": {{ connec_enabled }},
       "timeout": 300
     },

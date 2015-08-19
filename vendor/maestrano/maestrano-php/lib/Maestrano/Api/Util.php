@@ -63,7 +63,7 @@ abstract class Maestrano_Api_Util
    * @param string $apiToken
    * @return Maestrano_Api_Object|array
    */
-  public static function convertToMaestranoObject($resp, $apiToken)
+  public static function convertToMaestranoObject($resp, $preset)
   {
     $types = array(
       'account_bill' => 'Maestrano_Account_Bill',
@@ -76,7 +76,7 @@ abstract class Maestrano_Api_Util
     if (self::isList($resp)) {
       $mapped = array();
       foreach ($resp as $i)
-        array_push($mapped, self::convertToMaestranoObject($i, $apiToken));
+        array_push($mapped, self::convertToMaestranoObject($i, $preset));
       return $mapped;
 
     } else if (is_array($resp)) {
@@ -88,7 +88,7 @@ abstract class Maestrano_Api_Util
       } else {
         $class = 'Maestrano_Api_Object';
       }
-      return Maestrano_Api_Object::scopedConstructFrom($class, $resp, $apiToken);
+      return Maestrano_Api_Object::scopedConstructFrom($class, $resp, $preset);
     } else {
       // Automatically convert dates
       if (preg_match('/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/', $resp)) {

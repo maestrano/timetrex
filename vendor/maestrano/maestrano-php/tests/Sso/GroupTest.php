@@ -1,5 +1,5 @@
 <?php
-  
+
 /**
  * Unit tests for AuthN Request
  */
@@ -7,7 +7,7 @@ class Maestrano_Sso_GroupTest extends PHPUnit_Framework_TestCase
 {
     private $samlResp;
     private $subject;
-    
+
     /**
     * Initializes the Test Suite
     */
@@ -17,8 +17,8 @@ class Maestrano_Sso_GroupTest extends PHPUnit_Framework_TestCase
     	$this->samlResp = new SamlMnoRespStub();
     	$this->subject = new Maestrano_Sso_Group($this->samlResp);
     }
-    
-    
+
+
     public function testAttributeParsing() {
   		$att = $this->samlResp->getAttributes();
 

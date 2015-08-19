@@ -11,17 +11,28 @@ class Maestrano_Account_User extends Maestrano_Api_Resource
   {
     return "/api/v1/account/users";
   }
-  
+
+  /**
+   * @param string $preset
+   * @param string $id The ID of the user to instantiate.
+   *
+   * @return Maestrano_Account_User
+   */
+  public static function newWithPreset($preset,$id=null)
+  {
+    return new Maestrano_Account_User($id,$preset);
+  }
+
   /**
    * @param string $id The ID of the bill to retrieve.
    * @param string|null $apiToken
    *
    * @return Maestrano_Billing_Bill
    */
-  public static function retrieve($id, $apiToken=null)
+  public static function retrieveWithPreset($preset,$id)
   {
     $class = get_class();
-    return self::_scopedRetrieve($class, $id, $apiToken);
+    return self::_scopedRetrieve($class, $id, $preset);
   }
 
   /**
@@ -30,30 +41,30 @@ class Maestrano_Account_User extends Maestrano_Api_Resource
    *
    * @return array An array of Maestrano_Billing_Bills.
    */
-  public static function all($params=null, $apiToken=null)
+  public static function allWithPreset($preset,$params=null)
   {
     $class = get_class();
-    return self::_scopedAll($class, $params, $apiToken);
+    return self::_scopedAll($class, $params, $preset);
   }
-  
+
 	public function getId() {
 		return $this->id;
 	}
-  
+
 	public function getName() {
 		return $this->name;
 	}
 	public function getFirstName() {
 		return $this->name;
 	}
-  
+
 	public function getSurname() {
 		return $this->surname;
 	}
 	public function getLastname() {
 		return $this->surname;
 	}
-  
+
 	public function getEmail() {
 		return $this->email;
 	}
