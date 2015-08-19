@@ -1,6 +1,6 @@
 <?php
 
-class Maestrano_Api_Object implements ArrayAccess
+class Maestrano_Api_Object extends Maestrano_Util_PresetObject implements ArrayAccess
 {
   /**
    * @var array Attributes that should not be sent to the API because they're
@@ -15,19 +15,19 @@ class Maestrano_Api_Object implements ArrayAccess
 
   public static function init()
   {
-    self::$permanentAttributes = new Maestrano_Util_Set(array('_apiToken', 'id'));
+    self::$permanentAttributes = new Maestrano_Util_Set(array('_preset', 'id'));
     self::$nestedUpdatableAttributes = new Maestrano_Util_Set(array('metadata'));
   }
 
-  protected $_apiToken;
+  protected $_preset;
   protected $_values;
   protected $_unsavedValues;
   protected $_transientValues;
   protected $_retrieveOptions;
 
-  public function __construct($id=null, $apiToken=null)
+  public function __construct($id=null, $preset=null)
   {
-    $this->_apiToken = $apiToken;
+    $this->_preset = $preset;
     $this->_values = array();
     $this->_unsavedValues = new Maestrano_Util_Set();
     $this->_transientValues = new Maestrano_Util_Set();
@@ -99,6 +99,14 @@ class Maestrano_Api_Object implements ArrayAccess
     }
   }
 
+  public function getPreset() {
+    if (is_null($this->_preset)) {
+      return 'maestrano';
+    } else {
+      return $this->_preset;
+    }
+  }
+
   // ArrayAccess methods
   public function offsetSet($k, $v)
   {
@@ -129,40 +137,40 @@ class Maestrano_Api_Object implements ArrayAccess
    *
    * @param Maestrano_Api_Object $class
    * @param array $values
-   * @param string|null $apiToken
+   * @param string|null $preset
    *
    * @return Maestrano_Api_Object The object constructed from the given values.
    */
-  public static function scopedConstructFrom($class, $values, $apiToken=null)
+  public static function scopedConstructFrom($class, $values, $preset=null)
   {
-    $obj = new $class(isset($values['id']) ? $values['id'] : null, $apiToken);
-    $obj->refreshFrom($values, $apiToken);
+    $obj = new $class(isset($values['id']) ? $values['id'] : null, $preset);
+    $obj->refreshFrom($values, $preset);
     return $obj;
   }
 
   /**
    * @param array $values
-   * @param string|null $apiToken
+   * @param string|null $preset
    *
    * @return Maestrano_Api_Object The object of the same class as $this constructed
    *    from the given values.
    */
-  public static function constructFrom($values, $apiToken=null)
+  public static function constructFrom($values, $preset=null)
   {
     $class = get_class($this);
-    return self::scopedConstructFrom($class, $values, $apiToken);
+    return self::scopedConstructFrom($class, $values, $preset);
   }
 
   /**
    * Refreshes this object using the provided values.
    *
    * @param array $values
-   * @param string $apiToken
+   * @param string $preset
    * @param boolean $partial Defaults to false.
    */
-  public function refreshFrom($values, $apiToken = null, $partial=false)
+  public function refreshFrom($values, $preset = null, $partial=false)
   {
-    $this->_apiToken = $apiToken;
+    $this->_preset = $preset;
 
     // Wipe old state before setting new.  This is useful for e.g. updating a
     // customer, where there is no persistent card parameter.  Mark those values
@@ -184,9 +192,9 @@ class Maestrano_Api_Object implements ArrayAccess
         continue;
 
       if (self::$nestedUpdatableAttributes->includes($k) && is_array($v)) {
-        $this->_values[$k] = Maestrano_Api_Object::scopedConstructFrom('Maestrano_AttachedObject', $v, $apiToken);
+        $this->_values[$k] = Maestrano_Api_Object::scopedConstructFrom('Maestrano_AttachedObject', $v, $preset);
       } else {
-        $this->_values[$k] = Maestrano_Api_Util::convertToMaestranoObject($v, $apiToken);
+        $this->_values[$k] = Maestrano_Api_Util::convertToMaestranoObject($v, $preset);
       }
 
       $this->_transientValues->discard($k);

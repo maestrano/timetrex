@@ -4,13 +4,14 @@
  * Helper class used to check the validity
  * of a Maestrano session
  */
-class Maestrano_Sso_Session
+class Maestrano_Sso_Session extends Maestrano_Util_PresetObject
 {
   private $httpSession = null;
   private $uid = '';
   private $groupUid = '';
   private $sessionToken = '';
   private $recheck = null;
+  protected $preset;
 
   /**
    * Construct the Maestrano_Sso_Session object
@@ -42,6 +43,19 @@ class Maestrano_Sso_Session
         $this->recheck = new DateTime($sessionObj['session_recheck']);
       }
     }
+  }
+
+  /**
+   * @param string $id The ID of the bill to instantiate.
+   * @param string|null $apiToken
+   *
+   * @return Maestrano_Billing_Bill
+   */
+  public static function newWithPreset($preset, &$http_session, $user = null)
+  {
+    $obj = new Maestrano_Sso_Session($http_session, $user, $preset);
+    $obj->_preset = $preset;
+    return $obj;
   }
 
   /**
@@ -82,7 +96,7 @@ class Maestrano_Sso_Session
     */
     public function getSessionCheckUrl()
     {
-      $url = Maestrano::sso()->getSessionCheckUrl($this->uid, $this->sessionToken);
+      $url = Maestrano::with($this->_preset)->sso()->getSessionCheckUrl($this->uid, $this->sessionToken);
       return $url;
     }
 
@@ -129,7 +143,7 @@ class Maestrano_Sso_Session
   * @return boolean the validity of the session
   */
   public function isValid($ifSession = false, $httpClient = null) {
-    $svc = Maestrano::sso();
+    $svc = Maestrano::with($this->_preset)->sso();
 
     if (!$svc->isSloEnabled()) return true;
 

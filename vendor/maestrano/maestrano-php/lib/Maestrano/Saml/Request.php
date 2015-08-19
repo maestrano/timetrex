@@ -3,7 +3,7 @@
 /**
  * Create a SAML authorization request.
  */
-class Maestrano_Saml_Request
+class Maestrano_Saml_Request extends Maestrano_Util_PresetObject
 {
     const ID_PREFIX = 'Maestrano';
 
@@ -12,7 +12,7 @@ class Maestrano_Saml_Request
      * @var Maestrano_Saml_Settings
      */
     protected $_settings;
-    
+
     /**
      * GET parameters passed during
      * @var Array
@@ -29,9 +29,16 @@ class Maestrano_Saml_Request
         if ($settings == null) {
           $settings = Maestrano::sso()->getSamlSettings();
         }
-      
+
         $this->_settings = $settings;
         $this->_get_params = $get_params;
+    }
+
+    public static function newWithPreset($preset, $get_params = array(), $settings = null) {
+      if ($settings == null) {
+        $settings = Maestrano::with($preset)->sso()->getSamlSettings();
+      }
+      return new Maestrano_Saml_Request($get_params,$settings);
     }
 
     /**
@@ -64,20 +71,20 @@ class Maestrano_Saml_Request
     </samlp:RequestedAuthnContext>
 </samlp:AuthnRequest>
 AUTHNREQUEST;
-        
+
         // Encode the request
         $deflatedRequest = gzdeflate($request);
         $base64Request = base64_encode($deflatedRequest);
         $encodedRequest = urlencode($base64Request);
-        
+
         // Build redirect URL
         $url = $this->_settings->idpSingleSignOnUrl . "?SAMLRequest=" . $encodedRequest;
-        
+
         // Keep the original GET parameters
         foreach ($this->_get_params as $param => $value) {
           $url .= "&" . $param . "=" . urlencode($value);
         }
-        
+
         return $url;
     }
 

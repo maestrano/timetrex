@@ -1,23 +1,22 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
-        "This file is @generated automatically"
+        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "d5bf7045341014ae2dd0dcff5ac91375",
+    "hash": "b5c4caf35f1335ef161ea3e9b31b0a71",
     "packages": [
         {
             "name": "maestrano/maestrano-php",
-            "version": "0.8.1",
+            "version": "0.10.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/maestrano/maestrano-php.git",
-                "reference": "9d14f29ee7b4d54810150ef856cff821bfd0bb84"
+                "reference": "c2e17e1b40733990531ae9ae5113ff6a346af2d2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/maestrano/maestrano-php/zipball/9d14f29ee7b4d54810150ef856cff821bfd0bb84",
-                "reference": "9d14f29ee7b4d54810150ef856cff821bfd0bb84",
+                "url": "https://api.github.com/repos/maestrano/maestrano-php/zipball/c2e17e1b40733990531ae9ae5113ff6a346af2d2",
+                "reference": "c2e17e1b40733990531ae9ae5113ff6a346af2d2",
                 "shasum": ""
             },
             "require": {
@@ -52,15 +51,13 @@
                 "marketplace",
                 "sme"
             ],
-            "time": "2015-07-21 05:38:51"
+            "time": "2015-08-19 12:48:14"
         }
     ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": [],
-    "prefer-stable": false,
-    "prefer-lowest": false,
     "platform": [],
     "platform-dev": []
 }

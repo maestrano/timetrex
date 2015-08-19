@@ -3,9 +3,9 @@
 class Maestrano_Api_Requestor
 {
   /**
-   * @var string $apiToken The API key that's to be used to make requests.
+   * @var string $preset The API key that's to be used to make requests.
    */
-  public $apiToken;
+  public $preset;
 
   private static $preFlight;
 
@@ -14,9 +14,9 @@ class Maestrano_Api_Requestor
     return array();
   }
 
-  public function __construct($apiToken=null)
+  public function __construct($preset=null)
   {
-    $this->_apiToken = $apiToken;
+    $this->_preset = $preset;
   }
 
   /**
@@ -24,9 +24,9 @@ class Maestrano_Api_Requestor
    *
    * @returns string The full path.
    */
-  public static function apiUrl($url='')
+  public static function apiUrl($url='',$preset = null)
   {
-    $apiBase = Maestrano::param('api.host');
+    $apiBase = Maestrano::with($preset)->param('api.host');
     return "$apiBase$url";
   }
 
@@ -160,16 +160,14 @@ class Maestrano_Api_Requestor
 
   private function _requestRaw($method, $url, $params)
   {
-    $myApiToken = $this->_apiToken;
-    if (!$myApiToken)
-      $myApiToken = Maestrano::param('api.token');
+    $myApiToken = Maestrano::with($this->_preset)->param('api.token');
 
     if (!$myApiToken) {
       $msg = 'No API token provided.';
       throw new Maestrano_Api_AuthenticationError($msg);
     }
 
-    $absUrl = $this->apiUrl($url);
+    $absUrl = $this->apiUrl($url,$this->_preset);
     $params = self::_encodeObjects($params);
     $langVersion = phpversion();
     $uname = php_uname();
@@ -178,11 +176,11 @@ class Maestrano_Api_Requestor
                 'lang_version' => $langVersion,
                 'publisher' => 'maestrano',
                 'uname' => $uname);
-    
+
     $headers = array('X-Maestrano-Client-User-Agent: ' . json_encode($ua),
                      'User-Agent: Maestrano/v1 PhpBindings/' . Maestrano::VERSION,
                      'Authorization: Basic ' . base64_encode($myApiToken));
-    
+
     list($rbody, $rcode) = $this->_curlRequest(
         $method,
         $absUrl,
@@ -244,12 +242,12 @@ class Maestrano_Api_Requestor
     $opts[CURLOPT_TIMEOUT] = 80;
     $opts[CURLOPT_RETURNTRANSFER] = true;
     $opts[CURLOPT_HTTPHEADER] = $headers;
-    if (!Maestrano::param('verify_ssl_certs'))
+    if (!Maestrano::with($this->_preset)->param('verify_ssl_certs'))
       $opts[CURLOPT_SSL_VERIFYPEER] = false;
 
     curl_setopt_array($curl, $opts);
     $rbody = curl_exec($curl);
-    
+
     if (!defined('CURLE_SSL_CACERT_BADFILE')) {
       define('CURLE_SSL_CACERT_BADFILE', 77);  // constant not defined in PHP
     }
@@ -287,7 +285,7 @@ class Maestrano_Api_Requestor
    */
   public function handleCurlError($errno, $message)
   {
-    $apiBase = Maestrano::param('api.host');
+    $apiBase = Maestrano::with($this->_preset)->param('api.host');
     switch ($errno) {
     case CURLE_COULDNT_CONNECT:
     case CURLE_COULDNT_RESOLVE_HOST:

@@ -14,13 +14,16 @@ class MaestranoTest extends PHPUnit_Framework_TestCase
         'api' => array(
           'id' => "myappid",
           'key' => "myappkey",
-          'group_id' => "mygroupid"
+          'group_id' => "mygroupid",
+          'host' => 'https://someapihost.com'
         ),
         'sso' => array(
           'init_path' => "/mno/init_path.php",
           'consume_path' => "/mno/consume_path.php",
           'idp' => "https://mysuperidp.com",
-          'idm' => "https://mysuperidm.com"
+          'idm' => "https://mysuperidm.com",
+          'x509_fingerprint' => "some-x509_fingerprint",
+          'x509_certificate' => "some-x509_certificate"
         ),
         'connec' => array(
           'enabled' => true,
@@ -54,9 +57,13 @@ class MaestranoTest extends PHPUnit_Framework_TestCase
       $this->assertEquals($this->config['app']['host'], Maestrano::param('app.host'));
       $this->assertEquals($this->config['api']['id'], Maestrano::param('api.id'));
       $this->assertEquals($this->config['api']['key'], Maestrano::param('api.key'));
+      $this->assertEquals($this->config['api']['host'], Maestrano::param('api.host'));
       $this->assertEquals($this->config['api']['group_id'], Maestrano::param('api.group_id'));
       $this->assertEquals($this->config['sso']['init_path'], Maestrano::param('sso.init_path'));
       $this->assertEquals($this->config['sso']['consume_path'], Maestrano::param('sso.consume_path'));
+      $this->assertEquals($this->config['sso']['idp'], Maestrano::param('sso.idp'));
+      $this->assertEquals($this->config['sso']['x509_fingerprint'], Maestrano::param('sso.x509_fingerprint'));
+      $this->assertEquals($this->config['sso']['x509_certificate'], Maestrano::param('sso.x509_certificate'));
       $this->assertEquals($this->config['connec']['enabled'], Maestrano::param('connec.enabled'));
       $this->assertEquals($this->config['connec']['host'], Maestrano::param('connec.host'));
       $this->assertEquals($this->config['connec']['base_path'], Maestrano::param('connec.base_path'));
@@ -85,9 +92,13 @@ class MaestranoTest extends PHPUnit_Framework_TestCase
       $this->assertEquals($this->config['app']['host'], Maestrano::param('app.host'));
       $this->assertEquals($this->config['api']['id'], Maestrano::param('api.id'));
       $this->assertEquals($this->config['api']['key'], Maestrano::param('api.key'));
+      $this->assertEquals($this->config['api']['host'], Maestrano::param('api.host'));
       $this->assertEquals($this->config['api']['group_id'], Maestrano::param('api.group_id'));
       $this->assertEquals($this->config['sso']['init_path'], Maestrano::param('sso.init_path'));
       $this->assertEquals($this->config['sso']['consume_path'], Maestrano::param('sso.consume_path'));
+      $this->assertEquals($this->config['sso']['idp'], Maestrano::param('sso.idp'));
+      $this->assertEquals($this->config['sso']['x509_fingerprint'], Maestrano::param('sso.x509_fingerprint'));
+      $this->assertEquals($this->config['sso']['x509_certificate'], Maestrano::param('sso.x509_certificate'));
       $this->assertEquals($this->config['connec']['enabled'], Maestrano::param('connec.enabled'));
       $this->assertEquals($this->config['connec']['host'], Maestrano::param('connec.host'));
       $this->assertEquals($this->config['connec']['base_path'], Maestrano::param('connec.base_path'));
@@ -115,6 +126,33 @@ class MaestranoTest extends PHPUnit_Framework_TestCase
       $this->assertFalse(Maestrano::authenticate($this->config['api']['id'],$this->config['api']['key'] . "aaa"));
     }
 
+    public function testBindingConfigurationWithPreset() {
+      $preset = 'some-marketplace';
+      Maestrano::with($preset)->configure($this->config);
+
+      $this->assertEquals($this->config['environment'], Maestrano::with($preset)->param('environment'));
+      $this->assertEquals($this->config['app']['host'], Maestrano::with($preset)->param('app.host'));
+      $this->assertEquals($this->config['api']['id'], Maestrano::with($preset)->param('api.id'));
+      $this->assertEquals($this->config['api']['key'], Maestrano::with($preset)->param('api.key'));
+      $this->assertEquals($this->config['api']['group_id'], Maestrano::with($preset)->param('api.group_id'));
+      $this->assertEquals($this->config['api']['host'], Maestrano::with($preset)->param('api.host'));
+      $this->assertEquals($this->config['sso']['init_path'], Maestrano::with($preset)->param('sso.init_path'));
+      $this->assertEquals($this->config['sso']['consume_path'], Maestrano::with($preset)->param('sso.consume_path'));
+      $this->assertEquals($this->config['sso']['idp'], Maestrano::with($preset)->param('sso.idp'));
+      $this->assertEquals($this->config['sso']['x509_fingerprint'], Maestrano::with($preset)->param('sso.x509_fingerprint'));
+      $this->assertEquals($this->config['sso']['x509_certificate'], Maestrano::with($preset)->param('sso.x509_certificate'));
+      $this->assertEquals($this->config['connec']['enabled'], Maestrano::with($preset)->param('connec.enabled'));
+      $this->assertEquals($this->config['connec']['host'], Maestrano::with($preset)->param('connec.host'));
+      $this->assertEquals($this->config['connec']['base_path'], Maestrano::with($preset)->param('connec.base_path'));
+      $this->assertEquals($this->config['connec']['v2_path'], Maestrano::with($preset)->param('connec.v2_path'));
+      $this->assertEquals($this->config['connec']['reports_path'], Maestrano::with($preset)->param('connec.reports_path'));
+      $this->assertEquals($this->config['webhook']['account']['groups_path'], Maestrano::with($preset)->param('webhook.account.groups_path'));
+      $this->assertEquals($this->config['webhook']['account']['group_users_path'], Maestrano::with($preset)->param('webhook.account.group_users_path'));
+      $this->assertEquals($this->config['webhook']['connec']['initialization_path'], Maestrano::with($preset)->param('webhook.connec.initialization_path'));
+      $this->assertEquals($this->config['webhook']['connec']['notifications_path'], Maestrano::with($preset)->param('webhook.connec.notifications_path'));
+      $this->assertEquals($this->config['webhook']['connec']['subscriptions'], Maestrano::with($preset)->param('webhook.connec.subscriptions'));
+    }
+
     public function testToMetadata() {
       Maestrano::configure($this->config);
 
@@ -129,7 +167,7 @@ class MaestranoTest extends PHPUnit_Framework_TestCase
           'verify_ssl_certs' => false,
           'lang'             => 'php',
           'lang_version'     => phpversion() . " " . php_uname(),
-          'host'             => Maestrano::$EVT_CONFIG[$this->config['environment']]['api.host'],
+          'host'             => $this->config['api']['host'],
           'base'             => Maestrano::$EVT_CONFIG[$this->config['environment']]['api.base'],
         ),
         'sso' => array(
@@ -141,8 +179,8 @@ class MaestranoTest extends PHPUnit_Framework_TestCase
           'idm'              => $this->config['sso']['idm'],
           'idp'              => $this->config['sso']['idp'],
           'name_id_format'   => Maestrano::$EVT_CONFIG[$this->config['environment']]['sso.name_id_format'],
-          'x509_fingerprint' => Maestrano::$EVT_CONFIG[$this->config['environment']]['sso.x509_fingerprint'],
-          'x509_certificate' => Maestrano::$EVT_CONFIG[$this->config['environment']]['sso.x509_certificate'],
+          'x509_fingerprint' => $this->config['sso']['x509_fingerprint'],
+          'x509_certificate' => $this->config['sso']['x509_certificate'],
         ),
         'connec' => array(
           'enabled'          => $this->config['connec']['enabled'],

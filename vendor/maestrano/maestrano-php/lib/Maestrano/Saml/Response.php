@@ -3,18 +3,18 @@
 /**
  * Parse the SAML response and maintain the XML for it.
  */
-class Maestrano_Saml_Response
+class Maestrano_Saml_Response extends Maestrano_Util_PresetObject
 {
     /**
      * @var Maestrano_Saml_Settings
      */
     protected $_settings;
-    
+
     /**
      * @var array
      */
     protected $cachedAttributes = null;
-    
+
     /**
      * The decoded, unprocessed XML assertion provided to the constructor.
      * @var string
@@ -37,11 +37,18 @@ class Maestrano_Saml_Response
         if ($settings == null) {
           $settings = Maestrano::sso()->getSamlSettings();
         }
-        
+
         $this->_settings = $settings;
         $this->assertion = base64_decode($saml_response);
         $this->document = new DOMDocument();
         $this->document->loadXML($this->assertion);
+    }
+
+    public static function newWithPreset($preset, $saml_response, $settings = null) {
+      if ($settings == null) {
+        $settings = Maestrano::with($preset)->sso()->getSamlSettings();
+      }
+      return new Maestrano_Saml_Response($get_params,$settings);
     }
 
     /**
@@ -70,14 +77,14 @@ class Maestrano_Saml_Response
         if ($this->cachedAttributes != null) {
           return $this->cachedAttributes;
         }
-        
+
         $entries = $this->_queryAssertion('/saml:AttributeStatement/saml:Attribute');
         $this->cachedAttributes = array();
-        
+
         /** $entry DOMNode */
         foreach ($entries as $entry) {
             $attributeName = $entry->attributes->getNamedItem('Name')->nodeValue;
-            
+
             // Keep only one value for each entry type
             foreach ($entry->childNodes as $childNode) {
                 if (is_a($childNode, 'DOMElement') && preg_match('/AttributeValue/',$childNode->tagName)){
