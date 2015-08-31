@@ -75,13 +75,21 @@ class EmployeeMapper extends BaseMapper {
     if($this->is_set($employee_hash['email']['address'])) { $employee->setWorkEmail($employee_hash['email']['address']); }
     if($this->is_set($employee_hash['email']['address2'])) { $employee->setHomeEmail($employee_hash['email']['address2']); }
 
+    // Map address
+    $address = null;
     if($this->is_set($employee_hash['address']['billing'])) {
-      if($this->is_set($employee_hash['address']['billing']['country'])) { $employee->setCountry($employee_hash['address']['billing']['country']); }
-      if($this->is_set($employee_hash['address']['billing']['region'])) { $employee->setProvince($employee_hash['address']['billing']['region']); }
-      if($this->is_set($employee_hash['address']['billing']['line1'])) { $employee->setAddress1($employee_hash['address']['billing']['line1']); }
-      if($this->is_set($employee_hash['address']['billing']['line2'])) { $employee->setAddress2($employee_hash['address']['billing']['line2']); }
-      if($this->is_set($employee_hash['address']['billing']['city'])) { $employee->setCity($employee_hash['address']['billing']['city']); }
-      if($this->is_set($employee_hash['address']['billing']['postal_code'])) { $employee->setPostalCode($employee_hash['address']['billing']['postal_code']); }
+      $address = $employee_hash['address']['billing'];
+    } else if($this->is_set($employee_hash['address']['shipping'])) {
+      $address = $employee_hash['address']['shipping'];
+    } 
+
+    if($address) {
+      if($this->is_set($address['country'])) { $employee->setCountry($address['country']); }
+      if($this->is_set($address['region'])) { $employee->setProvince($address['region']); }
+      if($this->is_set($address['line1'])) { $employee->setAddress1($address['line1']); }
+      if($this->is_set($address['line2'])) { $employee->setAddress2($address['line2']); }
+      if($this->is_set($address['city'])) { $employee->setCity($address['city']); }
+      if($this->is_set($address['postal_code'])) { $employee->setPostalCode($address['postal_code']); }
     }
 
     if($this->is_set($employee_hash['phone'])) {
