@@ -32,6 +32,8 @@ return array(
     'Maestrano_Sso_Service' => $vendorDir . '/maestrano/maestrano-php/lib/Maestrano/Sso/Service.php',
     'Maestrano_Sso_Session' => $vendorDir . '/maestrano/maestrano-php/lib/Maestrano/Sso/Session.php',
     'Maestrano_Sso_User' => $vendorDir . '/maestrano/maestrano-php/lib/Maestrano/Sso/User.php',
+    'Maestrano_Util_PresetObject' => $vendorDir . '/maestrano/maestrano-php/lib/Maestrano/Util/PresetObject.php',
+    'Maestrano_Util_PresetProxy' => $vendorDir . '/maestrano/maestrano-php/lib/Maestrano/Util/PresetProxy.php',
     'Maestrano_Util_Set' => $vendorDir . '/maestrano/maestrano-php/lib/Maestrano/Util/Set.php',
     'XMLSecEnc' => $vendorDir . '/maestrano/maestrano-php/lib/Maestrano/Xmlseclibs/xmlseclibs.php',
     'XMLSecurityDSig' => $vendorDir . '/maestrano/maestrano-php/lib/Maestrano/Xmlseclibs/xmlseclibs.php',

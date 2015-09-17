@@ -13,6 +13,11 @@ if (!function_exists('mb_detect_encoding')) {
   throw new Exception('Maestrano needs the Multibyte String PHP extension.');
 }
 
+// Util
+require_once(dirname(__FILE__) . '/Maestrano/Util/Set.php');
+require_once(dirname(__FILE__) . '/Maestrano/Util/PresetProxy.php');
+require_once(dirname(__FILE__) . '/Maestrano/Util/PresetObject.php');
+
 // Maestrano wrapper
 require_once(dirname(__FILE__) . '/Maestrano/Maestrano.php');
 
@@ -30,9 +35,6 @@ require_once(dirname(__FILE__) . '/Maestrano/Saml/XmlSec.php');
 require_once(dirname(__FILE__) . '/Maestrano/Saml/Settings.php');
 require_once(dirname(__FILE__) . '/Maestrano/Saml/Request.php');
 require_once(dirname(__FILE__) . '/Maestrano/Saml/Response.php');
-
-// Util
-require_once(dirname(__FILE__) . '/Maestrano/Util/Set.php');
 
 // SSO
 require_once(dirname(__FILE__) . '/Maestrano/Sso/Service.php');

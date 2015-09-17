@@ -2,9 +2,9 @@
 
 abstract class Maestrano_Api_Resource extends Maestrano_Api_Object
 {
-  protected static function _scopedRetrieve($class, $id, $apiToken=null)
+  protected static function _scopedRetrieve($class, $id, $preset=null)
   {
-    $instance = new $class($id, $apiToken);
+    $instance = new $class($id, $preset);
     $instance->refresh();
     return $instance;
   }
@@ -14,7 +14,7 @@ abstract class Maestrano_Api_Resource extends Maestrano_Api_Object
    */
   public function refresh()
   {
-    $requestor = new Maestrano_Api_Requestor($this->_apiToken);
+    $requestor = new Maestrano_Api_Requestor($this->_preset);
     $url = $this->instanceUrl();
 
     list($response, $apiToken) = $requestor->request(
@@ -22,21 +22,21 @@ abstract class Maestrano_Api_Resource extends Maestrano_Api_Object
         $url,
         $this->_retrieveOptions
     );
-    $this->refreshFrom($response, $apiToken);
+    $this->refreshFrom($response, $this->_preset);
     return $this;
   }
 
-  protected function getRelated($subpath, $params=null, $apiToken=null)
+  protected function getRelated($subpath, $params=null, $preset=null)
   {
     $realParams = $params;
     if ($realParams && is_array($params)) {
       $realParams = Maestrano_Api_Util::convertMaestranoObjectToArray($params);
     }
 
-    $requestor = new Maestrano_Api_Requestor($apiToken);
+    $requestor = new Maestrano_Api_Requestor($preset);
     $url = $this->instanceUrl() . $subpath;
     list($response, $apiToken) = $requestor->request('get', $url, $realParams);
-    return Maestrano_Api_Util::convertToMaestranoObject($response, $apiToken);
+    return Maestrano_Api_Util::convertToMaestranoObject($response, $this->_preset);
   }
 
   /**
@@ -89,7 +89,7 @@ abstract class Maestrano_Api_Resource extends Maestrano_Api_Object
     return "$base/$extn";
   }
 
-  private static function _validateCall($method, $params=null, $apiToken=null)
+  private static function _validateCall($method, $params=null, $preset=null)
   {
     if ($params && !is_array($params)) {
       $message = "You must pass an array as the first argument to Maestrano API "
@@ -97,50 +97,51 @@ abstract class Maestrano_Api_Resource extends Maestrano_Api_Object
       throw new Maestrano_Api_Error($message);
     }
 
-    if ($apiToken && !is_string($apiToken)) {
+    if ($preset && !is_string($preset)) {
       $message = 'The second argument to Maestrano API method calls is an '
                . 'optional per-request apiKey, which must be a string.  ';
       throw new Maestrano_Api_Error($message);
     }
   }
 
-  protected static function _scopedAll($class, $params=null, $apiToken=null)
+  protected static function _scopedAll($class, $params=null, $preset=null)
   {
     $realParams = $params;
     if ($realParams && is_array($params)) {
-      $realParams = Maestrano_Api_Util::convertMaestranoObjectToArray($params);
+      $realParams = Maestrano_Api_Util::convertMaestranoObjectToArray($params,$preset);
     }
 
-    self::_validateCall('all', $realParams, $apiToken);
-    $requestor = new Maestrano_Api_Requestor($apiToken);
+    self::_validateCall('all', $realParams, $preset);
+    $requestor = new Maestrano_Api_Requestor($preset);
     $url = self::_scopedLsb($class, 'classUrl', $class);
     list($response, $apiToken) = $requestor->request('get', $url, $realParams);
-    return Maestrano_Api_Util::convertToMaestranoObject($response, $apiToken);
+
+    return Maestrano_Api_Util::convertToMaestranoObject($response, $preset);
   }
 
-  protected static function _scopedCreate($class, $params=null, $apiToken=null)
+  protected static function _scopedCreate($class, $params=null, $preset=null)
   {
-    self::_validateCall('create', $params, $apiToken);
-    $requestor = new Maestrano_Api_Requestor($apiToken);
+    self::_validateCall('create', $params, $preset);
+    $requestor = new Maestrano_Api_Requestor($preset);
     $url = self::_scopedLsb($class, 'classUrl', $class);
 
     $realParams = Maestrano_Api_Util::convertMaestranoObjectToArray($params);
 
     list($response, $apiToken) = $requestor->request('post', $url, $realParams);
-    return Maestrano_Api_Util::convertToMaestranoObject($response, $apiToken);
+    return Maestrano_Api_Util::convertToMaestranoObject($response, $preset);
   }
 
-  protected function _scopedSave($class, $apiToken=null)
+  protected function _scopedSave($class)
   {
     self::_validateCall('save');
-    $requestor = new Maestrano_Api_Requestor($apiToken);
+    $requestor = new Maestrano_Api_Requestor($this->_preset);
     $params = $this->serializeParameters();
 
     if (count($params) > 0) {
       $url = $this->instanceUrl();
       $realParams = Maestrano_Api_Util::convertMaestranoObjectToArray($params);
       list($response, $apiToken) = $requestor->request('post', $url, $params);
-      $this->refreshFrom($response, $apiToken);
+      $this->refreshFrom($response, $this->_preset);
     }
     return $this;
   }
@@ -148,10 +149,10 @@ abstract class Maestrano_Api_Resource extends Maestrano_Api_Object
   protected function _scopedDelete($class, $params=null)
   {
     self::_validateCall('delete');
-    $requestor = new Maestrano_Api_Requestor($this->_apiToken);
+    $requestor = new Maestrano_Api_Requestor($this->_preset);
     $url = $this->instanceUrl();
     list($response, $apiToken) = $requestor->request('delete', $url, $params);
-    $this->refreshFrom($response, $apiToken);
+    $this->refreshFrom($response, $this->_preset);
     return $this;
   }
 }
