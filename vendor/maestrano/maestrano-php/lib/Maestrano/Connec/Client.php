@@ -145,8 +145,12 @@ class Maestrano_Connec_Client extends Maestrano_Util_PresetObject
    * @param $relativePath the API resource path. E.g. '/organizations'
    * @return string the absolute url to the resource
    */
-  private function scopedUrl($api, $relativePath) {
-    return $this->getBaseUrl() . $api . $this->scopedPath($relativePath);
+  private function scopedUrl($api, $path) {
+    if (preg_match("/https?\:\/\/.*/i", $path)) {
+      return $path;
+    } else {
+      return $this->getBaseUrl() . $api . $this->scopedPath($path);
+    }
   }
 
   /**

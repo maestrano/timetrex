@@ -55,7 +55,7 @@ To install maestrano-php using Composer, add this dependency to your project's c
 ```
 {
   "require": {
-    "maestrano/maestrano-php": "~0.9.2"
+    "maestrano/maestrano-php": "~0.10.0"
   }
 }
 ```
@@ -203,11 +203,19 @@ The json file may look like this:
   # => host and API paths (optional)
   # The Connec!™ endpoint to use if you need to overwrite it (i.e. if you want to proxy requests or use a stub)
   "connec": {
+    # == Connec!™ enabled
+    # Data-sharing can be enabled/disabled
     "enabled": true,
+
+    # == Connec!™ API endpoint configuration
     "host": "http://connec.maestrano.io",
     "base_path": "/api",
     "v2_path": "/v2",
-    "reports_path": "/reports"
+    "reports_path": "/reports",
+
+    # == Connec!™ client timeout
+    # Timeout value in seconds when connecting to the Connec!™ API
+    "timeout": 180
   },
 
   # ===> Webhooks
@@ -258,11 +266,13 @@ The json file may look like this:
       "subscriptions": {
         "accounts": true,
         "company": true,
+        "employees": false,
         "events": false,
         "event_orders": false,
         "invoices": true,
         "items": true,
         "journals": false,
+        "opportunities": true,
         "organizations": true,
         "payments": false,
         "pay_items": false,
@@ -285,7 +295,6 @@ The json file may look like this:
     }
   }
 }
-
 ```
 
 #### At runtime
