@@ -3542,27 +3542,32 @@ class UserFactory extends Factory {
 
   // Hook:Maestrano
   function Save($reset_data=true, $force_lookup=false, $push_to_connec=true) {
-    // Preserve record id when updating
-    $local_id = ($this->isNew() ? null : $this->getId());
-    
-    $result = parent::Save($reset_data, $force_lookup);
-    if(is_null($local_id)) { $local_id = $result; }
+    if($this->isValid()) {
+      // Preserve record id when updating
+      $local_id = ($this->isNew() ? null : $this->getId());
 
-    // Send to Connec!
-    if($push_to_connec) {
-      // Reload record
-      $user = TTNew('UserListFactory');
-      $user->getById($local_id);
-      $user = $user->getCurrent();
-      
-      $mapper = 'EmployeeMapper';
-      if(class_exists($mapper)) {
-        $employeeMapper = new $mapper();
-        $employeeMapper->processLocalUpdate($user, $push_to_connec);
+      $result = parent::Save($reset_data, $force_lookup);
+      if(is_null($local_id)) { $local_id = $result; }
+
+      // Send to Connec!
+      if($push_to_connec) {
+        // Reload record
+        $user = TTNew('UserListFactory');
+        $user->getById($local_id);
+        $user = $user->getCurrent();
+        
+        $mapper = 'EmployeeMapper';
+        if(class_exists($mapper)) {
+          $employeeMapper = new $mapper();
+          $employeeMapper->processLocalUpdate($user, $push_to_connec);
+        }
       }
-    }
 
-    return $local_id;
+      return $local_id;
+    } else {
+      error_log("User model cannot be saved due to error: " . json_encode($this->Validator->getTextErrors()));
+      return null;
+    }
   }
 }
 ?>
