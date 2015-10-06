@@ -147,6 +147,26 @@
   tags:
     - configuration
 
+- name: TimeTrex | Create tmp folder for caching
+  file:
+    path: /tmp/timetrex
+    mode: 0755
+    owner: www-data
+    group: www-data
+    state: directory
+  tags:
+    - configuration
+
+- name: TimeTrex | Create tmp folder for caching
+  file:
+    path: /var/log/timetrex
+    mode: 0755
+    owner: www-data
+    group: www-data
+    state: directory
+  tags:
+    - configuration
+
 - name: TimeTrex | Import Connec! data
   shell: "(nohup php initialize.php 1>/var/log/apache2/timetrex_initialize.log 2>&1) &"
   args:
