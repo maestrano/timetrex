@@ -46,8 +46,9 @@ class MnoSsoUser extends Maestrano_Sso_User {
     } else {
       // New user, create it
       $this->local_id = $this->createLocalUser();
-      $this->setLocalUid();
     }
+
+    $this->setLocalUid();
 
     // Add user to current session
     $this->setInSession();
