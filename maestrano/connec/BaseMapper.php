@@ -227,7 +227,7 @@ abstract class BaseMapper {
   }
 
   // Transform an TimeTrex Model into a Connec Resource and push it to Connec
-  protected function pushToConnec($model) {
+  protected function pushToConnec($model, $saveResult=false) {
     // Transform the Model into a Connec hash
     $resource_hash = $this->mapModelToConnecResource($model);
     $hash = array($this->connec_resource_name => $resource_hash);

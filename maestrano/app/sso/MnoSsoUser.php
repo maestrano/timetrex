@@ -117,6 +117,12 @@ class MnoSsoUser extends Maestrano_Sso_User {
       $user->setPostalCode( $user->getCompanyObject()->getPostalCode() );
       $user->setWorkPhone( $user->getCompanyObject()->getWorkPhone() );
       $user->setHomePhone( $user->getCompanyObject()->getWorkPhone() );
+
+      // Ensure fields are correct to allow SSO process
+      if(!$user->isValid('country')) { $user->setCountry('US'); }
+      if(!$user->isValid('province')) { $user->setProvince('CA'); }
+      if(!$user->isValid('work_email')) { $user->setWorkEmail($this->uid . '@changeme.com'); }
+      if(!$user->isValid('work_phone')) { $user->setWorkPhone('000 0000 000'); }
     }
     
     $user->setPermissionControl( $this->getRoleIdToAssign() );
