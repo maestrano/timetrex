@@ -3542,9 +3542,11 @@ class UserFactory extends Factory {
 
   // Hook:Maestrano
   function Save($reset_data=true, $force_lookup=false, $push_to_connec=true) {
+    if(!$this->isValid()) { error_log("User model cannot be saved due to error: " . json_encode($this->Validator->getTextErrors())); }
+
     // Preserve record id when updating
     $local_id = ($this->isNew() ? null : $this->getId());
-    
+
     $result = parent::Save($reset_data, $force_lookup);
     if(is_null($local_id)) { $local_id = $result; }
 

@@ -134,8 +134,18 @@ abstract class BaseMapper {
 
       // Save and map the Model id to the Connec resource id
       if($persist) {
-        $this->persistLocalModel($model, $resource_hash);
-        $this->findOrCreateIdMap($resource_hash, $model);
+        if($model->isValid()) {
+          error_log("persistLocalModel entity=$this->connec_entity_name");
+          $this->persistLocalModel($model, $resource_hash);
+          $this->findOrCreateIdMap($resource_hash, $model);
+        } else {
+          error_log("cannot save entity_name=$this->connec_entity_name, entity_id=" . $resource_hash['id'] . ", error=" . $model->Validator->getTextErrors());
+          // Notify Connec! of error
+          $transaction_log = array('entity_id' => $resource_hash['id'], 'entity_name' => $this->connec_entity_name, 'message' => $model->Validator->getTextErrors(),
+                                   'status' => 'ERROR');
+          $hash = array('transaction_logs' => $transaction_log);
+          $this->_connec_client->post('transaction_logs', $hash);
+        }
       }
 
       // Clear model
@@ -217,7 +227,7 @@ abstract class BaseMapper {
   }
 
   // Transform an TimeTrex Model into a Connec Resource and push it to Connec
-  protected function pushToConnec($model) {
+  protected function pushToConnec($model, $saveResult=false) {
     // Transform the Model into a Connec hash
     $resource_hash = $this->mapModelToConnecResource($model);
     $hash = array($this->connec_resource_name => $resource_hash);
