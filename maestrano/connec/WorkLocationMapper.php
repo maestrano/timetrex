@@ -86,14 +86,17 @@ class WorkLocationMapper extends BaseMapper {
   protected function mapModelToConnecResource($work_location) {
     $work_location_hash = array();
 
+    // Name
+    $work_location_hash['name'] = $work_location->getName();
+
     // Address
-    $work_location_hash['address'] = array('street' => array());
-    if($work_location->getCountry()) { $work_location_hash['address']['street']['country'] = $work_location->getCountry(); }
-    if($work_location->getProvince()) { $work_location_hash['address']['street']['region'] = $work_location->getProvince(); }
-    if($work_location->getAddress1()) { $work_location_hash['address']['street']['line1'] = $work_location->getAddress1(); }
-    if($work_location->getAddress2()) { $work_location_hash['address']['street']['line2'] = $work_location->getAddress2(); }
-    if($work_location->getCity()) { $work_location_hash['address']['street']['city'] = $work_location->getCity(); }
-    if($work_location->getPostalCode()) { $work_location_hash['address']['street']['postal_code'] = $work_location->getPostalCode(); }
+    $work_location_hash['address'] = array('shipping' => array());
+    if($work_location->getCountry()) { $work_location_hash['address']['shipping']['country'] = $work_location->getCountry(); }
+    if($work_location->getProvince()) { $work_location_hash['address']['shipping']['region'] = $work_location->getProvince(); }
+    if($work_location->getAddress1()) { $work_location_hash['address']['shipping']['line1'] = $work_location->getAddress1(); }
+    if($work_location->getAddress2()) { $work_location_hash['address']['shipping']['line2'] = $work_location->getAddress2(); }
+    if($work_location->getCity()) { $work_location_hash['address']['shipping']['city'] = $work_location->getCity(); }
+    if($work_location->getPostalCode()) { $work_location_hash['address']['shipping']['postal_code'] = $work_location->getPostalCode(); }
 
     if($work_location->getWorkPhone()) { $work_location_hash['phone']['landline'] = $work_location->getWorkPhone(); }
     if($work_location->getFaxPhone()) { $work_location_hash['phone']['fax'] = $work_location->getFaxPhone(); }
