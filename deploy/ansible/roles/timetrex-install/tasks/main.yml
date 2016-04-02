@@ -71,7 +71,7 @@
     - update
 
 - name: TimeTrex | Configure Apache virtual host
-  template: 
+  template:
     src: etc-apache24-confd-timetrex-conf
     dest: /etc/apache2/sites-available/timetrex.conf
     owner: root
@@ -79,18 +79,18 @@
   tags:
     - configuration
 
-- name: TimeTrex | Enable Apache virtual host 
+- name: TimeTrex | Enable Apache virtual host
   file: src=/etc/apache2/sites-available/timetrex.conf dest=/etc/apache2/sites-enabled/timetrex.conf state=link
   tags:
     - configuration
 
 - name: Apache | Restart the Apache service
-  service: 
-    name: apache2 
+  service:
+    name: apache2
     state: restarted
 
 - name: TimeTrex | Configuration file timetrex.ini.php
-  template: 
+  template:
     src: timetrex.ini.php
     dest: "{{ timetrex_root_path }}/timetrex.ini.php"
     owner: root
@@ -99,7 +99,7 @@
     - configuration
 
 - name: TimeTrex | Configuration file maestrano.json
-  template: 
+  template:
     src: timetrex-maestrano.json
     dest: "{{ timetrex_root_path }}/maestrano.json"
     owner: www-data
@@ -109,7 +109,7 @@
     - configuration
 
 - name: TimeTrex | Base schema base_schema.sql
-  template: 
+  template:
     src: timetrex-base-schema.sql
     dest: "{{ timetrex_root_path }}/maestrano/app/db/base_schema.sql"
     owner: www-data
@@ -171,7 +171,8 @@
   shell: "(nohup php initialize.php 1>/var/log/apache2/timetrex_initialize.log 2>&1) &"
   args:
     chdir: "{{ timetrex_root_path }}/maestrano/scripts"
-  sudo_user: www-data
+  become: yes
+  become_user: www-data
   tags:
     - configuration
 
