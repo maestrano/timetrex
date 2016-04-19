@@ -1,0 +1,4 @@
+<Files "maestrano.json">
+  Order Allow,Deny
+  Deny from all
+</Files>
